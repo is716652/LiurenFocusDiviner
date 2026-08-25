@@ -1,0 +1,116 @@
+{
+ "note": "建除十二神与黄黑道十二神。建除值日：每月从「月支同日支」起为建，顺行十二支；黄黑道值日：日支起青龙顺行。",
+ "jian_chu": [
+  {
+   "name": "建",
+   "nature": "次吉"
+  },
+  {
+   "name": "除",
+   "nature": "吉"
+  },
+  {
+   "name": "满",
+   "nature": "平"
+  },
+  {
+   "name": "平",
+   "nature": "平"
+  },
+  {
+   "name": "定",
+   "nature": "吉"
+  },
+  {
+   "name": "执",
+   "nature": "凶"
+  },
+  {
+   "name": "破",
+   "nature": "凶"
+  },
+  {
+   "name": "危",
+   "nature": "凶"
+  },
+  {
+   "name": "成",
+   "nature": "吉"
+  },
+  {
+   "name": "收",
+   "nature": "吉"
+  },
+  {
+   "name": "开",
+   "nature": "吉"
+  },
+  {
+   "name": "闭",
+   "nature": "凶"
+  }
+ ],
+ "huang_hei": [
+  {
+   "name": "青龙",
+   "color": "黄",
+   "nature": "吉"
+  },
+  {
+   "name": "明堂",
+   "color": "黄",
+   "nature": "吉"
+  },
+  {
+   "name": "天刑",
+   "color": "黑",
+   "nature": "凶"
+  },
+  {
+   "name": "朱雀",
+   "color": "黑",
+   "nature": "凶"
+  },
+  {
+   "name": "金匮",
+   "color": "黄",
+   "nature": "吉"
+  },
+  {
+   "name": "天德",
+   "color": "黄",
+   "nature": "吉"
+  },
+  {
+   "name": "白虎",
+   "color": "黑",
+   "nature": "凶"
+  },
+  {
+   "name": "玉堂",
+   "color": "黄",
+   "nature": "吉"
+  },
+  {
+   "name": "天牢",
+   "color": "黑",
+   "nature": "凶"
+  },
+  {
+   "name": "玄武",
+   "color": "黑",
+   "nature": "凶"
+  },
+  {
+   "name": "司命",
+   "color": "黄",
+   "nature": "吉"
+  },
+  {
+   "name": "勾陈",
+   "color": "黑",
+   "nature": "凶"
+  }
+ ],
+ "rule": "建除：月支同日支起建顺行；黄黑道：日支起青龙顺行十二神，逢黄道吉、黑道凶"
+}

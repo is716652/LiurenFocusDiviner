@@ -1,0 +1,141 @@
+{
+  "元数据": {
+    "名称": "大六壬排盘 Design Tokens",
+    "版本": "1.0.0",
+    "状态": "定稿",
+    "体系": "HarmonyOS Design 规范对齐（Token 语义化 / Type Scale / 圆角间距标准档位 / 深浅双模式）",
+    "用途": "Web（CSS 变量）与鸿蒙 ArkTS（$r 资源）双端唯一真源",
+    "说明": "三套风格 A墨夜鎏金 / B宣纸古籍 / C青瓷素雅，每套含浅色(base)/深色(dark) 双值；ArkTS 中同名 Token 放 resources/base 与 resources/dark 两份文件，系统自动切换",
+    "默认风格": "A（墨夜鎏金）",
+    "字体": "HarmonyOS Sans（不指定 fontFamily，系统默认）"
+  },
+
+  "字体TypeScale": {
+    "说明": "fp 单位；Web 用 px 近似（1fp≈1px）",
+    "display_l": 56, "display_m": 48, "display_s": 38,
+    "title_l": 30, "title_m": 24, "title_s": 20,
+    "subtitle_l": 18, "subtitle_m": 16, "subtitle_s": 14,
+    "body_l": 16, "body_m": 14, "body_s": 12,
+    "caption_l": 12, "caption_m": 10,
+    "字重映射": {
+      "Light(300)": "FontWeight.Lighter",
+      "Regular(400)": "FontWeight.Regular",
+      "Medium(500)": "FontWeight.Medium",
+      "Bold(700)": "FontWeight.Bold"
+    }
+  },
+
+  "圆角档位": {
+    "radius_xsmall": 4,
+    "radius_small": 8,
+    "radius_medium": 16,
+    "radius_large": 20,
+    "radius_xlarge": 32,
+    "说明": "只用这五档；卡片16/按钮20/弹窗32"
+  },
+
+  "间距栅格": {
+    "space_xsmall": 4, "space_small": 8, "space_medium": 12, "space_large": 16,
+    "space_xlarge": 20, "space_xxlarge": 24,
+    "margin_page_horizontal": 16, "margin_page_top": 36, "margin_page_bottom": 28,
+    "说明": "4/8 栅格体系；禁 5/7/13/19 等中间值"
+  },
+
+  "断点": {
+    "xs": 600, "sm": 840, "md": 1280,
+    "说明": "以应用窗口宽度为准；<600单列 / 600-840双列 / 840-1280侧边Tab或分栏 / ≥1280侧边导航"
+  },
+
+  "风格A_墨夜鎏金": {
+    "light": {
+      "brand_primary": "#3B6FF5", "brand_primary_light": "#E8EFFF",
+      "brand_gold": "#A8843C", "brand_gold_light": "#F5ECD9",
+      "brand_cinnabar": "#B4552D", "brand_verdigris": "#3F7A70", "brand_porcelain": "#5F7890",
+      "background": "#F5F7FA", "surface": "#FFFFFF",
+      "text_primary": "#1A1A1A", "text_secondary": "#666666", "text_on_brand": "#FFFFFF", "divider": "#E0E0E0",
+      "shadow_light": "0 2px 8px rgba(0,0,0,.08)", "shadow_medium": "0 2px 8px rgba(0,0,0,.12)", "shadow_heavy": "0 4px 12px rgba(0,0,0,.16)",
+      "disk_bg": "#FFFFFF", "disk_line": "#E0E0E0", "tian_bg": "#FAF7EF", "tian_line": "#A8843C"
+    },
+    "dark": {
+      "brand_primary": "#5B8CFF", "brand_primary_light": "#1A2A4D",
+      "brand_gold": "#C9A86A", "brand_gold_light": "#2A2416",
+      "brand_cinnabar": "#D0704A", "brand_verdigris": "#5FA394", "brand_porcelain": "#7FA0B8",
+      "background": "#0D0D0D", "surface": "#1A1A1A",
+      "text_primary": "#F5F5F5", "text_secondary": "#999999", "text_on_brand": "#FFFFFF", "divider": "#333333",
+      "shadow_light": "0 2px 8px rgba(0,0,0,.24)", "shadow_medium": "0 2px 8px rgba(0,0,0,.36)", "shadow_heavy": "0 4px 12px rgba(0,0,0,.48)",
+      "disk_bg": "#141414", "disk_line": "#333333", "tian_bg": "#1F1A10", "tian_line": "#C9A86A"
+    }
+  },
+
+  "风格B_宣纸古籍": {
+    "light": {
+      "brand_primary": "#8F6F35", "brand_primary_light": "#F0E6CF",
+      "brand_gold": "#8F6F35", "brand_gold_light": "#F0E6CF",
+      "brand_cinnabar": "#A83C2D", "brand_verdigris": "#4F7A5C", "brand_porcelain": "#6D7A55",
+      "background": "#EDE4CC", "surface": "#F7F1E0",
+      "text_primary": "#3A3227", "text_secondary": "#6A5F4B", "text_on_brand": "#F7F1E0", "divider": "#CBBFA1",
+      "shadow_light": "0 2px 8px rgba(58,50,39,.10)", "shadow_medium": "0 2px 8px rgba(58,50,39,.16)", "shadow_heavy": "0 4px 12px rgba(58,50,39,.22)",
+      "disk_bg": "#F7F1E0", "disk_line": "#CBBFA1", "tian_bg": "#F1EAD4", "tian_line": "#8F6F35"
+    },
+    "dark": {
+      "brand_primary": "#C8A165", "brand_primary_light": "#33291A",
+      "brand_gold": "#C8A165", "brand_gold_light": "#33291A",
+      "brand_cinnabar": "#B0502F", "brand_verdigris": "#6D8F74", "brand_porcelain": "#8A8F74",
+      "background": "#24221C", "surface": "#332F26",
+      "text_primary": "#E6DFD0", "text_secondary": "#B3AA97", "text_on_brand": "#24221C", "divider": "#4A4537",
+      "shadow_light": "0 2px 8px rgba(0,0,0,.30)", "shadow_medium": "0 2px 8px rgba(0,0,0,.42)", "shadow_heavy": "0 4px 12px rgba(0,0,0,.55)",
+      "disk_bg": "#2B2821", "disk_line": "#4A4537", "tian_bg": "#332F26", "tian_line": "#C8A165"
+    }
+  },
+
+  "风格C_青瓷素雅": {
+    "light": {
+      "brand_primary": "#3F8F7E", "brand_primary_light": "#E2F0EC",
+      "brand_gold": "#8F7A48", "brand_gold_light": "#F0EDE0",
+      "brand_cinnabar": "#B4552D", "brand_verdigris": "#3F8F7E", "brand_porcelain": "#5F84A0",
+      "background": "#EEF2F0", "surface": "#FFFFFF",
+      "text_primary": "#2C3E39", "text_secondary": "#5C726B", "text_on_brand": "#FFFFFF", "divider": "#C9D8D2",
+      "shadow_light": "0 2px 8px rgba(44,62,57,.08)", "shadow_medium": "0 2px 8px rgba(44,62,57,.12)", "shadow_heavy": "0 4px 12px rgba(44,62,57,.16)",
+      "disk_bg": "#FBFDFC", "disk_line": "#C9D8D2", "tian_bg": "#F2F7F5", "tian_line": "#8F7A48"
+    },
+    "dark": {
+      "brand_primary": "#5AA394", "brand_primary_light": "#142824",
+      "brand_gold": "#B8A06A", "brand_gold_light": "#2A2416",
+      "brand_cinnabar": "#C07050", "brand_verdigris": "#5AA394", "brand_porcelain": "#7FA0B8",
+      "background": "#121B1A", "surface": "#1D2B28",
+      "text_primary": "#DDE8E2", "text_secondary": "#93A8A0", "text_on_brand": "#FFFFFF", "divider": "#2E4540",
+      "shadow_light": "0 2px 8px rgba(0,0,0,.24)", "shadow_medium": "0 2px 8px rgba(0,0,0,.36)", "shadow_heavy": "0 4px 12px rgba(0,0,0,.48)",
+      "disk_bg": "#15211E", "disk_line": "#2E4540", "tian_bg": "#1A2723", "tian_line": "#B8A06A"
+    }
+  },
+
+  "盘面视觉参数": {
+    "盘型": "双环同心圆 + 天将环（外圈地盘，中圈天盘，内圈天将）",
+    "地盘环": "墨青底、text_primary 字、外圈遁干小字（text_secondary）",
+    "天盘环": "tian_line 描边虚线、tian_bg 底、gold 字 + 遁干小字",
+    "天将环": "按吉凶着色：吉=verdigris、凶=cinnabar、中性=porcelain",
+    "三传标记": "初传=cinnabar、中传=verdigris、末传=porcelain",
+    "交互": "点击宫位 → 详情浮层（radius_xlarge=32 半模态规格）"
+  },
+
+  "ArkTS映射说明": {
+    "颜色": "resources/base/element/color.json + resources/dark/element/color.json（同名双值）",
+    "字号行高": "resources/base/element/float.json（fp）",
+    "圆角间距": "float.json 中 radius_*/space_* 或封装 RadiusTokens/SpacingTokens 静态类",
+    "文本样式": "TextStyles.ets（fontSize+fontWeight+fontColor 解耦模式）",
+    "响应式": "@State windowWidth + 根容器 .onAreaChange + 断点 600/840/1280",
+    "单位": "布局用 vp、字号用 fp，禁用 px",
+    "深浅切换": "系统自动按 resources/base vs dark 切换，无需代码判断"
+  },
+
+  "校验记录": {
+    "对照源": "HarmonyOS-Design/AGENTS.md（官方规范硬数值）",
+    "通过项": [
+      "Type Scale 五类字号与官方一致",
+      "圆角五档 4/8/16/20/32 与官方一致",
+      "间距 4/8 栅格与官方一致",
+      "深浅双模式同名 Token 双色值结构符合官方要求",
+      "语义化命名（brand_/text_/background/surface/divider）符合官方约定"
+    ]
+  }
+}

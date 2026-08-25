@@ -1,0 +1,561 @@
+{
+ "note": "奇门遁甲定局基础数据。起局法：拆补法(默认) / 超神接气置闰法(芒种、大雪置闰) / 茅山法，均需 solar_terms.json 的节气交接时刻；符头为甲、己日。",
+ "jie_qi_ju": [
+  {
+   "jie_qi": "冬至",
+   "yuan": "上元",
+   "ju": 1,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "冬至",
+   "yuan": "中元",
+   "ju": 7,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "冬至",
+   "yuan": "下元",
+   "ju": 4,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "小寒",
+   "yuan": "上元",
+   "ju": 2,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "小寒",
+   "yuan": "中元",
+   "ju": 8,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "小寒",
+   "yuan": "下元",
+   "ju": 5,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "大寒",
+   "yuan": "上元",
+   "ju": 3,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "大寒",
+   "yuan": "中元",
+   "ju": 9,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "大寒",
+   "yuan": "下元",
+   "ju": 6,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "立春",
+   "yuan": "上元",
+   "ju": 8,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "立春",
+   "yuan": "中元",
+   "ju": 5,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "立春",
+   "yuan": "下元",
+   "ju": 2,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "雨水",
+   "yuan": "上元",
+   "ju": 9,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "雨水",
+   "yuan": "中元",
+   "ju": 6,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "雨水",
+   "yuan": "下元",
+   "ju": 3,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "惊蛰",
+   "yuan": "上元",
+   "ju": 1,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "惊蛰",
+   "yuan": "中元",
+   "ju": 7,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "惊蛰",
+   "yuan": "下元",
+   "ju": 4,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "春分",
+   "yuan": "上元",
+   "ju": 3,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "春分",
+   "yuan": "中元",
+   "ju": 9,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "春分",
+   "yuan": "下元",
+   "ju": 6,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "清明",
+   "yuan": "上元",
+   "ju": 4,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "清明",
+   "yuan": "中元",
+   "ju": 1,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "清明",
+   "yuan": "下元",
+   "ju": 7,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "谷雨",
+   "yuan": "上元",
+   "ju": 5,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "谷雨",
+   "yuan": "中元",
+   "ju": 2,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "谷雨",
+   "yuan": "下元",
+   "ju": 8,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "立夏",
+   "yuan": "上元",
+   "ju": 4,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "立夏",
+   "yuan": "中元",
+   "ju": 1,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "立夏",
+   "yuan": "下元",
+   "ju": 7,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "小满",
+   "yuan": "上元",
+   "ju": 5,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "小满",
+   "yuan": "中元",
+   "ju": 2,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "小满",
+   "yuan": "下元",
+   "ju": 8,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "芒种",
+   "yuan": "上元",
+   "ju": 6,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "芒种",
+   "yuan": "中元",
+   "ju": 3,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "芒种",
+   "yuan": "下元",
+   "ju": 9,
+   "yinyang": "阳遁"
+  },
+  {
+   "jie_qi": "夏至",
+   "yuan": "上元",
+   "ju": 9,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "夏至",
+   "yuan": "中元",
+   "ju": 3,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "夏至",
+   "yuan": "下元",
+   "ju": 6,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "小暑",
+   "yuan": "上元",
+   "ju": 8,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "小暑",
+   "yuan": "中元",
+   "ju": 2,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "小暑",
+   "yuan": "下元",
+   "ju": 5,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "大暑",
+   "yuan": "上元",
+   "ju": 7,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "大暑",
+   "yuan": "中元",
+   "ju": 1,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "大暑",
+   "yuan": "下元",
+   "ju": 4,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "立秋",
+   "yuan": "上元",
+   "ju": 2,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "立秋",
+   "yuan": "中元",
+   "ju": 5,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "立秋",
+   "yuan": "下元",
+   "ju": 8,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "处暑",
+   "yuan": "上元",
+   "ju": 1,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "处暑",
+   "yuan": "中元",
+   "ju": 4,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "处暑",
+   "yuan": "下元",
+   "ju": 7,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "白露",
+   "yuan": "上元",
+   "ju": 9,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "白露",
+   "yuan": "中元",
+   "ju": 3,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "白露",
+   "yuan": "下元",
+   "ju": 6,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "秋分",
+   "yuan": "上元",
+   "ju": 7,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "秋分",
+   "yuan": "中元",
+   "ju": 1,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "秋分",
+   "yuan": "下元",
+   "ju": 4,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "寒露",
+   "yuan": "上元",
+   "ju": 6,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "寒露",
+   "yuan": "中元",
+   "ju": 9,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "寒露",
+   "yuan": "下元",
+   "ju": 3,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "霜降",
+   "yuan": "上元",
+   "ju": 5,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "霜降",
+   "yuan": "中元",
+   "ju": 8,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "霜降",
+   "yuan": "下元",
+   "ju": 2,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "立冬",
+   "yuan": "上元",
+   "ju": 6,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "立冬",
+   "yuan": "中元",
+   "ju": 9,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "立冬",
+   "yuan": "下元",
+   "ju": 3,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "小雪",
+   "yuan": "上元",
+   "ju": 5,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "小雪",
+   "yuan": "中元",
+   "ju": 8,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "小雪",
+   "yuan": "下元",
+   "ju": 2,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "大雪",
+   "yuan": "上元",
+   "ju": 4,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "大雪",
+   "yuan": "中元",
+   "ju": 7,
+   "yinyang": "阴遁"
+  },
+  {
+   "jie_qi": "大雪",
+   "yuan": "下元",
+   "ju": 1,
+   "yinyang": "阴遁"
+  }
+ ],
+ "jiu_xing": [
+  {
+   "star": "天蓬",
+   "palace": "坎一",
+   "element": "水",
+   "wang_xiu": "冬"
+  },
+  {
+   "star": "天芮",
+   "palace": "坤二",
+   "element": "土",
+   "wang_xiu": "四季"
+  },
+  {
+   "star": "天冲",
+   "palace": "震三",
+   "element": "木",
+   "wang_xiu": "春"
+  },
+  {
+   "star": "天辅",
+   "palace": "巽四",
+   "element": "木",
+   "wang_xiu": "春"
+  },
+  {
+   "star": "天禽",
+   "palace": "中五(寄坤二)",
+   "element": "土",
+   "wang_xiu": "四季"
+  },
+  {
+   "star": "天心",
+   "palace": "乾六",
+   "element": "金",
+   "wang_xiu": "秋"
+  },
+  {
+   "star": "天柱",
+   "palace": "兑七",
+   "element": "金",
+   "wang_xiu": "秋"
+  },
+  {
+   "star": "天任",
+   "palace": "艮八",
+   "element": "土",
+   "wang_xiu": "四季"
+  },
+  {
+   "star": "天英",
+   "palace": "离九",
+   "element": "火",
+   "wang_xiu": "夏"
+  }
+ ],
+ "ba_men": [
+  {
+   "door": "休门",
+   "palace": "坎一"
+  },
+  {
+   "door": "死门",
+   "palace": "坤二"
+  },
+  {
+   "door": "伤门",
+   "palace": "震三"
+  },
+  {
+   "door": "杜门",
+   "palace": "巽四"
+  },
+  {
+   "door": "开门",
+   "palace": "乾六"
+  },
+  {
+   "door": "惊门",
+   "palace": "兑七"
+  },
+  {
+   "door": "生门",
+   "palace": "艮八"
+  },
+  {
+   "door": "景门",
+   "palace": "离九"
+  }
+ ],
+ "ba_shen": [
+  "值符",
+  "腾蛇",
+  "太阴",
+  "六合",
+  "白虎",
+  "玄武",
+  "九地",
+  "九天"
+ ],
+ "ba_shen_bu_fa": "阳遁顺布八神，阴遁逆布八神",
+ "san_qi_liu_yi": [
+  "戊",
+  "己",
+  "庚",
+  "辛",
+  "壬",
+  "癸",
+  "丁",
+  "丙",
+  "乙"
+ ],
+ "jiu_gong": {
+  "坎一": 1,
+  "坤二": 2,
+  "震三": 3,
+  "巽四": 4,
+  "中五": 5,
+  "乾六": 6,
+  "兑七": 7,
+  "艮八": 8,
+  "离九": 9
+ },
+ "fu_tou": "符头为甲日、己日；每元 5 日(60 时辰)"
+}

@@ -1,0 +1,83 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:/Users/is716/.ohos/config/default_LiurenFocusDiviner_AgWI3jrSUA8TzdZCQVjBtwuzj7nO2bydnH0ZtyUxyIc=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001B891FBCB057A85CAB1774890EDA5AE03F2A9F4E6988002194C82EDCB62ABD17AE0D3DBC264F6793",
+          "profile": "C:/Users/is716/.ohos/config/default_LiurenFocusDiviner_AgWI3jrSUA8TzdZCQVjBtwuzj7nO2bydnH0ZtyUxyIc=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/is716/.ohos/config/default_LiurenFocusDiviner_AgWI3jrSUA8TzdZCQVjBtwuzj7nO2bydnH0ZtyUxyIc=.p12",
+          "storePassword": "0000001BCB5C8AA87F4D6184D0733559A98AED52C1D748C2786FEDC71B452B88422239119DAB789E4E4515"
+        }
+      },
+      {
+        "name": "release",
+        "type": "HarmonyOS",
+        "material": {
+          "storeFile": "D:/nutstore/HarmonyOS/GuoXue_Research/LargeLiuRen-Design/APP/APPCerts/LiurenFocusDiviner.p12",
+          "storePassword": "0000001AEA81AEE20FA1F8613D21566F4CB70B563893E6BBEC97FB6250070E4D302D27E9A8493AC1BDC1",
+          "keyAlias": "LiurenFocusDiviner",
+          "keyPassword": "0000001ADEEF40C88828AB7977BC608E59FADD2481505BC9B2AAC99513E1200AFC18D3FEE0C112FCB389",
+          "signAlg": "SHA256withECDSA",
+          "profile": "D:/nutstore/HarmonyOS/GuoXue_Research/LargeLiuRen-Design/APP/APPCerts/LiurenFocusDivinerRelease.p7b",
+          "certpath": "D:/nutstore/HarmonyOS/GuoXue_Research/LargeLiuRen-Design/APP/APPCerts/LiurenFocusDiviner.cer"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "targetSdkVersion": "6.1.1(24)",
+        "compatibleSdkVersion": "5.0.0(12)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      },
+      {
+        "name": "release",
+        "signingConfig": "release",
+        "targetSdkVersion": "6.1.1(24)",
+        "compatibleSdkVersion": "5.0.0(12)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug"
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default",
+            "release"
+          ]
+        }
+      ]
+    }
+  ]
+}

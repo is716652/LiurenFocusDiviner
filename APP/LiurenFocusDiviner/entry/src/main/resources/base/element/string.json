@@ -1,0 +1,11 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "大六壬读象工作台" },
+    { "name": "EntryAbility_desc", "value": "大六壬排盘与读象" },
+    { "name": "EntryAbility_label", "value": "六壬读象" },
+    { "name": "splash_tagline", "value": "读象工作台 · 管辂一系" },
+    { "name": "splash_enter", "value": "进 入" },
+    { "name": "splash_foot", "value": "以炁为基 · 四课三传 · 神煞格局 · 读象直断" },
+    { "name": "permission_internet_reason", "value": "用于应用内购买与恢复购买服务" }
+  ]
+}

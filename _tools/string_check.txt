@@ -1,0 +1,6 @@
+module_desc = 大六壬读象工作台
+EntryAbility_desc = 大六壬排盘与读象
+EntryAbility_label = 六壬读象
+splash_tagline = 读象工作台 · 管辂一系
+splash_enter = 进 入
+splash_foot = 以炁为基 · 四课三传 · 神煞格局 · 读象直断

@@ -1,0 +1,257 @@
+{
+ "note": "二十八宿。qi_zheng 为七政(木金土日月火水)；degree 为古度(各版本略有差异)；auspicious 为常见择日吉凶(各派略有出入)。",
+ "items": [
+  {
+   "no": 1,
+   "name": "角",
+   "qi_zheng": "木",
+   "animal": "蛟",
+   "degree": 12,
+   "auspicious": "吉",
+   "palace": "辰"
+  },
+  {
+   "no": 2,
+   "name": "亢",
+   "qi_zheng": "金",
+   "animal": "龙",
+   "degree": 9,
+   "auspicious": "凶",
+   "palace": "辰"
+  },
+  {
+   "no": 3,
+   "name": "氐",
+   "qi_zheng": "土",
+   "animal": "貉",
+   "degree": 15,
+   "auspicious": "凶",
+   "palace": "辰"
+  },
+  {
+   "no": 4,
+   "name": "房",
+   "qi_zheng": "日",
+   "animal": "兔",
+   "degree": 5,
+   "auspicious": "吉",
+   "palace": "卯"
+  },
+  {
+   "no": 5,
+   "name": "心",
+   "qi_zheng": "月",
+   "animal": "狐",
+   "degree": 5,
+   "auspicious": "凶",
+   "palace": "卯"
+  },
+  {
+   "no": 6,
+   "name": "尾",
+   "qi_zheng": "火",
+   "animal": "虎",
+   "degree": 18,
+   "auspicious": "吉",
+   "palace": "寅"
+  },
+  {
+   "no": 7,
+   "name": "箕",
+   "qi_zheng": "水",
+   "animal": "豹",
+   "degree": 11,
+   "auspicious": "吉",
+   "palace": "寅"
+  },
+  {
+   "no": 8,
+   "name": "斗",
+   "qi_zheng": "木",
+   "animal": "獬",
+   "degree": 26,
+   "auspicious": "吉",
+   "palace": "丑"
+  },
+  {
+   "no": 9,
+   "name": "牛",
+   "qi_zheng": "金",
+   "animal": "牛",
+   "degree": 8,
+   "auspicious": "凶",
+   "palace": "丑"
+  },
+  {
+   "no": 10,
+   "name": "女",
+   "qi_zheng": "土",
+   "animal": "蝠",
+   "degree": 12,
+   "auspicious": "凶",
+   "palace": "子"
+  },
+  {
+   "no": 11,
+   "name": "虚",
+   "qi_zheng": "日",
+   "animal": "鼠",
+   "degree": 10,
+   "auspicious": "吉",
+   "palace": "子"
+  },
+  {
+   "no": 12,
+   "name": "危",
+   "qi_zheng": "月",
+   "animal": "燕",
+   "degree": 17,
+   "auspicious": "凶",
+   "palace": "子"
+  },
+  {
+   "no": 13,
+   "name": "室",
+   "qi_zheng": "火",
+   "animal": "猪",
+   "degree": 16,
+   "auspicious": "吉",
+   "palace": "亥"
+  },
+  {
+   "no": 14,
+   "name": "壁",
+   "qi_zheng": "水",
+   "animal": "貐",
+   "degree": 9,
+   "auspicious": "吉",
+   "palace": "亥"
+  },
+  {
+   "no": 15,
+   "name": "奎",
+   "qi_zheng": "木",
+   "animal": "狼",
+   "degree": 16,
+   "auspicious": "凶",
+   "palace": "戌"
+  },
+  {
+   "no": 16,
+   "name": "娄",
+   "qi_zheng": "金",
+   "animal": "狗",
+   "degree": 12,
+   "auspicious": "吉",
+   "palace": "戌"
+  },
+  {
+   "no": 17,
+   "name": "胃",
+   "qi_zheng": "土",
+   "animal": "雉",
+   "degree": 14,
+   "auspicious": "吉",
+   "palace": "酉"
+  },
+  {
+   "no": 18,
+   "name": "昴",
+   "qi_zheng": "日",
+   "animal": "鸡",
+   "degree": 11,
+   "auspicious": "凶",
+   "palace": "酉"
+  },
+  {
+   "no": 19,
+   "name": "毕",
+   "qi_zheng": "月",
+   "animal": "乌",
+   "degree": 16,
+   "auspicious": "吉",
+   "palace": "酉"
+  },
+  {
+   "no": 20,
+   "name": "觜",
+   "qi_zheng": "火",
+   "animal": "猴",
+   "degree": 2,
+   "auspicious": "凶",
+   "palace": "申"
+  },
+  {
+   "no": 21,
+   "name": "参",
+   "qi_zheng": "水",
+   "animal": "猿",
+   "degree": 9,
+   "auspicious": "吉",
+   "palace": "申"
+  },
+  {
+   "no": 22,
+   "name": "井",
+   "qi_zheng": "木",
+   "animal": "犴",
+   "degree": 33,
+   "auspicious": "吉",
+   "palace": "未"
+  },
+  {
+   "no": 23,
+   "name": "鬼",
+   "qi_zheng": "金",
+   "animal": "羊",
+   "degree": 4,
+   "auspicious": "凶",
+   "palace": "未"
+  },
+  {
+   "no": 24,
+   "name": "柳",
+   "qi_zheng": "土",
+   "animal": "獐",
+   "degree": 15,
+   "auspicious": "凶",
+   "palace": "午"
+  },
+  {
+   "no": 25,
+   "name": "星",
+   "qi_zheng": "日",
+   "animal": "马",
+   "degree": 7,
+   "auspicious": "吉",
+   "palace": "午"
+  },
+  {
+   "no": 26,
+   "name": "张",
+   "qi_zheng": "月",
+   "animal": "鹿",
+   "degree": 18,
+   "auspicious": "吉",
+   "palace": "午"
+  },
+  {
+   "no": 27,
+   "name": "翼",
+   "qi_zheng": "火",
+   "animal": "蛇",
+   "degree": 18,
+   "auspicious": "凶",
+   "palace": "巳"
+  },
+  {
+   "no": 28,
+   "name": "轸",
+   "qi_zheng": "水",
+   "animal": "蚓",
+   "degree": 17,
+   "auspicious": "吉",
+   "palace": "巳"
+  }
+ ]
+}

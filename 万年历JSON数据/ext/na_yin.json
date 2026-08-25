@@ -1,0 +1,305 @@
+{
+ "note": "六十甲子纳音五行，断课、择日、合婚通用。",
+ "items": [
+  {
+   "gan_zhi": "甲子",
+   "na_yin": "海中金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "乙丑",
+   "na_yin": "海中金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "丙寅",
+   "na_yin": "炉中火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "丁卯",
+   "na_yin": "炉中火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "戊辰",
+   "na_yin": "大林木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "己巳",
+   "na_yin": "大林木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "庚午",
+   "na_yin": "路旁土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "辛未",
+   "na_yin": "路旁土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "壬申",
+   "na_yin": "剑锋金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "癸酉",
+   "na_yin": "剑锋金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "甲戌",
+   "na_yin": "山头火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "乙亥",
+   "na_yin": "山头火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "丙子",
+   "na_yin": "涧下水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "丁丑",
+   "na_yin": "涧下水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "戊寅",
+   "na_yin": "城头土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "己卯",
+   "na_yin": "城头土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "庚辰",
+   "na_yin": "白蜡金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "辛巳",
+   "na_yin": "白蜡金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "壬午",
+   "na_yin": "杨柳木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "癸未",
+   "na_yin": "杨柳木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "甲申",
+   "na_yin": "泉中水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "乙酉",
+   "na_yin": "泉中水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "丙戌",
+   "na_yin": "屋上土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "丁亥",
+   "na_yin": "屋上土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "戊子",
+   "na_yin": "霹雳火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "己丑",
+   "na_yin": "霹雳火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "庚寅",
+   "na_yin": "松柏木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "辛卯",
+   "na_yin": "松柏木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "壬辰",
+   "na_yin": "长流水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "癸巳",
+   "na_yin": "长流水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "甲午",
+   "na_yin": "沙中金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "乙未",
+   "na_yin": "沙中金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "丙申",
+   "na_yin": "山下火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "丁酉",
+   "na_yin": "山下火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "戊戌",
+   "na_yin": "平地木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "己亥",
+   "na_yin": "平地木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "庚子",
+   "na_yin": "壁上土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "辛丑",
+   "na_yin": "壁上土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "壬寅",
+   "na_yin": "金箔金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "癸卯",
+   "na_yin": "金箔金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "甲辰",
+   "na_yin": "覆灯火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "乙巳",
+   "na_yin": "覆灯火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "丙午",
+   "na_yin": "天河水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "丁未",
+   "na_yin": "天河水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "戊申",
+   "na_yin": "大驿土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "己酉",
+   "na_yin": "大驿土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "庚戌",
+   "na_yin": "钗钏金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "辛亥",
+   "na_yin": "钗钏金",
+   "element": "金"
+  },
+  {
+   "gan_zhi": "壬子",
+   "na_yin": "桑柘木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "癸丑",
+   "na_yin": "桑柘木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "甲寅",
+   "na_yin": "大溪水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "乙卯",
+   "na_yin": "大溪水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "丙辰",
+   "na_yin": "沙中土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "丁巳",
+   "na_yin": "沙中土",
+   "element": "土"
+  },
+  {
+   "gan_zhi": "戊午",
+   "na_yin": "天上火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "己未",
+   "na_yin": "天上火",
+   "element": "火"
+  },
+  {
+   "gan_zhi": "庚申",
+   "na_yin": "石榴木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "辛酉",
+   "na_yin": "石榴木",
+   "element": "木"
+  },
+  {
+   "gan_zhi": "壬戌",
+   "na_yin": "大海水",
+   "element": "水"
+  },
+  {
+   "gan_zhi": "癸亥",
+   "na_yin": "大海水",
+   "element": "水"
+  }
+ ]
+}

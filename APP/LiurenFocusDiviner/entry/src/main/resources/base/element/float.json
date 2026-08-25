@@ -1,0 +1,11 @@
+{
+  "float": [
+    { "name": "page_text_font_size", "value": "50fp" },
+    { "name": "fs_title", "value": "24fp" },
+    { "name": "fs_body", "value": "16fp" },
+    { "name": "fs_caption", "value": "13fp" },
+    { "name": "splash_title", "value": "46fp" },
+    { "name": "splash_sub", "value": "15fp" },
+    { "name": "splash_enter", "value": "19fp" }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+ "solar_terms_total": 3864,
+ "date_match": 3862,
+ "date_mismatch": [
+  {
+   "year": 1911,
+   "term": "立夏",
+   "skyfield": "1911-05-06",
+   "lib": "1911-05-07"
+  },
+  {
+   "year": 1951,
+   "term": "冬至",
+   "skyfield": "1951-12-22",
+   "lib": "1951-12-23"
+  }
+ ],
+ "time_diff_seconds": {
+  "max_abs": 46.0,
+  "p50": 3.0,
+  "p99": 43.0,
+  "min": 0.0
+ },
+ "gz_field_rule_match": 7727,
+ "gz_field_mismatch": [
+  {
+   "date": "1911-05-06",
+   "term": "立夏",
+   "field": "month_gz",
+   "rule": "癸巳",
+   "lib": "壬辰"
+  }
+ ],
+ "notes": [
+  "时间差为 skyfield(JPL de422) - lunar_python(寿星天文历): 两套算法系统性偏差约 0~46 秒(1900 年代略大, 近期 10~15 秒), 中位数 3 秒, 日期绝大多数一致",
+  "2 个日期边缘差异(1911 立夏、1951 冬至)为发生在午夜前后数十秒的节气: skyfield 23:59:46/23:59:49, lunar_python 次日 00:00:18/00:00:01; 本数据采用 skyfield(JPL) 日期",
+  "官方(紫金山/新华/气象)公布值与本数据相差 12~15 秒(见 anchors_report.json), 属不同天文理论的正常差异, 不影响时辰(2小时)粒度排盘",
+  "year_gz_lichun/month_gz 由规则(五虎遁)推导并经 lunar_python 逐条核验: 7727/7728 一致, 唯一差异即 1911 立夏跨日边界"
+ ]
+}

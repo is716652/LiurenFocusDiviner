@@ -1,0 +1,16 @@
+{
+  "color": [
+    { "name": "start_window_background", "value": "#14120F" },
+    { "name": "brand_gold", "value": "#E9C878" },
+    { "name": "brand_gold_deep", "value": "#A8843C" },
+    { "name": "brand_cinnabar", "value": "#D0704A" },
+    { "name": "brand_verdigris", "value": "#5FA394" },
+    { "name": "brand_porcelain", "value": "#7FA0B8" },
+    { "name": "ink_bg", "value": "#14120F" },
+    { "name": "ink_surface", "value": "#211E18" },
+    { "name": "ink_card", "value": "#1C1A16" },
+    { "name": "ink_text", "value": "#F0E6C8" },
+    { "name": "ink_text_secondary", "value": "#8A7B5C" },
+    { "name": "ink_divider", "value": "#3A3325" }
+  ]
+}

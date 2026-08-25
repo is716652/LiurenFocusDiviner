@@ -1,0 +1,9 @@
+{
+  "color": [
+    { "name": "brand_gold", "value": "#E9C878" },
+    { "name": "brand_gold_deep", "value": "#B8914A" },
+    { "name": "brand_cinnabar", "value": "#D0704A" },
+    { "name": "brand_verdigris", "value": "#5FA394" },
+    { "name": "brand_porcelain", "value": "#7FA0B8" }
+  ]
+}

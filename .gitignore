@@ -1,0 +1,44 @@
+# ===== 依赖与本地环境 =====
+.pyext/
+node_modules/
+APP/*/local.properties
+
+# ===== 构建产物（可再生） =====
+# 免费上架版：由 _tools/sync_free_edition.py 从主项目生成（主项目是唯一事实源）
+APP/LiurenFocusDivinerFree/
+# 鸿蒙构建与 IDE 产物
+build/
+.default/
+APP/*/.hvigor/
+APP/*/.idea/
+APP/*/.preview/
+APP/*/oh_modules/
+oh_modules/
+*.hap
+*.app
+release_pkg/
+screenshots_out/
+APP/tmp/
+tmp/
+
+# ===== 签名证书（本机私有资产，不入库） =====
+APP/APPCerts/
+*.p12
+*.p7b
+
+# ===== 大体积派生数据（csv/db/xls 由 json 分片派生） =====
+万年历JSON数据/*.csv
+万年历JSON数据/*.db
+万年历JSON数据/*.xls
+
+# ===== 经文原书 PDF 扫描件（135MB；md 转录版已入库） =====
+大六壬文档/中黄五变经/经文/原文/
+
+# ===== 历史快照与临时目录 =====
+_backup/
+dsh-session-*/
+__pycache__/
+*.pyc
+
+# 根目录 hvigor 缓存
+.hvigor/

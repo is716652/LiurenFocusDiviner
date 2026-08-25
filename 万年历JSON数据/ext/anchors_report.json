@@ -1,0 +1,51 @@
+[
+  {
+    "year": 2024,
+    "term": "立春",
+    "computed_utc8": "2024-02-04 16:27:07",
+    "official_utc8": "2024-02-04 16:26:53",
+    "diff_seconds": 14.6
+  },
+  {
+    "year": 2024,
+    "term": "冬至",
+    "computed_utc8": "2024-12-21 17:20:34",
+    "official_utc8": "2024-12-21 17:20:20",
+    "diff_seconds": 14.2
+  },
+  {
+    "year": 2025,
+    "term": "立春",
+    "computed_utc8": "2025-02-03 22:10:28",
+    "official_utc8": "2025-02-03 22:10:13",
+    "diff_seconds": 15.1
+  },
+  {
+    "year": 2023,
+    "term": "冬至",
+    "computed_utc8": "2023-12-22 11:27:21",
+    "official_utc8": "2023-12-22 11:27:09",
+    "diff_seconds": 12.9
+  },
+  {
+    "year": 2024,
+    "term": "夏至",
+    "computed_utc8": "2024-06-21 04:50:59",
+    "official_utc8": "2024-06-21 04:50:46",
+    "diff_seconds": 13.8
+  },
+  {
+    "year": 2024,
+    "term": "小寒",
+    "computed_utc8": "2024-01-06 04:49:22",
+    "official_utc8": "2024-01-06 04:49:09",
+    "diff_seconds": 13.5
+  },
+  {
+    "year": 2024,
+    "term": "大寒",
+    "computed_utc8": "2024-01-20 22:07:20",
+    "official_utc8": "2024-01-20 22:07:08",
+    "diff_seconds": 12.7
+  }
+]

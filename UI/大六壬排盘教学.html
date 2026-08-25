@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大六壬排盘教学 · SVG动画演示</title>
+<style>
+  :root{
+    --bg:#0d1b2a; --panel:#14263c; --panel2:#1b3350; --line:#2f4a6b;
+    --gold:#e8c36a; --gold-d:#b8913f; --ink:#e8e6df; --dim:#9fb3c8;
+    --red:#e0665a; --green:#7bc9a0; --blue:#7fb3e8; --purple:#c9a6e8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink); font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif; line-height:1.7;}
+  .wrap{max-width:1200px; margin:0 auto; padding:20px 16px 60px;}
+
+  header{text-align:center; padding:30px 10px 10px; border-bottom:1px solid var(--line); margin-bottom:22px;}
+  header h1{font-size:32px; letter-spacing:6px; color:var(--gold); text-shadow:0 0 18px rgba(232,195,106,.35);}
+  header .sub{color:var(--dim); margin-top:8px; font-size:15px;}
+  .info-bar{display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:16px;}
+  .info-chip{background:linear-gradient(135deg,var(--panel),var(--panel2)); border:1px solid var(--line); border-radius:10px; padding:8px 16px; font-size:14px;}
+  .info-chip b{color:var(--gold);}
+
+  nav{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin:20px 0 26px;}
+  nav button{
+    background:var(--panel); color:var(--dim); border:1px solid var(--line);
+    padding:8px 13px; border-radius:20px; cursor:pointer; font-size:13px; transition:all .25s;
+  }
+  nav button:hover{color:var(--ink); border-color:var(--gold-d);}
+  nav button.active{background:linear-gradient(135deg,#8a6a1e,var(--gold-d)); color:#14100a; border-color:var(--gold); font-weight:bold; box-shadow:0 0 12px rgba(232,195,106,.4);}
+
+  .stage{display:none;}
+  .stage.active{display:block; animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+  .card{background:linear-gradient(160deg,var(--panel),var(--panel2)); border:1px solid var(--line); border-radius:16px; padding:22px 24px; margin-bottom:18px;}
+  .card h2{color:var(--gold); font-size:22px; margin-bottom:6px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .card h2 .no{background:var(--gold); color:#14100a; border-radius:8px; font-size:14px; padding:2px 10px; font-weight:bold;}
+  .card .rule{color:var(--gold-d); font-size:15px; margin-bottom:12px; font-style:italic;}
+  .card p{color:var(--ink); margin-bottom:10px; font-size:15px;}
+  .card p .hl{color:var(--gold); font-weight:bold;}
+  .card p .hlr{color:var(--red); font-weight:bold;}
+  .card p .hlg{color:var(--green); font-weight:bold;}
+  .split{display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;}
+  .split .svgbox{flex:1 1 360px; min-width:320px; text-align:center;}
+  .split .txtbox{flex:1 1 340px; min-width:280px;}
+  svg{max-width:100%; height:auto; border-radius:12px; background:radial-gradient(circle at 50% 45%, #0f2136, #0a1524); border:1px solid var(--line);}
+
+  .pulse{animation:pulse 1.2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.45;}}
+  .step-badge{display:inline-block; padding:2px 12px; border-radius:14px; background:#0d1b2a; border:1px solid var(--gold-d); color:var(--gold); font-size:12px; margin-left:8px;}
+
+  table{width:100%; border-collapse:collapse; margin:10px 0; font-size:14px;}
+  th,td{border:1px solid var(--line); padding:7px 10px; text-align:center;}
+  th{background:var(--panel2); color:var(--gold);}
+  tr.high td{background:rgba(232,195,106,.18); color:var(--gold); font-weight:bold;}
+  td.hl-cell{background:rgba(232,195,106,.22); color:var(--gold); font-weight:bold;}
+
+  /* 四课表（截图格式：第一课在右） */
+  .keg-table th,.keg-table td{padding:9px 12px;}
+  .keg-table .rowlabel{color:var(--dim); font-size:13px; background:var(--panel2);}
+  .keg-table .gz{font-size:17px; font-weight:bold; color:var(--gold);}
+  .keg-table .dxia{font-size:15px; font-weight:bold;}
+  .keg-table tr.hl-row td{background:rgba(232,195,106,.14);}
+
+  .flow{display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center; margin:14px 0;}
+  .flow .node{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:8px 14px; font-size:14px; color:var(--dim); transition:all .3s; text-align:center;}
+  .flow .node.done{color:var(--gold); border-color:var(--gold-d); background:rgba(232,195,106,.12);}
+  .flow .node.hit{color:#14100a; background:var(--gold); border-color:var(--gold); font-weight:bold;}
+  .flow .arrow{color:var(--dim); font-size:16px;}
+
+  /* 三传表（截图格式） */
+  .chuan-table th,.chuan-table td{padding:9px 12px; font-size:15px;}
+  .chuan-table td.c1{color:var(--red); font-weight:bold;}
+  .chuan-table td.c2{color:var(--green); font-weight:bold;}
+  .chuan-table td.c3{color:var(--blue); font-weight:bold;}
+  .chuan-note{font-size:12px; color:var(--dim); margin-top:6px;}
+
+  .jiang-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin:12px 0;}
+  .jiang-cell{border:1px solid var(--line); border-radius:8px; padding:8px 6px; text-align:center; background:var(--panel2); font-size:13px; transition:all .35s; opacity:.25;}
+  .jiang-cell.on{opacity:1; border-color:var(--gold-d); background:rgba(232,195,106,.14);}
+  .jiang-cell b{display:block; font-size:16px; color:var(--gold);}
+  .jiang-cell small{color:var(--dim);}
+
+  .ctl{display:flex; gap:12px; justify-content:center; align-items:center; margin-top:26px; flex-wrap:wrap;}
+  .ctl button{background:linear-gradient(135deg,#8a6a1e,var(--gold-d)); border:none; color:#14100a; font-weight:bold; padding:11px 26px; border-radius:24px; font-size:15px; cursor:pointer; transition:all .25s; letter-spacing:2px;}
+  .ctl button:hover{box-shadow:0 0 16px rgba(232,195,106,.5); transform:translateY(-2px);}
+  .ctl button:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none;}
+  .ctl .prog{color:var(--dim); font-size:14px; letter-spacing:1px;}
+  footer{text-align:center; color:var(--dim); font-size:12px; margin-top:30px; border-top:1px solid var(--line); padding-top:16px;}
+
+  .final-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .final-grid .svgbox{grid-column:1/3;}
+  @media(max-width:760px){.final-grid{grid-template-columns:1fr;} .final-grid .svgbox{grid-column:auto;}}
+  .keguan{background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:14px;}
+  .keguan h3{color:var(--gold); font-size:16px; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>大六壬排盘教学</h1>
+  <div class="sub">六步起课 · 全流程 SVG 动画演示</div>
+  <div class="info-bar">
+    <span class="info-chip">阳历 <b>2026-08-15 酉时</b></span>
+    <span class="info-chip">农历 <b>丙午年 七月</b></span>
+    <span class="info-chip">年 <b>丙午</b></span>
+    <span class="info-chip">月 <b>丙申</b></span>
+    <span class="info-chip">日 <b>辛酉</b></span>
+    <span class="info-chip">时 <b>丁酉</b></span>
+    <span class="info-chip">月将 <b>午</b>（胜光）</span>
+  </div>
+</header>
+
+<nav id="nav">
+  <button data-s="0" class="active">总览</button>
+  <button data-s="1">① 定月将</button>
+  <button data-s="2">② 布天盘</button>
+  <button data-s="3">③ 排四课</button>
+  <button data-s="4">④ 排三传</button>
+  <button data-s="5">⑤ 遁干</button>
+  <button data-s="6">⑥ 布天将</button>
+  <button data-s="7">完整课式</button>
+</nav>
+
+<!-- ================= 0 总览 ================= -->
+<section class="stage active" id="s0">
+  <div class="card">
+    <h2><span class="no">0</span> 排盘总览：六步管线</h2>
+    <p class="rule">月将加占时 → 天盘 → 四课 → 三传 → 五子元遁配干 → 贵加时布天将</p>
+    <div class="flow" id="flow0">
+      <span class="node">① 定月将<br><small>午（胜光）</small></span><span class="arrow">→</span>
+      <span class="node">② 布天盘<br><small>午加酉</small></span><span class="arrow">→</span>
+      <span class="node">③ 排四课<br><small>干→干阴→支→支阴</small></span><span class="arrow">→</span>
+      <span class="node">④ 排三传<br><small>贼克·元首</small></span><span class="arrow">→</span>
+      <span class="node">⑤ 五子元遁<br><small>丙辛从戊起</small></span><span class="arrow">→</span>
+      <span class="node">⑥ 布天将<br><small>夜贵寅·逆行</small></span>
+    </div>
+    <p style="margin-top:14px;">示例课式：<span class="hl">辛酉日 · 酉时占 · 月将午</span>。点击下方步骤逐一观看动画，或使用底部的 <span class="hl">自动演示</span> 连续播放。</p>
+  </div>
+</section>
+
+<!-- ================= 1 定月将 ================= -->
+<section class="stage" id="s1">
+  <div class="card">
+    <h2><span class="no">1</span> 定月将 <span class="step-badge">第一步 · 中气换将</span></h2>
+    <p class="rule">口诀：太阳过宫换将 —— 月将 = 太阳在黄道十二次所处之宫，按中气当日换将</p>
+    <div class="split">
+      <div class="txtbox">
+        <p>2026-08-15 在<span class="hl">大暑（7/23）之后、处暑（8/23）之前</span> → 查"中气→月将"表：<span class="hl">大暑后月将为胜光（午）</span>。</p>
+        <p>十二中气与月将（自雨水起）：雨水亥、春分戌、谷雨酉、小满申、夏至未、大暑午、处暑巳、秋分辰、霜降卯、小雪寅、冬至丑、大寒子。</p>
+        <p>故本课月将取 <span class="hl">午</span>，用于下一步"月将加占时"。</p>
+      </div>
+      <div class="svgbox">
+        <svg id="svg1" viewBox="0 0 520 320" width="520" height="320"></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2 布天盘 ================= -->
+<section class="stage" id="s2">
+  <div class="card">
+    <h2><span class="no">2</span> 布天盘 <span class="step-badge">第二步 · 月将加占时</span></h2>
+    <p class="rule">口诀：月将加占时，顺布十二支</p>
+    <div class="split">
+      <div class="svgbox">
+        <svg id="svg2" viewBox="0 0 520 520" width="520" height="520"></svg>
+      </div>
+      <div class="txtbox">
+        <p>将<b>月将（午）</b>加临到地盘<b>占时（酉）</b>宫位之上，然后顺时针依次布完十二地支。</p>
+        <p>地盘固定：子丑寅卯辰巳午未申酉戌亥（顺时针，<span class="hl">子在下、午在上</span>，左东右西）。</p>
+        <p>天盘结果：<span class="hl">午加酉</span> → 未加戌、申加亥、<span class="hl">酉加子</span>、戌加丑、亥加寅、子加卯、丑加辰、寅加巳、卯加午、辰加未、巳加申。</p>
+        <p><b>天盘 ≠ 地盘</b>：天盘（金色内圈）整体顺时针转 3 格，天盘午正对地盘酉，天盘酉正对地盘子。</p>
+        <div class="ctl" style="margin-top:10px;">
+          <button onclick="playStep2()">▶ 播放天盘旋转</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3 排四课 ================= -->
+<section class="stage" id="s3">
+  <div class="card">
+    <h2><span class="no">3</span> 排四课 <span class="step-badge">第三步 · 干→干阴→支→支阴</span></h2>
+    <p class="rule">口诀：干上为第一，干阴第二居；支上乃第三，支阴第四毕；下神为宫位，上神天盘取</p>
+    <div class="split">
+      <div class="svgbox">
+        <svg id="svg3" viewBox="0 0 520 520" width="520" height="520"></svg>
+      </div>
+      <div class="txtbox">
+        <p><b>逻辑核心</b>：把"下神"当作地盘宫位，读取其上方的天盘神作为"上神"，层层上推。</p>
+        <table class="keg-table" id="kegTable">
+          <tr><th>类别</th><th>第四课</th><th>第三课</th><th>第二课</th><th>第一课</th></tr>
+          <tr data-k="3"><td class="rowlabel">天将</td><td class="gz">玄武</td><td class="gz">贵人</td><td class="gz">太阴</td><td class="gz">螣蛇</td></tr>
+          <tr data-k="2"><td class="rowlabel">天干</td><td class="gz">辛</td><td class="gz">甲</td><td class="gz">壬</td><td class="gz">乙</td></tr>
+          <tr data-k="1"><td class="rowlabel">地支</td><td class="gz">卯</td><td class="gz">午</td><td class="gz">辰</td><td class="gz">未</td></tr>
+          <tr data-k="0"><td class="rowlabel">地盘</td><td class="dxia">午</td><td class="dxia hl-cell">酉</td><td class="dxia">未</td><td class="dxia hl-cell">辛</td></tr>
+        </table>
+        <p class="chuan-note">※ 四课以第一课为首（本页从右向左排）；"天干+地支"为该课上神，末行"地盘"为下神。黄色底为课3（日支酉，起三传之课）。</p>
+        <p style="color:var(--green);">寄宫规则：甲寅、乙辰、丙戊巳、丁己未、庚申、辛戌、壬亥、癸丑（本课日干辛寄戌）。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4 排三传 ================= -->
+<section class="stage" id="s4">
+  <div class="card">
+    <h2><span class="no">4</span> 排三传 <span class="step-badge">第四步 · 九宗门</span></h2>
+    <p class="rule">九宗门按优先级判定：贼克→比用→涉害→遥克→昴星→别责→八专→伏吟→返吟</p>
+    <div class="flow" id="flow4">
+      <span class="node">查四课克<br><small>下贼上 / 上克下</small></span><span class="arrow">→</span>
+      <span class="node">课3 上克下<br><small>午火克酉金</small></span><span class="arrow">→</span>
+      <span class="node">贼克法 · 元首<br><small>取课3上神</small></span><span class="arrow">→</span>
+      <span class="node">取三传<br><small>午 · 卯 · 子</small></span>
+    </div>
+    <div class="split">
+      <div class="svgbox">
+        <svg id="svg4" viewBox="0 0 520 520" width="520" height="520"></svg>
+      </div>
+      <div class="txtbox">
+        <p>四课：辛/乙未、乙未/壬辰、辛酉/甲午、甲午/辛卯。</p>
+        <p>第三课 <span class="hlr">上克下</span>：午火克酉金；其余无克（未土生辛金、土土比和、卯木生午火）。</p>
+        <p>无下贼上、仅课3上克下 → <span class="hl">贼克法 · 元首课</span>，取课3上神<b>午</b>为初传；中传＝午宫上神<b>卯</b>；末传＝卯宫上神<b>子</b>。</p>
+        <table class="chuan-table" id="chuanTable">
+          <tr><th>六亲</th><th>天干</th><th>地支</th><th>天将</th><th>对应位置</th></tr>
+          <tr data-c="3"><td class="c3">子孙</td><td class="c3">戊</td><td class="c3">子</td><td class="c3">天空</td><td><b>末传</b></td></tr>
+          <tr data-c="2"><td class="c2">妻财</td><td class="c2">辛</td><td class="c2">卯</td><td class="c2">玄武</td><td><b>中传</b></td></tr>
+          <tr data-c="1"><td class="c1">官鬼</td><td class="c1">甲</td><td class="c1">午</td><td class="c1">贵人</td><td><b>初传</b></td></tr>
+        </table>
+        <p class="chuan-note">※ 六亲以日干辛金为"我"：午火克金→官鬼、金克卯木→妻财、金生子水→子孙。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5 遁干 ================= -->
+<section class="stage" id="s5">
+  <div class="card">
+    <h2><span class="no">5</span> 五子元遁配天干 <span class="step-badge">第五步 · 传支配干</span></h2>
+    <p class="rule">口诀：甲己还加甲，乙庚丙作初，丙辛从戊起，丁壬庚子居，戊癸起壬子</p>
+    <div class="split">
+      <div class="txtbox">
+        <p>以<b>日干</b>决定"遁组"：辛日 → 口诀 <span class="hl">"丙辛从戊起"</span> → 用<b>丙辛日遁</b>组（戊子、己丑、庚寅、辛卯、壬辰、癸巳、甲午、乙未、丙申、丁酉、戊戌、己亥）。</p>
+        <p>该遁组同时为<b>地盘十二宫</b>配天干（子戊、丑己、寅庚、卯辛、辰壬、巳癸、午甲、未乙、申丙、酉丁、戌戊、亥己）。</p>
+        <p>初传<b>午</b> → 遁干<b>甲</b> → <span class="hl">甲午</span></p>
+        <p>中传<b>卯</b> → 遁干<b>辛</b> → <span class="hl">辛卯</span></p>
+        <p>末传<b>子</b> → 遁干<b>戊</b> → <span class="hl">戊子</span></p>
+      </div>
+      <div class="svgbox">
+        <table id="dunTable">
+          <tr><th>丙辛日遁</th><th>地支</th><th>对应</th></tr>
+          <tr><td>戊子</td><td>子</td><td>末传</td></tr>
+          <tr><td>己丑</td><td>丑</td><td></td></tr>
+          <tr><td>庚寅</td><td>寅</td><td></td></tr>
+          <tr><td>辛卯</td><td>卯</td><td>中传</td></tr>
+          <tr><td>壬辰</td><td>辰</td><td></td></tr>
+          <tr><td>癸巳</td><td>巳</td><td></td></tr>
+          <tr><td>甲午</td><td>午</td><td>初传</td></tr>
+          <tr><td>乙未</td><td>未</td><td></td></tr>
+          <tr><td>丙申</td><td>申</td><td></td></tr>
+          <tr><td>丁酉</td><td>酉</td><td></td></tr>
+          <tr><td>戊戌</td><td>戌</td><td></td></tr>
+          <tr><td>己亥</td><td>亥</td><td></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6 布天将 ================= -->
+<section class="stage" id="s6">
+  <div class="card">
+    <h2><span class="no">6</span> 布天将 <span class="step-badge">第六步 · 贵人加占时</span></h2>
+    <p class="rule">昼夜贵人歌：甲戊庚牛羊，乙己鼠猴乡，丙丁猪鸡位，壬癸蛇兔藏，六辛逢马虎</p>
+    <div class="split">
+      <div class="svgbox">
+        <svg id="svg6" viewBox="0 0 520 520" width="520" height="520"></svg>
+      </div>
+      <div class="txtbox">
+        <p>① <span class="hl">定昼夜</span>：酉时在<span class="hl">酉–寅</span>间 → <b>夜占</b>；辛日夜贵为 <span class="hl">寅（虎）</span>。</p>
+        <p>② <span class="hl">安贵人</span>：贵人<b>寅</b>加临地盘<b>占时酉</b>宫位（贵加占时）。</p>
+        <p>③ <span class="hl">定顺逆</span>：贵人临地盘<b>酉</b>，属<b>巳–戌</b>半边（地户）→ <span class="hlr">逆行</span>。</p>
+        <p>④ <span class="hl">布十二神</span>（逆时针，自酉起）：贵→后→阴→玄→常→白→空→青→勾→六→朱→螣。</p>
+        <div class="jiang-grid" id="jiangGrid"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7 完整课式 ================= -->
+<section class="stage" id="s7">
+  <div class="card">
+    <h2><span class="no">7</span> 完整课式 <span class="step-badge">排盘完成</span></h2>
+    <div class="final-grid">
+      <div class="svgbox">
+        <svg id="svg7" viewBox="0 0 520 520" width="520" height="520"></svg>
+      </div>
+      <div class="keguan">
+        <h3>四课（第一课在右）</h3>
+        <table class="keg-table">
+          <tr><th>类别</th><th>第四课</th><th>第三课</th><th>第二课</th><th>第一课</th></tr>
+          <tr><td class="rowlabel">天将</td><td class="gz">玄武</td><td class="gz">贵人</td><td class="gz">太阴</td><td class="gz">螣蛇</td></tr>
+          <tr><td class="rowlabel">天干</td><td class="gz">辛</td><td class="gz">甲</td><td class="gz">壬</td><td class="gz">乙</td></tr>
+          <tr><td class="rowlabel">地支</td><td class="gz">卯</td><td class="gz">午</td><td class="gz">辰</td><td class="gz">未</td></tr>
+          <tr><td class="rowlabel">地盘</td><td class="dxia">午</td><td class="dxia hl-cell">酉</td><td class="dxia">未</td><td class="dxia hl-cell">辛</td></tr>
+        </table>
+      </div>
+      <div class="keguan">
+        <h3>三传（贼克 · 元首）</h3>
+        <table class="chuan-table">
+          <tr><th>六亲</th><th>干支</th><th>天将</th><th>位置</th></tr>
+          <tr><td class="c3">子孙</td><td class="c3">戊子</td><td class="c3">天空</td><td>末传</td></tr>
+          <tr><td class="c2">妻财</td><td class="c2">辛卯</td><td class="c2">玄武</td><td>中传</td></tr>
+          <tr><td class="c1">官鬼</td><td class="c1">甲午</td><td class="c1">贵人</td><td>初传</td></tr>
+        </table>
+        <p style="font-size:12px; color:var(--dim); margin-top:8px;">天将按天盘支所在位布列（贵加占时逆行法）。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ctl">
+  <button id="btnPrev" onclick="go(-1)">◀ 上一步</button>
+  <button id="btnAuto" onclick="toggleAuto()">▶ 自动演示</button>
+  <button id="btnNext" onclick="go(1)">下一步 ▶</button>
+  <span class="prog" id="prog">0 / 7</span>
+</div>
+
+<footer>
+  大六壬排盘教学 · 依据《大六壬指南》体系 · 示例：丙午年 丙申月 辛酉日 丁酉时 · 月将午（2026-08-15）
+</footer>
+</div>
+
+<script>
+/* ================= 常量 ================= */
+const ZHI = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+// 丙辛日遁（辛日）：地支 -> 天干
+const DUN = {子:"戊",丑:"己",寅:"庚",卯:"辛",辰:"壬",巳:"癸",午:"甲",未:"乙",申:"丙",酉:"丁",戌:"戊",亥:"己"};
+// 寄宫
+const JI_GONG = {甲:"寅",乙:"辰",丙:"巳",丁:"未",戊:"巳",己:"未",庚:"申",辛:"戌",壬:"亥",癸:"丑"};
+// 地盘本位神煞
+const BENSHEN = {子:"天后",丑:"贵人",寅:"青龙",卯:"六合",辰:"勾陈",巳:"螣蛇",午:"朱雀",未:"太常",申:"白虎",酉:"太阴",戌:"天空",亥:"玄武"};
+// 天盘（月将午加占时酉，顺时针转3格）：地盘宫 -> 天盘支
+const TIANPAN = {酉:"午",戌:"未",亥:"申",子:"酉",丑:"戌",寅:"亥",卯:"子",辰:"丑",巳:"寅",午:"卯",未:"辰",申:"巳"};
+// 天将逆行布列（夜贵寅加占时酉）：天盘支 -> 天将
+const JIANG_ON_TIAN = {午:"贵人",巳:"天后",辰:"太阴",卯:"玄武",寅:"太常",丑:"白虎",子:"天空",亥:"青龙",戌:"勾陈",酉:"六合",申:"朱雀",未:"螣蛇"};
+// 天将逆行布列（按地盘宫）：地盘宫 -> 天将
+const JIANG_ON_DISK = {酉:"贵人",申:"天后",未:"太阴",午:"玄武",巳:"太常",辰:"白虎",卯:"天空",寅:"青龙",丑:"勾陈",子:"六合",亥:"朱雀",戌:"螣蛇"};
+
+/* ================= SVG 工具 ================= */
+const NS = "http://www.w3.org/2000/svg";
+const CX = 260, CY = 260;
+function el(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+/* 地支角度：子在下(180°)、午在上(0°)、卯在左(270°)、酉在右(90°)，顺时针 */
+function zAng(idx){ return (idx*30 + 180) % 360; }
+function zAngOf(z){ return zAng(ZHI.indexOf(z)); }
+function deg2xy(cx, cy, r, deg){
+  const rad = (deg-90)*Math.PI/180;
+  return [cx + r*Math.cos(rad), cy + r*Math.sin(rad)];
+}
+/* 画地盘：地支 + 遁干 + 本命神煞 + 寄宫 */
+function drawDish(svg, cx, cy, rOuter, rInner, rText, opts={}){
+  el("circle", {cx, cy, r:rOuter, fill:"#0b1626", stroke:"#3d5a80", "stroke-width":2}, svg);
+  el("circle", {cx, cy, r:rInner, fill:"#0d1a2c", stroke:"#3d5a80", "stroke-width":1.4}, svg);
+  for(let i=0;i<12;i++){
+    const z = ZHI[i];
+    const [x,y] = deg2xy(cx,cy,rText, zAng(i));
+    const t = el("text", {x, y, "text-anchor":"middle", "dominant-baseline":"central", fill:"#c8d6e5", "font-size":19, "font-weight":"bold"}, svg);
+    t.textContent = z;
+    const [gx,gy] = deg2xy(cx,cy,rText+24, zAng(i));
+    const g = el("text", {x:gx, y:gy, "text-anchor":"middle", "dominant-baseline":"central", fill:"#7fb3e8", "font-size":11}, svg);
+    g.textContent = DUN[z];
+    const [px,py] = deg2xy(cx,cy,rText-24, zAng(i));
+    const p = el("text", {x:px, y:py, "text-anchor":"middle", "dominant-baseline":"central", fill:"#c9a6e8", "font-size":10}, svg);
+    p.textContent = BENSHEN[z];
+    if(opts.showJigong && JI_GONG[z]){
+      const [jx,jy] = deg2xy(cx,cy,rText-46, zAng(i));
+      const j = el("text", {x:jx, y:jy, "text-anchor":"middle", "dominant-baseline":"central", fill:"#e8c36a", "font-size":10, "font-weight":"bold"}, svg);
+      j.textContent = "寄";
+    }
+  }
+}
+/* 画天盘：finalOffset 为最终转位格数（3=午对酉），创建时直接画最终位置，杜绝子对子 */
+function drawTian(svg, cx, cy, rOuter, rInner, rText, finalOffset=0){
+  el("circle", {cx, cy, r:rOuter, fill:"none", stroke:"#e8c36a", "stroke-width":1.8, "stroke-dasharray":"6 4"}, svg);
+  el("circle", {cx, cy, r:rInner, fill:"#101f33", stroke:"#e8c36a", "stroke-width":1.2}, svg);
+  for(let i=0;i<12;i++){
+    const z = ZHI[i];
+    const fi = (i + finalOffset) % 12;
+    const [x,y] = deg2xy(cx,cy,rText, zAng(fi));
+    // 天盘支底圆
+    el("circle", {cx:x, cy:y, r:15, fill:"rgba(232,195,106,.10)", stroke:"#e8c36a", "stroke-width":1}, svg);
+    const t = el("text", {x, y, "text-anchor":"middle", "dominant-baseline":"central", fill:"#e8c36a", "font-size":18, "font-weight":"bold"}, svg);
+    t.textContent = z;
+    // 天盘遁干（地支正下方小字）
+    const g = el("text", {x, y:y+21, "text-anchor":"middle", "dominant-baseline":"central", fill:"#e8c36a", "font-size":9}, svg);
+    g.textContent = DUN[z];
+    t.setAttribute("data-zhi", z);
+    t.setAttribute("data-x", x); t.setAttribute("data-y", y);
+  }
+}
+/* 画天将圈（按天盘支布列） */
+function drawJiang(svg, cx, cy, rText){
+  for(let i=0;i<12;i++){
+    const z = ZHI[i];
+    const j = JIANG_ON_TIAN[z];
+    if(!j) continue;
+    const [x,y] = deg2xy(cx,cy,rText, zAng(i));
+    const c = el("circle", {cx:x, cy:y, r:16, fill:"rgba(201,166,232,.12)", stroke:"#c9a6e8", "stroke-width":1.2}, svg);
+    const t = el("text", {x, y, "text-anchor":"middle", "dominant-baseline":"central", fill:"#c9a6e8", "font-size":10}, svg);
+    t.textContent = j;
+  }
+}
+/* 高亮宫位 */
+function highlightGong(svg, zhis, color="#7bc9a0", r=24){
+  const g = el("g", {"class":"disk-hl"}, svg);
+  for(const z of zhis){
+    const [x,y] = deg2xy(CX,CY,226, zAngOf(z));
+    const c = el("circle", {cx:x, cy:y, r, fill:"none", stroke:color, "stroke-width":3}, g);
+    c.classList.add("pulse");
+  }
+  return g;
+}
+/* 定时器管理 */
+const timers = [];
+function T(fn, ms){ const id = setTimeout(fn, ms); timers.push(id); return id; }
+function clearTimers(){ timers.forEach(id=>{ clearTimeout(id); clearInterval(id); }); timers.length = 0; }
+
+/* ================= 步骤 1：定月将 ================= */
+function buildS1(){
+  const svg = document.getElementById("svg1");
+  svg.innerHTML = "";
+  const cx = 260;
+  const data = [
+    {qi:"大寒", zhi:"子"}, {qi:"雨水", zhi:"亥"}, {qi:"春分", zhi:"戌"}, {qi:"谷雨", zhi:"酉"},
+    {qi:"小满", zhi:"申"}, {qi:"夏至", zhi:"未"}, {qi:"大暑", zhi:"午"}, {qi:"处暑", zhi:"巳"},
+    {qi:"秋分", zhi:"辰"}, {qi:"霜降", zhi:"卯"}, {qi:"小雪", zhi:"寅"}, {qi:"冬至", zhi:"丑"}
+  ];
+  const startX = 26, step = 39;
+  data.forEach((d,i)=>{
+    const x = startX + i*step;
+    const box = el("g", {}, svg);
+    el("rect", {x:x-15, y:50, width:30, height:64, rx:6, fill:"#14263c", stroke:"#2f4a6b"}, box);
+    const t1 = el("text", {x, y:74, "text-anchor":"middle", fill:"#9fb3c8", "font-size":11}, box); t1.textContent = d.qi;
+    const t2 = el("text", {x, y:99, "text-anchor":"middle", fill:"#e8c36a", "font-size":14, "font-weight":"bold"}, box); t2.textContent = d.zhi;
+    if(d.qi==="大暑") box.setAttribute("data-target","1");
+  });
+  el("text", {x:cx, y:150, "text-anchor":"middle", fill:"#9fb3c8", "font-size":14}, svg).textContent = "2026-08-15 在大暑之后 → 月将 = 胜光（午）";
+  el("rect", {x:cx-160, y:170, width:320, height:80, rx:10, fill:"#1b3350", stroke:"#e8c36a", "stroke-width":2}, svg);
+  el("text", {x:cx, y:202, "text-anchor":"middle", fill:"#e8c36a", "font-size":24, "font-weight":"bold"}, svg).textContent = "月将：午";
+  el("text", {x:cx, y:228, "text-anchor":"middle", fill:"#9fb3c8", "font-size":12}, svg).textContent = "胜光 ｜ 太阳过宫至鹑火（大暑后）";
+  T(()=>{
+    svg.querySelectorAll("g[data-target]").forEach(b=>{
+      const r = b.querySelector("rect");
+      r.style.transition = "all .5s";
+      r.setAttribute("stroke","#e8c36a"); r.setAttribute("stroke-width","2.4");
+    });
+  }, 400);
+}
+
+/* ================= 步骤 2：布天盘（含动画） ================= */
+function buildS2(){
+  const svg = document.getElementById("svg2");
+  svg.innerHTML = "";
+  drawDish(svg, CX, CY, 250, 196, 226, {showJigong:true});
+  // 初始天盘（未转，用于动画起点）
+  const g = el("g", {id:"tianG2"}, svg);
+  for(let i=0;i<12;i++){
+    const z = ZHI[i];
+    const [x,y] = deg2xy(CX,CY,160, zAng(i));
+    const wg = el("g", {"class":"tzhi"}, g);
+    wg.style.transform = `translate(${x}px, ${y}px)`;
+    el("circle", {cx:0, cy:0, r:15, fill:"rgba(232,195,106,.10)", stroke:"#e8c36a", "stroke-width":1}, wg);
+    const t = el("text", {x:0, y:0, "text-anchor":"middle", "dominant-baseline":"central", fill:"#e8c36a", "font-size":18, "font-weight":"bold"}, wg);
+    t.textContent = z;
+    const gd = el("text", {x:0, y:21, "text-anchor":"middle", "dominant-baseline":"central", fill:"#e8c36a", "font-size":9}, wg);
+    gd.textContent = DUN[z];
+    wg.setAttribute("data-zhi", z);
+    wg.setAttribute("data-x", x); wg.setAttribute("data-y", y);
+  }
+  const [mx,my] = deg2xy(CX,CY,226, zAngOf("午"));
+  el("text", {x:mx, y:my-30, "text-anchor":"middle", fill:"#e8c36a", "font-size":12}, svg).textContent = "月将·午";
+  const [ux,uy] = deg2xy(CX,CY,226, zAngOf("酉"));
+  el("text", {x:ux, y:uy+34, "text-anchor":"middle", fill:"#7fb3e8", "font-size":12}, svg).textContent = "占时·酉";
+  el("text", {x:CX, y:CY, "text-anchor":"middle", "dominant-baseline":"central", fill:"#e8c36a", "font-size":14}, svg).textContent = "月将午加占时酉";
+  T(()=>playStep2(), 700);
+}
+function playStep2(){
+  const g = document.getElementById("tianG2");
+  if(!g) return;
+  g.querySelectorAll(".tzhi").forEach(wg=>{
+    const i = ZHI.indexOf(wg.getAttribute("data-zhi"));
+    const [x1,y1] = deg2xy(CX,CY,160, zAng((i+3)%12));
+    wg.style.transition = "transform 1600ms cubic-bezier(.4,0,.2,1)";
+    wg.style.transform = `translate(${x1}px, ${y1}px)`;
+  });
+  T(()=>{ highlightGong(document.getElementById("svg2"), ["酉"], "#7bc9a0"); }, 1800);
+}
+
+/* ================= 步骤 3：排四课 ================= */
+function buildS3(){
+  const svg = document.getElementById("svg3");
+  svg.innerHTML = "";
+  drawDish(svg, CX, CY, 250, 196, 226, {showJigong:true});
+  drawTian(svg, CX, CY, 190, 126, 160, 3); // 最终转位
+  drawJiang(svg, CX, CY, 88);              // 天将圈
+  const center = el("text", {x:CX, y:CY-6, "text-anchor":"middle", "dominant-baseline":"central", fill:"#e8c36a", "font-size":14, "font-weight":"bold"}, svg);
+  const sub = el("text", {x:CX, y:CY+22, "text-anchor":"middle", fill:"#9fb3c8", "font-size":11}, svg);
+  const seq = [
+    {n:"第一课 · 辛 → 乙未", gong:"戌", k:0, note:"辛寄戌，戌上未"},
+    {n:"第二课 · 乙未 → 壬辰", gong:"未", k:1, note:"未作宫，未上辰"},
+    {n:"第三课 · 辛酉 → 甲午", gong:"酉", k:2, note:"日支酉，酉上午"},
+    {n:"第四课 · 甲午 → 辛卯", gong:"午", k:3, note:"午作宫，午上卯"},
+  ];
+  seq.forEach((s,i)=>{
+    T(()=>{
+      center.textContent = s.n;
+      sub.textContent = s.note;
+      highlightGong(svg, [s.gong], "#7bc9a0", 26);
+      document.querySelectorAll("#kegTable tr").forEach(tr=>{
+        tr.classList.toggle("hl-row", +tr.getAttribute("data-k")===s.k);
+      });
+    }, i*1600);
+  });
+}
+
+/* ================= 步骤 4：排三传 ================= */
+function buildS4(){
+  const svg = document.getElementById("svg4");
+  svg.innerHTML = "";
+  drawDish(svg, CX, CY, 250, 196, 226, {showJigong:true});
+  drawTian(svg, CX, CY, 190, 126, 160, 3);
+  drawJiang(svg, CX, CY, 88);
+  const nodes = document.querySelectorAll("#flow4 .node");
+  T(()=>nodes[0].classList.add("done"), 300);
+  T(()=>nodes[1].classList.add("hit"), 1400);
+  T(()=>nodes[2].classList.add("hit"), 2300);
+  T(()=>nodes[3].classList.add("hit"), 3100);
+  // 课3上克下高亮
+  T(()=>{ highlightGong(svg, ["酉","午"], "#e0665a", 26); }, 800);
+  // 三传依次高亮
+  const marks = [
+    {z:"午", label:"初传·甲午", color:"#e0665a", t:2700},
+    {z:"卯", label:"中传·辛卯", color:"#7bc9a0", t:3400},
+    {z:"子", label:"末传·戊子", color:"#7fb3e8", t:4100},
+  ];
+  marks.forEach(m=>{
+    T(()=>{
+      highlightGong(svg, [m.z], m.color, 30);
+      const [x,y] = deg2xy(CX,CY,226, zAngOf(m.z));
+      el("text", {x:x, y:y-40, "text-anchor":"middle", fill:m.color, "font-size":12}, svg).textContent = m.label;
+      document.querySelectorAll("#chuanTable tr").forEach(tr=>{
+        tr.classList.toggle("hl-row", +tr.getAttribute("data-c")===marks.indexOf(m)+1);
+      });
+    }, m.t);
+  });
+}
+
+/* ================= 步骤 5：遁干 ================= */
+function buildS5(){
+  const rows = document.querySelectorAll("#dunTable tr");
+  rows.forEach(r=>r.classList.remove("high"));
+  const hl = [7,4,1]; // 甲午(初传)、辛卯(中传)、戊子(末传)
+  hl.forEach((idx,i)=>{
+    T(()=>rows[idx].classList.add("high"), 500 + i*700);
+  });
+}
+
+/* ================= 步骤 6：布天将 ================= */
+function buildS6(){
+  const svg = document.getElementById("svg6");
+  svg.innerHTML = "";
+  drawDish(svg, CX, CY, 250, 196, 226, {showJigong:true});
+  drawTian(svg, CX, CY, 190, 126, 160, 3);
+  // 贵人标注：夜贵寅 加 占时酉
+  const [ax,ay] = deg2xy(CX,CY,226, zAngOf("酉"));
+  el("circle", {cx:ax, cy:ay, r:32, fill:"none", stroke:"#e0665a", "stroke-width":3}, svg);
+  el("text", {x:ax, y:ay-40, "text-anchor":"middle", fill:"#e0665a", "font-size":13, "font-weight":"bold"}, svg).textContent = "贵人·寅";
+  // 天将格：按地盘宫布列（逆时针自酉）
+  const order = ["酉","申","未","午","巳","辰","卯","寅","丑","子","亥","戌"];
+  const grid = document.getElementById("jiangGrid");
+  grid.innerHTML = "";
+  order.forEach((z,i)=>{
+    const d = document.createElement("div");
+    d.className = "jiang-cell";
+    d.innerHTML = `<b>${JIANG_ON_DISK[z]}</b><small>临${z}</small>`;
+    grid.appendChild(d);
+  });
+  T(()=>{
+    order.forEach((z,i)=>{
+      T(()=>{
+        const [x,y] = deg2xy(CX,CY,88, zAngOf(z));
+        const c = el("circle", {cx:x, cy:y, r:16, fill:"rgba(201,166,232,.12)", stroke:"#c9a6e8", "stroke-width":1.2}, svg);
+        const t = el("text", {x, y, "text-anchor":"middle", "dominant-baseline":"central", fill:"#c9a6e8", "font-size":10}, svg);
+        t.textContent = JIANG_ON_DISK[z];
+        const cell = document.querySelectorAll(".jiang-cell")[i];
+        if(cell) cell.classList.add("on");
+      }, i*450);
+    });
+  }, 800);
+}
+
+/* ================= 步骤 7：完整课式 ================= */
+function buildS7(){
+  const svg = document.getElementById("svg7");
+  svg.innerHTML = "";
+  drawDish(svg, CX, CY, 250, 196, 226, {showJigong:true});
+  drawTian(svg, CX, CY, 190, 126, 160, 3);
+  drawJiang(svg, CX, CY, 88);
+  // 三传
+  const marks = [
+    {z:"午", label:"初传·甲午", color:"#e0665a"},
+    {z:"卯", label:"中传·辛卯", color:"#7bc9a0"},
+    {z:"子", label:"末传·戊子", color:"#7fb3e8"},
+  ];
+  marks.forEach(m=>{
+    const [x,y] = deg2xy(CX,CY,226, zAngOf(m.z));
+    el("circle", {cx:x, cy:y, r:34, fill:"none", stroke:m.color, "stroke-width":3}, svg);
+    el("text", {x:x, y:y-42, "text-anchor":"middle", fill:m.color, "font-size":12}, svg).textContent = m.label;
+  });
+  el("text", {x:CX, y:CY, "text-anchor":"middle", "dominant-baseline":"central", fill:"#e8c36a", "font-size":12}, svg).textContent = "辛酉日课";
+}
+
+/* ================= 步骤切换 ================= */
+let cur = 0;
+const TOTAL = 8;
+function build(ni){
+  if(ni===1) buildS1();
+  else if(ni===2) buildS2();
+  else if(ni===3) buildS3();
+  else if(ni===4) buildS4();
+  else if(ni===5) buildS5();
+  else if(ni===6) buildS6();
+  else if(ni===7) buildS7();
+}
+function showStage(i){
+  document.querySelectorAll(".stage").forEach(s=>s.classList.remove("active"));
+  document.getElementById("s"+i).classList.add("active");
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active", +b.dataset.s===i));
+  document.getElementById("prog").textContent = i + " / " + (TOTAL-1);
+  document.getElementById("btnPrev").disabled = (i===0);
+  document.getElementById("btnNext").disabled = (i===TOTAL-1);
+}
+function goto(t){
+  if(t===cur) return;
+  clearTimers();
+  cur = t;
+  showStage(t);
+  build(t);
+}
+function go(d){ goto(cur + d); }
+
+/* ================= 自动演示 ================= */
+let autoTimer = null;
+function toggleAuto(){
+  if(autoTimer){
+    clearInterval(autoTimer); autoTimer = null;
+    document.getElementById("btnAuto").textContent = "▶ 自动演示";
+    return;
+  }
+  document.getElementById("btnAuto").textContent = "⏸ 暂停";
+  autoTimer = setInterval(()=>{
+    if(cur >= TOTAL-1){
+      clearInterval(autoTimer); autoTimer = null;
+      document.getElementById("btnAuto").textContent = "▶ 自动演示";
+      return;
+    }
+    go(1);
+  }, 7500);
+}
+
+/* ================= 初始化 ================= */
+document.addEventListener("DOMContentLoaded", ()=>{
+  document.querySelectorAll("#nav button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if(autoTimer){ clearInterval(autoTimer); autoTimer=null; document.getElementById("btnAuto").textContent="▶ 自动演示"; }
+      goto(+b.dataset.s);
+    });
+  });
+  document.getElementById("prog").textContent = "0 / 7";
+  T(()=>goto(1), 800);
+});
+</script>
+</body>
+</html>
