@@ -1771,7 +1771,16 @@ struct Index {
   }
 
   build() {
-    Tabs({ barPosition: BarPosition.End, index: this.curTab }) {
+    Stack() {
+      /* 沉浸背景层：延伸到状态栏与底部导航条之下（导航条背景与应用融合） */
+      Column()
+        .width('100%')
+        .height('100%')
+        .backgroundColor('#14120F')
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+
+      /* 内容层：不做安全区扩展——底部页签栏避让导航条，滚动内容与按钮不被遮挡 */
+      Tabs({ barPosition: BarPosition.End, index: this.curTab }) {
       TabContent() {
         Column() {
           this.header()
@@ -2040,12 +2049,14 @@ struct Index {
     .width('100%')
     .height('100%')
     .backgroundColor('#14120F')
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
     .barWidth('100%')
     .barHeight(58)
     .onChange((i: number) => {
       this.curTab = i;
     })
+    }
+    .width('100%')
+    .height('100%')
   }
 
 

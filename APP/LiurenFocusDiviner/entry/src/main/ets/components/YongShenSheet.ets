@@ -500,7 +500,7 @@ export struct YongShenSheet {
     }
     .width('100%')
     .height('100%')
-    .padding({ left: 16, right: 16, top: 14, bottom: 16 })
+    .padding({ left: 16, right: 16, top: 14, bottom: 50 })
     .backgroundColor('#1C1A16')
   }
 
