@@ -44,6 +44,33 @@ export struct AncientStudy {
     return p.replace(/^[>\s]+/, '').trim();
   }
 
+  /* 是否为代码块（``` 围栏） */
+  private isCodeBlock(p: string): boolean {
+    return p.indexOf('```') >= 0;
+  }
+
+  /* 是否为表格/清单块（由 md 表格转成全角空格分列；首行 ≥2 列且至少两行同构） */
+  private isTableBlock(p: string): boolean {
+    const ls = this.lines(p);
+    if (ls.length < 2) {
+      return false;
+    }
+    const head = ls[0];
+    if (head.indexOf('　') < 0 && head.indexOf('|') < 0) {
+      return false;
+    }
+    if (this.cellsOf(head).length < 2) {
+      return false;
+    }
+    let rows = 0;
+    for (let i = 0; i < ls.length; i++) {
+      if (this.cellsOf(ls[i]).length >= 2) {
+        rows++;
+      }
+    }
+    return rows >= 2;
+  }
+
   /* 是否为校勘标注（【存疑】/【直释】/【推阐】/【旁证】/详解依据） */
   private isSuspect(p: string): boolean {
     const t = p.trim();
@@ -89,23 +116,53 @@ export struct AncientStudy {
     return this.lines(p).length >= 2;
   }
 
-  /* 是否为三传盘式（"三传"开头 + 干支，或 初/中/末 竖排） */
+  /* 是否为三传盘式（仅匹配紧凑课式，避免把“三传…/初建…”正文误判进横向 Row） */
   private isChuanBlock(p: string): boolean {
     const t = p.trim();
-    if (t.indexOf('三传') === 0 || t.indexOf('三傳') === 0) {
-      return true;
+    const ls = this.lines(p);
+    /* 竖排形态：初/中/末 三行短句 */
+    if (ls.length === 3) {
+      const marks: string[] = ['初', '中', '末'];
+      let ok = true;
+      for (let i = 0; i < 3; i++) {
+        const cs = this.cellsOf(ls[i]);
+        if (cs.length < 1 || cs[0] !== marks[i] || ls[i].length > 16 || cs.length > 4) {
+          ok = false;
+        }
+      }
+      if (ok && this.countZhi(p) >= 2) {
+        return true;
+      }
     }
-    /* 竖排形态：初X/中X/末X */
-    if (t.indexOf('初') === 0 && t.indexOf('中') > 0 && t.indexOf('末') > 0) {
-      return true;
+    /* 横排/带天将注的紧凑三传：短、含地支，且不是长正文 */
+    if (t.indexOf('三传') === 0 || t.indexOf('三傳') === 0) {
+      return ls.length <= 2 && t.length <= 24 && this.countZhi(p) >= 2;
     }
     return false;
   }
 
-  /* 是否为天将行 */
+  /* 是否为天将行（仅紧凑将名注；详解里的“天将/克日主事”表格走 tableBlock） */
   private isJiangBlock(p: string): boolean {
     const t = p.trim();
-    return t.indexOf('天将') === 0 || t.indexOf('天將') === 0;
+    const ls = this.lines(p);
+    if (!(t.indexOf('天将') === 0 || t.indexOf('天將') === 0)) {
+      return false;
+    }
+    if (ls.length > 2 || t.length > 28) {
+      return false;
+    }
+    for (let i = 0; i < ls.length; i++) {
+      const cs = this.cellsOf(ls[i]);
+      if (cs.length < 2) {
+        return false;
+      }
+      for (let j = 1; j < cs.length; j++) {
+        if (cs[j].length > 4) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   /* 是否为天地盘菱形（多行、首末行4支） */
@@ -345,7 +402,7 @@ export struct AncientStudy {
             .fontSize(14)
             .fontWeight(FontWeight.Bold)
             .fontColor('#F0D98C')
-          Blank()
+            .layoutWeight(1)
           if (ri === 0 && this.diskRows(p).length > 1) {
             Text('初 · 中 · 末')
               .fontSize(9)
@@ -471,6 +528,82 @@ export struct AncientStudy {
     return line.split(/[\s　]+/);
   }
 
+  /* 通用分列（普通空格/全角空格） */
+  private cellsOf(line: string): string[] {
+    return line.split(/[\s　]+/);
+  }
+
+  /* 统计段落中的地支 token 数（课式紧凑性判断用） */
+  private countZhi(p: string): number {
+    const zhis = '子丑寅卯辰巳午未申酉戌亥';
+    const cs = this.cellsOf(p);
+    let n = 0;
+    for (let i = 0; i < cs.length; i++) {
+      if (zhis.indexOf(cs[i]) >= 0) {
+        n++;
+      }
+    }
+    return n;
+  }
+
+  /* 代码块内容行（去掉 ``` 围栏） */
+  private codeLines(p: string): string[] {
+    const ls = this.lines(p);
+    const out: string[] = [];
+    for (let i = 0; i < ls.length; i++) {
+      if (ls[i].indexOf('```') < 0) {
+        out.push(ls[i]);
+      }
+    }
+    return out;
+  }
+
+  /* 代码块：逐行小字渲染（保留换行） */
+  @Builder
+  private codeBlock(p: string) {
+    Column({ space: 2 }) {
+      ForEach(this.codeLines(p), (line: string, li: number) => {
+        Text(line)
+          .fontSize(11)
+          .fontColor('#8A9BA8')
+          .lineHeight(17)
+          .width('100%')
+      }, (line: string, li: number) => 'code' + li)
+    }
+    .width('100%')
+    .padding(10)
+    .borderRadius(8)
+    .backgroundColor('rgba(33,30,24,0.85)')
+    .border({ width: 1, color: 'rgba(138,155,168,0.2)' })
+    .margin({ top: 10 })
+  }
+
+  /* 表格：逐行渲染（列间全角空格转普通空格，自动换行） */
+  @Builder
+  private tableBlock(p: string) {
+    Column({ space: 3 }) {
+      ForEach(this.lines(p), (line: string, li: number) => {
+        Text(this.tableClean(line))
+          .fontSize(12)
+          .fontColor(li === 0 ? '#E9C878' : '#C4B183')
+          .fontWeight(li === 0 ? FontWeight.Bold : FontWeight.Normal)
+          .lineHeight(19)
+          .width('100%')
+      }, (line: string, li: number) => 'tab' + li)
+    }
+    .width('100%')
+    .padding(10)
+    .borderRadius(8)
+    .backgroundColor('rgba(33,30,24,0.85)')
+    .border({ width: 1, color: 'rgba(233,200,120,0.15)' })
+    .margin({ top: 10 })
+  }
+
+  /* 表格行清洗：全角空格→普通空格，去多余竖线 */
+  private tableClean(line: string): string {
+    return line.replace(/\u3000/g, '  ').replace(/\|/g, ' · ').trim();
+  }
+
   /* ---------------- 阅读视图 ---------------- */
   @Builder
   private readerView() {
@@ -521,6 +654,12 @@ export struct AncientStudy {
             } else if (this.isRingBlock(p)) {
               /* 十二支环列 */
               this.ringBlock(p)
+            } else if (this.isCodeBlock(p)) {
+              /* 代码块：逐行渲染（自动换行，避免长串溢出） */
+              this.codeBlock(p)
+            } else if (this.isTableBlock(p)) {
+              /* 表格：逐行渲染 */
+              this.tableBlock(p)
             } else if (this.isSuspect(p)) {
               /* 【存疑】校勘标注：弱化样式（暗色小字 + 斜体 + 弱边框），与正文区分 */
               Text(this.cleanMd(p))
