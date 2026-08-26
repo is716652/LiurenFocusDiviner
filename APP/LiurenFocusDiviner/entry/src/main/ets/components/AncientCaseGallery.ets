@@ -105,6 +105,7 @@ export struct AncientCaseGallery {
       }, (c: AncientCase) => c.id)
     }
     .width('100%')
+    .alignItems(HorizontalAlign.Start)
     .padding({ left: 16, right: 16, top: 12, bottom: 20 })
   }
 
@@ -209,6 +210,7 @@ export struct AncientCaseGallery {
         .lineHeight(15)
     }
     .width('100%')
+    .alignItems(HorizontalAlign.Start)
     .padding({ left: 16, right: 16, top: 12, bottom: 24 })
   }
 
@@ -231,6 +233,7 @@ export struct AncientCaseGallery {
             }
           }
           .width('100%')
+          .justifyContent(FlexAlign.Start)
         }
         .layoutWeight(1)
         .scrollBar(BarState.Off)
@@ -239,5 +242,6 @@ export struct AncientCaseGallery {
     }
     .width('100%')
     .layoutWeight(1)
+    .justifyContent(FlexAlign.Start)
   }
 }

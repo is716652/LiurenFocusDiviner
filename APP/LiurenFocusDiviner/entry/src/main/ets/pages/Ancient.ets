@@ -109,6 +109,7 @@ struct Ancient {
       }
       .width('100%')
       .layoutWeight(1)
+      .justifyContent(FlexAlign.Start)
     }
     .width('100%')
     .height('100%')
