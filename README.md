@@ -8,8 +8,9 @@
 ├─ APP/LiurenFocusDiviner/     # 鸿蒙主项目（开发/收费版，唯一事实源）
 │   └─ entry/src/main/ets/
 │       ├─ pages/              #   Splash(引导) Home(起课台) Index(排盘) Cases(课例) Ancient(古籍) Legal/(协议)
-│       ├─ components/         #   PanDisk/KegCard/ChuanCard/YongShenSheet/CaseBoard/AncientStudy/PageHeader 等
+│       ├─ components/         #   PanDisk/KegCard/ChuanCard/YongShenSheet/CaseBoard/AncientStudy/AncientCaseGallery/PageHeader 等
 │       ├─ model/              #   LiurenCore(引擎) DataLoader CaseStore YongShenCore
+│       ├─ FeatureFlags.ets    #   版本形态开关（主版显示案例鉴赏；免费版同步脚本置隐藏）
 │       └─ pay/                #   付费门禁（PayConfig/PayGate/IapAdapter；当前全功能开放）
 ├─ APP/LiurenFocusDivinerFree/ # 免费上架版 —— 不入库，由同步脚本生成（见下）
 ├─ core/                       # 跨端核心（liuren-core.ts → .js Web；ArkTS 版在 APP 内同构）
@@ -28,7 +29,7 @@
 Splash(引导) → Home(起课台：万年历+时辰+排盘/课例/古籍三入口)
    ├─ 排盘 → Index(自动出盘：四柱/天地盘/四课/三传/毕法/年命行年/中黄；‹改期回 Home)
    ├─ 课例 → Cases(保存的排盘记录，点卡片恢复重排)
-   └─ 古籍 → Ancient(中黄五变经：目录+阅读，盘式结构化渲染)
+   └─ 古籍 → Ancient(中黄五变经：目录+阅读，盘式结构化渲染；主版另含「案例鉴赏」页签，免费版同步时隐藏入口)
 三页页头统一 PageHeader（标题 + 排盘/课例/古籍 胶囊切换 + 返回）
 ```
 
@@ -36,7 +37,8 @@ Splash(引导) → Home(起课台：万年历+时辰+排盘/课例/古籍三入�
 
 - **主项目（收费/开发版）是唯一源码**；免费上架版由 `python _tools/sync_free_edition.py`
   整体复制生成，并设置 `PayConfig.PREVIEW_FREE=false`（当前策略：过审版全功能开放、
-  无锁无付费痕迹）+ 移除 INTERNET 权限。
+  无锁无付费痕迹）+ `FeatureFlags.SHOW_ANCIENT_CASE_GALLERY=false`（案例鉴赏随包隐藏）
+  + 移除 INTERNET 权限。
 - 付费架构已解耦预埋（`pay/` 门禁 + featureId），未来收费版卖"深度断课能力"增量
   （毕法教练 / 中黄引擎 / 抓用神深度），免费版保持全功能开放（与"无收费项"申报一致）。
 
@@ -55,6 +57,7 @@ python _tools/sign_release.py main     # 收费/开发版备用包
 # 核心回归测试（node）
 node _tests/_test_core_regress.js
 node _tests/_test_zhonghuang.js
+node _tests/_test_case_xu_cibin.js   # 古籍案例鉴赏锚点（七月甲子日午将申时）
 
 # 古籍数据再生成（28 篇经文 md → rawfile/ancient/zhonghuang_jing.json）
 python _tools/gen_ancient_json.py

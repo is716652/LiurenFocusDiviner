@@ -6,15 +6,20 @@
  * ArkTS 合规：零 any / unknown
  */
 import { common } from '@kit.AbilityKit';
-import type { AncientBook } from '../model/DataLoader';
+import type { AncientBook, AncientCase } from '../model/DataLoader';
 import { DataLoader } from '../model/DataLoader';
+import { LiurenCore } from '../model/LiurenCore';
+import { FeatureFlags } from '../FeatureFlags';
 import { AncientStudy } from '../components/AncientStudy';
+import { AncientCaseGallery } from '../components/AncientCaseGallery';
 import { PageHeader } from '../components/PageHeader';
 
 @Entry
 @Component
 struct Ancient {
   @State private book: AncientBook | null = null;
+  @State private cases: AncientCase[] = [];
+  @State private tab: string = 'jing';
 
   aboutToAppear(): void {
     this.initData();
@@ -29,6 +34,15 @@ struct Ancient {
       this.book = await DataLoader.loadAncient(host as common.UIAbilityContext);
     } catch (e) {
       /* 古籍数据缺失：目录兜底为空 */
+    }
+    if (FeatureFlags.SHOW_ANCIENT_CASE_GALLERY) {
+      try {
+        const rules = await DataLoader.loadCoreRules(host as common.UIAbilityContext);
+        LiurenCore.init(rules);
+        this.cases = await DataLoader.loadAncientCases(host as common.UIAbilityContext);
+      } catch (e) {
+        this.cases = [];
+      }
     }
   }
 
@@ -57,10 +71,41 @@ struct Ancient {
         }
       })
 
+      if (FeatureFlags.SHOW_ANCIENT_CASE_GALLERY) {
+        Row({ space: 8 }) {
+          Text('经文')
+            .fontSize(12)
+            .fontColor(this.tab === 'jing' ? '#1A1410' : '#C4B183')
+            .backgroundColor(this.tab === 'jing' ? '#E9C878' : '#211E18')
+            .borderRadius(14)
+            .padding({ left: 12, right: 12, top: 6, bottom: 6 })
+            .onClick(() => {
+              this.tab = 'jing';
+            })
+          Text('案例鉴赏')
+            .fontSize(12)
+            .fontColor(this.tab === 'case' ? '#1A1410' : '#C4B183')
+            .backgroundColor(this.tab === 'case' ? '#E9C878' : '#211E18')
+            .borderRadius(14)
+            .padding({ left: 12, right: 12, top: 6, bottom: 6 })
+            .onClick(() => {
+              this.tab = 'case';
+            })
+        }
+        .width('100%')
+        .padding({ left: 16, right: 16, top: 10 })
+      }
+
       Column() {
-        AncientStudy({
-          book: this.book
-        })
+        if (!FeatureFlags.SHOW_ANCIENT_CASE_GALLERY || this.tab === 'jing') {
+          AncientStudy({
+            book: this.book
+          })
+        } else {
+          AncientCaseGallery({
+            cases: this.cases
+          })
+        }
       }
       .width('100%')
       .layoutWeight(1)

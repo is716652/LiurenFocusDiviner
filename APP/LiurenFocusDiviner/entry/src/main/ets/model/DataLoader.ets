@@ -47,12 +47,37 @@ export interface AncientBook {
   篇目: AncientChapter[];
 }
 
+/* 古籍案例鉴赏：起课输入（月将/日干支/占时；年月干支可选） */
+export interface AncientCaseInput {
+  mj: string;
+  dg: string;
+  dz: string;
+  hour: string;
+  yearGan?: string;
+  yearZhi?: string;
+  monthZhi?: string;
+}
+
+/* 古籍案例鉴赏：一案（原文 + 程序化校验锚点 + 断法链路） */
+export interface AncientCase {
+  id: string;
+  title: string;
+  source: string;
+  chapter: string;
+  input: AncientCaseInput;
+  original: string;
+  summary: string;
+  chain: string[];
+  compliance: string;
+}
+
 export class DataLoader {
   /* 十年历法缓存：decadeKey("2020") -> Record<year, DayRec[]> */
   private static calCache: Record<string, Record<string, DayRec[]>> = {};
   private static yjCache: YueJiangSeg[] | null = null;
   private static ruleCache: CoreRules | null = null;
   private static ancientCache: AncientBook | null = null;
+  private static ancientCaseCache: AncientCase[] | null = null;
 
   /* ---------------- 基础读取 ---------------- */
 
@@ -235,5 +260,20 @@ export class DataLoader {
     const book = JSON.parse(txt) as AncientBook;
     DataLoader.ancientCache = book;
     return book;
+  }
+
+  /* 古籍案例鉴赏库（主版/收费研习内容；免费上架版由 FeatureFlags 隐藏入口）；结果缓存 */
+  static async loadAncientCases(ctx: common.UIAbilityContext): Promise<AncientCase[]> {
+    if (DataLoader.ancientCaseCache) {
+      return DataLoader.ancientCaseCache;
+    }
+    const txt = await DataLoader.readRaw(ctx, 'ancient/case_gallery.json');
+    if (!txt) {
+      DataLoader.ancientCaseCache = [];
+      return [];
+    }
+    const cases = JSON.parse(txt) as AncientCase[];
+    DataLoader.ancientCaseCache = cases;
+    return cases;
   }
 }

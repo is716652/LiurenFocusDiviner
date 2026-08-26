@@ -3,6 +3,7 @@
  - 复制源码（entry/src、AppScope、配置文件），排除构建产物（build/.hvigor/.preview/.idea/oh_modules 缓存）
  - 复制后把免费版 PayConfig.PREVIEW_FREE 写为 false（当前策略：过审版全功能开放、无锁无付费痕迹，
    与申报「无收费项」一致；收费版上架后如需锁定导流，把此处改回 true 并同步更新申报信息）
+ - 复制后把免费版 FeatureFlags.SHOW_ANCIENT_CASE_GALLERY 写为 false（案例鉴赏随包隐藏，不显示入口）
  - 复制后自动移除免费版 module.json5 的 INTERNET 权限（保持零权限申报）
  - 用法：python _tools/sync_free_edition.py
 """
@@ -51,6 +52,20 @@ def flip_switch():
     io.open(p, 'w', encoding='utf-8', newline='').write(s)
     print('PREVIEW_FREE -> false (all features open, no locks)')
 
+def hide_ancient_case_gallery():
+    """免费上架版：古籍案例鉴赏代码随包但入口隐藏（不出现新增收费研习内容入口）"""
+    p = os.path.join(DST, 'entry', 'src', 'main', 'ets', 'FeatureFlags.ets')
+    s = io.open(p, 'r', encoding='utf-8').read()
+    old = 'static readonly SHOW_ANCIENT_CASE_GALLERY: boolean = true;'
+    new = 'static readonly SHOW_ANCIENT_CASE_GALLERY: boolean = false;'
+    if new in s:
+        print('SHOW_ANCIENT_CASE_GALLERY already false (hidden)')
+        return
+    assert old in s, 'SHOW_ANCIENT_CASE_GALLERY marker not found!'
+    s = s.replace(old, new)
+    io.open(p, 'w', encoding='utf-8', newline='').write(s)
+    print('SHOW_ANCIENT_CASE_GALLERY -> false (hidden in free edition)')
+
 def remove_internet():
     """免费版无 IAP：移除 module.json5 的 INTERNET 权限（保持零权限申报）"""
     p = os.path.join(DST, 'entry', 'src', 'main', 'module.json5')
@@ -63,6 +78,7 @@ def main():
         shutil.rmtree(DST, ignore_errors=True)
     copy_tree(SRC, DST)
     flip_switch()
+    hide_ancient_case_gallery()
     remove_internet()
     print('SYNC OK')
 
