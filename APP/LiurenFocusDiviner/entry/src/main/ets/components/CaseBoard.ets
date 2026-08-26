@@ -8,41 +8,16 @@
  * ArkTS 合规：零 any / unknown；显式类型；回调显式签名
  */
 import type { CaseRec } from '../model/CaseStore';
-import { ModeSwitch } from './ModeSwitch';
 
 @Component
 export struct CaseBoard {
   @Prop cases: CaseRec[] = [];
-  /* 当前页（ModeSwitch 高亮）与切换回调（由 Index 注入） */
-  @Prop activeTab: number = 0;
-  onSwitchTab: (idx: number) => void = () => { };
   onDelete: (ts: number) => void = () => { };
   onRestore: (rec: CaseRec) => void = () => { };
 
   build() {
     Column() {
-      /* 页头 */
-      Row() {
-        Text('课例 · 复盘')
-          .fontSize(17)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#F0D98C')
-        Blank()
-        Text(this.cases.length > 0 ? ('共 ' + this.cases.length + ' 例') : '')
-          .fontSize(11)
-          .fontColor('#8A7B5C')
-          .margin({ right: 8 })
-        ModeSwitch({
-          active: this.activeTab,
-          onSwitch: (i: number) => {
-            this.onSwitchTab(i);
-          }
-        })
-      }
-      .width('100%')
-      .padding({ left: 20, right: 20, top: 16, bottom: 12 })
-      .border({ width: { bottom: 1 }, color: 'rgba(233,200,120,0.2)' })
-
+      /* 页头由页面层 PageHeader 提供（本组件只渲染列表内容） */
       Scroll() {
         Column({ space: 10 }) {
           if (this.cases.length === 0) {
@@ -67,11 +42,13 @@ export struct CaseBoard {
               .fontColor('#5A4F3D')
               .width('100%')
               .textAlign(TextAlign.Center)
-              .padding({ top: 10, bottom: 56 })
+              .padding({ top: 10, bottom: 72 })
           }
         }
         .width('100%')
-        .padding({ left: 16, right: 16 })
+        .height('100%')
+        .justifyContent(FlexAlign.Start)
+        .padding({ left: 16, right: 16, top: 14 })
       }
       .layoutWeight(1)
       .scrollBar(BarState.Off)
@@ -79,18 +56,31 @@ export struct CaseBoard {
     }
     .width('100%')
     .height('100%')
+    .layoutWeight(1)
     .backgroundColor('#14120F')
   }
 
   @Builder
   private caseCard(r: CaseRec) {
     Column({ space: 8 }) {
-      /* 首行：日期 + 时辰徽标 + 删除 */
+      /* 首行：标题 + 来源徽标 + 删除 */
       Row() {
-        Text(r.date)
+        Text(r.title !== '' ? r.title : r.date)
           .fontSize(15)
           .fontWeight(FontWeight.Medium)
-          .fontColor('#F0E6C8')
+          .fontColor('#F0D98C')
+          .layoutWeight(1)
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+        if (r.title.indexOf('古籍') === 0) {
+          Text('古籍')
+            .fontSize(9)
+            .fontColor('#1A1410')
+            .backgroundColor('#7FA0B8')
+            .borderRadius(6)
+            .padding({ left: 6, right: 6, top: 1, bottom: 1 })
+            .margin({ left: 6 })
+        }
         Text(r.hourZhi + '时')
           .fontSize(11)
           .fontColor('#1A1410')
@@ -108,6 +98,12 @@ export struct CaseBoard {
           })
       }
       .width('100%')
+
+      /* 日期（小字） */
+      Text(r.date)
+        .fontSize(10)
+        .fontColor('#8A7B5C')
+        .width('100%')
 
       /* 四柱 */
       Text(r.siZhu)

@@ -32,15 +32,13 @@ import { YongShenCore } from '../model/YongShenCore';
 import { PayConfig } from '../pay/PayConfig';
 import { PayGate } from '../pay/PayGate';
 import type { PurchaseResult } from '../pay/IapAdapter';
+import { PageHeader } from '../components/PageHeader';
 import { ChuanCard } from '../components/ChuanCard';
 import { InfoRow } from '../components/InfoRow';
 import { KegCard } from '../components/KegCard';
 import { PanDisk } from '../components/PanDisk';
 import { TagBadge } from '../components/TagBadge';
 import { YongShenSheet } from '../components/YongShenSheet';
-import { AncientStudy } from '../components/AncientStudy';
-import { CaseBoard } from '../components/CaseBoard';
-import { ModeSwitch } from '../components/ModeSwitch';
 
 const MIN_YEAR: number = 1900;
 const MAX_YEAR: number = 2060;
@@ -81,6 +79,10 @@ struct Index {
   @State private month: number = 1;
   @State private day: number = 1;
   @State private hourZhi: string = '午';
+  /* 已从路由收到日期参数（Home 传入）：为 true 时 initData 不再用当前时间覆盖 */
+  private routeDateSet: boolean = false;
+  /* 当前盘来源：'self'=自己起课 / 'ancient'=古籍案例反推（保存课例标题用） */
+  @State private caseSource: string = 'self';
   @State private ready: boolean = false;
   @State private chart: Chart | null = null;
   @State private calData: Record<string, DayRec[]> = {};
@@ -130,8 +132,6 @@ struct Index {
   @State private ketiYi: Record<string, Object> = {};
   @State private ancientMj: string = '未';
   @State private ancientDg: string = '甲';
-  /* 底部页签：0=排盘 1=课例 2=古籍（受控 Tabs） */
-  @State private curTab: number = 0;
   /* 古籍研习数据（DataLoader.loadAncient） */
   @State private ancient: AncientBook | null = null;
   /* 课例列表（CaseStore 持久化，新→旧） */
@@ -146,7 +146,54 @@ struct Index {
   /* ---------------- 生命周期 ---------------- */
 
   aboutToAppear(): void {
+    /* 收首页路由参数（y/m/d/hz）；无参数则回退当天 */
+    this.applyRouteParams();
     this.initData();
+  }
+
+  /* 读取首页传入的日期时辰参数（Home → pushUrl params）
+     注意：router params 跨页序列化后 number 可能变 string，故统一兼容 */
+  private applyRouteParams(): void {
+    try {
+      const p = this.getUIContext().getRouter().getParams() as Record<string, Object>;
+      if (!p) {
+        return;
+      }
+      const yv = this.toNum(p['y']);
+      const mv = this.toNum(p['m']);
+      const dv = this.toNum(p['d']);
+      const hv = p['hz'];
+      if (yv !== -1 && yv >= MIN_YEAR && yv <= MAX_YEAR) {
+        this.year = yv;
+        this.routeDateSet = true;
+      }
+      if (mv !== -1 && mv >= 1 && mv <= 12) {
+        this.month = mv;
+        this.routeDateSet = true;
+      }
+      if (dv !== -1 && dv >= 1 && dv <= 31) {
+        this.day = dv;
+        this.routeDateSet = true;
+      }
+      if (typeof hv === 'string' && HOURS.indexOf(hv) >= 0) {
+        this.hourZhi = hv;
+        this.routeDateSet = true;
+      }
+    } catch (e) {
+      /* 无参数或解析失败：使用默认日期 */
+    }
+  }
+
+  /* 参数转数字：number 直接用；string 尝试 parseInt；失败返回 -1 */
+  private toNum(v: Object): number {
+    if (typeof v === 'number') {
+      return v;
+    }
+    if (typeof v === 'string') {
+      const n = parseInt(v);
+      return isNaN(n) ? -1 : n;
+    }
+    return -1;
   }
 
   private async initData(): Promise<void> {
@@ -196,13 +243,16 @@ struct Index {
     }
     await CaseStore.init(ctx);
     this.cases = await CaseStore.loadCases();
-    const now = new Date();
-    const y = now.getFullYear();
-    this.year = (y < MIN_YEAR) ? MIN_YEAR : ((y > MAX_YEAR) ? MAX_YEAR : y);
-    this.month = now.getMonth() + 1;
-    this.day = now.getDate();
-    const h = now.getHours();
-    this.hourZhi = HOURS[Math.floor((h + 1) / 2) % 12];
+    /* 仅无路由参数时用当前时间兜底；收到首页参数则保留（否则参数被覆盖、盘不随日期变） */
+    if (!this.routeDateSet) {
+      const now = new Date();
+      const y = now.getFullYear();
+      this.year = (y < MIN_YEAR) ? MIN_YEAR : ((y > MAX_YEAR) ? MAX_YEAR : y);
+      this.month = now.getMonth() + 1;
+      this.day = now.getDate();
+      const h = now.getHours();
+      this.hourZhi = HOURS[Math.floor((h + 1) / 2) % 12];
+    }
     /* 行年出生年默认：今年 - 30（可步进调整） */
     const by = this.year - 30;
     this.birthYear = (by < MIN_YEAR) ? MIN_YEAR : by;
@@ -215,6 +265,10 @@ struct Index {
       this.ready = true;
     } catch (e) {
       /* 历法数据缺失：日期网格暂空 */
+    }
+    /* 首页已选日期：数据就绪后自动起课出盘 */
+    if (this.ready) {
+      this.doChart();
     }
   }
 
@@ -421,6 +475,7 @@ struct Index {
     const c = LiurenCore.buildChart(input);
     if (c) {
       this.chart = c;
+      this.caseSource = 'self';
       this.bifaDetails = LiurenCore.renderBifaForChuans(c, c.dx, c.sanchuan.chuans, '');
       this.coach = LiurenCore.bifaCoach(c.dx.bifa, this.coachData);
       this.nianming = null;
@@ -468,6 +523,7 @@ struct Index {
       return;
     }
     this.chart = c;
+    this.caseSource = 'ancient';
     this.hourZhi = this.ancientHz; /* 同步占时（各派生状态用对时辰） */
     this.ancientNote = this.ancientMj + '将 ' + this.ancientDg + this.ancientDz + '日 ' + this.ancientHz + '时 · 已反推（' +
       (c.dx.xunkong.length ? '旬空' + c.dx.xunkong.join('') : '无空') + '）';
@@ -496,8 +552,17 @@ struct Index {
     if (!c) {
       return;
     }
+    let title: string = '';
+    if (this.caseSource === 'ancient') {
+      /* 古籍反推课例：标注来源 + 课体 */
+      title = '古籍 · ' + (this.chuanTitle() !== '' ? this.chuanTitle() : '起课');
+    } else {
+      /* 自己起的课：占事优先，其次课体 */
+      title = (this.affairName !== '' ? this.affairName : (this.chuanTitle() !== '' ? this.chuanTitle() : '起课'));
+    }
     const rec: CaseRec = {
       ts: Date.now(),
+      title: title,
       date: this.dateStr(),
       hourZhi: this.hourZhi,
       siZhu: this.ygcText(c.r) + ' ' + c.r.mg + c.r.mz + ' ' + c.r.dg + c.r.dz + ' ' + c.hourGan + this.hourZhi,
@@ -540,7 +605,6 @@ struct Index {
     }
     const doCast = (): void => {
       this.doChart();
-      this.curTab = 0;
     };
     const ctx = this.abilityCtx();
     if (!this.calData[String(y)] && ctx) {
@@ -713,219 +777,6 @@ struct Index {
   }
 
   /* ============================ 界面 ============================ */
-
-  @Builder
-  private header() {
-    Row() {
-      Text('六壬 · 读象工作台')
-        .fontSize(18)
-        .fontWeight(FontWeight.Bold)
-        .fontColor('#E9C878')
-        .letterSpacing(2)
-      Blank()
-      ModeSwitch({
-        active: this.curTab,
-        onSwitch: (i: number) => {
-          this.curTab = i;
-        }
-      })
-    }
-    .width('100%')
-    .padding({ left: 20, right: 20, top: 16, bottom: 14 })
-    .backgroundColor('#1C1A16')
-    .border({ width: { bottom: 1 }, color: 'rgba(233,200,120,0.2)' })
-  }
-
-  @Builder
-  private dateCard() {
-    Column({ space: 12 }) {
-      Row() {
-        Text('起课日期')
-          .fontSize(14)
-          .fontWeight(FontWeight.Medium)
-          .fontColor('#F0E6C8')
-        Blank()
-        Text(this.dateStr())
-          .fontSize(12)
-          .fontColor('#A8843C')
-      }
-      Row({ space: 20 }) {
-        Row({ space: 8 }) {
-          Text('‹')
-            .fontSize(24)
-            .fontColor('#A8843C')
-            .onClick(() => {
-              this.changeYear(-1);
-            })
-          Column({ space: 2 }) {
-            Text('年 · 点击输入')
-              .fontSize(10)
-              .fontColor('#8A7B5C')
-            if (this.yearEditing) {
-              TextInput({ text: this.yearEditVal, placeholder: String(this.year) })
-                .type(InputType.Number)
-                .maxLength(4)
-                .fontSize(16)
-                .fontColor('#F0D98C')
-                .backgroundColor('#211E18')
-                .height(30)
-                .width(86)
-                .onChange((v: string) => {
-                  this.yearEditVal = v;
-                })
-                .onSubmit(() => {
-                  this.commitYearEdit();
-                })
-                .onBlur(() => {
-                  this.commitYearEdit();
-                })
-            } else {
-              Text(String(this.year))
-                .fontSize(16)
-                .fontWeight(FontWeight.Medium)
-                .fontColor('#F0D98C')
-                .onClick(() => {
-                  this.yearEditVal = String(this.year);
-                  this.yearEditing = true;
-                })
-            }
-          }
-          Text('›')
-            .fontSize(24)
-            .fontColor('#A8843C')
-            .onClick(() => {
-              this.changeYear(1);
-            })
-        }
-        Row({ space: 8 }) {
-          Text('‹')
-            .fontSize(24)
-            .fontColor('#A8843C')
-            .onClick(() => {
-              this.changeMonth(-1);
-            })
-          Column({ space: 2 }) {
-            Text('月')
-              .fontSize(10)
-              .fontColor('#8A7B5C')
-            Text(String(this.month))
-              .fontSize(16)
-              .fontWeight(FontWeight.Medium)
-              .fontColor('#F0D98C')
-          }
-          Text('›')
-            .fontSize(24)
-            .fontColor('#A8843C')
-            .onClick(() => {
-              this.changeMonth(1);
-            })
-        }
-        Blank()
-        Text('今日')
-          .fontSize(12)
-          .fontColor('#B8A97F')
-          .padding({ left: 12, right: 12, top: 5, bottom: 5 })
-          .backgroundColor('#211E18')
-          .borderRadius(12)
-          .onClick(() => {
-            this.today();
-          })
-      }
-      .width('100%')
-      Grid() {
-        ForEach(WEEK_HEADS, (h: string, hi: number) => {
-          GridItem() {
-            Text(h)
-              .fontSize(11)
-              .fontColor(hi >= 5 ? '#A8843C' : '#8A7B5C')
-              .textAlign(TextAlign.Center)
-              .width('100%')
-          }
-        }, (h: string) => 'w' + h)
-        ForEach(this.blankCells(), (i: number) => {
-          GridItem() {
-            Column()
-              .width('100%')
-              .height(56)
-          }
-        }, (i: number) => 'b' + i)
-        ForEach(this.monthDays(), (r: DayRec) => {
-          GridItem() {
-            Column({ space: 2 }) {
-              Text(String(this.dayNum(r)))
-                .fontSize(14)
-                .fontWeight(FontWeight.Medium)
-                .fontColor(this.dayNum(r) === this.day ? '#1A1410' : '#F0E6C8')
-              Text(r.dg + r.dz)
-                .fontSize(9)
-                .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : '#8A7B5C')
-              if (r.st && r.st.length > 0) {
-                Text(r.st)
-                  .fontSize(8)
-                  .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : '#A8843C')
-              } else {
-                Text(' ')
-                  .fontSize(8)
-              }
-            }
-            .width('100%')
-            .height(56)
-            .justifyContent(FlexAlign.Center)
-            .borderRadius(8)
-            .backgroundColor(this.dayNum(r) === this.day ? '#E9C878' : '#211E18')
-            .onClick(() => {
-              this.day = this.dayNum(r);
-            })
-          }
-        }, (r: DayRec) => r.d)
-      }
-      .columnsTemplate('1fr 1fr 1fr 1fr 1fr 1fr 1fr')
-      .columnsGap(5)
-      .rowsGap(5)
-      .width('100%')
-    }
-    .width('100%')
-    .padding(16)
-    .borderRadius(16)
-    .backgroundColor('#1C1A16')
-    .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
-  }
-
-  @Builder
-  private hourCard() {
-    Column({ space: 10 }) {
-      Row() {
-        Text('占时时辰')
-          .fontSize(14)
-          .fontWeight(FontWeight.Medium)
-          .fontColor('#F0E6C8')
-        Blank()
-        Text('子 23-01 · 午 11-13')
-          .fontSize(10)
-          .fontColor('#6B5F45')
-      }
-      Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
-        ForEach(HOURS, (z: string) => {
-          Text(z)
-            .fontSize(13)
-            .fontColor(this.hourZhi === z ? '#1A1410' : '#C4B183')
-            .backgroundColor(this.hourZhi === z ? '#E9C878' : '#211E18')
-            .borderRadius(16)
-            .padding({ left: 12, right: 12, top: 6, bottom: 6 })
-            .margin({ right: 8, bottom: 8 })
-            .onClick(() => {
-              this.hourZhi = z;
-            })
-        }, (z: string) => z)
-      }
-      .width('100%')
-    }
-    .width('100%')
-    .padding(16)
-    .borderRadius(16)
-    .backgroundColor('#1C1A16')
-    .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
-  }
 
   @Builder
   private resultArea() {
@@ -1756,44 +1607,46 @@ struct Index {
   /* ============================ 根布局 ============================ */
 
   build() {
-    Stack() {
-      /* 沉浸背景层：延伸到状态栏与底部导航条之下（导航条背景与应用融合） */
+    /* 单页结果台：页头(PageHeader 统一胶囊) + 排盘内容 + 结果区 */
+    Column() {
+      /* 根布局首个子元素 Text 渲染异常：首位置放空占位 Column，文字全部后移 */
       Column()
         .width('100%')
-        .height('100%')
-        .backgroundColor('#14120F')
-        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+        .height(1)
+      /* 页头：PageHeader 组件（标题 + ModeSwitch + 改期）——组件为独立渲染单元，规避首子渲染问题 */
+      PageHeader({
+        title: '六壬 · 读象工作台',
+        active: 0,
+        showBack: true,
+        backText: '‹ 改期',
+        onBack: () => {
+          const params: Record<string, Object> = {
+            'y': this.year,
+            'm': this.month,
+            'd': this.day,
+            'hz': this.hourZhi
+          };
+          this.getUIContext().getRouter().replaceUrl({
+            url: 'pages/Home',
+            params: params
+          });
+        },
+        onSwitch: (i: number) => {
+          if (i === 1) {
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/Cases' });
+          } else if (i === 2) {
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/Ancient' });
+          }
+        }
+      })
 
-      /* 内容层：无底部页签栏（导航在页头 ModeSwitch），滚动内容经底部余量避让导航条 */
-      Tabs({ index: this.curTab }) {
-      TabContent() {
-        Column() {
-          this.header()
-
-          Scroll() {
+      Scroll() {
         Column({ space: 14 }) {
-          this.dateCard()
-          this.hourCard()
-
-          Button('排 盘')
-            .width('100%')
-            .height(48)
-            .fontSize(17)
-            .fontWeight(FontWeight.Medium)
-            .fontColor('#1A1410')
-            .linearGradient({ angle: 90, colors: [['#F5D98E', 0.0], ['#D9A94E', 1.0]] })
-            .borderRadius(24)
-            .shadow({ radius: 18, color: 'rgba(233,200,120,0.35)', offsetY: 4 })
-            .enabled(this.ready)
-            .opacity(this.ready ? 1 : 0.4)
-            .onClick(() => {
-              this.doChart();
-            })
-
-          Text(this.ready ? '规则与历法已就绪 · 选择日期时辰后排盘' : '正在载入历法数据…')
+          Text(this.ready ? '排盘已就绪 · 四柱/盘面如下' : '正在载入历法数据…')
             .fontSize(11)
             .fontColor('#6B5F45')
             .textAlign(TextAlign.Center)
+            .width('100%')
 
           /* 古籍案例速排 */
           Row({ space: 6 }) {
@@ -1994,64 +1847,24 @@ struct Index {
           }
         }
         .width('100%')
-        .padding({ left: 16, right: 16, top: 14, bottom: 56 })
+        .padding({ left: 16, right: 16, top: 14, bottom: 72 })
       }
       .layoutWeight(1)
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Spring)
-        }
-        .width('100%')
-        .height('100%')
-        .bindSheet($$this.showYongShen, this.yongShenSheet(), {
-          height: SheetSize.MEDIUM,
-          dragBar: true,
-          showClose: false,
-          backgroundColor: '#1C1A16'
-        })
-      }
-      .tabBar('')
-
-      /* 课例页签：保存的排盘记录（点卡片恢复重排） */
-      TabContent() {
-        CaseBoard({
-          cases: this.cases,
-          onDelete: (ts: number) => {
-            this.deleteCase(ts);
-          },
-          onRestore: (rec: CaseRec) => {
-            this.restoreCase(rec);
-          },
-          activeTab: this.curTab,
-          onSwitchTab: (i: number) => {
-            this.curTab = i;
-          }
-        })
-      }
-      .tabBar('')
-
-      /* 古籍页签：中黄五变经全文（目录 + 阅读） */
-      TabContent() {
-        AncientStudy({
-          book: this.ancient,
-          activeTab: this.curTab,
-          onSwitchTab: (i: number) => {
-            this.curTab = i;
-          }
-        })
-      }
-      .tabBar('')
     }
     .width('100%')
     .height('100%')
     .backgroundColor('#14120F')
-    .barHeight(0)
-    .onChange((i: number) => {
-      this.curTab = i;
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+    .bindSheet($$this.showYongShen, this.yongShenSheet(), {
+      height: SheetSize.MEDIUM,
+      dragBar: true,
+      showClose: false,
+      backgroundColor: '#1C1A16'
     })
-    }
-    .width('100%')
-    .height('100%')
   }
+
 
 
   /* 选占事：重算候选并用神（沿用旧用神或取首候选），同步更新盘面高亮 */

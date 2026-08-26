@@ -1,7 +1,10 @@
 {
   "src": [
     "pages/Splash",
+    "pages/Home",
     "pages/Index",
+    "pages/Cases",
+    "pages/Ancient",
     "pages/Legal/PrivacyPolicy",
     "pages/Legal/UserAgreement"
   ]

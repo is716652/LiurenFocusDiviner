@@ -10,6 +10,7 @@ import { common } from '@kit.AbilityKit';
 
 export interface CaseRec {
   ts: number;          /* 保存时间戳（毫秒，同时作唯一键） */
+  title: string;       /* 课例标题（自己起课=占事/课体；古籍反推=古籍·课体） */
   date: string;        /* 'YYYY-MM-DD' */
   hourZhi: string;     /* 占时地支 */
   siZhu: string;       /* 年柱 月柱 日柱 时柱（空格连接的展示串） */
@@ -54,6 +55,9 @@ export class CaseStore {
       for (let i = 0; i < arr.length; i++) {
         const it = arr[i] as CaseRec;
         if (it && typeof it.ts === 'number' && typeof it.date === 'string') {
+          if (typeof it.title !== 'string' || it.title === '') {
+            it.title = it.affairName !== '' ? it.affairName : (it.date + ' ' + it.hourZhi + '时');
+          }
           out.push(it);
         }
       }
@@ -64,12 +68,35 @@ export class CaseStore {
     }
   }
 
-  /* 追加一条课例（超上限丢最旧；返回追加后的列表） */
+  /* 追加一条课例：
+     按 日期+时辰+三传+用神+占事 去重——完全相同则更新置顶(ts 刷新)；
+     用神/占事不同视为不同读象视角，作为新案例保留；超上限丢最旧 */
   static async addCase(rec: CaseRec): Promise<CaseRec[]> {
     if (!CaseStore.prefs) {
       return [];
     }
     const cur = await CaseStore.loadCases();
+    const key = rec.date + '|' + rec.hourZhi + '|' + rec.chuans + '|' + rec.yongShen + '|' + rec.affairName;
+    let found = -1;
+    for (let i = 0; i < cur.length; i++) {
+      const k = cur[i].date + '|' + cur[i].hourZhi + '|' + cur[i].chuans + '|' + cur[i].yongShen + '|' + cur[i].affairName;
+      if (k === key) {
+        found = i;
+        break;
+      }
+    }
+    if (found >= 0) {
+      /* 更新原记录：保留 ts 作为唯一键，刷新内容并置顶 */
+      rec.ts = cur[found].ts;
+      const updated: CaseRec[] = [rec];
+      for (let i = 0; i < cur.length; i++) {
+        if (i !== found) {
+          updated.push(cur[i]);
+        }
+      }
+      await CaseStore.persist(updated);
+      return updated;
+    }
     cur.unshift(rec);
     while (cur.length > CaseStore.MAX_CASES) {
       cur.pop();

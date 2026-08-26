@@ -102,7 +102,7 @@ struct Splash {
         .shadow({ radius: 22, color: 'rgba(233,200,120,0.40)', offsetY: 6 })
         .translate({ y: 252 })
         .onClick(() => {
-          this.getUIContext().getRouter().replaceUrl({ url: 'pages/Index' });
+          this.getUIContext().getRouter().replaceUrl({ url: 'pages/Home' });
         })
 
       // 底部小字 + 合规链接

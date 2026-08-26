@@ -336,37 +336,51 @@ export struct YongShenSheet {
               }
               .width('100%')
               Swiper() {
-                /* 页0 动态三传（默认；随用神；上下结构：初传在上） */
+                /* 页0 动态三传（默认；随用神；上下结构：初传在上）
+                   每传两行：主行(位置/干支/六亲/天将，固定不挤) + 神煞小字行(独立，多字换行) */
                 Column({ space: 3 }) {
                   ForEach(this.dongtaiRows(), (tr: MiniChuanRow, ti: number) => {
-                    Row({ space: 3 }) {
-                      Text((ti === 0 ? '★ ' : '') + tr.pos)
-                        .fontSize(8)
-                        .fontColor(ti === 0 ? '#F0D98C' : '#8A7B5C')
-                        .fontWeight(ti === 0 ? FontWeight.Bold : FontWeight.Normal)
-                        .width(22)
-                      Text(tr.gan)
-                        .fontSize(11)
-                        .fontWeight(FontWeight.Bold)
-                        .fontColor('#F0D98C')
-                        .width(14)
-                      Text(tr.zhi)
-                        .fontSize(12)
-                        .fontWeight(FontWeight.Bold)
-                        .fontColor('#F0D98C')
-                        .width(18)
-                      Text(tr.lq)
-                        .fontSize(9)
-                        .fontColor('#A8843C')
-                        .width(24)
-                      Text(tr.jiang)
-                        .fontSize(9)
-                        .fontColor('#C4B183')
-                        .layoutWeight(1)
-                      Text(tr.shensha)
-                        .fontSize(8)
-                        .fontColor(tr.kong ? '#D0704A' : '#6B5F45')
-                        .layoutWeight(1)
+                    Column({ space: 1 }) {
+                      /* 主行：位置/干/支/六亲/天将（末传固定宽度，永不被神煞挤掉） */
+                      Row({ space: 3 }) {
+                        Text((ti === 0 ? '★ ' : '') + tr.pos)
+                          .fontSize(8)
+                          .fontColor(ti === 0 ? '#F0D98C' : '#8A7B5C')
+                          .fontWeight(ti === 0 ? FontWeight.Bold : FontWeight.Normal)
+                          .width(22)
+                        Text(tr.gan)
+                          .fontSize(11)
+                          .fontWeight(FontWeight.Bold)
+                          .fontColor('#F0D98C')
+                          .width(14)
+                        Text(tr.zhi)
+                          .fontSize(12)
+                          .fontWeight(FontWeight.Bold)
+                          .fontColor('#F0D98C')
+                          .width(18)
+                        Text(tr.lq)
+                          .fontSize(9)
+                          .fontColor('#A8843C')
+                          .width(24)
+                        Text(tr.jiang)
+                          .fontSize(9)
+                          .fontColor('#C4B183')
+                          .layoutWeight(1)
+                          .maxLines(1)
+                          .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      }
+                      .width('100%')
+                      /* 神煞行：独立小字，多字换行展示；过多才省略（不挤主行） */
+                      if (tr.shensha !== '') {
+                        Text(tr.shensha)
+                          .fontSize(7)
+                          .fontColor(tr.kong ? '#D0704A' : '#6B5F45')
+                          .lineHeight(10)
+                          .width('100%')
+                          .maxLines(2)
+                          .textOverflow({ overflow: TextOverflow.Ellipsis })
+                          .padding({ left: 4, right: 4 })
+                      }
                     }
                     .width('100%')
                     .padding({ top: 3, bottom: 3, left: 4, right: 4 })
@@ -500,7 +514,7 @@ export struct YongShenSheet {
     }
     .width('100%')
     .height('100%')
-    .padding({ left: 16, right: 16, top: 14, bottom: 50 })
+    .padding({ left: 16, right: 16, top: 14, bottom: 72 })
     .backgroundColor('#1C1A16')
   }
 
