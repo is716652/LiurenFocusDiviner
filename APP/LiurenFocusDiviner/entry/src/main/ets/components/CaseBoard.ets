@@ -8,10 +8,14 @@
  * ArkTS 合规：零 any / unknown；显式类型；回调显式签名
  */
 import type { CaseRec } from '../model/CaseStore';
+import { ModeSwitch } from './ModeSwitch';
 
 @Component
 export struct CaseBoard {
   @Prop cases: CaseRec[] = [];
+  /* 当前页（ModeSwitch 高亮）与切换回调（由 Index 注入） */
+  @Prop activeTab: number = 0;
+  onSwitchTab: (idx: number) => void = () => { };
   onDelete: (ts: number) => void = () => { };
   onRestore: (rec: CaseRec) => void = () => { };
 
@@ -27,6 +31,13 @@ export struct CaseBoard {
         Text(this.cases.length > 0 ? ('共 ' + this.cases.length + ' 例') : '')
           .fontSize(11)
           .fontColor('#8A7B5C')
+          .margin({ right: 8 })
+        ModeSwitch({
+          active: this.activeTab,
+          onSwitch: (i: number) => {
+            this.onSwitchTab(i);
+          }
+        })
       }
       .width('100%')
       .padding({ left: 20, right: 20, top: 16, bottom: 12 })
@@ -56,7 +67,7 @@ export struct CaseBoard {
               .fontColor('#5A4F3D')
               .width('100%')
               .textAlign(TextAlign.Center)
-              .padding({ top: 10, bottom: 30 })
+              .padding({ top: 10, bottom: 56 })
           }
         }
         .width('100%')

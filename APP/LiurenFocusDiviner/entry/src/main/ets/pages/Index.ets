@@ -40,6 +40,7 @@ import { TagBadge } from '../components/TagBadge';
 import { YongShenSheet } from '../components/YongShenSheet';
 import { AncientStudy } from '../components/AncientStudy';
 import { CaseBoard } from '../components/CaseBoard';
+import { ModeSwitch } from '../components/ModeSwitch';
 
 const MIN_YEAR: number = 1900;
 const MAX_YEAR: number = 2060;
@@ -722,12 +723,12 @@ struct Index {
         .fontColor('#E9C878')
         .letterSpacing(2)
       Blank()
-      Text('排盘')
-        .fontSize(11)
-        .fontColor('#A8843C')
-        .padding({ left: 10, right: 10, top: 3, bottom: 3 })
-        .border({ width: 1, color: 'rgba(168,132,60,0.6)' })
-        .borderRadius(10)
+      ModeSwitch({
+        active: this.curTab,
+        onSwitch: (i: number) => {
+          this.curTab = i;
+        }
+      })
     }
     .width('100%')
     .padding({ left: 20, right: 20, top: 16, bottom: 14 })
@@ -1754,22 +1755,6 @@ struct Index {
 
   /* ============================ 根布局 ============================ */
 
-  /* 底部页签按钮（暗底金字，选中亮金） */
-  @Builder
-  private tabBar(title: string, glyph: string, idx: number) {
-    Column({ space: 3 }) {
-      Text(glyph)
-        .fontSize(16)
-        .fontColor(this.curTab === idx ? '#F0D98C' : '#6B5F45')
-      Text(title)
-        .fontSize(10)
-        .fontColor(this.curTab === idx ? '#F0D98C' : '#6B5F45')
-    }
-    .width('100%')
-    .height('100%')
-    .justifyContent(FlexAlign.Center)
-  }
-
   build() {
     Stack() {
       /* 沉浸背景层：延伸到状态栏与底部导航条之下（导航条背景与应用融合） */
@@ -1779,8 +1764,8 @@ struct Index {
         .backgroundColor('#14120F')
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
 
-      /* 内容层：不做安全区扩展——底部页签栏避让导航条，滚动内容与按钮不被遮挡 */
-      Tabs({ barPosition: BarPosition.End, index: this.curTab }) {
+      /* 内容层：无底部页签栏（导航在页头 ModeSwitch），滚动内容经底部余量避让导航条 */
+      Tabs({ index: this.curTab }) {
       TabContent() {
         Column() {
           this.header()
@@ -2009,7 +1994,7 @@ struct Index {
           }
         }
         .width('100%')
-        .padding({ left: 16, right: 16, top: 14, bottom: 40 })
+        .padding({ left: 16, right: 16, top: 14, bottom: 56 })
       }
       .layoutWeight(1)
       .scrollBar(BarState.Off)
@@ -2024,7 +2009,7 @@ struct Index {
           backgroundColor: '#1C1A16'
         })
       }
-      .tabBar(this.tabBar('排盘', '☷', 0))
+      .tabBar('')
 
       /* 课例页签：保存的排盘记录（点卡片恢复重排） */
       TabContent() {
@@ -2035,22 +2020,31 @@ struct Index {
           },
           onRestore: (rec: CaseRec) => {
             this.restoreCase(rec);
+          },
+          activeTab: this.curTab,
+          onSwitchTab: (i: number) => {
+            this.curTab = i;
           }
         })
       }
-      .tabBar(this.tabBar('课例', '✦', 1))
+      .tabBar('')
 
       /* 古籍页签：中黄五变经全文（目录 + 阅读） */
       TabContent() {
-        AncientStudy({ book: this.ancient })
+        AncientStudy({
+          book: this.ancient,
+          activeTab: this.curTab,
+          onSwitchTab: (i: number) => {
+            this.curTab = i;
+          }
+        })
       }
-      .tabBar(this.tabBar('古籍', '❖', 2))
+      .tabBar('')
     }
     .width('100%')
     .height('100%')
     .backgroundColor('#14120F')
-    .barWidth('100%')
-    .barHeight(58)
+    .barHeight(0)
     .onChange((i: number) => {
       this.curTab = i;
     })

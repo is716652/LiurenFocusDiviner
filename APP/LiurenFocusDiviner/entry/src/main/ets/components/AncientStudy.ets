@@ -8,10 +8,14 @@
  * ArkTS 合规：零 any / unknown；显式类型；@Prop 状态由父级注入
  */
 import type { AncientBook, AncientChapter } from '../model/DataLoader';
+import { ModeSwitch } from './ModeSwitch';
 
 @Component
 export struct AncientStudy {
   @Prop book: AncientBook | null = null;
+  /* 当前页（ModeSwitch 高亮）与切换回调（由 Index 注入） */
+  @Prop activeTab: number = 0;
+  onSwitchTab: (idx: number) => void = () => { };
   /* 当前阅读篇目下标（-1 = 目录视图） */
   @State private curIdx: number = -1;
 
@@ -50,6 +54,13 @@ export struct AncientStudy {
         Text(this.book ? this.book.书名 : '')
           .fontSize(11)
           .fontColor('#8A7B5C')
+          .margin({ right: 8 })
+        ModeSwitch({
+          active: this.activeTab,
+          onSwitch: (i: number) => {
+            this.onSwitchTab(i);
+          }
+        })
       }
       .width('100%')
       .padding({ left: 20, right: 20, top: 16, bottom: 12 })
@@ -119,7 +130,7 @@ export struct AncientStudy {
             .fontColor('#5A4F3D')
             .width('100%')
             .textAlign(TextAlign.Center)
-            .padding({ top: 20, bottom: 30 })
+            .padding({ top: 20, bottom: 56 })
         }
       }
       .width('100%')
@@ -162,7 +173,7 @@ export struct AncientStudy {
           }, (p: string, pi: number) => 'p' + this.curIdx + '-' + pi)
         }
         .width('100%')
-        .padding({ left: 18, right: 18, bottom: 20 })
+        .padding({ left: 18, right: 18, bottom: 56 })
       }
       .layoutWeight(1)
       .scrollBar(BarState.Off)
@@ -198,7 +209,7 @@ export struct AncientStudy {
           })
       }
       .width('100%')
-      .padding({ left: 16, right: 16, top: 8, bottom: 10 })
+      .padding({ left: 16, right: 16, top: 8, bottom: 56 })
       .backgroundColor('#1C1A16')
       .border({ width: { top: 1 }, color: 'rgba(233,200,120,0.15)' })
     }
