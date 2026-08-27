@@ -134,6 +134,7 @@ struct Splash {
     }
     .width('100%')
     .height('100%')
+    .backgroundColor('#14120F')
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 
