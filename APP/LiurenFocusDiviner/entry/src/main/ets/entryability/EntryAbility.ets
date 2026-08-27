@@ -1,4 +1,4 @@
-﻿import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
+import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 
@@ -17,12 +17,11 @@ export default class EntryAbility extends UIAbility {
     // Main window is created, set main page for this ability
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
 
-    /* 沉浸式状态栏适配：
-       1) 窗口全屏布局（状态栏区域并入页面，一体化背景）
-       2) 状态栏文字/图标设白色（深色页面背景保证易读） */
+    /* 状态栏适配（华为 UX 审核）：不做全屏沉浸，系统保留状态栏区域；
+       仅统一状态栏/导航栏颜色，页面根容器不再扩展 TOP 安全区，避免标题/按钮遮挡。 */
     try {
       const win = windowStage.getMainWindowSync();
-      win.setWindowLayoutFullScreen(true);
+      win.setWindowLayoutFullScreen(false);
       const barProps: window.SystemBarProperties = {
         statusBarColor: '#17150F',
         statusBarContentColor: '#F0E6C8',
