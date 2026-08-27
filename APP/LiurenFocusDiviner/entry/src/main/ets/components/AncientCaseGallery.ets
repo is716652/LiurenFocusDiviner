@@ -7,7 +7,23 @@
  */
 import type { AncientCase } from '../model/DataLoader';
 import { LiurenCore } from '../model/LiurenCore';
-import type { Chart, ZhonghuangAnalyze } from '../model/LiurenCore';
+import type { Chart, Keg, ZhonghuangAnalyze } from '../model/LiurenCore';
+import { PanDisk } from './PanDisk';
+import { KegCard } from './KegCard';
+import { ChuanCard } from './ChuanCard';
+
+interface KegRow {
+  kn: string;
+  keg: Keg;
+}
+
+interface ChuanRow {
+  pos: string;
+  gz: string;
+  jiang: string;
+  lq: string;
+  color: string;
+}
 
 @Component
 export struct AncientCaseGallery {
@@ -48,6 +64,60 @@ export struct AncientCaseGallery {
       parts.push(ch.sanchuan.chuans[i].gz + '乘' + ch.jiangMap[gong] + '@' + gong);
     }
     return parts.join(' → ');
+  }
+
+  private jiangOf(ch: Chart, z: string): string {
+    const gong = LiurenCore.gongOf(ch.tp, z);
+    const j = ch.jiangMap[gong];
+    return j ? j : '';
+  }
+
+  private liuqinOf(ch: Chart, z: string): string {
+    const w = LiurenCore.WX[z] || '';
+    const dw = LiurenCore.WXG[ch.r.dg] || '';
+    if (w === dw) {
+      return '兄弟';
+    }
+    if (LiurenCore.KE[dw] === w) {
+      return '妻财';
+    }
+    if (LiurenCore.KE[w] === dw) {
+      return '官鬼';
+    }
+    if (LiurenCore.SHENG(dw) === w) {
+      return '子孙';
+    }
+    return '父母';
+  }
+
+  private chuanTitle(ch: Chart): string {
+    const k = ch.sanchuan.keti;
+    return k !== '' ? k : ch.sanchuan.method;
+  }
+
+  private kegRows(ch: Chart): KegRow[] {
+    const out: KegRow[] = [];
+    for (let i = 3; i >= 0; i--) {
+      out.push({ kn: '第' + (i + 1) + '课', keg: ch.kegs[i] });
+    }
+    return out;
+  }
+
+  private chuanRows(ch: Chart): ChuanRow[] {
+    const posNames: string[] = ['初传', '中传', '末传'];
+    const out: ChuanRow[] = [];
+    for (let i = 0; i < ch.sanchuan.chuans.length; i++) {
+      const z = ch.sanchuan.chuans[i].z;
+      const jiang = this.jiangOf(ch, z);
+      out.push({
+        pos: posNames[i],
+        gz: ch.sanchuan.chuans[i].gz,
+        jiang: jiang,
+        lq: this.liuqinOf(ch, z),
+        color: (LiurenCore.JIANG_JX[jiang] === '吉') ? '#E9C878' : '#D0704A'
+      });
+    }
+    return out;
   }
 
   @Builder
@@ -152,19 +222,86 @@ export struct AncientCaseGallery {
       .backgroundColor('#1C1A16')
 
       if (this.chart) {
-        Column({ space: 6 }) {
-          Text('程序复算')
-            .fontSize(12)
-            .fontColor('#A8843C')
-          Text('四课　' + this.kegLine(this.chart as Chart))
-            .fontSize(11)
-            .fontColor('#F0E6C8')
-          Text('三传　' + this.chuanLine(this.chart as Chart))
-            .fontSize(11)
-            .fontColor('#F0E6C8')
-          Text('旬空　' + (this.chart as Chart).dx.xunkong.join('') + '　日干旺衰　' + (this.chart as Chart).dx.dayWangShuai)
-            .fontSize(11)
-            .fontColor('#8A7B5C')
+        Column({ space: 10 }) {
+          Row() {
+            Text('程序复算')
+              .fontSize(12)
+              .fontColor('#A8843C')
+            Blank()
+            Text('旬空 ' + (this.chart as Chart).dx.xunkong.join('') + ' · 日干' + (this.chart as Chart).dx.dayWangShuai)
+              .fontSize(10)
+              .fontColor('#6B5F45')
+          }
+          .width('100%')
+
+          Column() {
+            PanDisk({
+              chart: this.chart as Chart
+            })
+          }
+          .width('100%')
+          .alignItems(HorizontalAlign.Center)
+
+          Column({ space: 8 }) {
+            Row() {
+              Text('四课')
+                .fontSize(13)
+                .fontWeight(FontWeight.Medium)
+                .fontColor('#F0E6C8')
+              Blank()
+              Text('右起第一课 · 干上神')
+                .fontSize(9)
+                .fontColor('#6B5F45')
+            }
+            .width('100%')
+            Row({ space: 8 }) {
+              KegCard({ kn: this.kegRows(this.chart as Chart)[0].kn, xia: this.kegRows(this.chart as Chart)[0].keg.s,
+                shang: this.kegRows(this.chart as Chart)[0].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[0].keg.x) })
+                .layoutWeight(1)
+              KegCard({ kn: this.kegRows(this.chart as Chart)[1].kn, xia: this.kegRows(this.chart as Chart)[1].keg.s,
+                shang: this.kegRows(this.chart as Chart)[1].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[1].keg.x) })
+                .layoutWeight(1)
+              KegCard({ kn: this.kegRows(this.chart as Chart)[2].kn, xia: this.kegRows(this.chart as Chart)[2].keg.s,
+                shang: this.kegRows(this.chart as Chart)[2].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[2].keg.x) })
+                .layoutWeight(1)
+              KegCard({ kn: this.kegRows(this.chart as Chart)[3].kn, xia: this.kegRows(this.chart as Chart)[3].keg.s,
+                shang: this.kegRows(this.chart as Chart)[3].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[3].keg.x),
+                highlight: true })
+                .layoutWeight(1)
+            }
+            .width('100%')
+          }
+          .width('100%')
+
+          Column({ space: 8 }) {
+            Row() {
+              Text('三传 · ' + this.chuanTitle(this.chart as Chart))
+                .fontSize(13)
+                .fontWeight(FontWeight.Medium)
+                .fontColor('#F0E6C8')
+              Blank()
+              Text('九宗门')
+                .fontSize(9)
+                .fontColor('#6B5F45')
+            }
+            .width('100%')
+            Row({ space: 8 }) {
+              ChuanCard({ pos: this.chuanRows(this.chart as Chart)[0].pos, gz: this.chuanRows(this.chart as Chart)[0].gz,
+                jiang: this.chuanRows(this.chart as Chart)[0].jiang, lq: this.chuanRows(this.chart as Chart)[0].lq,
+                color: this.chuanRows(this.chart as Chart)[0].color, highlight: true })
+                .layoutWeight(1)
+              ChuanCard({ pos: this.chuanRows(this.chart as Chart)[1].pos, gz: this.chuanRows(this.chart as Chart)[1].gz,
+                jiang: this.chuanRows(this.chart as Chart)[1].jiang, lq: this.chuanRows(this.chart as Chart)[1].lq,
+                color: this.chuanRows(this.chart as Chart)[1].color })
+                .layoutWeight(1)
+              ChuanCard({ pos: this.chuanRows(this.chart as Chart)[2].pos, gz: this.chuanRows(this.chart as Chart)[2].gz,
+                jiang: this.chuanRows(this.chart as Chart)[2].jiang, lq: this.chuanRows(this.chart as Chart)[2].lq,
+                color: this.chuanRows(this.chart as Chart)[2].color })
+                .layoutWeight(1)
+            }
+            .width('100%')
+          }
+          .width('100%')
         }
         .width('100%')
         .padding(12)
