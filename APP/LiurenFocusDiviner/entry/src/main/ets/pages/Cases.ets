@@ -103,6 +103,6 @@ struct Cases {
     .justifyContent(FlexAlign.Start)
     .alignItems(HorizontalAlign.Start)
     .backgroundColor('#14120F')
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 }

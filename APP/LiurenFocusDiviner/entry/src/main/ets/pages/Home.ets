@@ -514,7 +514,7 @@ struct Home {
         .fontWeight(FontWeight.Bold)
         .fontColor('#E9C878')
         .letterSpacing(3)
-        .margin({ left: 20, top: 72 })
+        .margin({ left: 20, top: 24 })
       Text('月将加时 · 四课三传 · 神煞格局 · 读象直断')
         .fontSize(11)
         .fontColor('#8A7B5C')
@@ -626,6 +626,6 @@ struct Home {
     .width('100%')
     .height('100%')
     .backgroundColor('#14120F')
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 }

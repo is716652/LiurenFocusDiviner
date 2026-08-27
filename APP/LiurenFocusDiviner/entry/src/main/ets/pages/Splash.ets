@@ -134,7 +134,7 @@ struct Splash {
     }
     .width('100%')
     .height('100%')
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 
   /** 天盘绘制：刻度环 + 地盘十二支 + 旋转天盘支 + 中心炁 */
