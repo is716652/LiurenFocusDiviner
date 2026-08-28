@@ -1214,7 +1214,7 @@ struct Index {
         }
         .width('100%')
         /* 付费门禁：毕法教练（付费区仅开发/收费版显示；免费版整体隐藏） */
-        if (PayConfig.paidVisible() && !PayGate.isUnlocked(PayConfig.F_BIFA)) {
+        if (PayConfig.isPaidMode() && PayConfig.paidVisible() && !PayGate.isUnlocked(PayConfig.F_BIFA)) {
           Row({ space: 6 }) {
             Text('🔒')
               .fontSize(13)
@@ -1487,6 +1487,11 @@ struct Index {
                 .lineHeight(18)
                 .width('100%')
               Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')
+                .fontSize(9)
+                .fontColor('#5A4F3D')
+                .lineHeight(13)
+                .width('100%')
+              Text('以上为古籍断法整理，仅供传统文化研习参考，不构成现实判断或决策建议')
                 .fontSize(9)
                 .fontColor('#5A4F3D')
                 .lineHeight(13)
@@ -1950,15 +1955,15 @@ struct Index {
     const lq = a.bianLq;
     let txt = '变干' + a.dun.bianGan + '为日干' + a.dun.dayGan + '之' + lq;
     if (lq === '官鬼') {
-      txt += '（鬼贼，防官非疾病，宜寻子孙制化）';
+      txt += '（古籍云：鬼贼主官非疾病之诫，制化取子孙为参）';
     } else if (lq === '妻财') {
-      txt += '（财，求财有机会，宜主动）';
+      txt += '（古籍云：财主财利机缘之象）';
     } else if (lq === '父母') {
-      txt += '（父，得文书长辈之助）';
+      txt += '（古籍云：父母主文书长辈扶助之象）';
     } else if (lq === '子孙') {
-      txt += '（子，逢凶有解）';
+      txt += '（古籍云：子孙主救应化解之象）';
     } else {
-      txt += '（比肩，同辈合作，防争夺）';
+      txt += '（古籍云：比肩主同辈合作，争夺之诫仅作文献参考）';
     }
     if (a.bianInChuan !== '') {
       txt += ' 变干入' + a.bianInChuan + '，事应之速。';

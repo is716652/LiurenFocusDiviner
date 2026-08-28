@@ -1467,7 +1467,7 @@ export class LiurenCore {
     }
     /* 第35法 人宅受脱：干支上皆乘脱气（干上生日干 且 支上生日支） */
     if (tuoGan(ganS) && tuoZhi(zhiS)) {
-      hit(35, "人宅受脱（干支上皆脱气，防失盗）");
+      hit(35, "人宅受脱（干支上皆脱气，古籍有防失盗之诫）");
     }
     /* 第36法 干支皆败：干上=日干败地 且 支上=日支败地（沐浴；ZHI_GONG 地支表） */
     const qj36 = LiurenCore.QIJI_GONG[r.dg] || {};
@@ -1480,7 +1480,7 @@ export class LiurenCore {
     /* 第15法 脱上逢脱：日干生干上神，干上神又生其上神（层层脱耗） */
     const ganS2 = c.tp[ganS];
     if (shengWx(r.dg, ganS) && ganS2 !== "" && shengWx(ganS, ganS2)) {
-      hit(15, "脱上逢脱（干生上神·上神又生，防虚诈）");
+      hit(15, "脱上逢脱（干生上神·上神又生，古籍有防虚诈之诫）");
     }
     return out;
   }
@@ -1823,7 +1823,7 @@ export class LiurenCore {
         tags.push(zhong + " 中");
       }
       summary = "命中 " + items.length + " 格局（" + tags.join(" · ") + "）" +
-        (xiong > ji ? "，凶象偏重，宜守不宜进。" : (ji > xiong ? "，吉象为主，可乘势而为。" : "，吉凶参半，审慎处之。"));
+        (xiong > ji ? "，古籍谓凶象偏重。" : (ji > xiong ? "，古籍谓吉象为主。" : "，古籍谓吉凶参半。"));
       const seen: string[] = [];
       for (let gi = 0; gi < items.length; gi++) {
         const it = items[gi];
@@ -1856,15 +1856,15 @@ export class LiurenCore {
           } else if (cls === "空亡" || cls === "旬空") {
             line = "空亡之象突出（" + names.join("、") + "），事多虚而不实";
           } else if (cls === "官鬼" || cls === "天将") {
-            line = "官鬼天将带凶（" + names.join("、") + "），防是非病伤";
+            line = "官鬼天将带凶（" + names.join("、") + "），古籍主是非病伤之诫";
           } else if (cls === "贵人") {
-            line = "贵人相关（" + names.join("、") + "），宜投贵干谒";
+            line = "贵人相关（" + names.join("、") + "），古籍主干谒扶助之象";
           } else if (cls === "禄马") {
             line = "禄马并见（" + names.join("、") + "），进退有凭";
           } else if (cls === "三传") {
             line = "三传结构（" + names.join("、") + "），定事之始终";
           } else if (cls === "脱耗") {
-            line = "脱耗之象（" + names.join("、") + "），防虚耗失脱";
+            line = "脱耗之象（" + names.join("、") + "），古籍主虚耗失脱之诫";
           } else if (cls === "六合") {
             line = "和合之象（" + names.join("、") + "），利合作";
           } else {
@@ -1905,16 +1905,16 @@ export class LiurenCore {
       if (ysWx !== "" && w !== "") {
         if (LiurenCore.SHENG(w) === ysWx) {
           rel = "我生";
-          interact = "年命上神生用神（" + shang + "生" + yongShenZhi + "），命主主动推动此占之事，亲力亲为有助成事。";
+          interact = "古籍云：年命上神生用神（" + shang + "生" + yongShenZhi + "），主命主推动此事、亲历有成之象。";
         } else if (LiurenCore.SHENG(ysWx) === w) {
           rel = "生我";
           interact = "用神生年命上神（" + yongShenZhi + "生" + shang + "），此事反哺命主，纵有波折终得滋养。";
         } else if (LiurenCore.KE[w] === ysWx) {
           rel = "我克";
-          interact = "年命上神克用神（" + shang + "克" + yongShenZhi + "），命主能掌控此事，宜主动出击。";
+          interact = "古籍云：年命上神克用神（" + shang + "克" + yongShenZhi + "），主命主能掌控此事之象。";
         } else if (LiurenCore.KE[ysWx] === w) {
           rel = "克我";
-          interact = "用神克年命上神（" + yongShenZhi + "克" + shang + "），此事克制命主，宜谨慎回避锋芒。";
+          interact = "古籍云：用神克年命上神（" + yongShenZhi + "克" + shang + "），主此事克命主，宜避其锋之诫仅作文献参考。";
         } else {
           rel = "比和";
           interact = "年命上神与用神比和（" + shang + "与" + yongShenZhi + "同气），事与命主相合，进展平稳。";
@@ -1923,22 +1923,22 @@ export class LiurenCore {
     }
     let advice = "";
     if (kong) {
-      advice = "年命上神逢空，谋事易落空，宜缓不宜急，待出空再动。";
+      advice = "古籍云：年命上神逢空，主事象易落空，缓急之机可参出空。";
     } else if (lq === "官鬼") {
-      advice = "年命上神为日干之官鬼，防是非官灾，谋事宜谨慎低调。";
+      advice = "古籍云：年命上神临官鬼，主是非压力之象（传统文化参考，非现实判断）。";
     } else if (lq === "妻财") {
-      advice = "年命上神为日干之财，谋利有机会，宜主动求财。";
+      advice = "古籍云：年命上神临妻财，主财利机缘之象。";
     } else if (lq === "子孙") {
-      advice = "年命上神为日干之子孙，有救应化解之力，逢凶可解。";
+      advice = "古籍云：年命上神临子孙，主救应化解之象。";
     } else if (lq === "父母") {
-      advice = "年命上神为日干之父母，得文书长辈之助，利求名。";
+      advice = "古籍云：年命上神临父母，主文书长辈扶助之象。";
     } else {
-      advice = "年命上神为日干之比肩，得同辈助力，利合作共事。";
+      advice = "古籍云：年命上神临比肩，主同辈扶助、合作共事之象。";
     }
     if (ws === "旺" || ws === "相") {
-      advice += " 年命上神旺相，助力坚实。";
+      advice += " 年命上神旺相，古籍谓助力较实。";
     } else if (ws === "死" || ws === "囚") {
-      advice += " 年命上神衰弱，助力有限。";
+      advice += " 年命上神衰弱，古籍谓助力有限。";
     }
     if (interact !== "") {
       advice += " " + interact;
@@ -2001,16 +2001,16 @@ export class LiurenCore {
       if (ysWx !== "" && w !== "") {
         if (LiurenCore.SHENG(w) === ysWx) {
           rel = "我生";
-          interact = "行年上神生用神（" + shang + "生" + ys + "），今年之运主动推动此事，宜亲力亲为。";
+          interact = "古籍云：行年上神生用神（" + shang + "生" + ys + "），主今年之运推动此事之象。";
         } else if (LiurenCore.SHENG(ysWx) === w) {
           rel = "生我";
           interact = "用神生行年上神（" + ys + "生" + shang + "），此事反哺今年之运，纵有波折终得滋养。";
         } else if (LiurenCore.KE[w] === ysWx) {
           rel = "我克";
-          interact = "行年上神克用神（" + shang + "克" + ys + "），今年能掌控此事，宜主动出击。";
+          interact = "古籍云：行年上神克用神（" + shang + "克" + ys + "），主今年能掌控此事之象。";
         } else if (LiurenCore.KE[ysWx] === w) {
           rel = "克我";
-          interact = "用神克行年上神（" + ys + "克" + shang + "），此事克制今年之运，宜谨慎回避锋芒。";
+          interact = "古籍云：用神克行年上神（" + ys + "克" + shang + "），主此事克今年之运，避锋之诫仅作文献参考。";
         } else {
           rel = "比和";
           interact = "行年上神与用神比和（" + shang + "与" + ys + "同气），事与今年之运相合，进展平稳。";
@@ -2026,31 +2026,31 @@ export class LiurenCore {
     let tsNote = "";
     if (shang === taiSuiZhi) {
       tsRel = "值太岁";
-      tsNote = "行年上神临太岁，今年岁星当头，动静宜郑重，忌轻举妄动。";
+      tsNote = "古籍云：行年上神临太岁，岁星当头，主动静郑重之象。";
     } else if (chongMap[shang] === taiSuiZhi) {
       tsRel = "冲太岁";
-      tsNote = "行年上神冲太岁，今年多变动冲击，出行远行宜慎，防外伤口舌。";
+      tsNote = "古籍云：行年上神冲太岁，主变动冲击之象；远行外伤诸说仅作文献参考。";
     } else if (heMap[shang] === taiSuiZhi) {
       tsRel = "合太岁";
-      tsNote = "行年上神合太岁，今年得岁星眷顾，人缘合作顺遂，利成事。";
+      tsNote = "古籍云：行年上神合太岁，主岁星眷顾、人缘合作之象。";
     } else if (w !== "") {
       const tw = LiurenCore.WX[taiSuiZhi];
       if (tw !== "") {
         if (LiurenCore.SHENG(w) === tw) {
           tsRel = "生太岁";
-          tsNote = "行年上神生太岁，今年运势向岁星进献，付出多而回报在后，宜积蓄。";
+          tsNote = "古籍云：行年上神生太岁，主付出在前、回报在后之象。";
         } else if (LiurenCore.SHENG(tw) === w) {
           tsRel = "太岁生";
-          tsNote = "太岁生行年上神，今年得岁星生扶，根基稳固，逢凶化吉。";
+          tsNote = "古籍云：太岁生行年上神，主岁星生扶、根基渐固之象。";
         } else if (LiurenCore.KE[w] === tw) {
           tsRel = "克太岁";
-          tsNote = "行年上神克太岁，今年有犯岁之象，宜低调谦和，防与上位冲突。";
+          tsNote = "古籍云：行年上神克太岁，主犯岁之嫌；与上位冲突之说仅作文献参考。";
         } else if (LiurenCore.KE[tw] === w) {
           tsRel = "太岁克";
-          tsNote = "太岁克行年上神，今年运势受岁星压制，宜守不宜攻，慎防官非。";
+          tsNote = "古籍云：太岁克行年上神，主岁星压制、官非慎防之诫（传统文化参考）。";
         } else {
           tsRel = "比和";
-          tsNote = "行年上神与太岁比和，今年运势平稳，无大波折。";
+          tsNote = "古籍云：行年上神与太岁比和，主运势平稳之象。";
         }
       }
     }
@@ -2060,11 +2060,11 @@ export class LiurenCore {
     let jiangNote = "";
     if (jiang !== "") {
       if (jiangJx === "吉") {
-        jiangNote = "行年上神乘吉将" + jiang + "，今年得助力，诸事顺遂。";
+        jiangNote = "古籍云：行年上神乘吉将" + jiang + "，主助力之象。";
       } else if (jiangJx === "凶") {
-        jiangNote = "行年上神乘凶将" + jiang + "，今年防" + LiurenCore.JIANG_WARN[jiang] + "，宜谨慎。";
+        jiangNote = "古籍云：行年上神乘凶将" + jiang + "，主" + LiurenCore.JIANG_WARN[jiang] + "之诫（文献参考）。";
       } else {
-        jiangNote = "行年上神乘" + jiang + "，今年平稳中带变数。";
+        jiangNote = "古籍云：行年上神乘" + jiang + "，主平稳中带变数之象。";
       }
     }
     /* ---- ④ 行年吉凶量化：五层分值汇总 → 档位（打分表数据驱动） ---- */
@@ -2089,22 +2089,22 @@ export class LiurenCore {
     /* ---- 综合建议 ---- */
     let advice = "";
     if (nd.kong) {
-      advice = "行年上神逢空，今年之事易落空，宜缓不宜急。";
+      advice = "古籍云：行年上神逢空，主事象易落空，缓急可参出空。";
     } else if (lq === "官鬼") {
-      advice = "行年上神为日干之官鬼，今年防是非官灾，行事低调。";
+      advice = "古籍云：行年上神临官鬼，主是非压力之象（传统文化参考，非现实判断）。";
     } else if (lq === "妻财") {
-      advice = "行年上神为日干之财，今年求财有机会，宜主动。";
+      advice = "古籍云：行年上神临妻财，主财利机缘之象。";
     } else if (lq === "子孙") {
-      advice = "行年上神为日干之子孙，今年逢凶有解，贵人小辈相助。";
+      advice = "古籍云：行年上神临子孙，主救应化解、小辈扶助之象。";
     } else if (lq === "父母") {
-      advice = "行年上神为日干之父母，今年得长辈文书之助。";
+      advice = "古籍云：行年上神临父母，主长辈文书扶助之象。";
     } else {
-      advice = "行年上神为日干之比肩，今年得同辈助力，利合作。";
+      advice = "古籍云：行年上神临比肩，主同辈助力、合作之象。";
     }
     if (nd.wangShuai === "旺" || nd.wangShuai === "相") {
-      advice += " 行年上神旺相，今年运势得力。";
+      advice += " 行年上神旺相，古籍谓运势得力。";
     } else if (nd.wangShuai === "死" || nd.wangShuai === "囚") {
-      advice += " 行年上神衰弱，今年宜守不宜攻。";
+      advice += " 行年上神衰弱，古籍谓宜守之象。";
     }
     if (interact !== "") {
       advice += " " + interact;
