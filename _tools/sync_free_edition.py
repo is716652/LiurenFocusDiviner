@@ -72,6 +72,19 @@ def remove_internet():
     import remove_request_permissions as rrp
     rrp.remove_request_permissions(p)
 
+def remove_permission_reason_string():
+    """免费版零权限：同步删除未使用的 permission_internet_reason 文案，避免审核残留 IAP 痕迹。"""
+    p = os.path.join(DST, 'entry', 'src', 'main', 'resources', 'base', 'element', 'string.json')
+    if not os.path.exists(p):
+        return
+    import json
+    data = json.load(io.open(p, 'r', encoding='utf-8'))
+    arr = data.get('string', [])
+    arr = [x for x in arr if x.get('name') != 'permission_internet_reason']
+    data['string'] = arr
+    io.open(p, 'w', encoding='utf-8', newline='\n').write(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
+    print('permission_internet_reason 已移除:', p)
+
 def main():
     if os.path.exists(DST):
         print('cleaning old free edition:', DST)
@@ -80,6 +93,7 @@ def main():
     flip_switch()
     hide_ancient_case_gallery()
     remove_internet()
+    remove_permission_reason_string()
     print('SYNC OK')
 
 if __name__ == '__main__':

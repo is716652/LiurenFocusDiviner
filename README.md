@@ -36,9 +36,10 @@ Splash(引导) → Home(起课台：万年历+时辰+排盘/课例/古籍三入�
 ## 双版本策略
 
 - **主项目（收费/开发版）是唯一源码**；免费上架版由 `python _tools/sync_free_edition.py`
-  整体复制生成，并设置 `PayConfig.PREVIEW_FREE=false`（当前策略：过审版全功能开放、
-  无锁无付费痕迹）+ `FeatureFlags.SHOW_ANCIENT_CASE_GALLERY=false`（案例鉴赏随包隐藏）
-  + 移除 INTERNET 权限。
+  整体复制生成，并保持 `PayConfig.MODE='free'`（过审版全功能开放、无锁无付费痕迹）
+  + `FeatureFlags.SHOW_ANCIENT_CASE_GALLERY=false`（案例鉴赏随包隐藏）
+  + 移除 INTERNET 权限及权限理由文案；同步后可跑 `python _tools/verify_free_edition.py`
+  校验这些不变量。
 - 付费架构已解耦预埋（`pay/` 门禁 + featureId），未来收费版卖"深度断课能力"增量
   （毕法教练 / 中黄引擎 / 抓用神深度），免费版保持全功能开放（与"无收费项"申报一致）。
 
@@ -58,6 +59,7 @@ python _tools/sign_release.py main     # 收费/开发版备用包
 node _tests/_test_core_regress.js
 node _tests/_test_zhonghuang.js
 node _tests/_test_case_xu_cibin.js   # 古籍案例鉴赏锚点（七月甲子日午将申时）
+node _tests/_test_ancient_gallery.js # 案例鉴赏库批量反验（case_gallery.json expect）
 
 # 古籍数据再生成（28 篇经文 md → rawfile/ancient/zhonghuang_jing.json）
 python _tools/gen_ancient_json.py

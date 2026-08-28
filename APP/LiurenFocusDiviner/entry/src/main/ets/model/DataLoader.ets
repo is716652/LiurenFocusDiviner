@@ -58,6 +58,29 @@ export interface AncientCaseInput {
   monthZhi?: string;
 }
 
+/* 古籍案例鉴赏：中黄校验期望（可只写部分字段） */
+export interface AncientCaseZhExpect {
+  shiGan?: string;
+  bianGan?: string;
+  bianGong?: string;
+  bianLq?: string;
+  bianInChuan?: string;
+}
+
+/* 古籍案例鉴赏：程序复算期望（kegs 用引擎顺序：课1..课4） */
+export interface AncientCaseExpect {
+  kegs?: string[];
+  chuans?: string[];
+  chuanGz?: string[];
+  chuanJiang?: string[];
+  xunkong?: string[];
+  dayWangShuai?: string;
+  monthZhi?: string;
+  method?: string;
+  keti?: string;
+  zhonghuang?: AncientCaseZhExpect;
+}
+
 /* 古籍案例鉴赏：一案（原文 + 程序化校验锚点 + 断法链路） */
 export interface AncientCase {
   id: string;
@@ -65,6 +88,7 @@ export interface AncientCase {
   source: string;
   chapter: string;
   input: AncientCaseInput;
+  expect?: AncientCaseExpect;
   original: string;
   summary: string;
   chain: string[];
