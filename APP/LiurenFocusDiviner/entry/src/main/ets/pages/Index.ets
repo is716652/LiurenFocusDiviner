@@ -1076,7 +1076,7 @@ struct Index {
 
         if (this.route === '读象') {
           Column({ space: 4 }) {
-            Text('读象路线：以用神/类神为链——选占事 → 类神候选 → 节点卡 → 动态三传 → 读象直断')
+            Text('读象路线：以用神/类神为链——选占事 → 类神候选 → 节点卡 → 动态三传 → 古籍断法选句')
               .fontSize(11)
               .fontColor('#C4B183')
               .lineHeight(16)

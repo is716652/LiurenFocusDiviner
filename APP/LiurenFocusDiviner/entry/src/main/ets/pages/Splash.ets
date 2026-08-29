@@ -107,7 +107,7 @@ struct Splash {
 
       // 底部小字 + 合规链接
       Column({ space: 8 }) {
-        Text('以炁为基 · 四课三传 · 神煞格局 · 读象直断')
+        Text('以炁为基 · 四课三传 · 神煞格局 · 读象研习')
           .fontSize(12)
           .fontColor('#6B5F45')
           .letterSpacing(2)

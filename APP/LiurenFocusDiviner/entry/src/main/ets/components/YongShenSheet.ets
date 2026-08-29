@@ -319,6 +319,10 @@ export struct YongShenSheet {
       .width('100%')
       .padding({ bottom: 4, right: 8 })
       .border({ width: { bottom: 1 }, color: 'rgba(233,200,120,0.20)' })
+      Text('古籍类神/象意整理，仅供传统文化研习参考，不构成现实判断')
+        .fontSize(9)
+        .fontColor('#5A4F3D')
+        .width('100%')
 
       Scroll() {
         Column({ space: 12 }) {

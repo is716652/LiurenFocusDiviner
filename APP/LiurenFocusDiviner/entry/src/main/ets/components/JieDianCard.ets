@@ -1,5 +1,5 @@
 /**
- * JieDianCard —— 用神节点卡：类象词云 + 起爆点 + 所带神煞
+ * JieDianCard —— 用神节点卡：类象词云 + 起爆要素（古籍术语）+ 所带神煞
  * 词云项可点击锚定（选中金色实底，再次点击取消）
  */
 import type { JieDianWord } from '../model/YongShenCore';
@@ -8,7 +8,7 @@ import type { JieDianWord } from '../model/YongShenCore';
 export struct JieDianCard {
   @Prop head: string = '';        /* 用神节点 甲子 · 妻财 · 乘青龙 · 旺 无空 */
   @Prop words: JieDianWord[] = [];
-  @Prop boom: string[] = [];      /* 起爆点：落空/被冲/合/害/刑/与日干 */
+  @Prop boom: string[] = [];      /* 起爆要素：落空/被冲/合/害/刑/与日干 */
   @Prop shensha: string = '';     /* 所带神煞 */
   @Prop anchor: string = '';      /* 当前锚定的词云值 */
   onAnchor: (v: string) => void = () => { };
@@ -47,7 +47,7 @@ export struct JieDianCard {
       if (this.boom.length > 0 || this.shensha !== '') {
         Column({ space: 2 }) {
           if (this.boom.length > 0) {
-            Text('起爆点：' + this.boom.join(' · '))
+            Text('起爆要素（古籍术语）：' + this.boom.join(' · '))
               .fontSize(11)
               .fontColor('#E8A483')
               .lineHeight(16)

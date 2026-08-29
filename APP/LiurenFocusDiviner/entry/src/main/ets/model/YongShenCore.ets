@@ -5,7 +5,7 @@
  *  - candidates(chart, aff)：占事 → 类神候选（六亲地支 + 地支取象 + 天将布列反查）
  *  - dongtai(chart, zhi)：以某支为用神 → 动态三传（传来递生）+ 每传天将/六亲
  *  - jieDianWords(chart, zhi, leixiang)：用神节点卡 → 类象词云（天将/地支/天干/纳音）
- *  - selectDuyu(chart, aff, cands, zhi, xiangyi)：管辂象意选句（盘态信号匹配 + 收光一句）
+ *  - selectDuyu(chart, aff, cands, zhi, xiangyi)：管辂象意选句（盘态信号匹配 + 古籍收光句）
  *  - liuqinOf(chart, zhi)：某支相对日干的六亲
  * 数据：由宿主注入（init）—— 占事体系 / 管辂类神取用 / 类象库 / 管辂象意 均为 rawfile JSON
  * ArkTS 合规：零 any / unknown；显式接口；中文键用点访问（arkts-no-props-by-index）
@@ -37,7 +37,7 @@ export interface JieDianWord {
 
 /* 读象选句结果 */
 export interface DuyuPick {
-  shouGuang: string;   /* 收光一句 */
+  shouGuang: string;   /* 古籍收光句 */
   items: DuyuItem[];   /* 选中断语 */
 }
 
@@ -170,7 +170,7 @@ export class YongShenCore {
     return null;
   }
 
-  /* 管辂神书组合读象（固定精炼句，供「读象直断」区展示） */
+  /* 管辂神书组合读象（固定精炼句，供「古籍断法选句」区展示） */
   static duyuOf(name: string): string[] {
     const arr = GUANLU_DUYU[name];
     return arr ? arr : [];
@@ -328,7 +328,7 @@ export class YongShenCore {
 
   /* ---------------- 管辂象意选句 ---------------- */
 
-  /* 选句：按占事门类取库 → 盘态信号匹配打分 → 取最高两条（收光一句 + 命中依据） */
+  /* 选句：按占事门类取库 → 盘态信号匹配打分 → 取最高两条（古籍收光句 + 命中依据） */
   static selectDuyu(c: Chart, aff: AffairCfg, cands: YongShenCand[], zhi: string,
     xiangyi: Record<string, Object>): DuyuPick {
     const cur = YongShenCore.findCand(cands, zhi);

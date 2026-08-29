@@ -1,6 +1,6 @@
 /**
- * DuyuCard —— 读象断语（管辂神书组合读象 + 管辂象意选句）
- * 收光一句（金色打底）+ 选中断语（歌诀 + 释义 + 命中依据标签）
+ * DuyuCard —— 古籍断法选句（管辂神书组合读象 + 管辂象意选句）
+ * 古籍收光句（金色打底）+ 选中断语（歌诀 + 释义 + 命中依据标签）
  */
 import type { DuyuPick, DuyuItem } from '../model/YongShenCore';
 
@@ -15,7 +15,7 @@ export struct DuyuCard {
       if (this.duyu.length > 0) {
         Column({ space: 4 }) {
           Row() {
-            Text('读象直断')
+            Text('古籍断法选句')
               .fontSize(11)
               .fontColor('#8A7B5C')
             Blank()
@@ -51,11 +51,11 @@ export struct DuyuCard {
             .lineHeight(18)
             .width('100%')
           Row() {
-            Text('管辂象意直断')
+            Text('管辂象意选句')
               .fontSize(11)
               .fontColor('#8A7B5C')
             Blank()
-            Text('按盘态信号选句')
+            Text('据盘态信号取古籍句')
               .fontSize(10)
               .fontColor('#5A4F3D')
           }

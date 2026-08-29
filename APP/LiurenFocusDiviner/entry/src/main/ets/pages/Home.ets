@@ -515,7 +515,7 @@ struct Home {
         .fontColor('#E9C878')
         .letterSpacing(3)
         .margin({ left: 20, top: 24 })
-      Text('月将加时 · 四课三传 · 神煞格局 · 读象直断')
+      Text('月将加时 · 四课三传 · 神煞格局 · 读象研习')
         .fontSize(11)
         .fontColor('#8A7B5C')
         .letterSpacing(1)
