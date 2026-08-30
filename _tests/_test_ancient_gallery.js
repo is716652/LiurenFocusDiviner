@@ -123,6 +123,10 @@ for (const item of cases) {
           if (ev.ref !== inp.hour) { rBad++; }
         } else if (ev.kind === 'gong' || ev.kind === 'zhi') {
           if (!zhiSet[ev.ref]) { rBad++; }
+        } else if (ev.kind === 'xunkong') {
+          if (c.dx.xunkong.indexOf(ev.ref) < 0) { rBad++; }
+        } else if (ev.kind === 'dayWangShuai') {
+          if (c.dx.dayWangShuai !== ev.ref) { rBad++; }
         } else if (ev.kind === 'shiGan' || ev.kind === 'bianGan') {
           const a = LiurenCore.zhonghuangAnalyze(c, inp.hour);
           const vv = ev.kind === 'shiGan' ? (a ? a.dun.shiGan : '') : (a ? a.dun.bianGan : '');

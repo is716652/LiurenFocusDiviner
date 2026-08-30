@@ -526,7 +526,113 @@
       "年命：乙丑生，行年亥加戌；戌亥旬空，古断取“长生学堂空而加空”。",
       "盘态：甲子日九月，日干囚；戌亥空，贵人/学堂诸象易落虚名。"
     ],
-    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。"
+    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
+    "routes": [
+      "base",
+      "duxiang",
+      "zhonghuang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "寅",
+      "yongShen": "午",
+      "chuan": [
+        "辰",
+        "巳",
+        "午"
+      ],
+      "bianGong": "寅"
+    },
+    "reasoning": [
+      {
+        "claim": "今次又不得，文名多虚",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "囚",
+            "why": "甲木九月囚，文气根力不足"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "巳",
+            "why": "巳火泄木，文气外脱"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "午",
+            "why": "午火再泄，古断以脱干看文名难成"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "戌亥旬空，学堂贵人诸象易落虚名"
+          }
+        ],
+        "ruleRef": "旺衰休囚；火脱木象；旬空",
+        "note": "本链只取课传与空亡可复核部分。"
+      },
+      {
+        "claim": "更五次不遂，不免文学中心病",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "巳",
+            "why": "巳为火，脱干而近心象"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "午",
+            "why": "午主心，火脱太过，古断因言心病"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "亥",
+            "why": "亥为空，古断“空而加空”多主虚名难实"
+          }
+        ],
+        "ruleRef": "支辰身体/脏腑取象；旬空",
+        "note": "“心病”属古籍断语记录，现代不作医疗判断。"
+      },
+      {
+        "claim": "行年亥加戌一句，程序口径存疑",
+        "route": "base",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "本盘戌亥旬空，与原文“空而加空”相应"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "亥",
+            "why": "同上，亥空可锚"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "bianGong",
+            "ref": "寅",
+            "why": "中黄变干庚落寅宫，仅作旁证，不主行年"
+          }
+        ],
+        "ruleRef": "旬空；中黄变干落宫",
+        "note": "原文“行年上亥加戌”与程序本命起数结果不完全一致，入库时标为传本/起法差异，不强合。"
+      }
+    ]
   },
   {
     "id": "renzhan_jiazi_011_xue_xingren",
