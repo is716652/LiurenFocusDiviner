@@ -5,7 +5,7 @@
  * 盘面：不存死盘，按案例输入现场 LiurenCore.buildChartAncient() 复算
  * 合规：只做古籍断法复原与程序校验，不出现付费/解锁/会员字样
  */
-import type { AncientCase } from '../model/DataLoader';
+import type { AncientCase, AncientCaseEvidence, AncientCaseReasoning } from '../model/DataLoader';
 import { LiurenCore } from '../model/LiurenCore';
 import type { Chart, Keg, ZhonghuangAnalyze } from '../model/LiurenCore';
 import { PanDisk } from './PanDisk';
@@ -120,6 +120,46 @@ export struct AncientCaseGallery {
     return out;
   }
 
+  private routeLabel(r: string): string {
+    if (r === 'base') {
+      return '本盘';
+    }
+    if (r === 'duxiang') {
+      return '读象链路';
+    }
+    if (r === 'zhonghuang') {
+      return '中黄链路';
+    }
+    if (r === 'yongshen') {
+      return '抓用神链路';
+    }
+    if (r === 'bifa') {
+      return '毕法链路';
+    }
+    return r;
+  }
+
+  private routeColor(r: string): string {
+    if (r === 'duxiang') {
+      return '#A63A2B';
+    }
+    if (r === 'zhonghuang') {
+      return '#3E5C76';
+    }
+    if (r === 'yongshen') {
+      return '#3F7D6B';
+    }
+    if (r === 'bifa') {
+      return '#8A5A2B';
+    }
+    return '#A63A2B';
+  }
+
+  private evidenceText(e: AncientCaseEvidence): string {
+    const p = e.pos ? e.pos + '·' : '';
+    return p + e.ref + '：' + e.why;
+  }
+
   @Builder
   private tabButton(txt: string, active: boolean, onTap: () => void) {
     Text(txt)
@@ -206,27 +246,42 @@ export struct AncientCaseGallery {
       Text(c.source + ' · ' + c.chapter)
         .fontSize(10)
         .fontColor('#A8843C')
+      if (c.routes && c.routes.length > 0) {
+        Flex({ wrap: FlexWrap.Wrap }) {
+          ForEach(c.routes, (r: string) => {
+            Text(this.routeLabel(r))
+              .fontSize(10)
+              .fontColor('#F5EFE2')
+              .backgroundColor(this.routeColor(r))
+              .borderRadius(9)
+              .padding({ left: 8, right: 8, top: 3, bottom: 3 })
+              .margin({ right: 6, bottom: 6 })
+          }, (r: string) => r)
+        }
+        .width('100%')
+      }
 
       Column({ space: 6 }) {
         Text('原文断语')
           .fontSize(12)
-          .fontColor('#A8843C')
+          .fontColor('#2F4A5F')
         Text(c.original)
           .fontSize(13)
-          .fontColor('#F0E6C8')
+          .fontColor('#2B241B')
           .lineHeight(20)
       }
       .width('100%')
       .padding(12)
       .borderRadius(12)
-      .backgroundColor('#1C1A16')
+      .backgroundColor('#F5EFE2')
+      .border({ width: 1, color: 'rgba(166,58,43,0.25)' })
 
       if (this.chart) {
         Column({ space: 10 }) {
           Row() {
-            Text('程序复算')
+            Text('程序复算 · 专属盘例')
               .fontSize(12)
-              .fontColor('#A8843C')
+              .fontColor('#2F4A5F')
             Blank()
             Text('旬空 ' + (this.chart as Chart).dx.xunkong.join('') + ' · 日干' + (this.chart as Chart).dx.dayWangShuai)
               .fontSize(10)
@@ -306,40 +361,101 @@ export struct AncientCaseGallery {
         .width('100%')
         .padding(12)
         .borderRadius(12)
-        .backgroundColor('#1C1A16')
+        .backgroundColor('#F5EFE2')
+        .border({ width: 1, color: 'rgba(47,74,95,0.20)' })
       }
 
       if (this.ana) {
         Column({ space: 6 }) {
           Text('中黄先锋链路')
             .fontSize(12)
-            .fontColor('#A8843C')
+            .fontColor('#3E5C76')
           Text('时干' + (this.ana as ZhonghuangAnalyze).dun.shiGan + ' · 变干' + (this.ana as ZhonghuangAnalyze).dun.bianGan + '落' + (this.ana as ZhonghuangAnalyze).bianGong + '宫 · 六亲' + (this.ana as ZhonghuangAnalyze).bianLq + ' · ' + ((this.ana as ZhonghuangAnalyze).bianInChuan ? '入' + (this.ana as ZhonghuangAnalyze).bianInChuan : '不入三传'))
             .fontSize(11)
-            .fontColor('#F0E6C8')
+            .fontColor('#2B241B')
             .lineHeight(18)
+          Text('中黄只作“时干→变干→落宫”的旁证链；若不改主断，此处明确标为参证。')
+            .fontSize(9)
+            .fontColor('#7A6A55')
+            .lineHeight(14)
         }
         .width('100%')
         .padding(12)
         .borderRadius(12)
-        .backgroundColor('#1C1A16')
+        .backgroundColor('#EEF3F6')
+        .border({ width: 1, color: 'rgba(62,92,118,0.25)' })
+      }
+
+      if (c.reasoning && c.reasoning.length > 0) {
+        Column({ space: 10 }) {
+          Text('断语证据链')
+            .fontSize(12)
+            .fontColor('#A63A2B')
+          ForEach(c.reasoning, (r: AncientCaseReasoning) => {
+            Column({ space: 6 }) {
+              Row() {
+                Text('断：' + r.claim)
+                  .fontSize(12)
+                  .fontWeight(FontWeight.Medium)
+                  .fontColor('#2B241B')
+                  .layoutWeight(1)
+                Text(this.routeLabel(r.route))
+                  .fontSize(9)
+                  .fontColor('#F5EFE2')
+                  .backgroundColor(this.routeColor(r.route))
+                  .borderRadius(8)
+                  .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+              }
+              .width('100%')
+              ForEach(r.evidence, (e: AncientCaseEvidence) => {
+                Text('· ' + this.evidenceText(e))
+                  .fontSize(10)
+                  .fontColor('#4A3F32')
+                  .lineHeight(15)
+                  .width('100%')
+              }, (e: AncientCaseEvidence) => e.kind + e.ref + e.why)
+              if (r.ruleRef) {
+                Text('规则出处：' + r.ruleRef)
+                  .fontSize(9)
+                  .fontColor('#2F4A5F')
+                  .width('100%')
+              }
+              if (r.note) {
+                Text(r.note)
+                  .fontSize(9)
+                  .fontColor('#7A6A55')
+                  .lineHeight(14)
+                  .width('100%')
+              }
+            }
+            .width('100%')
+            .padding({ top: 6, bottom: 6 })
+            .border({ width: { bottom: 1 }, color: 'rgba(166,58,43,0.15)' })
+          }, (r: AncientCaseReasoning) => r.claim)
+        }
+        .width('100%')
+        .padding(12)
+        .borderRadius(12)
+        .backgroundColor('#F5EFE2')
+        .border({ width: 1, color: 'rgba(166,58,43,0.25)' })
       }
 
       Column({ space: 6 }) {
-        Text('断法链路')
+        Text('断法链路纲要')
           .fontSize(12)
-          .fontColor('#A8843C')
+          .fontColor('#2F4A5F')
         ForEach(c.chain, (line: string, idx: number) => {
           Text(String(idx + 1) + '. ' + line)
             .fontSize(11)
-            .fontColor('#F0E6C8')
+            .fontColor('#2B241B')
             .lineHeight(18)
         }, (line: string) => line)
       }
       .width('100%')
       .padding(12)
       .borderRadius(12)
-      .backgroundColor('#1C1A16')
+      .backgroundColor('#F5EFE2')
+      .border({ width: 1, color: 'rgba(47,74,95,0.20)' })
 
       Text(c.compliance)
         .fontSize(9)

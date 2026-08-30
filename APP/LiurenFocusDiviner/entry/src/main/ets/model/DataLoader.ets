@@ -81,7 +81,33 @@ export interface AncientCaseExpect {
   zhonghuang?: AncientCaseZhExpect;
 }
 
-/* 古籍案例鉴赏：一案（原文 + 程序化校验锚点 + 断法链路） */
+/* 古籍案例鉴赏：断语证据锚点（view=base/zhonghuang/yongshen/bifa） */
+export interface AncientCaseEvidence {
+  view: string;
+  kind: string;
+  ref: string;
+  why: string;
+  pos?: string;
+}
+
+/* 古籍案例鉴赏：单句断语的推导链 */
+export interface AncientCaseReasoning {
+  claim: string;
+  route: string;
+  evidence: AncientCaseEvidence[];
+  ruleRef?: string;
+  note?: string;
+}
+
+/* 古籍案例鉴赏：盘面高亮焦点 */
+export interface AncientCaseFocus {
+  hour?: string;
+  yongShen?: string;
+  chuan?: string[];
+  bianGong?: string;
+}
+
+/* 古籍案例鉴赏：一案（原文 + 程序化校验锚点 + 断法链路 + 证据链） */
 export interface AncientCase {
   id: string;
   title: string;
@@ -93,6 +119,9 @@ export interface AncientCase {
   summary: string;
   chain: string[];
   compliance: string;
+  routes?: string[];
+  focus?: AncientCaseFocus;
+  reasoning?: AncientCaseReasoning[];
 }
 
 export class DataLoader {

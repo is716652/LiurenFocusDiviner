@@ -96,6 +96,43 @@ for (const item of cases) {
     }
   }
 
+  /* 证据链（可选）：写了就必须能锚到复算盘 */
+  if (item.reasoning) {
+    const routes = { base: true, duxiang: true, zhonghuang: true, yongshen: true, bifa: true };
+    let rBad = 0;
+    const zhiSet = { 子: 1, 丑: 1, 寅: 1, 卯: 1, 辰: 1, 巳: 1, 午: 1, 未: 1, 申: 1, 酉: 1, 戌: 1, 亥: 1 };
+    for (const r of item.reasoning) {
+      if (!r.claim || !routes[r.route] || !Array.isArray(r.evidence) || r.evidence.length === 0) {
+        rBad++;
+        continue;
+      }
+      for (const ev of r.evidence) {
+        if (!ev.view || !ev.kind || !ev.ref || !ev.why) { rBad++; continue; }
+        if (ev.kind === 'chuan') {
+          if (ev.pos) {
+            const idx = ev.pos === '初传' ? 0 : (ev.pos === '中传' ? 1 : 2);
+            if (actualChuans[idx] !== ev.ref) { rBad++; }
+          } else if (actualChuans.indexOf(ev.ref) < 0) { rBad++; }
+        } else if (ev.kind === 'jiang') {
+          const parts = ev.ref.split('/');
+          const zi = parts[0];
+          const jj = parts[1] || '';
+          const idx = actualChuans.indexOf(zi);
+          if (idx < 0 || (jj !== '' && actualJiang[idx] !== jj)) { rBad++; }
+        } else if (ev.kind === 'hour') {
+          if (ev.ref !== inp.hour) { rBad++; }
+        } else if (ev.kind === 'gong' || ev.kind === 'zhi') {
+          if (!zhiSet[ev.ref]) { rBad++; }
+        } else if (ev.kind === 'shiGan' || ev.kind === 'bianGan') {
+          const a = LiurenCore.zhonghuangAnalyze(c, inp.hour);
+          const vv = ev.kind === 'shiGan' ? (a ? a.dun.shiGan : '') : (a ? a.dun.bianGan : '');
+          if (vv !== ev.ref) { rBad++; }
+        }
+      }
+    }
+    if (rBad > 0) { bad('证据链锚点', 'bad=' + rBad); } else { ok('证据链锚点'); }
+  }
+
   const text = [item.title, item.original, item.summary, (item.chain || []).join(' '), item.compliance].join(' ');
   if (!item.original || !item.summary || !Array.isArray(item.chain) || item.chain.length === 0) { bad('展示字段 original/summary/chain'); } else { ok('展示字段'); }
   if (!item.compliance || item.compliance.indexOf('研习参考') < 0 || item.compliance.indexOf('不构成') < 0) { bad('compliance 免责口径'); } else { ok('compliance 免责口径'); }
