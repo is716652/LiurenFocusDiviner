@@ -113,6 +113,8 @@ for (const item of cases) {
             const idx = ev.pos === '初传' ? 0 : (ev.pos === '中传' ? 1 : 2);
             if (actualChuans[idx] !== ev.ref) { rBad++; }
           } else if (actualChuans.indexOf(ev.ref) < 0) { rBad++; }
+        } else if (ev.kind === 'keg') {
+          if (actualKegs.indexOf(ev.ref) < 0) { rBad++; }
         } else if (ev.kind === 'jiang') {
           const parts = ev.ref.split('/');
           const zi = parts[0];

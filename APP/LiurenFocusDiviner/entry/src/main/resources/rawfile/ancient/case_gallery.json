@@ -693,7 +693,86 @@
       "盘态：甲子日十月，日干相；戌亥空，中传亥空，音信先虚。",
       "应期：原文应癸巳日大雪归，属古案应期记录，仅作文献参照。"
     ],
-    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。"
+    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
+    "routes": [
+      "base",
+      "duxiang",
+      "yongshen"
+    ],
+    "focus": {
+      "hour": "子",
+      "yongShen": "寅",
+      "chuan": [
+        "申",
+        "亥",
+        "寅"
+      ],
+      "bianGong": "子"
+    },
+    "reasoning": [
+      {
+        "claim": "占行人主来而迟",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "寅",
+            "why": "末传寅为马，古断行人以末传马动主归"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "亥",
+            "why": "中传亥空，音信与行期先虚后实"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "亥",
+            "why": "亥在旬空，故应期有迟"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "相",
+            "why": "甲木十月相，事虽迟而终有气"
+          }
+        ],
+        "ruleRef": "末传马；旬空；旺衰",
+        "note": "应期“癸巳日大雪归”为原案记录，仅作文献参照。"
+      },
+      {
+        "claim": "行人链条宜抓用神看",
+        "route": "yongshen",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "申",
+            "why": "申为道路行人之象，事起在路"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "寅",
+            "why": "归看末传，寅马动故主来"
+          },
+          {
+            "view": "base",
+            "kind": "keg",
+            "ref": "午/卯",
+            "why": "第四课午/卯，木火相生，事势不绝"
+          }
+        ],
+        "ruleRef": "行人类证取用；动态三传",
+        "note": "此案的讲解重点应放在“何以取末传马”，而非只给“当主来”。"
+      }
+    ]
   },
   {
     "id": "renzhan_jiazi_013_shao_liunian",
@@ -749,7 +828,79 @@
       "盘态：甲子日二月，日干旺；戌亥空，末传戌空，事绪久缠而多虚耗。",
       "结构：三传子巳戌，由印绶而火土，古断以害、墓、破碎串成家宅狱讼之象。"
     ],
-    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。"
+    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "午",
+      "yongShen": "未",
+      "chuan": [
+        "子",
+        "巳",
+        "戌"
+      ],
+      "bianGong": "午"
+    },
+    "reasoning": [
+      {
+        "claim": "岁内眷属人来，必成大狱",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "keg",
+            "ref": "未/甲",
+            "why": "干上未为木墓，古断以墓临干主眷属纠缠"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "子",
+            "why": "子与未害，事端由害起"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "旺",
+            "why": "甲木二月旺，能任其事，故狱讼成大而非即溃"
+          }
+        ],
+        "ruleRef": "墓神临干；子未相害；旺衰",
+        "note": "官讼之象为古籍断法整理，不构成现实法律判断。"
+      },
+      {
+        "claim": "分挠争屋、末后添口分灶",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "巳",
+            "why": "巳为厨灶之象，古断牵及分灶"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "戌",
+            "why": "末传戌空，事尾多虚耗反复"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "戌在旬空，末传落空，争产久缠"
+          }
+        ],
+        "ruleRef": "支辰物类；旬空",
+        "note": "“添口/分灶”取象链条较长，展示时应标为古案象法。"
+      }
+    ]
   },
   {
     "id": "renzhan_jiazi_016_shao_yibing",
@@ -805,7 +956,84 @@
       "盘态：甲子日九月，日干囚；戌亥空，太常临空古断取失物。",
       "结构：三传寅酉辰，木金土相战，古断以脾土受制言消瘦。"
     ],
-    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。"
+    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
+    "routes": [
+      "base",
+      "duxiang",
+      "zhonghuang"
+    ],
+    "focus": {
+      "hour": "申",
+      "yongShen": "酉",
+      "chuan": [
+        "寅",
+        "酉",
+        "辰"
+      ],
+      "bianGong": "申"
+    },
+    "reasoning": [
+      {
+        "claim": "病因思虑伤脾、肌肤消瘦",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "keg",
+            "ref": "酉/甲",
+            "why": "干上酉为日鬼，古断主思虑压迫"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "酉",
+            "why": "酉金入传克木，病象收紧"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "辰",
+            "why": "辰为脾为肌肤，古断以辰土受制言消瘦"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "囚",
+            "why": "甲木九月囚，抗邪之力弱"
+          }
+        ],
+        "ruleRef": "六亲官鬼；支辰脏腑；旺衰",
+        "note": "疾病内容仅为古籍象法整理，不构成医疗建议。"
+      },
+      {
+        "claim": "失物与私情链作旁证",
+        "route": "zhonghuang",
+        "evidence": [
+          {
+            "view": "zhonghuang",
+            "kind": "shiGan",
+            "ref": "壬",
+            "why": "申时时干壬，中黄以此为参"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "bianGan",
+            "ref": "戊",
+            "why": "变干戊落申宫，为财象旁证"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "戌亥空，古断以太常临空言失物"
+          }
+        ],
+        "ruleRef": "中黄时干变干；旬空",
+        "note": "中黄在此案只作旁证，不主病断。"
+      }
+    ]
   },
   {
     "id": "renzhan_jiazi_017_wang_jibing",
@@ -861,6 +1089,85 @@
       "盘态：甲子日子月，日干相；戌亥空，初传戌空，火局之墓先虚。",
       "转归：古断谓“久而自痊”，属古籍断语记录；现代不作医疗建议。"
     ],
-    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。"
+    "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "巳",
+      "yongShen": "午",
+      "chuan": [
+        "戌",
+        "午",
+        "寅"
+      ],
+      "bianGong": "巳"
+    },
+    "reasoning": [
+      {
+        "claim": "寅午戌炎上，病由高兴太过",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "戌",
+            "why": "戌为火墓，局之收束"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "午",
+            "why": "午为火旺之枢"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "寅",
+            "why": "寅木生火，火局得源"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "相",
+            "why": "甲子日子月相，火局虽郁而未至大害"
+          }
+        ],
+        "ruleRef": "三合局；旺衰",
+        "note": "“病由高兴太过”为古籍断语，不作现代医疗诊断。"
+      },
+      {
+        "claim": "火被戌墓盖之，久而自痊",
+        "route": "bifa",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "戌",
+            "why": "戌墓盖火，象为郁而不出"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "戌空则墓盖先虚，郁久有泄机"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "亥",
+            "why": "戌亥同空，凶势不坚"
+          }
+        ],
+        "ruleRef": "墓库；旬空",
+        "note": "“自痊”保留为原案记录，页面需挂研习参考。"
+      }
+    ]
   }
 ]
