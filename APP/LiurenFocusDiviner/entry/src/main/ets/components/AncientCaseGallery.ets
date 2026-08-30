@@ -31,9 +31,12 @@ export struct AncientCaseGallery {
   @State private cur: AncientCase | null = null;
   @State private chart: Chart | null = null;
   @State private ana: ZhonghuangAnalyze | null = null;
+  @State private focusZhi: string = '';
+  @State private focusLabel: string = '';
 
   private openCase(c: AncientCase): void {
     this.cur = c;
+    this.clearFocus();
     const inp = c.input;
     const ch = LiurenCore.buildChartAncient(
       inp.mj,
@@ -160,6 +163,28 @@ export struct AncientCaseGallery {
     return p + e.ref + '：' + e.why;
   }
 
+  /* 证据锚点提取：从 ref 中取第一个地支作为盘面高亮焦点 */
+  private evidenceZhi(e: AncientCaseEvidence): string {
+    const zs = '子丑寅卯辰巳午未申酉戌亥';
+    for (let i = 0; i < e.ref.length; i++) {
+      const ch = e.ref.charAt(i);
+      if (zs.indexOf(ch) >= 0) {
+        return ch;
+      }
+    }
+    return '';
+  }
+
+  private setFocus(z: string, label: string): void {
+    this.focusZhi = z;
+    this.focusLabel = label;
+  }
+
+  private clearFocus(): void {
+    this.focusZhi = '';
+    this.focusLabel = '';
+  }
+
   @Builder
   private tabButton(txt: string, active: boolean, onTap: () => void) {
     Text(txt)
@@ -233,6 +258,7 @@ export struct AncientCaseGallery {
             this.cur = null;
             this.chart = null;
             this.ana = null;
+            this.clearFocus();
           })
         Blank()
         Text('研习样例')
@@ -288,10 +314,32 @@ export struct AncientCaseGallery {
               .fontColor('#6B5F45')
           }
           .width('100%')
+          if (this.focusZhi !== '') {
+            Row({ space: 6 }) {
+              Text('锚点 ' + this.focusZhi + (this.focusLabel !== '' ? ' · ' + this.focusLabel : ''))
+                .fontSize(10)
+                .fontColor('#A63A2B')
+                .layoutWeight(1)
+                .maxLines(1)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+              Text('清除')
+                .fontSize(10)
+                .fontColor('#F5EFE2')
+                .backgroundColor('#A63A2B')
+                .borderRadius(8)
+                .padding({ left: 8, right: 8, top: 3, bottom: 3 })
+                .onClick(() => {
+                  this.clearFocus();
+                })
+            }
+            .width('100%')
+          }
 
           Column() {
             PanDisk({
-              chart: this.chart as Chart
+              chart: this.chart as Chart,
+              yongShen: this.focusZhi,
+              cands: (this.cur && this.cur.focus && this.cur.focus.chuan) ? this.cur.focus.chuan as string[] : []
             })
           }
           .width('100%')
@@ -311,17 +359,20 @@ export struct AncientCaseGallery {
             .width('100%')
             Row({ space: 8 }) {
               KegCard({ kn: this.kegRows(this.chart as Chart)[0].kn, xia: this.kegRows(this.chart as Chart)[0].keg.s,
-                shang: this.kegRows(this.chart as Chart)[0].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[0].keg.x) })
+                shang: this.kegRows(this.chart as Chart)[0].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[0].keg.x),
+                highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[0].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[0].keg.s === this.focusZhi) })
                 .layoutWeight(1)
               KegCard({ kn: this.kegRows(this.chart as Chart)[1].kn, xia: this.kegRows(this.chart as Chart)[1].keg.s,
-                shang: this.kegRows(this.chart as Chart)[1].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[1].keg.x) })
+                shang: this.kegRows(this.chart as Chart)[1].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[1].keg.x),
+                highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[1].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[1].keg.s === this.focusZhi) })
                 .layoutWeight(1)
               KegCard({ kn: this.kegRows(this.chart as Chart)[2].kn, xia: this.kegRows(this.chart as Chart)[2].keg.s,
-                shang: this.kegRows(this.chart as Chart)[2].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[2].keg.x) })
+                shang: this.kegRows(this.chart as Chart)[2].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[2].keg.x),
+                highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[2].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[2].keg.s === this.focusZhi) })
                 .layoutWeight(1)
               KegCard({ kn: this.kegRows(this.chart as Chart)[3].kn, xia: this.kegRows(this.chart as Chart)[3].keg.s,
                 shang: this.kegRows(this.chart as Chart)[3].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[3].keg.x),
-                highlight: true })
+                highlight: this.focusZhi === '' || this.kegRows(this.chart as Chart)[3].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[3].keg.s === this.focusZhi })
                 .layoutWeight(1)
             }
             .width('100%')
@@ -343,15 +394,18 @@ export struct AncientCaseGallery {
             Row({ space: 8 }) {
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[0].pos, gz: this.chuanRows(this.chart as Chart)[0].gz,
                 jiang: this.chuanRows(this.chart as Chart)[0].jiang, lq: this.chuanRows(this.chart as Chart)[0].lq,
-                color: this.chuanRows(this.chart as Chart)[0].color, highlight: true })
+                color: this.chuanRows(this.chart as Chart)[0].color,
+                highlight: this.focusZhi === '' || (this.chart as Chart).sanchuan.chuans[0].z === this.focusZhi })
                 .layoutWeight(1)
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[1].pos, gz: this.chuanRows(this.chart as Chart)[1].gz,
                 jiang: this.chuanRows(this.chart as Chart)[1].jiang, lq: this.chuanRows(this.chart as Chart)[1].lq,
-                color: this.chuanRows(this.chart as Chart)[1].color })
+                color: this.chuanRows(this.chart as Chart)[1].color,
+                highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[1].z === this.focusZhi })
                 .layoutWeight(1)
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[2].pos, gz: this.chuanRows(this.chart as Chart)[2].gz,
                 jiang: this.chuanRows(this.chart as Chart)[2].jiang, lq: this.chuanRows(this.chart as Chart)[2].lq,
-                color: this.chuanRows(this.chart as Chart)[2].color })
+                color: this.chuanRows(this.chart as Chart)[2].color,
+                highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[2].z === this.focusZhi })
                 .layoutWeight(1)
             }
             .width('100%')
@@ -410,9 +464,16 @@ export struct AncientCaseGallery {
               ForEach(r.evidence, (e: AncientCaseEvidence) => {
                 Text('· ' + this.evidenceText(e))
                   .fontSize(10)
-                  .fontColor('#4A3F32')
+                  .fontColor(this.evidenceZhi(e) !== '' && this.evidenceZhi(e) === this.focusZhi ? '#A63A2B' : '#4A3F32')
+                  .fontWeight(this.evidenceZhi(e) !== '' && this.evidenceZhi(e) === this.focusZhi ? FontWeight.Bold : FontWeight.Normal)
                   .lineHeight(15)
                   .width('100%')
+                  .onClick(() => {
+                    const z = this.evidenceZhi(e);
+                    if (z !== '') {
+                      this.setFocus(z, r.claim);
+                    }
+                  })
               }, (e: AncientCaseEvidence) => e.kind + e.ref + e.why)
               if (r.ruleRef) {
                 Text('规则出处：' + r.ruleRef)
