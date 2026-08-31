@@ -28,6 +28,8 @@ interface ChuanRow {
 @Component
 export struct AncientCaseGallery {
   @Prop cases: AncientCase[] = [];
+  /* 详情态双向同步给页面：用于页头返回/手势返回先回列表，而不是直接退出古籍页 */
+  @Link @Watch('onDetailOpenChange') detailOpen: boolean;
   @State private cur: AncientCase | null = null;
   @State private chart: Chart | null = null;
   @State private ana: ZhonghuangAnalyze | null = null;
@@ -37,6 +39,7 @@ export struct AncientCaseGallery {
   private openCase(c: AncientCase): void {
     this.cur = c;
     this.clearFocus();
+    this.detailOpen = true;
     const inp = c.input;
     const ch = LiurenCore.buildChartAncient(
       inp.mj,
@@ -185,6 +188,20 @@ export struct AncientCaseGallery {
     this.focusLabel = '';
   }
 
+  private closeDetail(): void {
+    this.cur = null;
+    this.chart = null;
+    this.ana = null;
+    this.clearFocus();
+    this.detailOpen = false;
+  }
+
+  private onDetailOpenChange(): void {
+    if (!this.detailOpen && this.cur) {
+      this.closeDetail();
+    }
+  }
+
   @Builder
   private tabButton(txt: string, active: boolean, onTap: () => void) {
     Text(txt)
@@ -255,10 +272,7 @@ export struct AncientCaseGallery {
           .borderRadius(9)
           .backgroundColor('#211E18')
           .onClick(() => {
-            this.cur = null;
-            this.chart = null;
-            this.ana = null;
-            this.clearFocus();
+            this.closeDetail();
           })
         Blank()
         Text('研习样例')

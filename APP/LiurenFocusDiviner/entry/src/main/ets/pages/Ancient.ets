@@ -20,9 +20,19 @@ struct Ancient {
   @State private book: AncientBook | null = null;
   @State private cases: AncientCase[] = [];
   @State private tab: string = 'jing';
+  @State private caseDetailOpen: boolean = false;
 
   aboutToAppear(): void {
     this.initData();
+  }
+
+  /* 案例详情态：系统返回/侧滑先回案例列表，再退出古籍页 */
+  onBackPress(): boolean {
+    if (this.caseDetailOpen) {
+      this.caseDetailOpen = false;
+      return true;
+    }
+    return false;
   }
 
   private async initData(): Promise<void> {
@@ -60,7 +70,11 @@ struct Ancient {
         showBack: true,
         backText: '‹ 返回',
         onBack: () => {
-          this.getUIContext().getRouter().back();
+          if (this.caseDetailOpen) {
+            this.caseDetailOpen = false;
+          } else {
+            this.getUIContext().getRouter().back();
+          }
         },
         onSwitch: (i: number) => {
           if (i === 0) {
@@ -81,6 +95,7 @@ struct Ancient {
             .padding({ left: 12, right: 12, top: 6, bottom: 6 })
             .onClick(() => {
               this.tab = 'jing';
+              this.caseDetailOpen = false;
             })
           Text('案例鉴赏')
             .fontSize(12)
@@ -103,7 +118,8 @@ struct Ancient {
           })
         } else {
           AncientCaseGallery({
-            cases: this.cases
+            cases: this.cases,
+            detailOpen: $caseDetailOpen
           })
         }
       }
