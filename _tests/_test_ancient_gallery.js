@@ -129,6 +129,8 @@ for (const item of cases) {
           if (c.dx.xunkong.indexOf(ev.ref) < 0) { rBad++; }
         } else if (ev.kind === 'dayWangShuai') {
           if (c.dx.dayWangShuai !== ev.ref) { rBad++; }
+        } else if (ev.kind === 'method') {
+          if (c.sanchuan.method !== ev.ref) { rBad++; }
         } else if (ev.kind === 'shiGan' || ev.kind === 'bianGan') {
           const a = LiurenCore.zhonghuangAnalyze(c, inp.hour);
           const vv = ev.kind === 'shiGan' ? (a ? a.dun.shiGan : '') : (a ? a.dun.bianGan : '');

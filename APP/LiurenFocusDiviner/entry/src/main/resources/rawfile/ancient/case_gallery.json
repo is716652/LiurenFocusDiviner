@@ -1169,5 +1169,387 @@
         "note": "“自痊”保留为原案记录，页面需挂研习参考。"
       }
     ]
+  },
+  {
+    "id": "renzhan_jiazi_002_xu_laiyi",
+    "source": "《壬占汇选》卷之一 甲子日 占验002（《玉连环》）",
+    "chapter": "甲子日",
+    "title": "徐次宾占来意：正月甲子日子将寅时",
+    "input": {
+      "mj": "子",
+      "dg": "甲",
+      "dz": "子",
+      "hour": "寅",
+      "monthZhi": "寅",
+      "methodHint": "占来意"
+    },
+    "original": "徐次宾曰：来意因失陷官钱，勾唤入官，而得惊恐，以致患脾虚下脏之疾，见祟持刃相惊；可移病人于南方，设绯幕，至第九日，南方有属马巫医，以撒火为姓名，下赤药、艾灸，书朱符，其祟自除也。",
+    "summary": "发用天魁戌为财而主脾，春土无气；中传申金为鬼，末传午火为救神。断失财惊恐、脾虚下脏、祟刃相惊，并以火象制金为解。",
+    "chain": [
+      "课式同前而月将占时不同，程序仍复得戌申午涉害三传",
+      "古断以初传戌财主失陷官钱，戌又主脾，春土无气故脾虚",
+      "中传申金为鬼，古断为持刃相惊",
+      "末传午火为救神，九数应九日，火象解金鬼"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考；疾病与官非内容不构成医疗、法律或投资建议",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "寅",
+      "yongShen": "午",
+      "chuan": [
+        "戌",
+        "申",
+        "午"
+      ],
+      "bianGong": "寅"
+    },
+    "reasoning": [
+      {
+        "claim": "失陷官钱兼脾虚下脏",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "戌",
+            "why": "戌为天魁，古断为财又主脾"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "旺",
+            "why": "甲木春旺克土，土弱故脾虚"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "戌在旬空，财象易见失陷"
+          }
+        ],
+        "ruleRef": "支辰脏腑；旺衰；旬空",
+        "note": "疾病内容为古籍断法记录，不作医疗判断。"
+      },
+      {
+        "claim": "祟刃相惊，九日火解",
+        "route": "bifa",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "申",
+            "why": "申金为鬼，古断主刀兵相惊"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "午",
+            "why": "午火克申金，古断作救神"
+          },
+          {
+            "view": "base",
+            "kind": "zhi",
+            "ref": "午",
+            "why": "胜光午九数，故原案言第九日"
+          }
+        ],
+        "ruleRef": "五行制化；支辰数目",
+        "note": "驱祟/符药皆为古籍叙述，仅作文献研读。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "子/甲",
+        "戌/子",
+        "戌/子",
+        "申/戌"
+      ],
+      "chuans": [
+        "戌",
+        "申",
+        "午"
+      ],
+      "chuanGz": [
+        "甲戌",
+        "壬申",
+        "庚午"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "旺",
+      "monthZhi": "寅",
+      "method": "涉害",
+      "zhonghuang": {
+        "shiGan": "丙",
+        "bianGan": "庚",
+        "bianGong": "寅",
+        "bianLq": "官鬼"
+      }
+    }
+  },
+  {
+    "id": "renzhan_jiazi_004_shao_jibing",
+    "source": "《壬占汇选》卷之一 甲子日 占验004（《张本占案》）",
+    "chapter": "甲子日",
+    "title": "邵彦和占疾病：六月甲子日午将申时",
+    "input": {
+      "mj": "午",
+      "dg": "甲",
+      "dz": "子",
+      "hour": "申",
+      "monthZhi": "未",
+      "methodHint": "占疾病"
+    },
+    "original": "邵彦和曰：四课不足，脉息短小。发用戌土乘玄武，主脾病泻痢。中传申鬼并白虎，主沉重。然得末传午火作青龙克制虎鬼，久而自安，药宜辛温及升阳耳。",
+    "summary": "四课不足而三传戌申午。戌土发用主脾病泻痢，申鬼白虎主沉重，末传午火青龙制鬼，故久而自安。",
+    "chain": [
+      "程序复得四课子甲/戌子/戌子/申戌，三传戌申午，天将玄白青与原案相合",
+      "初传戌土乘玄武，古断主脾病泻痢",
+      "中传申鬼白虎，病势沉重",
+      "末传午火青龙克制虎鬼，久而自安"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考；疾病内容不构成医疗建议",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "申",
+      "yongShen": "午",
+      "chuan": [
+        "戌",
+        "申",
+        "午"
+      ],
+      "bianGong": "申"
+    },
+    "reasoning": [
+      {
+        "claim": "脾病泻痢而脉息短小",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "戌",
+            "why": "戌土发用，古断主脾"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "戌/玄武",
+            "why": "戌乘玄武，水土相混，古断为泻痢"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "囚",
+            "why": "甲木六月囚，正气体弱故脉息短小"
+          }
+        ],
+        "ruleRef": "支辰脏腑；天将；旺衰",
+        "note": "疾病内容为古籍断法记录，不作医疗建议。"
+      },
+      {
+        "claim": "沉重而久而自安",
+        "route": "bifa",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "申",
+            "why": "申金为鬼"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "申/白虎",
+            "why": "鬼并白虎，病势沉重"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "午/青龙",
+            "why": "末传午火青龙克制虎鬼，故久安"
+          }
+        ],
+        "ruleRef": "五行制化；天将吉凶",
+        "note": "“药宜辛温升阳”为原案记录，不作用药建议。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "子/甲",
+        "戌/子",
+        "戌/子",
+        "申/戌"
+      ],
+      "chuans": [
+        "戌",
+        "申",
+        "午"
+      ],
+      "chuanGz": [
+        "甲戌",
+        "壬申",
+        "庚午"
+      ],
+      "chuanJiang": [
+        "玄武",
+        "白虎",
+        "青龙"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "囚",
+      "monthZhi": "未",
+      "method": "涉害",
+      "zhonghuang": {
+        "shiGan": "壬",
+        "bianGan": "戊",
+        "bianGong": "申",
+        "bianLq": "妻财",
+        "bianInChuan": "中传"
+      }
+    }
+  },
+  {
+    "id": "renzhan_jiazi_005_fanli_wuwang",
+    "source": "《壬占汇选》卷之一 甲子日 占验005（《直指》引《吴越春秋》）",
+    "chapter": "甲子日",
+    "title": "范蠡占吴王病：三月甲子日酉将酉时",
+    "input": {
+      "mj": "酉",
+      "dg": "甲",
+      "dz": "子",
+      "hour": "酉",
+      "monthZhi": "辰",
+      "methodHint": "占疾病"
+    },
+    "original": "范蠡曰：德禄在寅，病在巳，绝在申，春木旺金囚，无伤也。己巳日有瘳，壬申日痊愈。",
+    "summary": "春木旺而金囚，甲德禄在寅，病在巳、绝在申；原案断无伤，以巳申应愈期。",
+    "chain": [
+      "程序复得伏吟课，三传寅巳申",
+      "寅为甲德禄，春木旺，故无伤",
+      "巳为病、申为绝，恰入中末传",
+      "原案以己巳有瘳、壬申痊愈应期"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考；疾病内容不构成医疗建议",
+    "routes": [
+      "base",
+      "duxiang"
+    ],
+    "focus": {
+      "hour": "酉",
+      "yongShen": "寅",
+      "chuan": [
+        "寅",
+        "巳",
+        "申"
+      ],
+      "bianGong": "酉"
+    },
+    "reasoning": [
+      {
+        "claim": "春木旺金囚，无伤",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "囚",
+            "why": "程序按月令辰判甲木囚，提示此处月令口径需校"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "寅",
+            "why": "寅为甲德禄，原案以此为根"
+          },
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "伏吟",
+            "why": "伏吟主事情在本宫反复，病势可绵延"
+          }
+        ],
+        "ruleRef": "德禄；月令旺衰；课体",
+        "note": "原文“春木旺”与程序辰月判囚存在口径差，已标存疑，需校月令/节气。"
+      },
+      {
+        "claim": "病在巳、绝在申，巳申应期",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "巳",
+            "why": "巳为病地，入中传"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "申",
+            "why": "申为绝地，入末传"
+          },
+          {
+            "view": "base",
+            "kind": "hour",
+            "ref": "酉",
+            "why": "酉时金旺，原案仍以春木旺论无伤，宜存疑对读"
+          }
+        ],
+        "ruleRef": "十二运；应期取象",
+        "note": "应期“己巳/壬申”为原案记录，仅作文献参照。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "寅/甲",
+        "寅/寅",
+        "子/子",
+        "子/子"
+      ],
+      "chuans": [
+        "寅",
+        "巳",
+        "申"
+      ],
+      "chuanGz": [
+        "丙寅",
+        "己巳",
+        "壬申"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "囚",
+      "monthZhi": "辰",
+      "method": "伏吟",
+      "zhonghuang": {
+        "shiGan": "癸",
+        "bianGan": "辛",
+        "bianGong": "酉",
+        "bianLq": "官鬼"
+      }
+    }
   }
 ]
