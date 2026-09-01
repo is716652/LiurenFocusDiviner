@@ -2359,5 +2359,535 @@
         "bianLq": "官鬼"
       }
     }
+  },
+  {
+    "id": "renzhan_bingyin_035_miao_guansong",
+    "source": "《壬占汇选》卷之一 丙寅日 占验035（《一针见血》《玉连环》末卷）",
+    "chapter": "丙寅日",
+    "title": "苗公达占官讼：天圣六年戊辰五月丙寅日申将丑时",
+    "input": {
+      "mj": "申",
+      "dg": "丙",
+      "dz": "寅",
+      "hour": "丑",
+      "yg": "戊",
+      "yz": "辰",
+      "monthZhi": "午",
+      "methodHint": "占讼"
+    },
+    "original": "苗公达曰：主门户不宁。卑幼为尊长所欺，反有词讼，须坐狱两旬，必有贵人释罪。来日丁卯，便见官入狱也。果是兄讼其弟，得大尹劝和。",
+    "summary": "比用课，三传子未寅。古断以魁罡蛇虎立卯酉主门户不宁，三上克下主尊凌卑；传中合阴龙吉神，又得贵人临支，故终归和允释罪。",
+    "chain": [
+      "程序复得比用课，三传子未寅，天将合阴青",
+      "原案以门户不宁、尊凌卑断词讼起因",
+      "戌亥旬空而戌为日墓，古断坐狱两旬",
+      "传中六合太阴青龙皆吉，主和允释罪"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考；官讼内容不构成法律建议",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "丑",
+      "yongShen": "子",
+      "chuan": [
+        "子",
+        "未",
+        "寅"
+      ],
+      "bianGong": "丑"
+    },
+    "reasoning": [
+      {
+        "claim": "门户不宁，尊长欺卑幼",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "比用",
+            "why": "比用课主亲近相争"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "子",
+            "why": "神后子水发用克丙，争端起自外制"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "戌为日墓而空，狱象有期"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "旺",
+            "why": "丙火五月旺，不畏上神而反成争讼"
+          }
+        ],
+        "ruleRef": "课体；旺衰；旬空",
+        "note": "官讼断语为古籍记录，不作现实法律判断。"
+      },
+      {
+        "claim": "两旬后贵人释罪，终得和允",
+        "route": "bifa",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "子/六合",
+            "why": "初传子乘六合，有和解之机"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "未/太阴",
+            "why": "中传未乘太阴，主暗中调护"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "寅/青龙",
+            "why": "末传寅乘青龙，吉神收束"
+          }
+        ],
+        "ruleRef": "天将吉凶；旬首应期",
+        "note": "“丁卯日见官入狱”为原案应期记录，仅作文献参照。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "子/丙",
+        "未/子",
+        "酉/寅",
+        "辰/酉"
+      ],
+      "chuans": [
+        "子",
+        "未",
+        "寅"
+      ],
+      "chuanJiang": [
+        "六合",
+        "太阴",
+        "青龙"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "旺",
+      "monthZhi": "午",
+      "method": "比用",
+      "zhonghuang": {
+        "shiGan": "己",
+        "bianGan": "乙",
+        "bianGong": "丑",
+        "bianLq": "父母"
+      }
+    }
+  },
+  {
+    "id": "renzhan_bingyin_038_liu_xingren",
+    "source": "《壬占汇选》卷之一 丙寅日 占验038（《玉连环》末卷）",
+    "chapter": "丙寅日",
+    "title": "刘日新占行人：九月丙寅日卯将卯时",
+    "input": {
+      "mj": "卯",
+      "dg": "丙",
+      "dz": "寅",
+      "hour": "卯",
+      "monthZhi": "戌",
+      "methodHint": "占行人"
+    },
+    "original": "刘日新曰：此乃贵人占从人到否，须责天空。其人已动在路，已乃地足为用，更在日辰上，主亥日当到。末寅作六合，乃船车动也。又寅申巳亥，乃传终也。",
+    "summary": "伏吟课，三传巳申寅。古断以天空为用、巳临日辰主行人已动在路；末传寅六合主船车动，亥日当到。",
+    "chain": [
+      "程序复得伏吟课，三传巳申寅，天将空玄合",
+      "巳为地足为用又临日辰，主已动在路",
+      "末传寅乘六合，古断为船车动",
+      "寅申巳亥为传终，主归期可定"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考，不构成现实出行判断或建议",
+    "routes": [
+      "base",
+      "duxiang",
+      "yongshen"
+    ],
+    "focus": {
+      "hour": "卯",
+      "yongShen": "巳",
+      "chuan": [
+        "巳",
+        "申",
+        "寅"
+      ],
+      "bianGong": "卯"
+    },
+    "reasoning": [
+      {
+        "claim": "其人已动在路",
+        "route": "yongshen",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "巳",
+            "why": "巳为地足发用"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "巳/天空",
+            "why": "巳乘天空，原案占从人到否须责天空"
+          },
+          {
+            "view": "base",
+            "kind": "keg",
+            "ref": "巳/丙",
+            "why": "巳临日干之上，象贴日主"
+          },
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "伏吟",
+            "why": "伏吟主近处动而迟发"
+          }
+        ],
+        "ruleRef": "行人取用；伏吟",
+        "note": "OCR“已乃地足”按“巳乃地足”读。"
+      },
+      {
+        "claim": "亥日当到，船车动而归",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "寅",
+            "why": "末传寅为传终"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "寅/六合",
+            "why": "寅乘六合，古断为船车动"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "申",
+            "why": "中传申与寅相冲，动象已成"
+          }
+        ],
+        "ruleRef": "传终；六合车船",
+        "note": "应期“亥日”为原案记录，仅作文献参照。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "巳/丙",
+        "巳/巳",
+        "寅/寅",
+        "寅/寅"
+      ],
+      "chuans": [
+        "巳",
+        "申",
+        "寅"
+      ],
+      "chuanJiang": [
+        "天空",
+        "玄武",
+        "六合"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "囚",
+      "monthZhi": "戌",
+      "method": "伏吟",
+      "zhonghuang": {
+        "shiGan": "辛",
+        "bianGan": "辛",
+        "bianGong": "卯",
+        "bianLq": "妻财"
+      }
+    }
+  },
+  {
+    "id": "renzhan_bingyin_039_shao_furen",
+    "source": "《壬占汇选》卷之一 丙寅日 占验039（《口鉴》）",
+    "chapter": "丙寅日",
+    "title": "邵彦和占赴任：建炎戊申年六月丙寅日未将巳时",
+    "input": {
+      "mj": "未",
+      "dg": "丙",
+      "dz": "寅",
+      "hour": "巳",
+      "yg": "戊",
+      "yz": "申",
+      "monthZhi": "未",
+      "methodHint": "占赴任"
+    },
+    "original": "邵彦和曰：辰午申登三天课，因高峻而致危险。占行人不归，占疾病不起，今经幹占赴任得此，万不可往，恐有去无回。来年行年到寅，正是登三天，尤不可往也。经幹不信，于己酉年七月动身赴任，八月到京西，庚戌年五月病死。",
+    "summary": "重审课而三传辰午申，古称登三天。邵彦和以此课高峻危险，赴任不宜往；原案记录其后赴任病死、家眷不得归。",
+    "chain": [
+      "程序复得三传辰午申，确为登三天序",
+      "古断以登高致险，赴任忌往",
+      "原案又以来年行年到寅加重其断",
+      "占验结果只作文献记录，不作现实推演"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考；疾病生死内容不构成医疗或现实判断建议",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "巳",
+      "yongShen": "辰",
+      "chuan": [
+        "辰",
+        "午",
+        "申"
+      ],
+      "bianGong": "巳"
+    },
+    "reasoning": [
+      {
+        "claim": "辰午申登三天，赴任危险",
+        "route": "bifa",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "辰",
+            "why": "初传辰为登三天之始"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "午",
+            "why": "中传午，地势渐高"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "申",
+            "why": "末传申，登高至极"
+          },
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "重审",
+            "why": "重审课事多审滞，不宜轻动"
+          }
+        ],
+        "ruleRef": "登三天课；课体",
+        "note": "此课吉凶断语仅作古籍课体研读。"
+      },
+      {
+        "claim": "有去无回之戒",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "休",
+            "why": "丙火六月休，行动力不足"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "午/白虎",
+            "why": "中传午乘白虎，古断以飞廉白虎致凶"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "戌亥旬空，归着多虚"
+          }
+        ],
+        "ruleRef": "天将；旺衰；旬空",
+        "note": "疾病死亡为原案记录，不作医疗判断。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "未/丙",
+        "酉/未",
+        "辰/寅",
+        "午/辰"
+      ],
+      "chuans": [
+        "辰",
+        "午",
+        "申"
+      ],
+      "chuanGz": [
+        "壬辰",
+        "甲午",
+        "丙申"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "休",
+      "monthZhi": "未",
+      "method": "重审",
+      "zhonghuang": {
+        "shiGan": "癸",
+        "bianGan": "丁",
+        "bianGong": "巳",
+        "bianLq": "比肩"
+      }
+    }
+  },
+  {
+    "id": "renzhan_bingyin_044_xu_laiyi",
+    "source": "《壬占汇选》卷之一 丙寅日 占验044（《一字块玉连环》）",
+    "chapter": "丙寅日",
+    "title": "徐次宾占来意：六月丙寅日午将未时",
+    "input": {
+      "mj": "午",
+      "dg": "丙",
+      "dz": "寅",
+      "hour": "未",
+      "monthZhi": "未",
+      "methodHint": "占来意"
+    },
+    "original": "徐次宾曰：来意主北面近水酒筵间，与额尖眼小之人相争。又一贵人与彼相助照，乃息怒而欲见官，却得一姓王人劝合无事也。",
+    "summary": "比用课，三传子亥戌。古断以值事太常主酒食，子亥为北面近水，神后登明为日鬼主争；日上辰土制水主息怒，末传戌临亥主王姓劝合。",
+    "chain": [
+      "程序复得比用课，三传子亥戌，天将蛇贵后",
+      "太常临事门主酒食筵宴",
+      "子亥水神为日鬼，主北面近水相争",
+      "末传戌临亥，古断为王姓劝合"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考；争讼内容不构成法律建议",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "未",
+      "yongShen": "戌",
+      "chuan": [
+        "子",
+        "亥",
+        "戌"
+      ],
+      "bianGong": "未"
+    },
+    "reasoning": [
+      {
+        "claim": "北面近水酒筵间相争",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "子",
+            "why": "神后子水发用，北面近水"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "子/螣蛇",
+            "why": "子乘螣蛇，古断为额尖眼小之人"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "亥",
+            "why": "中传登明亥水，亦为日鬼"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "亥/贵人",
+            "why": "亥乘贵人，主有人相助照"
+          }
+        ],
+        "ruleRef": "支辰方位；天将形貌",
+        "note": "形貌断法为古籍象法，不作现实评价。"
+      },
+      {
+        "claim": "息怒欲见官，王姓劝合无事",
+        "route": "bifa",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "keg",
+            "ref": "辰/丙",
+            "why": "日上辰土制亥子水，古断主息怒"
+          },
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "比用",
+            "why": "比用主和合"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "戌",
+            "why": "末传天魁戌临亥，原案以“王”字断姓王人劝合"
+          }
+        ],
+        "ruleRef": "课体；支克制化；字形取象",
+        "note": "见官/劝合内容仅作古籍断法研读。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "辰/丙",
+        "卯/辰",
+        "丑/寅",
+        "子/丑"
+      ],
+      "chuans": [
+        "子",
+        "亥",
+        "戌"
+      ],
+      "chuanJiang": [
+        "螣蛇",
+        "贵人",
+        "天后"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "休",
+      "monthZhi": "未",
+      "method": "比用",
+      "zhonghuang": {
+        "shiGan": "乙",
+        "bianGan": "癸",
+        "bianGong": "未",
+        "bianLq": "官鬼"
+      }
+    }
   }
 ]
