@@ -1960,5 +1960,404 @@
         "bianLq": "妻财"
       }
     }
+  },
+  {
+    "id": "renzhan_yichou_028_chen_shihuan",
+    "source": "《壬占汇选》卷之一 乙丑日 占验028（《指南》）",
+    "chapter": "乙丑日",
+    "title": "陈公献占仕宦：顺治甲申年二月乙丑日亥将申时",
+    "input": {
+      "mj": "亥",
+      "dg": "乙",
+      "dz": "丑",
+      "hour": "申",
+      "yg": "甲",
+      "yz": "申",
+      "monthZhi": "寅",
+      "methodHint": "占进京补官"
+    },
+    "original": "陈公献曰：必不能北行，即行亦必半途而旋。盖因干支乘墓，所为不通，况课传年命未见二马，干神归支，利静而不利动，又中末二传空亡，主半道言旋。但青龙居干发用，今年却要起官，必补尚宝之职，因年上酉乃印也。阴神见贵人生日，岂非司印乎？后闻李贼陷京，因未北上，而官南京尚宝。",
+    "summary": "重审课，三传未戌丑。古断以干支乘墓、课传年命无马、中末空亡主不能北行；又以年上酉印、贵人生日断补尚宝。",
+    "chain": [
+      "程序复得重审课，三传未戌丑",
+      "古断以干支乘墓、无马、空亡主北行不遂",
+      "中末戌丑临空，主半途而旋",
+      "年上酉为印，阴神贵人生日，原案断补尚宝"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考，不构成现实仕途或决策建议",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "申",
+      "yongShen": "未",
+      "chuan": [
+        "未",
+        "戌",
+        "丑"
+      ],
+      "bianGong": "申"
+    },
+    "reasoning": [
+      {
+        "claim": "必不能北行，即行亦半途而旋",
+        "route": "bifa",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "重审",
+            "why": "重审课事多阻滞"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "戌",
+            "why": "中传戌空，动象不实"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "戌亥旬空，中末空亡故主半道言旋"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "旺",
+            "why": "乙木二月旺，利守成不利妄动"
+          }
+        ],
+        "ruleRef": "课体；旬空；旺衰",
+        "note": "原案“青龙居干发用”与程序天将序列不完全同式，入库不强锚。"
+      },
+      {
+        "claim": "今年起官，补尚宝之职",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "zhi",
+            "ref": "酉",
+            "why": "原案以年上酉为印"
+          },
+          {
+            "view": "base",
+            "kind": "hour",
+            "ref": "申",
+            "why": "申时金旺，官象有气"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "bianGong",
+            "ref": "申",
+            "why": "中黄变干壬落申宫，仅作官印旁证"
+          }
+        ],
+        "ruleRef": "年上神；贵人；中黄旁证",
+        "note": "尚宝司断语保留为原案记录。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "未/乙",
+        "戌/未",
+        "辰/丑",
+        "未/辰"
+      ],
+      "chuans": [
+        "未",
+        "戌",
+        "丑"
+      ],
+      "chuanGz": [
+        "癸未",
+        "丙戌",
+        "丁丑"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "旺",
+      "monthZhi": "寅",
+      "method": "重审",
+      "zhonghuang": {
+        "shiGan": "甲",
+        "bianGan": "壬",
+        "bianGong": "申",
+        "bianLq": "父母"
+      }
+    }
+  },
+  {
+    "id": "renzhan_yichou_030_shao_yishi",
+    "source": "《壬占汇选》卷之一 乙丑日 占验030（《方本占案》《口鉴》）",
+    "chapter": "乙丑日",
+    "title": "邵彦和占役事：建炎己酉年九月乙丑日卯将戌时",
+    "input": {
+      "mj": "卯",
+      "dg": "乙",
+      "dz": "丑",
+      "hour": "戌",
+      "yg": "己",
+      "yz": "酉",
+      "monthZhi": "戌",
+      "methodHint": "占脱役事"
+    },
+    "original": "邵彦和曰：保正不能脱手，于道理上合当做此役也。酉加乙作蛇，官鬼自缠其身，初传功曹，身已在公了；若不认此役，须被监系，必待认了方释。末传子未相穿，又作勾陈，断然难脱，脱后又重做也。",
+    "summary": "涉害课，三传寅未子。古断以酉鬼加乙、螣蛇缠身，初传寅天空为吏役，中传未天后主认了无虑，末传子勾陈穿未，主难脱且脱后重做。",
+    "chain": [
+      "程序复得涉害课，三传寅未子，天将空后勾与原案相合",
+      "酉加乙作蛇，官鬼自缠",
+      "初传寅天空，古断为吏役",
+      "末传子勾陈穿未，主难脱"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考；役事官非内容不构成法律建议",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "戌",
+      "yongShen": "寅",
+      "chuan": [
+        "寅",
+        "未",
+        "子"
+      ],
+      "bianGong": "戌"
+    },
+    "reasoning": [
+      {
+        "claim": "保正不能脱手",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "keg",
+            "ref": "酉/乙",
+            "why": "酉金克乙，官鬼临干"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "寅/天空",
+            "why": "初传寅乘天空，古断为吏役"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "子",
+            "why": "末传子与未穿，事端缠结"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "子/勾陈",
+            "why": "子乘勾陈，主羁缠难脱"
+          }
+        ],
+        "ruleRef": "六亲官鬼；天将；六害",
+        "note": "“监系/入狱”为古籍断语，不作现实法律判断。"
+      },
+      {
+        "claim": "认了方释，脱后重做",
+        "route": "bifa",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "未/天后",
+            "why": "中传未乘天后，古断为和解之口"
+          },
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "涉害",
+            "why": "涉害课主受害受累，事不即解"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "囚",
+            "why": "乙木九月囚，身力受制"
+          }
+        ],
+        "ruleRef": "课体；旺衰",
+        "note": "原案“九年又做一次”为占验记录，仅作文献参照。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "酉/乙",
+        "寅/酉",
+        "午/丑",
+        "亥/午"
+      ],
+      "chuans": [
+        "寅",
+        "未",
+        "子"
+      ],
+      "chuanJiang": [
+        "天空",
+        "天后",
+        "勾陈"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "囚",
+      "monthZhi": "戌",
+      "method": "涉害",
+      "zhonghuang": {
+        "shiGan": "丙",
+        "bianGan": "戊",
+        "bianGong": "戌",
+        "bianLq": "妻财",
+        "bianInChuan": "末传"
+      }
+    }
+  },
+  {
+    "id": "renzhan_yichou_031_wang_furen",
+    "source": "《壬占汇选》卷之一 乙丑日 占验031（《牧夫占验》）",
+    "chapter": "乙丑日",
+    "title": "王牧夫占复任：乾隆己巳年五月乙丑日未将丑时",
+    "input": {
+      "mj": "未",
+      "dg": "乙",
+      "dz": "丑",
+      "hour": "丑",
+      "yg": "己",
+      "yz": "巳",
+      "monthZhi": "午",
+      "methodHint": "占盐院复任"
+    },
+    "original": "王牧夫曰：今戌辰戌，辰为新，戌为旧，今戌居始末，是旧官复莅任也。夏占火墓发用，虽空，然得时之旺气，况反复仍归干上，干为外，故仍莅外任也。将来戌旺辰衰，则旧官至矣。来期其在夏秋之交乎？果于六月末旬，立秋前一日到。",
+    "summary": "返吟课，三传戌辰戌。古断以戌居始末为旧官复莅，返吟反复仍归干上主外任；戌虽空而得时，旧官于夏秋之交至。",
+    "chain": [
+      "程序复得返吟课，三传戌辰戌，天将朱常朱",
+      "戌居始末，古断为旧官复莅",
+      "返吟反复归干，干为外任",
+      "戌空而逢火月，原案以得时论旧官至"
+    ],
+    "compliance": "古籍案例整理，仅供传统文化研习参考，不构成现实仕途或决策建议",
+    "routes": [
+      "base",
+      "duxiang",
+      "bifa"
+    ],
+    "focus": {
+      "hour": "丑",
+      "yongShen": "戌",
+      "chuan": [
+        "戌",
+        "辰",
+        "戌"
+      ],
+      "bianGong": "丑"
+    },
+    "reasoning": [
+      {
+        "claim": "旧官复莅任",
+        "route": "bifa",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "戌",
+            "why": "戌居始，古断为旧"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "中传",
+            "ref": "辰",
+            "why": "辰居其中，古断为新"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "末传",
+            "ref": "戌",
+            "why": "末传复归戌，旧事回头"
+          },
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "返吟",
+            "why": "返吟主反复，故旧官复至"
+          }
+        ],
+        "ruleRef": "新旧取象；返吟",
+        "note": "新旧官吏断法为古籍象法整理。"
+      },
+      {
+        "claim": "仍莅外任，夏秋之交至",
+        "route": "duxiang",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "戌",
+            "why": "戌空，来期需待填实"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "戌/朱雀",
+            "why": "戌乘朱雀，文书信息之象"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "休",
+            "why": "乙木五月休，宜守待时"
+          }
+        ],
+        "ruleRef": "旬空；天将；旺衰",
+        "note": "应期“立秋前一日到”为原案记录，仅作文献参照。"
+      }
+    ],
+    "expect": {
+      "kegs": [
+        "戌/乙",
+        "辰/戌",
+        "未/丑",
+        "丑/未"
+      ],
+      "chuans": [
+        "戌",
+        "辰",
+        "戌"
+      ],
+      "chuanJiang": [
+        "朱雀",
+        "太常",
+        "朱雀"
+      ],
+      "xunkong": [
+        "戌",
+        "亥"
+      ],
+      "dayWangShuai": "休",
+      "monthZhi": "午",
+      "method": "返吟",
+      "zhonghuang": {
+        "shiGan": "丁",
+        "bianGan": "辛",
+        "bianGong": "丑",
+        "bianLq": "官鬼"
+      }
+    }
   }
 ]
