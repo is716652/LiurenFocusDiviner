@@ -35,6 +35,7 @@ export struct AncientCaseGallery {
   @State private ana: ZhonghuangAnalyze | null = null;
   @State private focusZhi: string = '';
   @State private focusLabel: string = '';
+  @State private topicFilter: string = '全部';
 
   private openCase(c: AncientCase): void {
     this.cur = c;
@@ -202,6 +203,38 @@ export struct AncientCaseGallery {
     }
   }
 
+  private topicOptions(): string[] {
+    return ['全部', '来意', '疾病', '官讼', '行人', '仕宦', '生产', '风水', '应候', '役事', '终身', '省试', '会试', '流年', '前程', '己身', '复建', '亡盗', '远行', '索债', '赴任', '复任', '补官', '六甲'];
+  }
+
+  private groupNames(): string[] {
+    return ['中黄五变经', '壬占汇选·甲子日', '壬占汇选·乙丑日', '壬占汇选·丙寅日'];
+  }
+
+  private groupOf(c: AncientCase): string {
+    if (c.source.indexOf('中黄五变经') >= 0) {
+      return '中黄五变经';
+    }
+    if (c.id.indexOf('_yichou_') >= 0 || c.title.indexOf('乙丑日') >= 0 || c.chapter === '乙丑日') {
+      return '壬占汇选·乙丑日';
+    }
+    if (c.id.indexOf('_bingyin_') >= 0 || c.title.indexOf('丙寅日') >= 0 || c.chapter === '丙寅日') {
+      return '壬占汇选·丙寅日';
+    }
+    return '壬占汇选·甲子日';
+  }
+
+  private filteredCases(): AncientCase[] {
+    if (this.topicFilter === '全部') {
+      return this.cases;
+    }
+    return this.cases.filter((c: AncientCase) => (c.topics ? c.topics : []).indexOf(this.topicFilter) >= 0);
+  }
+
+  private casesInGroup(g: string): AncientCase[] {
+    return this.filteredCases().filter((c: AncientCase) => this.groupOf(c) === g);
+  }
+
   @Builder
   private tabButton(txt: string, active: boolean, onTap: () => void) {
     Text(txt)
@@ -225,36 +258,78 @@ export struct AncientCaseGallery {
       Text('古籍案例的程序化复原：课式校验、中黄先锋、断法链路')
         .fontSize(10)
         .fontColor('#8A7B5C')
-      ForEach(this.cases, (c: AncientCase) => {
-        Column({ space: 5 }) {
-          Row() {
-            Text(c.title)
-              .fontSize(14)
-              .fontWeight(FontWeight.Medium)
-              .fontColor('#F0E6C8')
-              .layoutWeight(1)
-            Text('›')
-              .fontSize(18)
-              .fontColor('#6B5F45')
-          }
-          Text(c.source + ' · ' + c.chapter)
-            .fontSize(10)
-            .fontColor('#A8843C')
-          Text(c.summary)
-            .fontSize(11)
-            .fontColor('#8A7B5C')
-            .maxLines(2)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
+      Scroll() {
+        Row({ space: 8 }) {
+          ForEach(this.topicOptions(), (t: string) => {
+            Text(t)
+              .fontSize(10)
+              .fontColor(this.topicFilter === t ? '#1A1410' : '#C4B183')
+              .backgroundColor(this.topicFilter === t ? '#E9C878' : '#211E18')
+              .borderRadius(12)
+              .padding({ left: 10, right: 10, top: 5, bottom: 5 })
+              .onClick(() => {
+                this.topicFilter = t;
+              })
+          }, (t: string) => t)
         }
-        .width('100%')
-        .padding(12)
-        .borderRadius(12)
-        .backgroundColor('#1C1A16')
-        .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
-        .onClick(() => {
-          this.openCase(c);
-        })
-      }, (c: AncientCase) => c.id)
+      }
+      .scrollable(ScrollDirection.Horizontal)
+      .scrollBar(BarState.Off)
+      .width('100%')
+
+      ForEach(this.groupNames(), (g: string) => {
+        if (this.casesInGroup(g).length > 0) {
+          Column({ space: 8 }) {
+            Text(g)
+              .fontSize(12)
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#A8843C')
+              .margin({ top: 4 })
+            ForEach(this.casesInGroup(g), (c: AncientCase) => {
+              Column({ space: 5 }) {
+                Row() {
+                  Text(c.title)
+                    .fontSize(14)
+                    .fontWeight(FontWeight.Medium)
+                    .fontColor('#F0E6C8')
+                    .layoutWeight(1)
+                  Text('›')
+                    .fontSize(18)
+                    .fontColor('#6B5F45')
+                }
+                Row({ space: 6 }) {
+                  ForEach((c.topics ? c.topics : []), (t: string) => {
+                    Text(t)
+                      .fontSize(9)
+                      .fontColor('#A63A2B')
+                      .backgroundColor('rgba(166,58,43,0.10)')
+                      .borderRadius(8)
+                      .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+                  }, (t: string) => c.id + ':' + t)
+                }
+                Text(c.source + ' · ' + c.chapter)
+                  .fontSize(10)
+                  .fontColor('#A8843C')
+                Text(c.summary)
+                  .fontSize(11)
+                  .fontColor('#8A7B5C')
+                  .maxLines(2)
+                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+              }
+              .width('100%')
+              .padding(12)
+              .borderRadius(12)
+              .backgroundColor('#1C1A16')
+              .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+              .onClick(() => {
+                this.openCase(c);
+              })
+            }, (c: AncientCase) => c.id)
+          }
+          .width('100%')
+          .alignItems(HorizontalAlign.Start)
+        }
+      }, (g: string) => g)
     }
     .width('100%')
     .alignItems(HorizontalAlign.Start)

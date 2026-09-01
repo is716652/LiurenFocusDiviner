@@ -119,6 +119,7 @@ export interface AncientCase {
   summary: string;
   chain: string[];
   compliance: string;
+  topics?: string[];
   routes?: string[];
   focus?: AncientCaseFocus;
   reasoning?: AncientCaseReasoning[];

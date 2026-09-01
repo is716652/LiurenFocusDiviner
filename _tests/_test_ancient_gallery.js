@@ -35,6 +35,7 @@ const ok = (name) => { console.log('OK  :', name); };
 const eqArr = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const gongOf = (c, z) => LiurenCore.gongOf(c.tp, z);
 const hasPaidWord = (s) => /付费|解锁|会员|VIP|价格|购买/.test(s);
+const TOPICS = { 来意: 1, 疾病: 1, 官讼: 1, 行人: 1, 仕宦: 1, 生产: 1, 风水: 1, 应候: 1, 役事: 1, 终身: 1, 省试: 1, 会试: 1, 流年: 1, 前程: 1, 六甲: 1, 己身: 1, 复建: 1, 亡盗: 1, 远行: 1, 索债: 1, 赴任: 1, 复任: 1, 补官: 1 };
 
 if (!Array.isArray(cases) || cases.length === 0) {
   bad('case_gallery.json 非空数组');
@@ -46,6 +47,7 @@ for (const item of cases) {
   console.log('\n=== ' + item.id + ' | ' + item.title + ' ===');
   if (!item.id || ids[item.id]) { bad('id 唯一非空', item.id); } else { ids[item.id] = true; ok('id 唯一'); }
   if (!item.title || !item.source || !item.chapter) { bad('基础字段 title/source/chapter'); } else { ok('基础字段'); }
+  if (!Array.isArray(item.topics) || item.topics.length === 0 || item.topics.some((t) => !TOPICS[t])) { bad('topics 占类词表'); } else { ok('topics 占类'); }
   if (!item.input || !item.input.mj || !item.input.dg || !item.input.dz || !item.input.hour) {
     bad('input 缺 mj/dg/dz/hour');
     continue;
