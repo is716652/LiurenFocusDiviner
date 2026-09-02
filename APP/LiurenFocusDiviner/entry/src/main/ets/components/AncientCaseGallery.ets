@@ -313,6 +313,38 @@ export struct AncientCaseGallery {
     return c.reasoning.filter((r: AncientCaseReasoning) => r.role !== 'main' && r.claim.indexOf(k) >= 0).length;
   }
 
+  private claimKeyword(claim: string): string {
+    const words: string[] = ['行人', '疾病', '官讼', '来意', '失物', '赴任', '仕宦', '生产', '应试', '流年', '风水', '复任', '补官', '役事', '省试', '会试'];
+    for (const w of words) {
+      if (claim.indexOf(w) >= 0) {
+        return w;
+      }
+    }
+    return '';
+  }
+
+  /* 异断：非主断断句落在另一个占类关键词上；只提示，不硬合并 */
+  private divergentReasoning(c: AncientCase): AncientCaseReasoning[] {
+    const mk = this.consensusKeyword(c);
+    if (!c.reasoning) {
+      return [];
+    }
+    return c.reasoning.filter((r: AncientCaseReasoning) => {
+      if (r.role === 'main') {
+        return false;
+      }
+      const k = this.claimKeyword(r.claim);
+      return k !== '' && k !== mk;
+    });
+  }
+
+  private isDivergent(c: AncientCase | null, r: AncientCaseReasoning): boolean {
+    if (!c) {
+      return false;
+    }
+    return this.divergentReasoning(c).some((x: AncientCaseReasoning) => x.claim === r.claim);
+  }
+
   @Builder
   private tabButton(txt: string, active: boolean, onTap: () => void) {
     Text(txt)
@@ -336,6 +368,14 @@ export struct AncientCaseGallery {
           .backgroundColor(this.roleColor(r.role))
           .borderRadius(8)
           .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+        if (this.isDivergent(this.cur, r)) {
+          Text('异断')
+            .fontSize(9)
+            .fontColor('#F5EFE2')
+            .backgroundColor('#2F4A5F')
+            .borderRadius(8)
+            .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+        }
         Text('断：' + r.claim)
           .fontSize(emphasis ? 13 : 12)
           .fontWeight(emphasis ? FontWeight.Bold : FontWeight.Medium)
@@ -685,6 +725,16 @@ export struct AncientCaseGallery {
               .fontSize(10)
               .fontColor('#2F4A5F')
               .backgroundColor('rgba(47,74,95,0.10)')
+              .borderRadius(8)
+              .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+              .width('100%')
+              .textAlign(TextAlign.Start)
+          }
+          if (this.consensusKeyword(c) !== '' && this.divergentReasoning(c).length > 0) {
+            Text('异断对读：主断为「' + this.consensusKeyword(c) + '」，另有 ' + String(this.divergentReasoning(c).length) + ' 条落在其他占类，宜分列参看')
+              .fontSize(10)
+              .fontColor('#7A2E2E')
+              .backgroundColor('rgba(122,46,46,0.10)')
               .borderRadius(8)
               .padding({ left: 8, right: 8, top: 4, bottom: 4 })
               .width('100%')
