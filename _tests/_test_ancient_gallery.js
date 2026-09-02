@@ -36,6 +36,7 @@ const eqArr = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const gongOf = (c, z) => LiurenCore.gongOf(c.tp, z);
 const hasPaidWord = (s) => /付费|解锁|会员|VIP|价格|购买/.test(s);
 const TOPICS = { 来意: 1, 疾病: 1, 官讼: 1, 行人: 1, 仕宦: 1, 生产: 1, 风水: 1, 应候: 1, 役事: 1, 终身: 1, 省试: 1, 会试: 1, 流年: 1, 前程: 1, 六甲: 1, 己身: 1, 复建: 1, 亡盗: 1, 远行: 1, 索债: 1, 赴任: 1, 复任: 1, 补官: 1 };
+const ROLES = { main: 1, support: 1, timing: 1, risk: 1, cross: 1 };
 
 if (!Array.isArray(cases) || cases.length === 0) {
   bad('case_gallery.json 非空数组');
@@ -103,8 +104,10 @@ for (const item of cases) {
     const routes = { base: true, duxiang: true, zhonghuang: true, yongshen: true, bifa: true };
     let rBad = 0;
     const zhiSet = { 子: 1, 丑: 1, 寅: 1, 卯: 1, 辰: 1, 巳: 1, 午: 1, 未: 1, 申: 1, 酉: 1, 戌: 1, 亥: 1 };
+    const mainCount = item.reasoning.filter((r) => r.role === 'main').length;
+    if (item.reasoning.length === 0 || mainCount !== 1 || item.reasoning[0].role !== 'main') { rBad++; }
     for (const r of item.reasoning) {
-      if (!r.claim || !routes[r.route] || !Array.isArray(r.evidence) || r.evidence.length === 0) {
+      if (!r.claim || !routes[r.route] || !Array.isArray(r.evidence) || r.evidence.length === 0 || !ROLES[r.role]) {
         rBad++;
         continue;
       }

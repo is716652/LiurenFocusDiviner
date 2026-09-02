@@ -97,6 +97,8 @@ export interface AncientCaseEvidence {
 export interface AncientCaseReasoning {
   claim: string;
   route: string;
+  /* 断句角色：main 主断；support 旁证；timing 应期；risk 风险/变局；cross 参证 */
+  role?: string;
   evidence: AncientCaseEvidence[];
   ruleRef?: string;
   note?: string;
