@@ -88,6 +88,9 @@ export interface AncientCaseEvidence {
   ref: string;
   why: string;
   pos?: string;
+  /* 盘上/课上小标注：仅 key=true 时允许上盘；mark 宜 1–2 字，如 马/空/鬼 */
+  mark?: string;
+  key?: boolean;
 }
 
 /* 古籍案例鉴赏：单句断语的推导链 */

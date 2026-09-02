@@ -110,6 +110,9 @@ for (const item of cases) {
       }
       for (const ev of r.evidence) {
         if (!ev.view || !ev.kind || !ev.ref || !ev.why) { rBad++; continue; }
+        if (ev.mark !== undefined && (typeof ev.mark !== 'string' || ev.mark.length === 0 || ev.mark.length > 2)) { rBad++; }
+        if (ev.key !== undefined && typeof ev.key !== 'boolean') { rBad++; }
+        if (ev.mark && ev.key !== true) { rBad++; }
         if (ev.kind === 'chuan') {
           if (ev.pos) {
             const idx = ev.pos === '初传' ? 0 : (ev.pos === '中传' ? 1 : 2);

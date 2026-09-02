@@ -36,9 +36,11 @@ export struct AncientCaseGallery {
   @State private focusZhi: string = '';
   @State private focusLabel: string = '';
   @State private topicFilter: string = '全部';
+  @State private activeClaim: string = '';
 
   private openCase(c: AncientCase): void {
     this.cur = c;
+    this.activeClaim = (c.reasoning && c.reasoning.length > 0) ? c.reasoning[0].claim : '';
     this.clearFocus();
     this.detailOpen = true;
     const inp = c.input;
@@ -193,6 +195,7 @@ export struct AncientCaseGallery {
     this.cur = null;
     this.chart = null;
     this.ana = null;
+    this.activeClaim = '';
     this.clearFocus();
     this.detailOpen = false;
   }
@@ -233,6 +236,25 @@ export struct AncientCaseGallery {
 
   private casesInGroup(g: string): AncientCase[] {
     return this.filteredCases().filter((c: AncientCase) => this.groupOf(c) === g);
+  }
+
+  /* 当前断句的关键标注：只有 mark + key=true 的证据允许上三传卡 */
+  private markForZhi(z: string): string {
+    const c = this.cur;
+    if (!c || !c.reasoning || this.activeClaim === '') {
+      return '';
+    }
+    for (const r of c.reasoning) {
+      if (r.claim !== this.activeClaim) {
+        continue;
+      }
+      for (const e of r.evidence) {
+        if (e.key === true && e.mark && this.evidenceZhi(e) === z) {
+          return e.mark;
+        }
+      }
+    }
+    return '';
   }
 
   @Builder
@@ -483,17 +505,17 @@ export struct AncientCaseGallery {
             Row({ space: 8 }) {
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[0].pos, gz: this.chuanRows(this.chart as Chart)[0].gz,
                 jiang: this.chuanRows(this.chart as Chart)[0].jiang, lq: this.chuanRows(this.chart as Chart)[0].lq,
-                color: this.chuanRows(this.chart as Chart)[0].color,
+                color: this.chuanRows(this.chart as Chart)[0].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[0].z),
                 highlight: this.focusZhi === '' || (this.chart as Chart).sanchuan.chuans[0].z === this.focusZhi })
                 .layoutWeight(1)
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[1].pos, gz: this.chuanRows(this.chart as Chart)[1].gz,
                 jiang: this.chuanRows(this.chart as Chart)[1].jiang, lq: this.chuanRows(this.chart as Chart)[1].lq,
-                color: this.chuanRows(this.chart as Chart)[1].color,
+                color: this.chuanRows(this.chart as Chart)[1].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[1].z),
                 highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[1].z === this.focusZhi })
                 .layoutWeight(1)
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[2].pos, gz: this.chuanRows(this.chart as Chart)[2].gz,
                 jiang: this.chuanRows(this.chart as Chart)[2].jiang, lq: this.chuanRows(this.chart as Chart)[2].lq,
-                color: this.chuanRows(this.chart as Chart)[2].color,
+                color: this.chuanRows(this.chart as Chart)[2].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[2].z),
                 highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[2].z === this.focusZhi })
                 .layoutWeight(1)
             }
@@ -540,7 +562,7 @@ export struct AncientCaseGallery {
                 Text('断：' + r.claim)
                   .fontSize(12)
                   .fontWeight(FontWeight.Medium)
-                  .fontColor('#2B241B')
+                  .fontColor(this.activeClaim === r.claim ? '#A63A2B' : '#2B241B')
                   .layoutWeight(1)
                 Text(this.routeLabel(r.route))
                   .fontSize(9)
@@ -550,6 +572,9 @@ export struct AncientCaseGallery {
                   .padding({ left: 6, right: 6, top: 2, bottom: 2 })
               }
               .width('100%')
+              .onClick(() => {
+                this.activeClaim = r.claim;
+              })
               ForEach(r.evidence, (e: AncientCaseEvidence) => {
                 Text('· ' + this.evidenceText(e))
                   .fontSize(10)
@@ -558,6 +583,7 @@ export struct AncientCaseGallery {
                   .lineHeight(15)
                   .width('100%')
                   .onClick(() => {
+                    this.activeClaim = r.claim;
                     const z = this.evidenceZhi(e);
                     if (z !== '') {
                       this.setFocus(z, r.claim);
@@ -594,14 +620,19 @@ export struct AncientCaseGallery {
         Text('断法链路纲要')
           .fontSize(12)
           .fontColor('#2F4A5F')
+          .width('100%')
+          .textAlign(TextAlign.Start)
         ForEach(c.chain, (line: string, idx: number) => {
           Text(String(idx + 1) + '. ' + line)
             .fontSize(11)
             .fontColor('#2B241B')
             .lineHeight(18)
+            .width('100%')
+            .textAlign(TextAlign.Start)
         }, (line: string) => line)
       }
       .width('100%')
+      .alignItems(HorizontalAlign.Start)
       .padding(12)
       .borderRadius(12)
       .backgroundColor('#F5EFE2')

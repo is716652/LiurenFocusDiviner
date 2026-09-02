@@ -11,14 +11,28 @@ export struct ChuanCard {
   @Prop lq: string = '';
   @Prop color: string = '#E9C878';
   @Prop highlight: boolean = false;
+  /* 关键标注：如 马/空/鬼；空串不显示 */
+  @Prop mark: string = '';
 
   build() {
     Column({ space: 3 }) {
-      Text((this.highlight ? '★ ' : '') + this.pos)
-        .fontSize(10)
-        .fontColor(this.highlight ? '#F0D98C' : '#8A7B5C')
-        .fontWeight(this.highlight ? FontWeight.Bold : FontWeight.Normal)
-        .letterSpacing(1)
+      Row() {
+        Text((this.highlight ? '★ ' : '') + this.pos)
+          .fontSize(10)
+          .fontColor(this.highlight ? '#F0D98C' : '#8A7B5C')
+          .fontWeight(this.highlight ? FontWeight.Bold : FontWeight.Normal)
+          .letterSpacing(1)
+          .layoutWeight(1)
+        if (this.mark !== '') {
+          Text(this.mark)
+            .fontSize(9)
+            .fontColor('#F5EFE2')
+            .backgroundColor('#A63A2B')
+            .borderRadius(7)
+            .padding({ left: 5, right: 5, top: 1, bottom: 1 })
+        }
+      }
+      .width('100%')
       Text(this.gz)
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
