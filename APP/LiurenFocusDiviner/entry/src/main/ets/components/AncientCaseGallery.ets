@@ -37,6 +37,10 @@ export struct AncientCaseGallery {
   @State private focusLabel: string = '';
   @State private topicFilter: string = '全部';
   @State private activeClaim: string = '';
+  @State private showSupport: boolean = true;
+  @State private showTiming: boolean = true;
+  @State private showRisk: boolean = true;
+  @State private showCross: boolean = false;
 
   private openCase(c: AncientCase): void {
     this.cur = c;
@@ -257,6 +261,58 @@ export struct AncientCaseGallery {
     return '';
   }
 
+  private mainReasoning(c: AncientCase): AncientCaseReasoning | null {
+    if (!c.reasoning || c.reasoning.length === 0) {
+      return null;
+    }
+    return c.reasoning[0];
+  }
+
+  private reasoningByRole(c: AncientCase, role: string): AncientCaseReasoning[] {
+    if (!c.reasoning) {
+      return [];
+    }
+    return c.reasoning.filter((r: AncientCaseReasoning) => (r.role ? r.role : 'support') === role);
+  }
+
+  private roleLabel(role?: string): string {
+    if (role === 'main') { return '主断'; }
+    if (role === 'timing') { return '应期'; }
+    if (role === 'risk') { return '风险'; }
+    if (role === 'cross') { return '参证'; }
+    return '旁证';
+  }
+
+  private roleColor(role?: string): string {
+    if (role === 'main') { return '#A63A2B'; }
+    if (role === 'timing') { return '#2F4A5F'; }
+    if (role === 'risk') { return '#7A2E2E'; }
+    if (role === 'cross') { return '#3E5C76'; }
+    return '#8A7B5C';
+  }
+
+  private consensusKeyword(c: AncientCase): string {
+    const m = this.mainReasoning(c);
+    if (!m) {
+      return '';
+    }
+    const words: string[] = ['行人', '疾病', '官讼', '来意', '失物', '赴任', '仕宦', '生产', '应试', '流年', '风水', '复任', '补官', '役事', '省试', '会试'];
+    for (const w of words) {
+      if (m.claim.indexOf(w) >= 0) {
+        return w;
+      }
+    }
+    return '';
+  }
+
+  private consensusCount(c: AncientCase): number {
+    const k = this.consensusKeyword(c);
+    if (!c.reasoning || k === '') {
+      return 0;
+    }
+    return c.reasoning.filter((r: AncientCaseReasoning) => r.role !== 'main' && r.claim.indexOf(k) >= 0).length;
+  }
+
   @Builder
   private tabButton(txt: string, active: boolean, onTap: () => void) {
     Text(txt)
@@ -268,6 +324,72 @@ export struct AncientCaseGallery {
       .onClick(() => {
         onTap();
       })
+  }
+
+  @Builder
+  private reasoningItem(r: AncientCaseReasoning, emphasis: boolean) {
+    Column({ space: 6 }) {
+      Row() {
+        Text(this.roleLabel(r.role))
+          .fontSize(9)
+          .fontColor('#F5EFE2')
+          .backgroundColor(this.roleColor(r.role))
+          .borderRadius(8)
+          .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+        Text('断：' + r.claim)
+          .fontSize(emphasis ? 13 : 12)
+          .fontWeight(emphasis ? FontWeight.Bold : FontWeight.Medium)
+          .fontColor(this.activeClaim === r.claim ? '#A63A2B' : '#2B241B')
+          .layoutWeight(1)
+        Text(this.routeLabel(r.route))
+          .fontSize(9)
+          .fontColor('#F5EFE2')
+          .backgroundColor(this.routeColor(r.route))
+          .borderRadius(8)
+          .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+      }
+      .width('100%')
+      .onClick(() => {
+        this.activeClaim = r.claim;
+      })
+      ForEach(r.evidence, (e: AncientCaseEvidence) => {
+        Text('· ' + this.evidenceText(e))
+          .fontSize(10)
+          .fontColor(this.evidenceZhi(e) !== '' && this.evidenceZhi(e) === this.focusZhi ? '#A63A2B' : '#4A3F32')
+          .fontWeight(this.evidenceZhi(e) !== '' && this.evidenceZhi(e) === this.focusZhi ? FontWeight.Bold : FontWeight.Normal)
+          .lineHeight(15)
+          .width('100%')
+          .textAlign(TextAlign.Start)
+          .onClick(() => {
+            this.activeClaim = r.claim;
+            const z = this.evidenceZhi(e);
+            if (z !== '') {
+              this.setFocus(z, r.claim);
+            }
+          })
+      }, (e: AncientCaseEvidence) => e.kind + e.ref + e.why)
+      if (r.ruleRef) {
+        Text('规则出处：' + r.ruleRef)
+          .fontSize(9)
+          .fontColor('#2F4A5F')
+          .width('100%')
+          .textAlign(TextAlign.Start)
+      }
+      if (r.note) {
+        Text(r.note)
+          .fontSize(9)
+          .fontColor('#7A6A55')
+          .lineHeight(14)
+          .width('100%')
+          .textAlign(TextAlign.Start)
+      }
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
+    .padding({ top: 6, bottom: 6, left: emphasis ? 8 : 0, right: emphasis ? 8 : 0 })
+    .borderRadius(emphasis ? 10 : 0)
+    .backgroundColor(emphasis ? 'rgba(166,58,43,0.08)' : '#00000000')
+    .border({ width: { bottom: emphasis ? 0 : 1 }, color: 'rgba(166,58,43,0.15)' })
   }
 
   @Builder
@@ -556,60 +678,88 @@ export struct AncientCaseGallery {
           Text('断语证据链')
             .fontSize(12)
             .fontColor('#A63A2B')
-          ForEach(c.reasoning, (r: AncientCaseReasoning) => {
-            Column({ space: 6 }) {
-              Row() {
-                Text('断：' + r.claim)
-                  .fontSize(12)
-                  .fontWeight(FontWeight.Medium)
-                  .fontColor(this.activeClaim === r.claim ? '#A63A2B' : '#2B241B')
-                  .layoutWeight(1)
-                Text(this.routeLabel(r.route))
-                  .fontSize(9)
-                  .fontColor('#F5EFE2')
-                  .backgroundColor(this.routeColor(r.route))
-                  .borderRadius(8)
-                  .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-              }
-              .width('100%')
-              .onClick(() => {
-                this.activeClaim = r.claim;
-              })
-              ForEach(r.evidence, (e: AncientCaseEvidence) => {
-                Text('· ' + this.evidenceText(e))
-                  .fontSize(10)
-                  .fontColor(this.evidenceZhi(e) !== '' && this.evidenceZhi(e) === this.focusZhi ? '#A63A2B' : '#4A3F32')
-                  .fontWeight(this.evidenceZhi(e) !== '' && this.evidenceZhi(e) === this.focusZhi ? FontWeight.Bold : FontWeight.Normal)
-                  .lineHeight(15)
-                  .width('100%')
-                  .onClick(() => {
-                    this.activeClaim = r.claim;
-                    const z = this.evidenceZhi(e);
-                    if (z !== '') {
-                      this.setFocus(z, r.claim);
-                    }
-                  })
-              }, (e: AncientCaseEvidence) => e.kind + e.ref + e.why)
-              if (r.ruleRef) {
-                Text('规则出处：' + r.ruleRef)
-                  .fontSize(9)
-                  .fontColor('#2F4A5F')
-                  .width('100%')
-              }
-              if (r.note) {
-                Text(r.note)
-                  .fontSize(9)
-                  .fontColor('#7A6A55')
-                  .lineHeight(14)
-                  .width('100%')
-              }
-            }
             .width('100%')
-            .padding({ top: 6, bottom: 6 })
-            .border({ width: { bottom: 1 }, color: 'rgba(166,58,43,0.15)' })
-          }, (r: AncientCaseReasoning) => r.claim)
+            .textAlign(TextAlign.Start)
+          if (this.consensusCount(c) > 0) {
+            Text('多链同断：' + this.consensusKeyword(c) + ' · 主链外另有 ' + String(this.consensusCount(c)) + ' 条佐证')
+              .fontSize(10)
+              .fontColor('#2F4A5F')
+              .backgroundColor('rgba(47,74,95,0.10)')
+              .borderRadius(8)
+              .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+              .width('100%')
+              .textAlign(TextAlign.Start)
+          }
+          if (this.mainReasoning(c)) {
+            this.reasoningItem(this.mainReasoning(c) as AncientCaseReasoning, true)
+          }
+
+          if (this.reasoningByRole(c, 'support').length > 0) {
+            Text('旁证 ' + String(this.reasoningByRole(c, 'support').length) + (this.showSupport ? ' · 收起' : ' · 展开'))
+              .fontSize(11)
+              .fontColor('#8A7B5C')
+              .width('100%')
+              .textAlign(TextAlign.Start)
+              .onClick(() => {
+                this.showSupport = !this.showSupport;
+              })
+            if (this.showSupport) {
+              ForEach(this.reasoningByRole(c, 'support'), (r: AncientCaseReasoning) => {
+                this.reasoningItem(r, false)
+              }, (r: AncientCaseReasoning) => r.claim)
+            }
+          }
+
+          if (this.reasoningByRole(c, 'timing').length > 0) {
+            Text('应期 ' + String(this.reasoningByRole(c, 'timing').length) + (this.showTiming ? ' · 收起' : ' · 展开'))
+              .fontSize(11)
+              .fontColor('#2F4A5F')
+              .width('100%')
+              .textAlign(TextAlign.Start)
+              .onClick(() => {
+                this.showTiming = !this.showTiming;
+              })
+            if (this.showTiming) {
+              ForEach(this.reasoningByRole(c, 'timing'), (r: AncientCaseReasoning) => {
+                this.reasoningItem(r, false)
+              }, (r: AncientCaseReasoning) => r.claim)
+            }
+          }
+
+          if (this.reasoningByRole(c, 'risk').length > 0) {
+            Text('风险/变局 ' + String(this.reasoningByRole(c, 'risk').length) + (this.showRisk ? ' · 收起' : ' · 展开'))
+              .fontSize(11)
+              .fontColor('#7A2E2E')
+              .width('100%')
+              .textAlign(TextAlign.Start)
+              .onClick(() => {
+                this.showRisk = !this.showRisk;
+              })
+            if (this.showRisk) {
+              ForEach(this.reasoningByRole(c, 'risk'), (r: AncientCaseReasoning) => {
+                this.reasoningItem(r, false)
+              }, (r: AncientCaseReasoning) => r.claim)
+            }
+          }
+
+          if (this.reasoningByRole(c, 'cross').length > 0) {
+            Text('参证 ' + String(this.reasoningByRole(c, 'cross').length) + (this.showCross ? ' · 收起' : ' · 展开'))
+              .fontSize(11)
+              .fontColor('#3E5C76')
+              .width('100%')
+              .textAlign(TextAlign.Start)
+              .onClick(() => {
+                this.showCross = !this.showCross;
+              })
+            if (this.showCross) {
+              ForEach(this.reasoningByRole(c, 'cross'), (r: AncientCaseReasoning) => {
+                this.reasoningItem(r, false)
+              }, (r: AncientCaseReasoning) => r.claim)
+            }
+          }
         }
         .width('100%')
+        .alignItems(HorizontalAlign.Start)
         .padding(12)
         .borderRadius(12)
         .backgroundColor('#F5EFE2')
