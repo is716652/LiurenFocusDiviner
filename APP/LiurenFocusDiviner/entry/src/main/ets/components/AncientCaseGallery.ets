@@ -215,12 +215,15 @@ export struct AncientCaseGallery {
   }
 
   private groupNames(): string[] {
-    return ['中黄五变经', '壬占汇选·甲子日', '壬占汇选·乙丑日', '壬占汇选·丙寅日'];
+    return ['中黄五变经', '六壬断案', '壬占汇选·甲子日', '壬占汇选·乙丑日', '壬占汇选·丙寅日'];
   }
 
   private groupOf(c: AncientCase): string {
     if (c.source.indexOf('中黄五变经') >= 0) {
       return '中黄五变经';
+    }
+    if (c.source.indexOf('六壬断案') >= 0 || c.id.indexOf('duanan_') >= 0) {
+      return '六壬断案';
     }
     if (c.id.indexOf('_yichou_') >= 0 || c.title.indexOf('乙丑日') >= 0 || c.chapter === '乙丑日') {
       return '壬占汇选·乙丑日';
