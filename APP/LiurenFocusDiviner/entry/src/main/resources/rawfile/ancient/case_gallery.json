@@ -4287,5 +4287,438 @@
     "亡盗",
     "官讼"
   ]
+},
+{
+  "id": "renzhan_dingmao_046_shao_shiwu",
+  "source": "《壬占汇选》卷之一 丁卯日 占验046",
+  "chapter": "丁卯日",
+  "title": "邵彦和占失物：九月丁卯日卯将戌时",
+  "input": {
+    "mj": "卯",
+    "dg": "丁",
+    "dz": "卯",
+    "hour": "戌",
+    "monthZhi": "戌",
+    "methodHint": "占失物"
+  },
+  "original": "某占失去麦面，未知何人所偷。九月丁卯日戌建卯将戌时。邵彦和曰：据此课象，是人力勾引人来偷去。后知果是人力与对门面店博士合偷。盖巳为炉灶，又铸印课，太常为博士，亦主酒食；中传戌为人力，末传天空，亦是人力，是两人力合偷也。申为麦面，阴神丑土墓之，而作勾陈，故主勾引也。",
+  "summary": "比用课，三传巳戌卯，课成铸印。古断不以玄武单断贼，而以初传太常为博士、中末戌与天空为人力，申为麦面被丑墓，主两人合偷。",
+  "chain": [
+    "程序复得比用课，三传巳戌卯，旬空戌亥",
+    "初传巳乘太常，古断为博士、酒食、炉灶",
+    "中传戌为人力，末传卯乘天空亦为人力，古断主两人合偷",
+    "支上申为麦面，阴神丑墓申，古断主勾引"
+  ],
+  "compliance": "古籍案例整理，仅供传统文化研习参考；失窃内容不构成现实判断或法律建议",
+  "routes": [
+    "base",
+    "duxiang",
+    "bifa"
+  ],
+  "focus": {
+    "hour": "戌",
+    "yongShen": "戌",
+    "chuan": [
+      "巳",
+      "戌",
+      "卯"
+    ],
+    "bianGong": "戌"
+  },
+  "reasoning": [
+    {
+      "claim": "失物为两人力合偷",
+      "route": "base",
+      "evidence": [
+        {
+          "view": "base",
+          "kind": "chuan",
+          "pos": "初传",
+          "ref": "巳",
+          "why": "初传巳为炉灶，又铸印课，古断先定场景"
+        },
+        {
+          "view": "base",
+          "kind": "jiang",
+          "ref": "巳/太常",
+          "why": "巳乘太常，古断为博士，亦主酒食"
+        },
+        {
+          "view": "base",
+          "kind": "chuan",
+          "pos": "中传",
+          "ref": "戌",
+          "why": "中传戌为人力，古断主一人力",
+          "mark": "人",
+          "key": true
+        },
+        {
+          "view": "base",
+          "kind": "chuan",
+          "pos": "末传",
+          "ref": "卯",
+          "why": "末传卯乘天空，古断亦为人力，故成合偷",
+          "mark": "合",
+          "key": true
+        }
+      ],
+      "ruleRef": "铸印；太常；天空；人力",
+      "note": "失物内容仅作古籍研习。",
+      "role": "main"
+    },
+    {
+      "claim": "麦面被勾引而失",
+      "route": "duxiang",
+      "evidence": [
+        {
+          "view": "base",
+          "kind": "keg",
+          "ref": "申/卯",
+          "why": "支上申，古断以申为麦面"
+        },
+        {
+          "view": "base",
+          "kind": "keg",
+          "ref": "丑/申",
+          "why": "申之阴神丑土墓申，古断主被墓被勾"
+        },
+        {
+          "view": "base",
+          "kind": "method",
+          "ref": "比用",
+          "why": "比用主相比附，古断为勾引"
+        }
+      ],
+      "ruleRef": "类象；阴神；墓",
+      "note": "物品断法为古籍象法。",
+      "role": "support"
+    }
+  ],
+  "expect": {
+    "kegs": [
+      "子/丁",
+      "巳/子",
+      "申/卯",
+      "丑/申"
+    ],
+    "chuans": [
+      "巳",
+      "戌",
+      "卯"
+    ],
+    "chuanGz": [
+      "乙巳",
+      "庚戌",
+      "癸卯"
+    ],
+    "chuanJiang": [
+      "太常",
+      "螣蛇",
+      "天空"
+    ],
+    "xunkong": [
+      "戌",
+      "亥"
+    ],
+    "dayWangShuai": "囚",
+    "monthZhi": "戌",
+    "method": "比用",
+    "zhonghuang": {
+      "shiGan": "庚",
+      "bianGan": "丙",
+      "bianGong": "戌",
+      "bianLq": "比肩",
+      "bianInChuan": "中传"
+    }
+  },
+  "topics": [
+    "亡盗"
+  ]
+},
+{
+  "id": "renzhan_dingmao_049_wang_shengqian",
+  "source": "《壬占汇选》卷之一 丁卯日 占验049（《牧夫占验》）",
+  "chapter": "丁卯日",
+  "title": "王牧夫占升迁：乾隆丙子年九月丁卯日辰将丑时",
+  "input": {
+    "mj": "辰",
+    "dg": "丁",
+    "dz": "卯",
+    "hour": "丑",
+    "yearGan": "丙",
+    "yearZhi": "子",
+    "monthZhi": "戌",
+    "methodHint": "占升迁"
+  },
+  "original": "乾隆丙子年九月丁卯日辰将丑时，都转卢雅雨先生辛未生六十六岁，占迁官否。王牧夫曰：宪台不能升迁，安荣此任甚久。公曰：三传递生人举荐，何故不能？曰：递生虽属举荐，但是闭口，不能显荐。况公年命皆空，不能着实，三传是大概之象，年命方切于己耳。且丁神心动身动，实有所望，奈自乘墓，又与支神作合，所以安荣此任，不能升迁者也。后果不能升迁，壬午冬告休而回。",
+  "summary": "重审课，三传酉子卯。古断以三传递生似有人举荐，但闭口不能显荐；年命皆空、丁神自乘墓又与支合，故安荣此任而不能升迁。",
+  "chain": [
+    "程序复得重审课，三传酉子卯，旬空戌亥",
+    "三传递生，古断谓似有人举荐",
+    "闭口不能显荐，年命皆空，古断主不能着实",
+    "丁神心动身动而自乘墓，古断主安荣此任"
+  ],
+  "compliance": "古籍案例整理，仅供传统文化研习参考；升迁内容不构成现实判断或职业决策建议",
+  "routes": [
+    "base",
+    "duxiang",
+    "bifa"
+  ],
+  "focus": {
+    "hour": "丑",
+    "yongShen": "酉",
+    "chuan": [
+      "酉",
+      "子",
+      "卯"
+    ],
+    "bianGong": "丑"
+  },
+  "reasoning": [
+    {
+      "claim": "不能升迁，安荣此任甚久",
+      "route": "base",
+      "evidence": [
+        {
+          "view": "base",
+          "kind": "method",
+          "ref": "重审",
+          "why": "重审主事须反复审量，不主即迁"
+        },
+        {
+          "view": "base",
+          "kind": "chuan",
+          "pos": "初传",
+          "ref": "酉",
+          "why": "初传酉为传递之始，古断谓递生似举荐"
+        },
+        {
+          "view": "base",
+          "kind": "jiang",
+          "ref": "酉/贵人",
+          "why": "酉乘贵人，古断为有人言于上"
+        },
+        {
+          "view": "base",
+          "kind": "chuan",
+          "pos": "末传",
+          "ref": "卯",
+          "why": "末传卯空，古断主终归不虚则不久",
+          "mark": "空",
+          "key": true
+        }
+      ],
+      "ruleRef": "递生；闭口；年命",
+      "note": "升迁内容仅作古籍研习。",
+      "role": "main"
+    },
+    {
+      "claim": "丁神心动身动，却自乘墓",
+      "route": "duxiang",
+      "evidence": [
+        {
+          "view": "base",
+          "kind": "dayWangShuai",
+          "ref": "囚",
+          "why": "日干囚，古断谓心动身动而力不逮"
+        },
+        {
+          "view": "base",
+          "kind": "hour",
+          "ref": "丑",
+          "why": "占时丑，与年命合参，古断谓不能着实"
+        },
+        {
+          "view": "base",
+          "kind": "xunkong",
+          "ref": "戌",
+          "why": "戌亥旬空，古断以空不能着实"
+        }
+      ],
+      "ruleRef": "丁神；自墓；旬空",
+      "note": "年命空为古案口径，程序仅校旬空。",
+      "role": "support"
+    }
+  ],
+  "expect": {
+    "kegs": [
+      "戌/丁",
+      "丑/戌",
+      "午/卯",
+      "酉/午"
+    ],
+    "chuans": [
+      "酉",
+      "子",
+      "卯"
+    ],
+    "chuanGz": [
+      "己酉",
+      "庚子",
+      "癸卯"
+    ],
+    "xunkong": [
+      "戌",
+      "亥"
+    ],
+    "dayWangShuai": "囚",
+    "monthZhi": "戌",
+    "method": "重审",
+    "zhonghuang": {
+      "shiGan": "辛",
+      "bianGan": "己",
+      "bianGong": "丑",
+      "bianLq": "子孙",
+      "bianInChuan": ""
+    }
+  },
+  "topics": [
+    "仕宦"
+  ]
+},
+{
+  "id": "renzhan_dingmao_051_huang_weichai",
+  "source": "《壬占汇选》卷之一 丁卯日 占验051（《残编》）",
+  "chapter": "丁卯日",
+  "title": "黄氏占委差：雍正乙卯年五月丁卯日未将卯时",
+  "input": {
+    "mj": "未",
+    "dg": "丁",
+    "dz": "卯",
+    "hour": "卯",
+    "yearGan": "乙",
+    "yearZhi": "卯",
+    "monthZhi": "巳",
+    "methodHint": "占委差"
+  },
+  "original": "雍正乙卯年五月丁卯日未将卯时，阮帝臣老占求孔公司委买之事允否。黄断曰：求贵人，不宜贵空，空则无力。且夏令得木局，乃休气。休者，废也，不成之象。果于七月另委他人矣。",
+  "summary": "涉害课，三传亥卯未。古断以求委差最忌贵空，初传亥贵旬空，空则无力；三传亥卯未成木局，传本谓之休气，故不成，七月另委他人。",
+  "chain": [
+    "程序复得涉害课，三传亥卯未，旬空戌亥",
+    "初传亥为贵而旬空，古断谓贵空无力",
+    "三传亥卯未成木局，传本谓之休气",
+    "占委差无成，果于七月另委他人"
+  ],
+  "compliance": "古籍案例整理，仅供传统文化研习参考；委差、商务内容不构成现实判断或投资建议",
+  "routes": [
+    "base",
+    "duxiang",
+    "bifa"
+  ],
+  "focus": {
+    "hour": "卯",
+    "yongShen": "亥",
+    "chuan": [
+      "亥",
+      "卯",
+      "未"
+    ],
+    "bianGong": "卯"
+  },
+  "reasoning": [
+    {
+      "claim": "委差不允，七月另委他人",
+      "route": "base",
+      "evidence": [
+        {
+          "view": "base",
+          "kind": "chuan",
+          "pos": "初传",
+          "ref": "亥",
+          "why": "初传亥为贵人，古断谓求贵人不宜贵空",
+          "mark": "贵",
+          "key": true
+        },
+        {
+          "view": "base",
+          "kind": "xunkong",
+          "ref": "亥",
+          "why": "亥在旬空，古断谓空则无力",
+          "mark": "空",
+          "key": true
+        },
+        {
+          "view": "base",
+          "kind": "method",
+          "ref": "涉害",
+          "why": "涉害主事有阻隔，不主顺成"
+        },
+        {
+          "view": "base",
+          "kind": "chuan",
+          "pos": "末传",
+          "ref": "未",
+          "why": "末传未为归着，古断终主另委他人"
+        }
+      ],
+      "ruleRef": "贵人；旬空；木局",
+      "note": "传本“休气”与程序日干旺衰口径不同，作存疑对读。",
+      "role": "main"
+    },
+    {
+      "claim": "木局虽成，仍是休废之象",
+      "route": "duxiang",
+      "evidence": [
+        {
+          "view": "base",
+          "kind": "chuan",
+          "pos": "中传",
+          "ref": "卯",
+          "why": "中传卯与亥未成局，古断谓夏令得木局"
+        },
+        {
+          "view": "base",
+          "kind": "gong",
+          "ref": "未",
+          "why": "未为木墓，古断以休者废也作结"
+        },
+        {
+          "view": "base",
+          "kind": "hour",
+          "ref": "卯",
+          "why": "占时卯，与三传合看，木象尤显"
+        }
+      ],
+      "ruleRef": "三合局；休气",
+      "note": "委差内容不构成商业建议。",
+      "role": "support"
+    }
+  ],
+  "expect": {
+    "kegs": [
+      "亥/丁",
+      "卯/亥",
+      "未/卯",
+      "亥/未"
+    ],
+    "chuans": [
+      "亥",
+      "卯",
+      "未"
+    ],
+    "chuanGz": [
+      "辛亥",
+      "癸卯",
+      "丁未"
+    ],
+    "xunkong": [
+      "戌",
+      "亥"
+    ],
+    "dayWangShuai": "旺",
+    "monthZhi": "巳",
+    "method": "涉害",
+    "zhonghuang": {
+      "shiGan": "癸",
+      "bianGan": "乙",
+      "bianGong": "卯",
+      "bianLq": "父母",
+      "bianInChuan": "中传"
+    }
+  },
+  "topics": [
+    "役事",
+    "仕宦"
+  ]
 }
 ]

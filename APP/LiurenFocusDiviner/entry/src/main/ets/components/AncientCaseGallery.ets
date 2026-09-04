@@ -215,7 +215,7 @@ export struct AncientCaseGallery {
   }
 
   private groupNames(): string[] {
-    return ['中黄五变经', '六壬断案', '壬占汇选·甲子日', '壬占汇选·乙丑日', '壬占汇选·丙寅日'];
+    return ['中黄五变经', '六壬断案', '壬占汇选·甲子日', '壬占汇选·乙丑日', '壬占汇选·丙寅日', '壬占汇选·丁卯日'];
   }
 
   private groupOf(c: AncientCase): string {
@@ -230,6 +230,9 @@ export struct AncientCaseGallery {
     }
     if (c.id.indexOf('_bingyin_') >= 0 || c.title.indexOf('丙寅日') >= 0 || c.chapter === '丙寅日') {
       return '壬占汇选·丙寅日';
+    }
+    if (c.id.indexOf('_dingmao_') >= 0 || c.title.indexOf('丁卯日') >= 0 || c.chapter === '丁卯日') {
+      return '壬占汇选·丁卯日';
     }
     return '壬占汇选·甲子日';
   }

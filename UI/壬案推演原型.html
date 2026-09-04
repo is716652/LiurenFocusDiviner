@@ -64,8 +64,8 @@ const STORY={'renzhan_jiazi_011_xue_xingren':{brief:'十月甲子日，卯将子
 let topic='全部',cur=null,chart=null,started=false,found={},thinkIdx=0,submitted=false;
 function $(id){return document.getElementById(id);}
 function storyOf(c){return c?STORY[c.id]||null:null;}
-function groupOf(c){if((c.source||'').indexOf('中黄五变经')>=0)return '中黄五变经';if((c.source||'').indexOf('六壬断案')>=0||(c.id||'').indexOf('duanan_')>=0)return '六壬断案';if((c.id||'').indexOf('_yichou_')>=0||(c.title||'').indexOf('乙丑日')>=0||c.chapter==='乙丑日')return '壬占汇选·乙丑日';if((c.id||'').indexOf('_bingyin_')>=0||(c.title||'').indexOf('丙寅日')>=0||c.chapter==='丙寅日')return '壬占汇选·丙寅日';return '壬占汇选·甲子日';}
-function groups(){return ['中黄五变经','六壬断案','壬占汇选·甲子日','壬占汇选·乙丑日','壬占汇选·丙寅日'];}
+function groupOf(c){if((c.source||'').indexOf('中黄五变经')>=0)return '中黄五变经';if((c.source||'').indexOf('六壬断案')>=0||(c.id||'').indexOf('duanan_')>=0)return '六壬断案';if((c.id||'').indexOf('_yichou_')>=0||(c.title||'').indexOf('乙丑日')>=0||c.chapter==='乙丑日')return '壬占汇选·乙丑日';if((c.id||'').indexOf('_bingyin_')>=0||(c.title||'').indexOf('丙寅日')>=0||c.chapter==='丙寅日')return '壬占汇选·丙寅日';if((c.id||'').indexOf('_dingmao_')>=0||(c.title||'').indexOf('丁卯日')>=0||c.chapter==='丁卯日')return '壬占汇选·丁卯日';return '壬占汇选·甲子日';}
+function groups(){return ['中黄五变经','六壬断案','壬占汇选·甲子日','壬占汇选·乙丑日','壬占汇选·丙寅日','壬占汇选·丁卯日'];}
 function keywordOf(text){for(const w of KEYWORDS){if((text||'').indexOf(w)>=0)return w;}return '';}
 function mainReasoning(c){return c.reasoning&&c.reasoning.length?c.reasoning[0]:null;}
 function keyMarks(c){const m=mainReasoning(c),out={};if(!m)return out;(m.evidence||[]).forEach(e=>{if(e.key===true&&e.mark)out[e.ref]=e.mark;});return out;}
