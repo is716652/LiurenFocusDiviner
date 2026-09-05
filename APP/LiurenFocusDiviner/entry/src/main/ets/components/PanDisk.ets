@@ -8,7 +8,7 @@
  */
 import { display } from '@kit.ArkUI';
 import { LiurenCore } from '../model/LiurenCore';
-import type { Chart, ZhonghuangDun } from '../model/LiurenCore';
+import type { Chart, ZhonghuangDun, ZhonghuangAnalyze } from '../model/LiurenCore';
 
 @Component
 export struct PanDisk {
@@ -19,6 +19,8 @@ export struct PanDisk {
   @Prop @Watch('onHighlightChange') zhonghuangMode: string = '常遁';
   /* 中黄天干两遁数据（父级传入 ZhonghuangDun；null=不启用） */
   @Prop @Watch('onHighlightChange') zhonghuang: ZhonghuangDun | null = null;
+  /* 中黄完整分析（可选；用于身/变/传标记） */
+  @Prop @Watch('onHighlightChange') zhonghuangAna: ZhonghuangAnalyze | null = null;
   /* 辅助层开关：显地盘干（铜绿）/ 显本位神（暗金）——与主信息颜色区分 */
   @Prop @Watch('onHighlightChange') showDunDi: boolean = false;
   @Prop @Watch('onHighlightChange') showBenshen: boolean = false;
@@ -171,18 +173,34 @@ export struct PanDisk {
       ctx.font = fontPx(w * 0.06);
       ctx.fillText(tianPan, tx, ty);
 
-      /* 遁干（中圈，天盘支之干；常遁/中黄二选一显示；并排双干在下一轮视觉层再做）
+      /* 遁干（中圈，天盘支之干）：常遁为主；中黄开时同宫并排小字显示中黄干
          注：四课三传的天干皆为天盘支之干，故中圈标天盘支的遁干（dun[tianPan]），非地盘宫 */
       const rG = w * 0.255;
-      const gx = cx + rG * Math.cos(ang);
-      const gy = cy + rG * Math.sin(ang);
-      let dunShow = c.dun[tianPan];
-      if (this.zhonghuang && (this.zhonghuangMode === '中黄' || this.zhonghuangMode === '时遁')) {
-        dunShow = this.zhonghuang.shiDun[tianPan];
+      const changGan = c.dun[tianPan];
+      const zhOn = this.zhonghuang !== null && (this.zhonghuangMode === '中黄' || this.zhonghuangMode === '时遁');
+      const zhGan = zhOn && this.zhonghuang ? this.zhonghuang.shiDun[tianPan] : '';
+      if (zhOn && zhGan !== '' && zhGan !== changGan) {
+        /* 同宫双干：沿切线微偏，常遁在左/上，中黄在右/下；字号都略收，避免误以为邻宫 */
+        const off = 0.052;
+        const gx1 = cx + rG * Math.cos(ang - off);
+        const gy1 = cy + rG * Math.sin(ang - off);
+        const gx2 = cx + rG * Math.cos(ang + off);
+        const gy2 = cy + rG * Math.sin(ang + off);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = faint;
+        ctx.font = fontPx(w * 0.038);
+        ctx.fillText(changGan, gx1, gy1);
+        ctx.fillStyle = '#C4A25C';
+        ctx.font = fontPx(w * 0.038);
+        ctx.fillText(zhGan, gx2, gy2);
+      } else {
+        const gx = cx + rG * Math.cos(ang);
+        const gy = cy + rG * Math.sin(ang);
+        ctx.fillStyle = zhOn ? '#C4A25C' : faint;
+        ctx.font = fontPx(w * 0.044);
+        ctx.fillText(zhOn ? zhGan : changGan, gx, gy);
       }
-      ctx.fillStyle = (this.zhonghuangMode === '中黄' || this.zhonghuangMode === '时遁') ? '#C4A25C' : faint;
-      ctx.font = fontPx(w * 0.044);
-      ctx.fillText(dunShow, gx, gy);
 
       /* 地盘十二支（内圈，固定，1字） */
       const rD = w * 0.165;
@@ -197,6 +215,29 @@ export struct PanDisk {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(gongZhi, dx, dy);
+
+      /* 中黄标记（仅中黄开）：身=日干寄宫，变=占时/变干宫，传=变干入三传；单字符号，详细看宫情条 */
+      if (zhOn && this.zhonghuang) {
+        const dayJi = LiurenCore.JI_GONG[c.r.dg] || '';
+        const bianGong = this.zhonghuang.hourZhi;
+        const inChuan = this.zhonghuangAna !== null && this.zhonghuangAna.bianInChuan !== '';
+        const rM = w * 0.136;
+        ctx.font = fontPx(w * 0.023);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        if (gongZhi === dayJi) {
+          ctx.fillStyle = '#E9C878';
+          ctx.fillText('身', cx + rM * Math.cos(ang - 0.075), cy + rM * Math.sin(ang - 0.075));
+        }
+        if (gongZhi === bianGong) {
+          ctx.fillStyle = '#C4A25C';
+          ctx.fillText('变', cx + rM * Math.cos(ang + 0.075), cy + rM * Math.sin(ang + 0.075));
+          if (inChuan) {
+            ctx.fillStyle = '#F0D98C';
+            ctx.fillText('传', cx + rM * Math.cos(ang + 0.150), cy + rM * Math.sin(ang + 0.150));
+          }
+        }
+      }
 
       /* 辅助层：地盘干（中圈内沿，铜绿小字；默认关，主盘可开） */
       if (this.showDunDi) {

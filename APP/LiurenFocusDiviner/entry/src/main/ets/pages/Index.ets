@@ -121,6 +121,8 @@ struct Index {
   @State private zhonghuangMode: string = '常遁';
   @State private zhonghuang: ZhonghuangDun | null = null;
   @State private zhonghuangAna: ZhonghuangAnalyze | null = null;
+  /* 中黄点宫详情：非空=当前查看的地盘宫（仅中黄模式点盘时设置） */
+  @State private zhongGong: string = '';
   /* 解读路线：当前展开的路线（读象/毕法/中黄；空=全收起） */
   @State private route: string = '';
   /* 古籍案例速排：输入月将/日干支/占时(+可选年/月) 反推完整盘面 */
@@ -485,6 +487,7 @@ struct Index {
       this.xingnian = LiurenCore.xingNian(c, this.birthYear, this.year, this.gender, this.yongShen);
       this.zhonghuang = LiurenCore.zhonghuangDun(c, this.hourZhi);
       this.zhonghuangAna = LiurenCore.zhonghuangAnalyze(c, this.hourZhi);
+      this.zhongGong = '';
       this.expandedBifa = -1;
     }
   }
@@ -531,6 +534,7 @@ struct Index {
     this.coach = LiurenCore.bifaCoach(c.dx.bifa, this.coachData);
     this.zhonghuang = LiurenCore.zhonghuangDun(c, this.ancientHz);
     this.zhonghuangAna = LiurenCore.zhonghuangAnalyze(c, this.ancientHz);
+    this.zhongGong = '';
     this.yongShen = '';
     this.cands = [];
     this.customYS = false;
@@ -842,6 +846,9 @@ struct Index {
                   .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                   .onClick(() => {
                     this.zhonghuangMode = m;
+                    if (m !== '中黄') {
+                      this.zhongGong = '';
+                    }
                   })
               }, (m: string) => 'topzh' + m)
             }
@@ -899,16 +906,50 @@ struct Index {
             cands: this.cands,
             zhonghuangMode: this.zhonghuangMode,
             zhonghuang: this.zhonghuang,
+            zhonghuangAna: this.zhonghuangAna,
             showDunDi: this.showDunDi,
             showBenshen: this.showBenshen,
             onPickZhi: (z: string, layer: string) => {
-              this.pickCustomZhi(z, layer);
+              if (this.zhonghuangMode === '中黄' && this.zhonghuang) {
+                this.pickZhongGong(z, layer);
+              } else {
+                this.pickCustomZhi(z, layer);
+              }
             }
           })
-          Text(this.customYS ? '⚡ 外应取用：' + this.yongShen + '（' + (this.customLayer === '天盘' ? '天盘加临之象' : '地盘本位之象') + '）· 点盘可换' :
-            '点盘任一支 = 外应取用（天盘优先）')
+          if (this.zhonghuangMode === '中黄' && this.zhongGong !== '') {
+            Column({ space: 2 }) {
+              Text(this.zhGongLine1())
+                .fontSize(10)
+                .fontColor('#F0D98C')
+                .width('100%')
+              Text(this.zhGongLine2())
+                .fontSize(9)
+                .fontColor('#C4B183')
+                .width('100%')
+              Text(this.zhGongLine3())
+                .fontSize(9)
+                .fontColor('#8A7B5C')
+                .width('100%')
+              Text(this.zhGongLine4())
+                .fontSize(9)
+                .fontColor('#6B5F45')
+                .width('100%')
+                .lineHeight(13)
+            }
+            .width('100%')
+            .padding({ left: 8, right: 8, top: 6, bottom: 6 })
+            .borderRadius(8)
+            .backgroundColor('rgba(233,200,120,0.08)')
+            .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+            .margin({ top: 5 })
+          }
+          Text(this.zhonghuangMode === '中黄' ?
+            (this.zhongGong !== '' ? '中黄宫情：' + this.zhongGong + '宫 · 点盘换宫；切回常遁恢复外应取用' : '中黄开：点盘看宫情 · 切回常遁恢复外应取用') :
+            (this.customYS ? '⚡ 外应取用：' + this.yongShen + '（' + (this.customLayer === '天盘' ? '天盘加临之象' : '地盘本位之象') + '）· 点盘可换' :
+              '点盘任一支 = 外应取用（天盘优先）'))
             .fontSize(10)
-            .fontColor(this.customYS ? '#F0D98C' : '#6B5F45')
+            .fontColor(this.zhonghuangMode === '中黄' ? '#C4A25C' : (this.customYS ? '#F0D98C' : '#6B5F45'))
             .margin({ top: 4 })
             .width('100%')
             .textAlign(TextAlign.Center)
@@ -1905,6 +1946,109 @@ struct Index {
     this.yongShen = keep !== '' ? keep : list[0];
     /* 切占事 → 回到占事驱动（自定义标记清除） */
     this.customYS = false;
+  }
+
+  /* 中黄点宫：盘面点击 → 查看地盘宫详情（不切用神；切回常遁才恢复外应取用） */
+  private pickZhongGong(zhi: string, layer: string): void {
+    const c = this.chart;
+    if (!c) {
+      return;
+    }
+    const g = layer === '地盘' ? zhi : LiurenCore.gongOf(c.tp, zhi);
+    this.zhongGong = g !== '' ? g : zhi;
+  }
+
+  /* 天干六亲（供中黄宫情；与 LiurenCore.zhonghuangAnalyze 同规则） */
+  private ganLq(gan: string): string {
+    const c = this.chart;
+    if (!c || gan === '') {
+      return '';
+    }
+    const dwx = LiurenCore.WXG[c.r.dg];
+    const w = LiurenCore.WXG[gan];
+    if (w === dwx) {
+      return '比肩';
+    }
+    if (LiurenCore.KE[dwx] === w) {
+      return '妻财';
+    }
+    if (LiurenCore.KE[w] === dwx) {
+      return '官鬼';
+    }
+    if (LiurenCore.SHENG(dwx) === w) {
+      return '子孙';
+    }
+    return '父母';
+  }
+
+  private zhGongLine1(): string {
+    const c = this.chart;
+    if (!c || this.zhongGong === '') {
+      return '';
+    }
+    const g = this.zhongGong;
+    const tp = c.tp[g];
+    const j = c.jiangMap[g] || '';
+    return g + '宫｜天盘' + tp + (j !== '' ? ' · 乘' + j : '');
+  }
+
+  private zhGongLine2(): string {
+    const c = this.chart;
+    const z = this.zhonghuang;
+    if (!c || !z || this.zhongGong === '') {
+      return '';
+    }
+    const tp = c.tp[this.zhongGong];
+    const cg = c.dun[tp];
+    const zg = z.shiDun[tp];
+    return '常遁' + cg + '｜中黄' + zg + (zg !== '' ? '（' + this.ganLq(zg) + '）' : '') + (cg === zg ? ' · 两遁同干' : '');
+  }
+
+  private zhGongLine3(): string {
+    const c = this.chart;
+    const z = this.zhonghuang;
+    if (!c || !z || this.zhongGong === '') {
+      return '';
+    }
+    const g = this.zhongGong;
+    const tp = c.tp[g];
+    const parts: string[] = [];
+    if ((LiurenCore.JI_GONG[c.r.dg] || '') === g) {
+      parts.push('日干寄宫（身）');
+    }
+    if (this.zhonghuangAna && this.zhonghuangAna.bianGong === g) {
+      const a = this.zhonghuangAna;
+      parts.push('变干' + a.dun.bianGan + '（' + a.bianLq + '）' + (a.bianJiang !== '' ? '乘' + a.bianJiang : '') +
+        (a.bianInChuan !== '' ? '入' + a.bianInChuan : '不入三传'));
+    }
+    if (c.dx.xunkong.indexOf(tp) >= 0) {
+      parts.push('天盘' + tp + '空');
+    }
+    if (c.dx.xunkong.indexOf(g) >= 0) {
+      parts.push('地盘' + g + '空');
+    }
+    if (this.zhonghuangAna) {
+      for (let i = 0; i < this.zhonghuangAna.jianhe.length; i++) {
+        const jh = this.zhonghuangAna.jianhe[i];
+        if (jh.gong === g || jh.gong === tp) {
+          parts.push(jh.pos + '建合');
+          break;
+        }
+      }
+    }
+    return parts.length > 0 ? parts.join(' · ') : '无身/变/空/建合标记';
+  }
+
+  private zhGongLine4(): string {
+    const c = this.chart;
+    if (!c || this.zhongGong === '') {
+      return '';
+    }
+    const g = this.zhongGong;
+    const tp = c.tp[g];
+    const byZhi = c.dx.shensha.byZhi;
+    const names = (byZhi[tp] && byZhi[tp].length > 0) ? byZhi[tp] : byZhi[g];
+    return '神煞：' + (names && names.length > 0 ? names.join('、') : '—') + '（古籍研习参考）';
   }
 
   /* 外应取用：盘面点击任一支 → 自定义为用神（天盘支优先；动态三传/毕法/年命行年自动联动） */
