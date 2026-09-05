@@ -917,6 +917,40 @@ struct Index {
               }
             }
           })
+          if (this.zhonghuangMode === '中黄') {
+            Row({ space: 12 }) {
+              Row({ space: 3 }) {
+                Text('身')
+                  .fontSize(9)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor('#9FB6A8')
+                Text('日干寄宫')
+                  .fontSize(8)
+                  .fontColor('#6B5F45')
+              }
+              Row({ space: 3 }) {
+                Text('变')
+                  .fontSize(9)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor('#F0D98C')
+                Text('变干宫')
+                  .fontSize(8)
+                  .fontColor('#6B5F45')
+              }
+              Row({ space: 3 }) {
+                Text('传')
+                  .fontSize(9)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor('#D98C5F')
+                Text('变干入传')
+                  .fontSize(8)
+                  .fontColor('#6B5F45')
+              }
+            }
+            .width('100%')
+            .justifyContent(FlexAlign.Center)
+            .margin({ top: 4 })
+          }
           if (this.zhonghuangMode === '中黄' && this.zhongGong !== '') {
             Column({ space: 2 }) {
               Text(this.zhGongLine1())

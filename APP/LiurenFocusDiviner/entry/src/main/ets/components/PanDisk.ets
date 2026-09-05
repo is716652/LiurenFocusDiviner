@@ -226,14 +226,14 @@ export struct PanDisk {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         if (gongZhi === dayJi) {
-          ctx.fillStyle = '#E9C878';
+          ctx.fillStyle = '#9FB6A8';
           ctx.fillText('身', cx + rM * Math.cos(ang - 0.075), cy + rM * Math.sin(ang - 0.075));
         }
         if (gongZhi === bianGong) {
-          ctx.fillStyle = '#C4A25C';
+          ctx.fillStyle = '#F0D98C';
           ctx.fillText('变', cx + rM * Math.cos(ang + 0.075), cy + rM * Math.sin(ang + 0.075));
           if (inChuan) {
-            ctx.fillStyle = '#F0D98C';
+            ctx.fillStyle = '#D98C5F';
             ctx.fillText('传', cx + rM * Math.cos(ang + 0.150), cy + rM * Math.sin(ang + 0.150));
           }
         }
