@@ -212,12 +212,12 @@ interface ZhonghuangDun {
   bianGan: string;        /* 变干（中黄盘占时支之干） */
 }
 
-/* 中黄双视角对比：单宫 旬遁六亲 vs 中黄六亲 */
+/* 中黄双视角对比：单宫 常遁六亲 vs 中黄六亲 */
 interface ZhonghuangCmpItem {
   gong: string;           /* 地盘宫 */
-  xunGan: string;         /* 旬遁干 */
+  xunGan: string;         /* 常遁干（日干五鼠遁） */
   zhGan: string;          /* 中黄时遁干 */
-  xunLq: string;          /* 旬遁六亲 */
+  xunLq: string;          /* 常遁六亲 */
   zhLq: string;           /* 中黄六亲 */
   changed: boolean;       /* 是否变化 */
 }
@@ -567,9 +567,10 @@ class LiurenCore {
   }
 
   /* ---------------- 中黄五变经 · 天干两遁 ----------------
-     体：日干遁盘（旬遁之外的本体能量） = dunMap(日干)
+     体：日干遁盘（盘面常遁，本体能量） = dunMap(日干)
      用：时干遁盘（中黄盘，断课核心）   = dunMap(时干)，时干=c.hourGan（引擎已算）
      变干：中黄盘中占时支对应的干（断课核心枢纽）
+     注：旬另用于旬空/旬首，不作为第三种盘面天干模式
      算法经文课例验证：庚辰日未时/庚子日申时/己未日巳时/戊戌日未时 12 项全通过 */
   static zhonghuangDun(c: ChartCore, hourZhi: string): ZhonghuangDun {
     const dayGan = c.r.dg;
@@ -589,7 +590,7 @@ class LiurenCore {
   }
 
   /* ---------------- 中黄五变经 · 完整分析 ----------------
-     双视角六亲对比（旬遁 vs 中黄时遁）+ 变干主线 + 建合检测
+     双视角六亲对比（常遁 vs 中黄时遁）+ 变干主线 + 建合检测
      输入：盘 + 占时支；输出：ZhonghuangAnalyze（供 UI 展示，可与读象/气机点配合） */
   static zhonghuangAnalyze(c: ChartCore, hourZhi: string): ZhonghuangAnalyze {
     const z = LiurenCore.zhonghuangDun(c, hourZhi);
@@ -608,11 +609,11 @@ class LiurenCore {
       }
       return "父母";
     };
-    /* ① 双视角对比：每宫 旬遁干六亲 vs 中黄时遁干六亲 */
+    /* ① 双视角对比：每宫 常遁干六亲 vs 中黄时遁干六亲 */
     const items: ZhonghuangCmpItem[] = [];
     const changed: string[] = [];
     LiurenCore.ZHI.forEach((gz: string) => {
-      const xunGan = c.dun[gz];           /* 旬遁干（传统盘） */
+      const xunGan = c.dun[gz];           /* 常遁干（传统盘：日干五鼠遁） */
       const zhGan = z.shiDun[gz];          /* 中黄时遁干 */
       const xunLq = liuqinOf(xunGan);
       const zhLq = liuqinOf(zhGan);
@@ -632,7 +633,8 @@ class LiurenCore {
     });
     /* ② 变干主线：变干落宫/乘将/三传位置 */
     const bianGong = hourZhi;
-    const bianJiang = c.jiangMap[LiurenCore.gongOf(c.tp, z.bianGan)] || "";
+    /* 变干落占时支宫；乘将即占时支宫所临天将（不可拿天干反查 tp） */
+    const bianJiang = c.jiangMap[hourZhi] || "";
     /* 变干是否在三传中 */
     let chuanPos = "";
     for (let i = 0; i < c.sanchuan.chuans.length; i++) {

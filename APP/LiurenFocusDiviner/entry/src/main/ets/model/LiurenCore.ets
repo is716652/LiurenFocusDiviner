@@ -166,7 +166,7 @@ export interface ZhonghuangDun {
   bianGan: string;
 }
 
-/* 中黄双视角对比：单宫 旬遁六亲 vs 中黄六亲 */
+/* 中黄双视角对比：单宫 常遁六亲 vs 中黄六亲 */
 export interface ZhonghuangCmpItem {
   gong: string;
   xunGan: string;
@@ -585,9 +585,10 @@ export class LiurenCore {
   }
 
   /* ---------------- 中黄五变经 · 天干两遁 ----------------
-     体：日干遁盘（旬遁之外的本体能量） = dunMap(日干)
+     体：日干遁盘（盘面常遁，本体能量） = dunMap(日干)
      用：时干遁盘（中黄盘，断课核心）   = dunMap(时干)，时干=c.hourGan（引擎已算）
      变干：中黄盘中占时支对应的干（断课核心枢纽）
+     注：旬另用于旬空/旬首，不作为第三种盘面天干模式
      算法经文课例验证：庚辰日未时/庚子日申时/己未日巳时/戊戌日未时 12 项全通过 */
   static zhonghuangDun(c: ChartCore, hourZhi: string): ZhonghuangDun {
     const dayGan = c.r.dg;
@@ -607,7 +608,7 @@ export class LiurenCore {
   }
 
   /* ---------------- 中黄五变经 · 完整分析 ----------------
-     双视角六亲对比（旬遁 vs 中黄时遁）+ 变干主线 + 建合检测 */
+     双视角六亲对比（常遁 vs 中黄时遁）+ 变干主线 + 建合检测 */
   static zhonghuangAnalyze(c: ChartCore, hourZhi: string): ZhonghuangAnalyze {
     const z = LiurenCore.zhonghuangDun(c, hourZhi);
     const dayGan = c.r.dg;
@@ -647,7 +648,8 @@ export class LiurenCore {
       items.push(it);
     });
     const bianGong = hourZhi;
-    const bianJiang = c.jiangMap[LiurenCore.gongOf(c.tp, z.bianGan)] || "";
+    /* 变干落占时支宫；乘将即占时支宫所临天将（不可拿天干反查 tp） */
+    const bianJiang = c.jiangMap[hourZhi] || "";
     let chuanPos = "";
     for (let i = 0; i < c.sanchuan.chuans.length; i++) {
       const chz = c.sanchuan.chuans[i].z;

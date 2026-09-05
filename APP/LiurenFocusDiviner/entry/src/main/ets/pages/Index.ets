@@ -117,8 +117,8 @@ struct Index {
   @State private customYS: boolean = false;
   /* 外应取用来源层（天盘/地盘），仅提示用 */
   @State private customLayer: string = '天盘';
-  /* 中黄研习：遁干模式（旬/日遁/时遁）+ 两遁数据 + 完整分析 */
-  @State private zhonghuangMode: string = '旬';
+  /* 中黄研习：遁干模式（常遁/中黄）+ 两遁数据 + 完整分析；旬只用于空亡 */
+  @State private zhonghuangMode: string = '常遁';
   @State private zhonghuang: ZhonghuangDun | null = null;
   @State private zhonghuangAna: ZhonghuangAnalyze | null = null;
   /* 解读路线：当前展开的路线（读象/毕法/中黄；空=全收起） */
@@ -833,7 +833,7 @@ struct Index {
           /* 遁干模式切换 + 辅助层开关（看盘免费；中黄断语块仍锁定） */
           if (PayConfig.paidVisible() && this.zhonghuang) {
             Row({ space: 4 }) {
-              ForEach(['旬', '日遁', '时遁'], (m: string) => {
+              ForEach(['常遁', '中黄'], (m: string) => {
                 Text(m)
                   .fontSize(10)
                   .fontColor(this.zhonghuangMode === m ? '#1A1410' : '#C4B183')
@@ -1517,8 +1517,8 @@ struct Index {
             }
             .width('100%')
 
-            /* ① 双视角对比：旬遁 vs 中黄 六亲变化 */
-            Text('① 六亲视角对比（旬遁 → 中黄）· 变化 ' + this.zhonghuangAna.changed.length + ' 宫')
+            /* ① 双视角对比：常遁 vs 中黄 六亲变化 */
+            Text('① 六亲视角对比（常遁 → 中黄）· 变化 ' + this.zhonghuangAna.changed.length + ' 宫')
               .fontSize(11)
               .fontWeight(FontWeight.Medium)
               .fontColor('#C4B183')
@@ -1574,7 +1574,7 @@ struct Index {
               }, (jh: ZhonghuangJianhe) => 'jh' + jh.pos)
             }
 
-            Text('注：中黄以日干及时干各起五鼠遁排天干，与传统旬遁不同（古籍研习参考）')
+            Text('注：中黄以日干、时干各起五鼠遁排天干；旬只用于旬空/旬首，不作盘面天干模式（古籍研习参考）')
               .fontSize(9)
               .fontColor('#5A4F3D')
               .lineHeight(13)
@@ -1946,32 +1946,32 @@ struct Index {
     this.getUIContext().getPromptAction().showToast({ message: msg, duration: 2000 });
   }
 
-  /* 中黄变干断语（基于 analyze 的变干六亲） */
+  /* 中黄变干断语（基于 analyze 的变干六亲；只作参证，须兼看落空/入传/有气/制化） */
   private zhonghuangTxt(): string {
     const a = this.zhonghuangAna;
     if (!a) {
       return '';
     }
     const lq = a.bianLq;
-    let txt = '变干' + a.dun.bianGan + '为日干' + a.dun.dayGan + '之' + lq;
+    let txt = '中黄参证：变干' + a.dun.bianGan + '为日干' + a.dun.dayGan + '之' + lq;
     if (lq === '官鬼') {
-      txt += '（古籍云：鬼贼主官非疾病之诫，制化取子孙为参）';
+      txt += '（古籍云：鬼贼主官非疾病之诫；须兼看落空、入传、有气与制化，不以变干单独定凶）';
     } else if (lq === '妻财') {
-      txt += '（古籍云：财主财利机缘之象）';
+      txt += '（古籍云：财主财利机缘之象；仍须看常遁三传与空亡制化）';
     } else if (lq === '父母') {
-      txt += '（古籍云：父母主文书长辈扶助之象）';
+      txt += '（古籍云：父母主文书长辈扶助之象；仍须看常遁三传与空亡制化）';
     } else if (lq === '子孙') {
-      txt += '（古籍云：子孙主救应化解之象）';
+      txt += '（古籍云：子孙主救应化解之象；仍须看常遁三传与空亡制化）';
     } else {
       txt += '（古籍云：比肩主同辈合作，争夺之诫仅作文献参考）';
     }
     if (a.bianInChuan !== '') {
-      txt += ' 变干入' + a.bianInChuan + '，事应之速。';
+      txt += ' 变干入' + a.bianInChuan + '，古籍谓事应较近。';
     } else {
-      txt += ' 变干不入三传，事缓。';
+      txt += ' 变干不入三传，古籍谓事应较缓。';
     }
     if (a.changed.length > 0) {
-      txt += ' 六亲视角变化' + a.changed.length + '宫（' + a.changed.join('') + '），中黄断课与此异。';
+      txt += ' 常遁与中黄六亲异' + a.changed.length + '宫（' + a.changed.join('') + '），仅作视角对照，不替主断。';
     }
     return txt;
   }

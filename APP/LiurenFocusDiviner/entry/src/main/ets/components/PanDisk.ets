@@ -15,8 +15,8 @@ export struct PanDisk {
   @Prop @Watch('onChartChange') chart: Chart | null = null;
   @Prop @Watch('onHighlightChange') yongShen: string = '';
   @Prop @Watch('onHighlightChange') cands: string[] = [];
-  /* 遁干显示模式：'旬'=旬遁（默认）| '日遁'=日干遁盘 | '时遁'=时干遁盘（中黄） */
-  @Prop @Watch('onHighlightChange') zhonghuangMode: string = '旬';
+  /* 遁干显示模式：'常遁'=传统日干遁（默认）| '中黄'=时干遁盘（中黄）；旬只用于空亡，不作天干模式 */
+  @Prop @Watch('onHighlightChange') zhonghuangMode: string = '常遁';
   /* 中黄天干两遁数据（父级传入 ZhonghuangDun；null=不启用） */
   @Prop @Watch('onHighlightChange') zhonghuang: ZhonghuangDun | null = null;
   /* 辅助层开关：显地盘干（铜绿）/ 显本位神（暗金）——与主信息颜色区分 */
@@ -171,18 +171,16 @@ export struct PanDisk {
       ctx.font = fontPx(w * 0.06);
       ctx.fillText(tianPan, tx, ty);
 
-      /* 遁干（中圈，天盘支之干；按中黄模式切换：旬遁/日干遁/时干遁）
+      /* 遁干（中圈，天盘支之干；常遁/中黄二选一显示；并排双干在下一轮视觉层再做）
          注：四课三传的天干皆为天盘支之干，故中圈标天盘支的遁干（dun[tianPan]），非地盘宫 */
       const rG = w * 0.255;
       const gx = cx + rG * Math.cos(ang);
       const gy = cy + rG * Math.sin(ang);
       let dunShow = c.dun[tianPan];
-      if (this.zhonghuang && this.zhonghuangMode === '日遁') {
-        dunShow = this.zhonghuang.riDun[tianPan];
-      } else if (this.zhonghuang && this.zhonghuangMode === '时遁') {
+      if (this.zhonghuang && (this.zhonghuangMode === '中黄' || this.zhonghuangMode === '时遁')) {
         dunShow = this.zhonghuang.shiDun[tianPan];
       }
-      ctx.fillStyle = (this.zhonghuangMode !== '旬') ? '#C4A25C' : faint;
+      ctx.fillStyle = (this.zhonghuangMode === '中黄' || this.zhonghuangMode === '时遁') ? '#C4A25C' : faint;
       ctx.font = fontPx(w * 0.044);
       ctx.fillText(dunShow, gx, gy);
 
