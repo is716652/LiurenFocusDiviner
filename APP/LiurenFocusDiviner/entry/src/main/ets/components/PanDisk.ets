@@ -227,14 +227,17 @@ export struct PanDisk {
         ctx.textBaseline = 'middle';
         if (gongZhi === dayJi) {
           ctx.fillStyle = '#9FB6A8';
-          ctx.fillText('身', cx + rM * Math.cos(ang - 0.075), cy + rM * Math.sin(ang - 0.075));
+          ctx.fillText('身', cx + rM * Math.cos(ang - 0.095), cy + rM * Math.sin(ang - 0.095));
         }
         if (gongZhi === bianGong) {
           ctx.fillStyle = '#F0D98C';
-          ctx.fillText('变', cx + rM * Math.cos(ang + 0.075), cy + rM * Math.sin(ang + 0.075));
+          ctx.font = fontPx(w * 0.023);
+          ctx.fillText('变', cx + rM * Math.cos(ang + 0.095), cy + rM * Math.sin(ang + 0.095));
           if (inChuan) {
+            /* 传与变同宫但拉开角距并收小一号，避免和“变”挤在一起 */
             ctx.fillStyle = '#D98C5F';
-            ctx.fillText('传', cx + rM * Math.cos(ang + 0.150), cy + rM * Math.sin(ang + 0.150));
+            ctx.font = fontPx(w * 0.020);
+            ctx.fillText('传', cx + rM * Math.cos(ang + 0.285), cy + rM * Math.sin(ang + 0.285));
           }
         }
       }
