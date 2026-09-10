@@ -119,7 +119,7 @@ struct Index {
   @State private customYS: boolean = false;
   /* 外应取用来源层（天盘/地盘），仅提示用 */
   @State private customLayer: string = '天盘';
-  /* 遁干模式：旬遁（传统层·默认）／中黄（日干遁·体 ＋ 时干遁·用 双干）+ 两遁数据 + 完整分析 */
+  /* 遁干模式：旬遁（传统层·默认）／中黄（时干遁·用，即用于判断的那一套）；日干遁(体)见宫情条与建合检测 */
   @State private zhonghuangMode: string = '旬遁';
   @State private zhonghuang: ZhonghuangDun | null = null;
   @State private zhonghuangAna: ZhonghuangAnalyze | null = null;
@@ -954,6 +954,11 @@ struct Index {
             .width('100%')
             .justifyContent(FlexAlign.Center)
             .margin({ top: 4 })
+            Text('中圈＝时干遁（中黄·用，判断所用）｜切回旬遁＝传统层（空亡支无干）｜日干遁(体)在点宫宫情条与建合检测中看')
+              .fontSize(8)
+              .fontColor('#6B5F45')
+              .width('100%')
+              .margin({ top: 2 })
           }
           if (this.zhonghuangMode === '中黄' && this.zhongGong !== '') {
             Column({ space: 2 }) {
@@ -1655,7 +1660,7 @@ struct Index {
               }, (jh: ZhonghuangJianhe) => 'jh' + jh.pos)
             }
 
-            Text('注：盘面天干默认「旬遁」（传统：旬内同支取干，空亡支本旬无干故不显，即空亡之验——《六壬集成五要权衡》云「旬遁方有空亡」）；中黄模式另以日干、时干各起五鼠遁作二次遁（古籍研习参考）')
+            Text('注：盘面天干默认「旬遁」（传统：旬内同支取干，空亡支本旬无干故不显，即空亡之验——《六壬集成五要权衡》云「旬遁方有空亡」）；中黄模式显「时干遁」（经文以时干论变、建随时刻变：「复见天上时干有何变」「随时变矣」）；日干遁(体)用于天将基准与今日建合，见宫情条与建合检测（古籍研习参考）')
               .fontSize(9)
               .fontColor('#5A4F3D')
               .lineHeight(13)

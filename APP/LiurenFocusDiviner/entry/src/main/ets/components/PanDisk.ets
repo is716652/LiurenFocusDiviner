@@ -15,7 +15,7 @@ export struct PanDisk {
   @Prop @Watch('onChartChange') chart: Chart | null = null;
   @Prop @Watch('onHighlightChange') yongShen: string = '';
   @Prop @Watch('onHighlightChange') cands: string[] = [];
-  /* 遁干显示模式：'旬遁'=传统旬遁（默认；空亡支本旬无干，故中圈不显干）| '中黄'=日干遁(体)＋时干遁(用)双干 */
+  /* 遁干显示模式（每宫单干）：'旬遁'=传统旬遁（默认；空亡支本旬无干故不显）| '中黄'=时干遁（中黄·用，用于判断的那一套）；日干遁(体)见宫情条与建合检测 */
   @Prop @Watch('onHighlightChange') zhonghuangMode: string = '旬遁';
   /* 中黄天干两遁数据（父级传入 ZhonghuangDun；null=不启用） */
   @Prop @Watch('onHighlightChange') zhonghuang: ZhonghuangDun | null = null;
@@ -173,36 +173,23 @@ export struct PanDisk {
       ctx.font = fontPx(w * 0.06);
       ctx.fillText(tianPan, tx, ty);
 
-      /* 遁干（中圈，天盘支之干）：
+      /* 遁干（中圈，天盘支之干）——每宫只显「当前层」的一个干，不做并排：
          · 默认「旬遁」（传统层）：旬内同支取干；空亡支本旬无干，故不显（天盘支降暗即为「空」）；
-         · 中黄模式：同宫并排双干 = 日干遁（体·淡）＋时干遁（用·金）。
+         · 中黄段：显「时干遁」（中黄·用）——经文以时干论「变」（经文2「复见天上时干有何变」），
+           建随时刻变（经文5「随时变矣」），断语按需取时遁之干（经文16「丙时遁，得丙申」）。
+         日干遁（中黄·体）不并排上盘：它用于天将基准（「十二天将只看日干」）与「今日建合」
+         （经文13「日遁与时遁，上下建得交加相合」），改由点宫宫情条与中黄路线「建合检测」呈现。
          注：四课三传的天干皆为天盘支之干，故中圈标天盘支的遁干，非地盘宫 */
       const rG = w * 0.255;
-      const changGan = (this.zhonghuangMode === '中黄' || this.zhonghuangMode === '时遁') ? c.dun[tianPan] : c.dunXun[tianPan];
       const zhOn = this.zhonghuang !== null && (this.zhonghuangMode === '中黄' || this.zhonghuangMode === '时遁');
-      const zhGan = zhOn && this.zhonghuang ? this.zhonghuang.shiDun[tianPan] : '';
-      if (zhOn && zhGan !== '' && zhGan !== changGan) {
-        /* 同宫双干：沿切线微偏，常遁在左/上，中黄在右/下；字号都略收，避免误以为邻宫 */
-        const off = 0.052;
-        const gx1 = cx + rG * Math.cos(ang - off);
-        const gy1 = cy + rG * Math.sin(ang - off);
-        const gx2 = cx + rG * Math.cos(ang + off);
-        const gy2 = cy + rG * Math.sin(ang + off);
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = faint;
-        ctx.font = fontPx(w * 0.038);
-        ctx.fillText(changGan, gx1, gy1);
-        ctx.fillStyle = '#C4A25C';
-        ctx.font = fontPx(w * 0.038);
-        ctx.fillText(zhGan, gx2, gy2);
-      } else {
-        const gx = cx + rG * Math.cos(ang);
-        const gy = cy + rG * Math.sin(ang);
-        ctx.fillStyle = zhOn ? '#C4A25C' : faint;
-        ctx.font = fontPx(w * 0.044);
-        ctx.fillText(zhOn ? zhGan : changGan, gx, gy);
-      }
+      const ganShow = (zhOn && this.zhonghuang) ? this.zhonghuang.shiDun[tianPan] : c.dunXun[tianPan];
+      const gx = cx + rG * Math.cos(ang);
+      const gy = cy + rG * Math.sin(ang);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = zhOn ? '#C4A25C' : faint;
+      ctx.font = fontPx(w * 0.044);
+      ctx.fillText(ganShow ? ganShow : '', gx, gy);
 
       /* 地盘十二支（内圈，固定，1字） */
       const rD = w * 0.165;

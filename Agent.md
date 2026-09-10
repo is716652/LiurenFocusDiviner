@@ -56,7 +56,7 @@
 
 5. **遁干口径（2026-09-10 起）**
    - 三传/盘面天干**默认「旬遁」**（传统层）；旬外二支为旬空、本旬无干 → **留空**，由三传卡打「空」标；
-   - 中黄模式另以「日干遁(体)＋时干遁(用)」二次遁，仅供中黄双干与宫情；
+   - 中黄模式另起「时干遁」（中黄·用，用于判断的那一套）上盘；日干遁(体)用于天将基准与今日建合，见点宫宫情条与建合检测；
    - 依据：《六壬集成五要权衡·遁干》「须用旬遁……旬遁方有空亡……若用时遁无空亡」；
    - 案例库 `expect.chuanGz` 默认按旬遁校验，个案可用 `dunKouJing: "rigan"` 声明按日干遁（如中黄经文13）。
 
@@ -129,7 +129,7 @@
 - `APP/LiurenFocusDiviner/entry/src/main/ets/model/LiurenCore.ets`：ArkTS 核心，应与 `core/liuren-core.js` 保持同步。
 - `APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets`：数据结构与 rawfile 加载。
 - `APP/LiurenFocusDiviner/entry/src/main/resources/rawfile/ancient/case_gallery.json`：古籍案例库（当前 **45 案**）。
-- `APP/LiurenFocusDiviner/entry/src/main/ets/components/PanDisk.ets`：天地盘绘制（含中黄双干/身变传）。
+- `APP/LiurenFocusDiviner/entry/src/main/ets/components/PanDisk.ets`：天地盘绘制（中圈单干：旬遁/时干遁；含身/变/传标记）。
 - `APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets`：主排盘页（含中黄宫情条）。
 - `APP/LiurenFocusDiviner/entry/src/main/ets/components/AncientCaseGallery.ets`：案例鉴赏 UI。
 - `APP/LiurenFocusDiviner/entry/src/main/ets/components/YongShenSheet.ets`：抓用神弹层（迷你盘后续只标变干）。
@@ -173,7 +173,7 @@
 已实现：
 
 - 主盘模式：`旬遁 / 中黄`；默认**旬遁（传统层）**干净，无身/变/传（旧称「常遁」＝中黄·日干遁，现只在中黄模式内作为「体」层出现）。
-- 中黄开时：双干同宫；常遁弱显，中黄小字金显；两干相同不重复。
+- 中黄开时：中圈改为**单干＝时干遁**（中黄·用）；日干遁(体)不再并排上盘，改由宫情条与建合检测呈现（依据见§11.5）。
 - 变干常显，余宫弱显；点宫看详情。
 - 身/变/传只在切到中黄后出现：
   - `身` = 日干寄宫，青灰 `#9FB6A8`
