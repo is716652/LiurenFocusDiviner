@@ -282,6 +282,11 @@ struct Home {
     this.getUIContext().getRouter().pushUrl({ url: 'pages/Ancient' });
   }
 
+  /* 回看引导页：Splash 用 replaceUrl 进首页（不留返回栈），故在首页提供显式入口 */
+  private goSplash(): void {
+    this.getUIContext().getRouter().pushUrl({ url: 'pages/Splash' });
+  }
+
   /* ---------------- 界面 ---------------- */
 
   @Builder
@@ -614,6 +619,18 @@ struct Home {
           .onClick(() => {
             this.goAncient();
           })
+
+          /* 引导页入口（回看开屏/引导） */
+          Text('· 查看引导页 ·')
+            .fontSize(11)
+            .fontColor('#6B5F45')
+            .letterSpacing(1)
+            .textAlign(TextAlign.Center)
+            .width('100%')
+            .padding({ top: 10, bottom: 2 })
+            .onClick(() => {
+              this.goSplash();
+            })
 
         }
         .width('100%')

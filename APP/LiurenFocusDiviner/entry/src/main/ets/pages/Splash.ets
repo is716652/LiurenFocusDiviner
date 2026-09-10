@@ -17,6 +17,10 @@ struct Splash {
   private zhi: string[] = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
   @State private angle: number = 0;
   private timer: number = -1;
+  /* 底部合规链接开关（2026-09-10）：华为已由平台托管隐私政策，用户协议非必填，
+     故暂不显示「隐私政策 / 用户协议」两个链接入口；页面 pages/Legal/* 与下方代码全部保留，
+     将来若审核需要，把本开关置 true 即可恢复显示。 */
+  private showLegalLinks: boolean = false;
 
   aboutToAppear(): void {
     /* 付费门禁初始化（免费模式全开放；付费模式读本地+尝试恢复购买） */
@@ -111,23 +115,26 @@ struct Splash {
           .fontSize(12)
           .fontColor('#6B5F45')
           .letterSpacing(2)
-        /* 合规链接：隐私政策 · 用户协议 */
-        Row({ space: 24 }) {
-          Text('隐私政策')
-            .fontSize(12)
-            .fontColor('#8A7B5C')
-            .onClick(() => {
-              this.getUIContext().getRouter().pushUrl({ url: 'pages/Legal/PrivacyPolicy' });
-            })
-          Text('|')
-            .fontSize(12)
-            .fontColor('#4A4030')
-          Text('用户协议')
-            .fontSize(12)
-            .fontColor('#8A7B5C')
-            .onClick(() => {
-              this.getUIContext().getRouter().pushUrl({ url: 'pages/Legal/UserAgreement' });
-            })
+        /* 合规链接（暂不显示）：隐私政策 · 用户协议
+           —— 华为已由平台托管隐私政策、用户协议非必填；代码与页面保留，开关 showLegalLinks 控制显示 */
+        if (this.showLegalLinks) {
+          Row({ space: 24 }) {
+            Text('隐私政策')
+              .fontSize(12)
+              .fontColor('#8A7B5C')
+              .onClick(() => {
+                this.getUIContext().getRouter().pushUrl({ url: 'pages/Legal/PrivacyPolicy' });
+              })
+            Text('|')
+              .fontSize(12)
+              .fontColor('#4A4030')
+            Text('用户协议')
+              .fontSize(12)
+              .fontColor('#8A7B5C')
+              .onClick(() => {
+                this.getUIContext().getRouter().pushUrl({ url: 'pages/Legal/UserAgreement' });
+              })
+          }
         }
       }
       .translate({ y: 320 })
