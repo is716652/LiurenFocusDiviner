@@ -132,6 +132,8 @@ struct Index {
   /* 盘面辅助层开关：显地盘干/显本位神（颜色区分主辅） */
   @State private showDunDi: boolean = false;
   @State private showBenshen: boolean = false;
+  /* 辅助层：日干遁（中黄·体）——与中圈主层对照，默认关 */
+  @State private showRiDun: boolean = false;
   /* 课体课义数据（九宗门课体 → 通用课义） */
   @State private ketiYi: Record<string, Object> = {};
   @State private ancientMj: string = '未';
@@ -876,6 +878,14 @@ struct Index {
                 .onClick(() => {
                   this.showBenshen = !this.showBenshen;
                 })
+              Text('日遁')
+                .fontSize(10)
+                .fontColor(this.showRiDun ? '#8FA3A8' : '#6B5F45')
+                .borderRadius(8)
+                .padding({ left: 8, right: 8, top: 2, bottom: 2 })
+                .onClick(() => {
+                  this.showRiDun = !this.showRiDun;
+                })
             }
             .margin({ left: 6 })
           }
@@ -898,6 +908,14 @@ struct Index {
                 .onClick(() => {
                   this.showBenshen = !this.showBenshen;
                 })
+              Text('日遁')
+                .fontSize(10)
+                .fontColor(this.showRiDun ? '#8FA3A8' : '#6B5F45')
+                .borderRadius(8)
+                .padding({ left: 8, right: 8, top: 2, bottom: 2 })
+                .onClick(() => {
+                  this.showRiDun = !this.showRiDun;
+                })
             }
             .margin({ left: 6 })
           }
@@ -913,6 +931,7 @@ struct Index {
             zhonghuangAna: this.zhonghuangAna,
             showDunDi: this.showDunDi,
             showBenshen: this.showBenshen,
+          showRiDun: this.showRiDun,
             onPickZhi: (z: string, layer: string) => {
               if (this.zhonghuangMode === '中黄' && this.zhonghuang) {
                 this.pickZhongGong(z, layer);
@@ -954,7 +973,7 @@ struct Index {
             .width('100%')
             .justifyContent(FlexAlign.Center)
             .margin({ top: 4 })
-            Text('中圈＝时干遁（中黄·用，判断所用）｜切回旬遁＝传统层（空亡支无干）｜日干遁(体)在点宫宫情条与建合检测中看')
+            Text('中圈＝时干遁（中黄·用，判断所用）｜切回旬遁＝传统层（空亡支无干）｜「日遁」辅助层可把日干遁(体)叠在盘上对照')
               .fontSize(8)
               .fontColor('#6B5F45')
               .width('100%')

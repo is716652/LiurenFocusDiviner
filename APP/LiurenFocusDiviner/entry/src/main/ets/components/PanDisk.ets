@@ -21,9 +21,11 @@ export struct PanDisk {
   @Prop @Watch('onHighlightChange') zhonghuang: ZhonghuangDun | null = null;
   /* 中黄完整分析（可选；用于身/变/传标记） */
   @Prop @Watch('onHighlightChange') zhonghuangAna: ZhonghuangAnalyze | null = null;
-  /* 辅助层开关：显地盘干（铜绿）/ 显本位神（暗金）——与主信息颜色区分 */
+  /* 辅助层开关：显地盘干（铜绿）/ 显本位神（暗金）/ 显日干遁(体·青灰)——与主信息颜色区分 */
   @Prop @Watch('onHighlightChange') showDunDi: boolean = false;
   @Prop @Watch('onHighlightChange') showBenshen: boolean = false;
+  /* 日干遁（中黄·体）：默认关；用于与中圈（旬遁/时干遁）对照 */
+  @Prop @Watch('onHighlightChange') showRiDun: boolean = false;
   /* 点击回调：zhi=命中的地支（天盘支或地盘支），layer='天盘'|'地盘'；默认空函数=不启用点击 */
   onPickZhi: (zhi: string, layer: string) => void = () => { };
   private settings: RenderingContextSettings = new RenderingContextSettings(true);
@@ -242,6 +244,20 @@ export struct PanDisk {
         if (diGan !== undefined && diGan !== '') {
           ctx.fillText(diGan, ddx, ddy);
         }
+      }
+      /* 辅助层：日干遁（中黄·体）——天盘支之干，位于中圈外沿（青灰小字；默认关）。
+         用途：与中圈主层（默认旬遁／中黄段时干遁）对照；日干遁是本旬元遁之外的另一套五鼠遁，
+         经文里用于天将基准与「今日建合」（见《日干遁与时干遁下的两套天神排法》） */
+      if (this.showRiDun) {
+        const rRD = w * 0.296;
+        const rx = cx + rRD * Math.cos(ang);
+        const ry = cy + rRD * Math.sin(ang);
+        const riGan = c.dun[tianPan];
+        ctx.fillStyle = '#8FA3A8';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = fontPx(w * 0.030);
+        ctx.fillText(riGan ? riGan : '', rx, ry);
       }
       /* 辅助层：本位神（内圈外沿，暗金极小字；默认关） */
       if (this.showBenshen) {

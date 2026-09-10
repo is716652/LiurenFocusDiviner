@@ -1,4 +1,4 @@
-# Agent.md —— LargeLiuRen-Design 项目交接与实施手册
+# Agent.md —— LargeLiuRen Design 项目交接与实施手册
 
 > 写给后续 AI / 开发者：先读这份，再动代码。  
 > 最近更新：2026-09-10  
