@@ -321,6 +321,17 @@ python _tools/export_case_story_web.py     # 改完 case_story.json 后必须重
 node _tests/_test_case_story_web.js        # 无头跑原型：点位可达性 / 结算不泄露原文
 ```
 
+### 配色对比度门禁（应用市场自检口径，2026-09-10 新增）
+
+```powershell
+node _tools/contrast_audit.js              # 全量扫 fontColor：低于 4.5:1 列清单并返回 1
+node _tools/contrast_audit.js --trace AncientCaseGallery.ets:376   # 打印某处底色的推断过程
+```
+
+自检要求：图标/标题文字与背景 > 3:1，正文文字 > 4.5:1（浅色模式下同样量测）。
+深底文字安全线：与本文件 `DARK_WORST`（`#352F22`，12% 金底叠加后的最亮深底）达到 4.5:1；
+**浅色面板内的文字必须反过来用深色**，改色时不能全局一把梭（案例鉴赏的纸面板即反例）。
+
 ### 排盘规则反验（天将顺逆 / 昴星 / 九宗门，2026-09-10 新增）
 
 ```powershell
@@ -388,6 +399,16 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
 
 6. **构建命令**
    - 项目内没有本地 `hvigorw.bat`，必须用全路径：`D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat`。
+   - hvigor 打了 WARN 时进程可能仍返回非 0，但会打印 `BUILD SUCCESSFUL`；
+     判断构建是否真的成功，看产物时间戳（`entry/build/default/outputs/default/entry-default-signed.hap`）。
+
+7. **应用市场对比度自检（1.0.2 被卡在这里）**
+   - 要求：图标/标题文字 > 3:1，正文文字 > 4.5:1，且**系统浅色模式下同样量测**。
+   - 深色主题最容易踩线的是「弱化文字」那一档（`#5A4F3D` 实测 1.82:1 =
+     毕法赋卡下合规提示）；次要文字 `#8A7B5C`(4.02)、`#6B5F45`(2.64) 也不达标。
+   - 反方向同样会踩：浅色面板（案例鉴赏纸/淡蓝面板）里的文字必须用深色，
+     改配色**不能全库替换色值**，务必按容器分别处理。
+   - 改完必跑：`node _tools/contrast_audit.js`，要求 0 处低于 4.5:1。
 
 ---
 
@@ -460,11 +481,45 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
 
 ---
 
+## 11.6 应用市场对比度自检修正（1.0.3 · 2026-09-10）
+
+**故障**：1.0.2 提交后自检未过 ——「系统浅色模式下控件文字与背景对比度存在问题」，报出某 Text 控件
+对比度 **1.83**（要求图标/标题 > 3:1、正文 > 4.5:1）。
+
+**定位**：`pages/Index.ets` 毕法赋卡（底 `#1C1A16`，内层 `rgba(233,200,120,0.08)` 面板）下方的合规提示
+`#5A4F3D` —— 合成底色下实算 **1.82:1**，与自检值吻合。全量扫描发现同类「太暗」文字共 137 处。
+
+**根因**：深色主题里 `#8A7B5C / #6B5F45 / #5A4F3D` 三级「弱化文字」全体低于 4.5:1；
+另有反方向的坑——案例鉴赏的**浅色面板**内混用了浅色文字（`#F0E6C8` 标题在纸底上只有 1.09:1）；
+标签底色本身也有不达标者（浅字压 `#3F7D6B` 仅 4.21:1、压 `#8A7B5C` 仅 3.62:1）。
+
+**修正**：深底弱化文字统一提到 `#A8986E`（对最亮深底 4.70:1）、金色辅助字 → `#C4A25C`、
+事类标签文字 → `#E08A7A`、用神标签底 → `#33705E`、旁证标签底 → `#5A4F3D`；
+浅色面板内的文字反向改深（`#2B241B / #6B5F45`）；`color.json`（base+dark）同步；
+`EntryAbility` 由 `COLOR_MODE_NOT_SET` 改为 `COLOR_MODE_DARK`（本应用为单主题深色）。
+明细表见 `鸿蒙规范文档/商店页文案与截图清单.md` §9。
+
+**门禁**：新增 `_tools/contrast_audit.js`（按 ArkTS 构建器结构推断文字真实底色：同行修饰符背景 →
+浅色区块 → 逐层外层容器 → rgba 合成 → 辅助函数 return 值；推不出时按最亮深底 `#352F22` 保守判定）。
+当前 323 处 `fontColor` **0 处低于 4.5:1**（退出码 0）。`--trace 文件:行号` 可打印某处的推断过程。
+
+**发布**：版号 → `1.0.3 / 1000003`；免费版 sync + verify PASS，零权限；签名包
+`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`（1,574,345 字节，
+SHA256 `3E55D6CA4A847DCB4F4F2D1E9117EEF8F635B85374E2DF73600FDA5D966B500E`，verify-app success）；
+1.0.2 提审包归档到 `APP/release_pkg/archive/`。**上架素材与文案未动**（版式未变，仅次要文字亮度提升）。
+
+**顺带修掉的一类隐形问题**：16 处 `Text` 未显式指定 `fontColor`（如中黄变干主线、时支行、年命行、
+🔒/🧭 图标行），在系统浅色模式下会取到主题的深色默认字色 → 深底上几乎不可见；
+声明单主题深色后这些文字回归浅色，同时浅色面板内也没有这类无字色文字（已扫描确认 0 处）。
+
+---
+
 ## 12. 给后续 AI 的操作建议
 
 - 先跑：`node _tests/_test_ancient_gallery.js`
 - 改案例后必跑：反验 → 免费同步 → 免费校验 → 主版构建 → 免费版构建 → commit/push。
 - 改中黄/盘后必跑：`node _tests/_test_zhonghuang.js`、`node _tests/_test_zhonghuang_analyze.js`、`node _tests/_test_zhonghuang_dun.js`、`node _tests/_test_jiangpan.js`，并构建主/免费 HAP。
+- 改配色后必跑：`node _tools/contrast_audit.js`（须 0 处低于 4.5:1）→ 主版构建 → 免费 sync/verify → 免费版构建 → `python _tools/sign_release.py free`。
 - 改核心算法：改 `core/liuren-core.ts`（真源）→ `npx tsc` 重编译 `core/liuren-core.js` → 手工同步 `LiurenCore.ets`（含 `ChartCore`/`Chart` 接口字段）；三份实现必须同构，且新增盘字段别忘 `withDx` 浅拷贝。
 - 写古籍案例时：先程序复算，再写断语解释；不要先信 OCR。
 - 遇到传本不一致：宁可写“存疑对读”，不要硬改引擎去迎合 OCR。

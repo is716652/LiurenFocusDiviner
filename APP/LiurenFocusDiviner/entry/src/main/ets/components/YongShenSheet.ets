@@ -313,11 +313,11 @@ export struct YongShenSheet {
         Blank()
         Text('盘起于 ' + this.dateStr())
           .fontSize(11)
-          .fontColor('#8A7B5C')
+          .fontColor('#A8986E')
           .maxLines(1)
         Text('✕')
           .fontSize(16)
-          .fontColor('#8A7B5C')
+          .fontColor('#A8986E')
           .padding({ left: 12, right: 4, top: 4, bottom: 4 })
           .onClick(() => {
             this.onClose();
@@ -328,7 +328,7 @@ export struct YongShenSheet {
       .border({ width: { bottom: 1 }, color: 'rgba(233,200,120,0.20)' })
       Text('古籍类神/象意整理，仅供传统文化研习参考，不构成现实判断')
         .fontSize(9)
-        .fontColor('#5A4F3D')
+        .fontColor('#A8986E')
         .width('100%')
 
       Scroll() {
@@ -339,11 +339,11 @@ export struct YongShenSheet {
               Row() {
                 Text('盘面预览')
                   .fontSize(11)
-                  .fontColor('#8A7B5C')
+                  .fontColor('#A8986E')
                 Blank()
                 Text(this.yongShen !== '' ? '当前用神 ' + this.yongShen + ' 宫' : '左右滑看 三传/盘/四课')
                   .fontSize(10)
-                  .fontColor('#A8843C')
+                  .fontColor('#C4A25C')
               }
               .width('100%')
               Swiper() {
@@ -356,7 +356,7 @@ export struct YongShenSheet {
                       Row({ space: 3 }) {
                         Text((ti === 0 ? '★ ' : '') + tr.pos)
                           .fontSize(8)
-                          .fontColor(ti === 0 ? '#F0D98C' : '#8A7B5C')
+                          .fontColor(ti === 0 ? '#F0D98C' : '#A8986E')
                           .fontWeight(ti === 0 ? FontWeight.Bold : FontWeight.Normal)
                           .width(22)
                         Text(tr.gan)
@@ -371,7 +371,7 @@ export struct YongShenSheet {
                           .width(18)
                         Text(tr.lq)
                           .fontSize(9)
-                          .fontColor('#A8843C')
+                          .fontColor('#C4A25C')
                           .width(24)
                         Text(tr.jiang)
                           .fontSize(9)
@@ -385,7 +385,7 @@ export struct YongShenSheet {
                       if (tr.shensha !== '') {
                         Text(tr.shensha)
                           .fontSize(7)
-                          .fontColor(tr.kong ? '#D0704A' : '#6B5F45')
+                          .fontColor(tr.kong ? '#D0704A' : '#A8986E')
                           .lineHeight(10)
                           .width('100%')
                           .maxLines(2)
@@ -400,7 +400,7 @@ export struct YongShenSheet {
                   }, (tr: MiniChuanRow, ti: number) => 'mr' + this.refreshTick + ti + tr.pos)
                   Text(this.yongShen !== '' ? '动态三传 · 以' + this.yongShen + '为用神（初传在上）' : '选用神后生成动态三传')
                     .fontSize(8)
-                    .fontColor('#6B5F45')
+                    .fontColor('#A8986E')
                     .width('100%')
                     .textAlign(TextAlign.Center)
                 }
@@ -455,7 +455,7 @@ export struct YongShenSheet {
                   .width('100%')
                   Text('四课（右边是第一课 · 天将/上神/下神）· 左右滑切')
                     .fontSize(8)
-                    .fontColor('#6B5F45')
+                    .fontColor('#A8986E')
                     .width('100%')
                     .textAlign(TextAlign.Center)
                 }
@@ -476,7 +476,7 @@ export struct YongShenSheet {
             if (this.chart) {
               Text('点盘任一支 = 外应取用（天盘优先）')
                 .fontSize(9)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
                 .lineHeight(12)
                 .width('100%')
                 .textAlign(TextAlign.Center)

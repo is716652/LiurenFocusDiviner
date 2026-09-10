@@ -17,11 +17,11 @@ export struct AffairChips {
       Row() {
         Text('所占之事')
           .fontSize(11)
-          .fontColor('#8A7B5C')
+          .fontColor('#A8986E')
         Blank()
         Text('点击选占事 → 自动抓类神')
           .fontSize(10)
-          .fontColor('#5A4F3D')
+          .fontColor('#A8986E')
       }
       .width('100%')
 
@@ -52,7 +52,7 @@ export struct AffairChips {
           if (this.cfg.scene.length > 0) {
             Text('落象提示：' + this.cfg.scene.join(' · '))
               .fontSize(11)
-              .fontColor('#A8843C')
+              .fontColor('#C4A25C')
               .lineHeight(16)
               .width('100%')
           }

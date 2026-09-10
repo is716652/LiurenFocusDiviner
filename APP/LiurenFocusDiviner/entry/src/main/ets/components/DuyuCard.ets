@@ -17,11 +17,11 @@ export struct DuyuCard {
           Row() {
             Text('古籍断法选句')
               .fontSize(11)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
             Blank()
             Text('管辂神书 · 类神取用')
               .fontSize(10)
-              .fontColor('#5A4F3D')
+              .fontColor('#A8986E')
           }
           .width('100%')
           ForEach(this.duyu, (d: string) => {
@@ -53,11 +53,11 @@ export struct DuyuCard {
           Row() {
             Text('管辂象意选句')
               .fontSize(11)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
             Blank()
             Text('据盘态信号取古籍句')
               .fontSize(10)
-              .fontColor('#5A4F3D')
+              .fontColor('#A8986E')
           }
           .width('100%')
           ForEach(this.pick.items, (it: DuyuItem) => {

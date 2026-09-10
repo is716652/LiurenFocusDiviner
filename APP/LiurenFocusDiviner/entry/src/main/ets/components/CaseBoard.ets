@@ -24,10 +24,10 @@ export struct CaseBoard {
             Column({ space: 8 }) {
               Text('暂存课例')
                 .fontSize(14)
-                .fontColor('#8A7B5C')
+                .fontColor('#A8986E')
               Text('排盘后点「保存课例」，盘面要点即存于此；点击可一键恢复重排')
                 .fontSize(11)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
                 .textAlign(TextAlign.Center)
                 .lineHeight(17)
             }
@@ -39,7 +39,7 @@ export struct CaseBoard {
             }, (r: CaseRec) => 'cs' + r.ts)
             Text('课例存于本机（最多 200 例），卸载应用后清除')
               .fontSize(10)
-              .fontColor('#5A4F3D')
+              .fontColor('#A8986E')
               .width('100%')
               .textAlign(TextAlign.Center)
               .padding({ top: 10, bottom: 72 })
@@ -91,7 +91,7 @@ export struct CaseBoard {
         Blank()
         Text('✕')
           .fontSize(13)
-          .fontColor('#6B5F45')
+          .fontColor('#A8986E')
           .padding({ left: 8, right: 2, top: 4, bottom: 4 })
           .onClick(() => {
             this.onDelete(r.ts);
@@ -102,7 +102,7 @@ export struct CaseBoard {
       /* 日期（小字） */
       Text(r.date)
         .fontSize(10)
-        .fontColor('#8A7B5C')
+        .fontColor('#A8986E')
         .width('100%')
 
       /* 四柱 */
@@ -133,7 +133,7 @@ export struct CaseBoard {
         Text((r.yongShen !== '' ? '用神' + r.yongShen + ' · ' : '') +
           (r.affairName !== '' ? r.affairName + ' · ' : '') + r.note)
           .fontSize(11)
-          .fontColor('#8A7B5C')
+          .fontColor('#A8986E')
           .maxLines(2)
           .width('100%')
       }

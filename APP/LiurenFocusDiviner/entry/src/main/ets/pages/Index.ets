@@ -864,7 +864,7 @@ struct Index {
             Row({ space: 4 }) {
               Text('地盘干')
                 .fontSize(10)
-                .fontColor(this.showDunDi ? '#7FA69A' : '#6B5F45')
+                .fontColor(this.showDunDi ? '#7FA69A' : '#A8986E')
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -872,7 +872,7 @@ struct Index {
                 })
               Text('本位')
                 .fontSize(10)
-                .fontColor(this.showBenshen ? '#8A7448' : '#6B5F45')
+                .fontColor(this.showBenshen ? '#A8986E' : '#A8986E')
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -880,7 +880,7 @@ struct Index {
                 })
               Text('日遁')
                 .fontSize(10)
-                .fontColor(this.showRiDun ? '#8FA3A8' : '#6B5F45')
+                .fontColor(this.showRiDun ? '#8FA3A8' : '#A8986E')
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -894,7 +894,7 @@ struct Index {
             Row({ space: 4 }) {
               Text('地盘干')
                 .fontSize(10)
-                .fontColor(this.showDunDi ? '#7FA69A' : '#6B5F45')
+                .fontColor(this.showDunDi ? '#7FA69A' : '#A8986E')
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -902,7 +902,7 @@ struct Index {
                 })
               Text('本位')
                 .fontSize(10)
-                .fontColor(this.showBenshen ? '#8A7448' : '#6B5F45')
+                .fontColor(this.showBenshen ? '#A8986E' : '#A8986E')
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -910,7 +910,7 @@ struct Index {
                 })
               Text('日遁')
                 .fontSize(10)
-                .fontColor(this.showRiDun ? '#8FA3A8' : '#6B5F45')
+                .fontColor(this.showRiDun ? '#8FA3A8' : '#A8986E')
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -949,7 +949,7 @@ struct Index {
                   .fontColor('#9FB6A8')
                 Text('日干寄宫')
                   .fontSize(8)
-                  .fontColor('#6B5F45')
+                  .fontColor('#A8986E')
               }
               Row({ space: 3 }) {
                 Text('变')
@@ -958,7 +958,7 @@ struct Index {
                   .fontColor('#F0D98C')
                 Text('变干宫')
                   .fontSize(8)
-                  .fontColor('#6B5F45')
+                  .fontColor('#A8986E')
               }
               Row({ space: 3 }) {
                 Text('传')
@@ -967,7 +967,7 @@ struct Index {
                   .fontColor('#D98C5F')
                 Text('变干入传')
                   .fontSize(8)
-                  .fontColor('#6B5F45')
+                  .fontColor('#A8986E')
               }
             }
             .width('100%')
@@ -975,7 +975,7 @@ struct Index {
             .margin({ top: 4 })
             Text('中圈＝时干遁（中黄·用，判断所用）｜切回旬遁＝传统层（空亡支无干）｜「日遁」辅助层可把日干遁(体)叠在盘上对照')
               .fontSize(8)
-              .fontColor('#6B5F45')
+              .fontColor('#A8986E')
               .width('100%')
               .margin({ top: 2 })
           }
@@ -991,11 +991,11 @@ struct Index {
                 .width('100%')
               Text(this.zhGongLine3())
                 .fontSize(9)
-                .fontColor('#8A7B5C')
+                .fontColor('#A8986E')
                 .width('100%')
               Text(this.zhGongLine4())
                 .fontSize(9)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
                 .width('100%')
                 .lineHeight(13)
             }
@@ -1011,7 +1011,7 @@ struct Index {
             (this.customYS ? '⚡ 外应取用：' + this.yongShen + '（' + (this.customLayer === '天盘' ? '天盘加临之象' : '地盘本位之象') + '）· 点盘可换' :
               '点盘任一支 = 外应取用（天盘优先）'))
             .fontSize(10)
-            .fontColor(this.zhonghuangMode === '中黄' ? '#C4A25C' : (this.customYS ? '#F0D98C' : '#6B5F45'))
+            .fontColor(this.zhonghuangMode === '中黄' ? '#C4A25C' : (this.customYS ? '#F0D98C' : '#A8986E'))
             .margin({ top: 4 })
             .width('100%')
             .textAlign(TextAlign.Center)
@@ -1035,7 +1035,7 @@ struct Index {
           Blank()
           Text('右起第一课 · 干上神')
             .fontSize(10)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
         }
         .width('100%')
         Row({ space: 8 }) {
@@ -1071,7 +1071,7 @@ struct Index {
           Blank()
           Text('九宗门')
             .fontSize(10)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
         }
         .width('100%')
         Row({ space: 8 }) {
@@ -1107,7 +1107,7 @@ struct Index {
             Blank()
             Text('九宗门课体 · 通用课义')
               .fontSize(10)
-              .fontColor('#6B5F45')
+              .fontColor('#A8986E')
           }
           .width('100%')
           if (this.ketiTxt() !== '') {
@@ -1135,7 +1135,7 @@ struct Index {
           Blank()
           Text('旬空 · 旺衰 · 助日')
             .fontSize(10)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
         }
         .width('100%')
         .margin({ bottom: 4 })
@@ -1161,7 +1161,7 @@ struct Index {
           Blank()
           Text('先看四课三传 · 模糊时沿一条路线深入')
             .fontSize(10)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
         }
         .width('100%')
         Row({ space: 6 }) {
@@ -1198,7 +1198,7 @@ struct Index {
                 })
               Text(this.yongShen !== '' ? '当前用神：' + this.yongShen : '尚未取用神')
                 .fontSize(11)
-                .fontColor('#8A7B5C')
+                .fontColor('#A8986E')
             }
             .width('100%')
           }
@@ -1219,7 +1219,7 @@ struct Index {
             } else {
               Text('本课无毕法格局命中')
                 .fontSize(11)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
                 .lineHeight(16)
                 .width('100%')
             }
@@ -1246,7 +1246,7 @@ struct Index {
             } else {
               Text('排盘后自动生成先锋链路')
                 .fontSize(11)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
                 .lineHeight(16)
                 .width('100%')
             }
@@ -1270,7 +1270,7 @@ struct Index {
           Blank()
           Text('日支 · 月将 · 初传所带')
             .fontSize(10)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
         }
         .width('100%')
         ForEach(this.shenshaGroups(), (g: ShenshaGroup) => {
@@ -1278,12 +1278,12 @@ struct Index {
             Row() {
               Text(g.label)
                 .fontSize(11)
-                .fontColor('#8A7B5C')
+                .fontColor('#A8986E')
               Blank()
               if (g.names.length === 0) {
                 Text('无')
                   .fontSize(11)
-                  .fontColor('#5A4F3D')
+                  .fontColor('#A8986E')
               }
             }
             .width('100%')
@@ -1315,7 +1315,7 @@ struct Index {
           Blank()
           Text('点击展开定位五层')
             .fontSize(10)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
         }
         .width('100%')
         /* 付费门禁：毕法教练（付费区仅开发/收费版显示；免费版整体隐藏） */
@@ -1325,7 +1325,7 @@ struct Index {
               .fontSize(13)
             Text('毕法法诀研习内容（组合对照 · 参考提示）为付费解锁')
               .fontSize(11)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
             Blank()
             Text('解锁')
               .fontSize(12)
@@ -1370,7 +1370,7 @@ struct Index {
             }
             Text('以上为古籍毕法断语整理，仅供传统文化研习参考，不构成医疗、法律或决策建议')
               .fontSize(9)
-              .fontColor('#5A4F3D')
+              .fontColor('#A8986E')
               .lineHeight(13)
               .width('100%')
           }
@@ -1383,7 +1383,7 @@ struct Index {
         if (this.cur().dx.bifa.length === 0) {
           Text('本课无毕法格局命中')
             .fontSize(12)
-            .fontColor('#5A4F3D')
+            .fontColor('#A8986E')
             .margin({ top: 2 })
         }
         ForEach(this.cur().dx.bifa, (hit: BifaHit) => {
@@ -1397,7 +1397,7 @@ struct Index {
               Blank()
               Text(this.expandedBifa === hit.序 ? '收起' : '展开')
                 .fontSize(11)
-                .fontColor('#A8843C')
+                .fontColor('#C4A25C')
             }
             .width('100%')
             Text(hit.判)
@@ -1434,11 +1434,11 @@ struct Index {
             Row() {
               Text('年命适配')
                 .fontSize(11)
-                .fontColor('#8A7B5C')
+                .fontColor('#A8986E')
               Blank()
               Text('选年命地支 · 看个性化建议')
                 .fontSize(10)
-                .fontColor('#5A4F3D')
+                .fontColor('#A8986E')
             }
             .width('100%')
             Scroll() {
@@ -1485,25 +1485,25 @@ struct Index {
             Row() {
               Text('行年小运')
                 .fontSize(11)
-                .fontColor('#8A7B5C')
+                .fontColor('#A8986E')
               Blank()
               Text('出生年 + 性别 · 看今年')
                 .fontSize(10)
-                .fontColor('#5A4F3D')
+                .fontColor('#A8986E')
             }
             .width('100%')
             Row({ space: 12 }) {
               Row({ space: 8 }) {
                 Text('‹')
                   .fontSize(24)
-                  .fontColor('#A8843C')
+                  .fontColor('#C4A25C')
                   .onClick(() => {
                     this.changeBirthYear(-1);
                   })
                 Column({ space: 2 }) {
                   Text('出生年 · 点击输入')
                     .fontSize(10)
-                    .fontColor('#8A7B5C')
+                    .fontColor('#A8986E')
                   if (this.birthEditing) {
                     TextInput({ text: this.birthEditVal, placeholder: String(this.birthYear) })
                       .type(InputType.Number)
@@ -1535,7 +1535,7 @@ struct Index {
                 }
                 Text('›')
                   .fontSize(24)
-                  .fontColor('#A8843C')
+                  .fontColor('#C4A25C')
                   .onClick(() => {
                     this.changeBirthYear(1);
                   })
@@ -1593,12 +1593,12 @@ struct Index {
                 .width('100%')
               Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')
                 .fontSize(9)
-                .fontColor('#5A4F3D')
+                .fontColor('#A8986E')
                 .lineHeight(13)
                 .width('100%')
               Text('以上为古籍断法整理，仅供传统文化研习参考，不构成现实判断或决策建议')
                 .fontSize(9)
-                .fontColor('#5A4F3D')
+                .fontColor('#A8986E')
                 .lineHeight(13)
                 .width('100%')
             }
@@ -1614,11 +1614,11 @@ struct Index {
             Row() {
               Text('中黄五变经')
                 .fontSize(11)
-                .fontColor('#8A7B5C')
+                .fontColor('#A8986E')
               Blank()
               Text('日干遁·时干遁 双演 · 遁干切换在天地盘标题')
                 .fontSize(10)
-                .fontColor('#5A4F3D')
+                .fontColor('#A8986E')
             }
             .width('100%')
 
@@ -1632,7 +1632,7 @@ struct Index {
               ForEach(this.zhonghuangAna.cmp, (it: ZhonghuangCmpItem) => {
                 Text(it.gong + ' ' + it.xunLq + (it.changed ? ('→' + it.zhLq) : ''))
                   .fontSize(10)
-                  .fontColor(it.changed ? '#F0D98C' : '#6B5F45')
+                  .fontColor(it.changed ? '#F0D98C' : '#A8986E')
                   .backgroundColor(it.changed ? 'rgba(240,217,140,0.12)' : 'rgba(107,95,69,0.12)')
                   .borderRadius(8)
                   .padding({ left: 7, right: 7, top: 3, bottom: 3 })
@@ -1666,7 +1666,7 @@ struct Index {
             if (this.zhonghuangAna.jianhe.length === 0) {
               Text('本盘无建合（日遁与时遁在日上/支上/变干宫/三传无干合）')
                 .fontSize(11)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
                 .lineHeight(16)
                 .width('100%')
             } else {
@@ -1681,7 +1681,7 @@ struct Index {
 
             Text('注：盘面天干默认「旬遁」（传统：旬内同支取干，空亡支本旬无干故不显，即空亡之验——《六壬集成五要权衡》云「旬遁方有空亡」）；中黄模式显「时干遁」（经文以时干论变、建随时刻变：「复见天上时干有何变」「随时变矣」）；日干遁(体)用于天将基准与今日建合，见宫情条与建合检测（古籍研习参考）')
               .fontSize(9)
-              .fontColor('#5A4F3D')
+              .fontColor('#A8986E')
               .lineHeight(13)
               .width('100%')
           }
@@ -1705,7 +1705,7 @@ struct Index {
     Column({ space: 3 }) {
       Text($$.label)
         .fontSize(10)
-        .fontColor('#8A7B5C')
+        .fontColor('#A8986E')
       Text($$.value)
         .fontSize(14)
         .fontWeight(FontWeight.Medium)
@@ -1754,7 +1754,7 @@ struct Index {
         Column({ space: 14 }) {
           Text(this.ready ? '排盘已就绪 · 四柱/盘面如下' : '正在载入历法数据…')
             .fontSize(11)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
             .textAlign(TextAlign.Center)
             .width('100%')
 
@@ -1771,7 +1771,7 @@ struct Index {
               })
             Text(this.ancientNote !== '' ? this.ancientNote : '输入古案例（月将+日干支+占时）→ 完整盘面')
               .fontSize(10)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
           }
           .width('100%')
 
@@ -1779,11 +1779,11 @@ struct Index {
             Column({ space: 6 }) {
               Text('必填：月将支 + 日干 + 日支 + 占时；选填：年干支/月支（有则神煞完整）')
                 .fontSize(10)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
                 .width('100%')
               /* 月将（横向滚动） */
               Row() {
-                Text('月将').fontSize(11).fontColor('#8A7B5C').margin({ right: 6 })
+                Text('月将').fontSize(11).fontColor('#A8986E').margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
@@ -1804,7 +1804,7 @@ struct Index {
               .width('100%')
               /* 日干（横向滚动） */
               Row() {
-                Text('日干').fontSize(11).fontColor('#8A7B5C').margin({ right: 6 })
+                Text('日干').fontSize(11).fontColor('#A8986E').margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(LiurenCore.GAN, (g: string) => {
@@ -1825,7 +1825,7 @@ struct Index {
               .width('100%')
               /* 日支（横向滚动） */
               Row() {
-                Text('日支').fontSize(11).fontColor('#8A7B5C').margin({ right: 6 })
+                Text('日支').fontSize(11).fontColor('#A8986E').margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
@@ -1846,7 +1846,7 @@ struct Index {
               .width('100%')
               /* 占时（横向滚动） */
               Row() {
-                Text('占时').fontSize(11).fontColor('#8A7B5C').margin({ right: 6 })
+                Text('占时').fontSize(11).fontColor('#A8986E').margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
@@ -1867,13 +1867,13 @@ struct Index {
               .width('100%')
               /* 选填：年干/年支/月支 */
               Row() {
-                Text('年干(选)').fontSize(10).fontColor('#6B5F45').margin({ right: 6 })
+                Text('年干(选)').fontSize(10).fontColor('#A8986E').margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(LiurenCore.GAN, (g: string) => {
                       Text(g)
                         .fontSize(11)
-                        .fontColor(this.ancientYG === g ? '#1A1410' : '#8A7B5C')
+                        .fontColor(this.ancientYG === g ? '#1A1410' : '#A8986E')
                         .backgroundColor(this.ancientYG === g ? '#F0D98C' : 'rgba(107,95,69,0.2)')
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
@@ -1887,13 +1887,13 @@ struct Index {
               }
               .width('100%')
               Row() {
-                Text('年支(选)').fontSize(10).fontColor('#6B5F45').margin({ right: 6 })
+                Text('年支(选)').fontSize(10).fontColor('#A8986E').margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
                         .fontSize(11)
-                        .fontColor(this.ancientYZ === z ? '#1A1410' : '#8A7B5C')
+                        .fontColor(this.ancientYZ === z ? '#1A1410' : '#A8986E')
                         .backgroundColor(this.ancientYZ === z ? '#F0D98C' : 'rgba(107,95,69,0.2)')
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
@@ -1907,13 +1907,13 @@ struct Index {
               }
               .width('100%')
               Row() {
-                Text('月支(选)').fontSize(10).fontColor('#6B5F45').margin({ right: 6 })
+                Text('月支(选)').fontSize(10).fontColor('#A8986E').margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
                         .fontSize(11)
-                        .fontColor(this.ancientMZ === z ? '#1A1410' : '#8A7B5C')
+                        .fontColor(this.ancientMZ === z ? '#1A1410' : '#A8986E')
                         .backgroundColor(this.ancientMZ === z ? '#F0D98C' : 'rgba(107,95,69,0.2)')
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
@@ -1949,7 +1949,7 @@ struct Index {
           } else {
             Text('起课后在此显示：天地盘 · 四课 · 三传 · 盘态 · 神煞 · 毕法格局')
               .fontSize(12)
-              .fontColor('#5A4F3D')
+              .fontColor('#A8986E')
               .textAlign(TextAlign.Center)
               .lineHeight(20)
               .width('100%')

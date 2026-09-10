@@ -160,7 +160,7 @@ export struct AncientCaseGallery {
       return '#3E5C76';
     }
     if (r === 'yongshen') {
-      return '#3F7D6B';
+      return '#33705E';
     }
     if (r === 'bifa') {
       return '#8A5A2B';
@@ -297,7 +297,7 @@ export struct AncientCaseGallery {
     if (role === 'timing') { return '#2F4A5F'; }
     if (role === 'risk') { return '#7A2E2E'; }
     if (role === 'cross') { return '#3E5C76'; }
-    return '#8A7B5C';
+    return '#5A4F3D';   /* 旁证标签底：须与浅色标签字 #F5EFE2 达到 4.5:1 */
   }
 
   private consensusKeyword(c: AncientCase): string {
@@ -427,7 +427,7 @@ export struct AncientCaseGallery {
       if (r.note) {
         Text(r.note)
           .fontSize(9)
-          .fontColor('#7A6A55')
+          .fontColor('#6B5F45')
           .lineHeight(14)
           .width('100%')
           .textAlign(TextAlign.Start)
@@ -450,7 +450,7 @@ export struct AncientCaseGallery {
         .fontColor('#F0D98C')
       Text('古籍案例的程序化复原：课式校验、中黄先锋、断法链路')
         .fontSize(10)
-        .fontColor('#8A7B5C')
+        .fontColor('#A8986E')
       Scroll() {
         Row({ space: 8 }) {
           ForEach(this.topicOptions(), (t: string) => {
@@ -476,7 +476,7 @@ export struct AncientCaseGallery {
             Text(g)
               .fontSize(12)
               .fontWeight(FontWeight.Medium)
-              .fontColor('#A8843C')
+              .fontColor('#C4A25C')
               .margin({ top: 4 })
             ForEach(this.casesInGroup(g), (c: AncientCase) => {
               Column({ space: 5 }) {
@@ -488,13 +488,13 @@ export struct AncientCaseGallery {
                     .layoutWeight(1)
                   Text('›')
                     .fontSize(18)
-                    .fontColor('#6B5F45')
+                    .fontColor('#A8986E')
                 }
                 Row({ space: 6 }) {
                   ForEach((c.topics ? c.topics : []), (t: string) => {
                     Text(t)
                       .fontSize(9)
-                      .fontColor('#A63A2B')
+                      .fontColor('#E08A7A')
                       .backgroundColor('rgba(166,58,43,0.10)')
                       .borderRadius(8)
                       .padding({ left: 6, right: 6, top: 2, bottom: 2 })
@@ -502,10 +502,10 @@ export struct AncientCaseGallery {
                 }
                 Text(c.source + ' · ' + c.chapter)
                   .fontSize(10)
-                  .fontColor('#A8843C')
+                  .fontColor('#C4A25C')
                 Text(c.summary)
                   .fontSize(11)
-                  .fontColor('#8A7B5C')
+                  .fontColor('#A8986E')
                   .maxLines(2)
                   .textOverflow({ overflow: TextOverflow.Ellipsis })
               }
@@ -545,7 +545,7 @@ export struct AncientCaseGallery {
         Blank()
         Text('研习样例')
           .fontSize(10)
-          .fontColor('#8A7B5C')
+          .fontColor('#A8986E')
       }
       Text(c.title)
         .fontSize(17)
@@ -553,7 +553,7 @@ export struct AncientCaseGallery {
         .fontColor('#F0D98C')
       Text(c.source + ' · ' + c.chapter)
         .fontSize(10)
-        .fontColor('#A8843C')
+        .fontColor('#C4A25C')
       if (c.routes && c.routes.length > 0) {
         Flex({ wrap: FlexWrap.Wrap }) {
           ForEach(c.routes, (r: string) => {
@@ -632,7 +632,7 @@ export struct AncientCaseGallery {
               Text('四课')
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#F0E6C8')
+                .fontColor('#2B241B')
               Blank()
               Text('右起第一课 · 干上神')
                 .fontSize(9)
@@ -666,7 +666,7 @@ export struct AncientCaseGallery {
               Text('三传 · ' + this.chuanTitle(this.chart as Chart))
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#F0E6C8')
+                .fontColor('#2B241B')
               Blank()
               Text('九宗门')
                 .fontSize(9)
@@ -712,7 +712,7 @@ export struct AncientCaseGallery {
             .lineHeight(18)
           Text('中黄只作“时干→变干→落宫”的旁证链；若不改主断，此处明确标为参证。')
             .fontSize(9)
-            .fontColor('#7A6A55')
+            .fontColor('#6B5F45')
             .lineHeight(14)
         }
         .width('100%')
@@ -756,7 +756,7 @@ export struct AncientCaseGallery {
           if (this.reasoningByRole(c, 'support').length > 0) {
             Text('旁证 ' + String(this.reasoningByRole(c, 'support').length) + (this.showSupport ? ' · 收起' : ' · 展开'))
               .fontSize(11)
-              .fontColor('#8A7B5C')
+              .fontColor('#6B5F45')
               .width('100%')
               .textAlign(TextAlign.Start)
               .onClick(() => {
@@ -849,7 +849,7 @@ export struct AncientCaseGallery {
 
       Text(c.compliance)
         .fontSize(9)
-        .fontColor('#6B5F45')
+        .fontColor('#A8986E')
         .lineHeight(15)
     }
     .width('100%')
@@ -862,7 +862,7 @@ export struct AncientCaseGallery {
       if (this.cases.length === 0) {
         Text('案例库整理中')
           .fontSize(12)
-          .fontColor('#8A7B5C')
+          .fontColor('#A8986E')
           .width('100%')
           .textAlign(TextAlign.Center)
           .padding(24)

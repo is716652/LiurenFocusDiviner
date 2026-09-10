@@ -15,7 +15,7 @@ export struct KegCard {
     Column({ space: 3 }) {
       Text((this.highlight ? '★ ' : '') + this.kn)
         .fontSize(10)
-        .fontColor(this.highlight ? '#F0D98C' : '#8A7B5C')
+        .fontColor(this.highlight ? '#F0D98C' : '#A8986E')
         .fontWeight(this.highlight ? FontWeight.Bold : FontWeight.Normal)
         .letterSpacing(1)
       Text(this.shang)
@@ -31,7 +31,7 @@ export struct KegCard {
         .margin({ top: 2, bottom: 2 })
       Text(this.jiang)
         .fontSize(10)
-        .fontColor('#A8843C')
+        .fontColor('#C4A25C')
     }
     .width('100%')
     .padding({ top: 10, bottom: 10, left: 4, right: 4 })

@@ -42,7 +42,9 @@ export default class EntryAbility extends UIAbility {
     });
 
     try {
-      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+      /* 本应用为深色（墨底金文）单主题：显式声明深色，避免系统浅色模式下
+         系统控件/弹窗与本应用深色盘面不一致，也便于通过应用市场对比度自检。 */
+      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_DARK);
     } catch (err) {
       hilog.error(DOMAIN, 'testTag', 'Failed to set colorMode. Cause: %{public}s', JSON.stringify(err));
     }

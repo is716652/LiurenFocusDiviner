@@ -19,7 +19,7 @@ export struct ChuanCard {
       Row() {
         Text((this.highlight ? '★ ' : '') + this.pos)
           .fontSize(10)
-          .fontColor(this.highlight ? '#F0D98C' : '#8A7B5C')
+          .fontColor(this.highlight ? '#F0D98C' : '#A8986E')
           .fontWeight(this.highlight ? FontWeight.Bold : FontWeight.Normal)
           .letterSpacing(1)
           .layoutWeight(1)
@@ -42,7 +42,7 @@ export struct ChuanCard {
         .fontColor('#C4B183')
       Text(this.lq)
         .fontSize(11)
-        .fontColor('#A8843C')
+        .fontColor('#C4A25C')
     }
     .width('100%')
     .padding({ top: 10, bottom: 10, left: 4, right: 4 })

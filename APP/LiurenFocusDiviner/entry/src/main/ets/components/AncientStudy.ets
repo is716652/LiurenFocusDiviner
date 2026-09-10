@@ -287,7 +287,7 @@ export struct AncientStudy {
         if (!this.book) {
           Text('正在载入古籍…')
             .fontSize(12)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
             .padding(24)
         } else {
           ForEach(this.listRows(), (c: AncientChapter, idx: number) => {
@@ -295,14 +295,14 @@ export struct AncientStudy {
               Text(c.卷)
                 .fontSize(12)
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#A8843C')
+                .fontColor('#C4A25C')
                 .width('100%')
                 .padding({ top: 14, bottom: 6 })
             }
             Row({ space: 10 }) {
               Text(String(c.序).padStart(2, '0'))
                 .fontSize(12)
-                .fontColor('#8A7448')
+                .fontColor('#A8986E')
                 .width(24)
               Column({ space: 3 }) {
                 Text(c.篇名)
@@ -312,14 +312,14 @@ export struct AncientStudy {
                   .maxLines(1)
                 Text(c.导语)
                   .fontSize(11)
-                  .fontColor('#8A7B5C')
+                  .fontColor('#A8986E')
                   .maxLines(1)
               }
               .layoutWeight(1)
               .alignItems(HorizontalAlign.Start)
               Text('›')
                 .fontSize(16)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
             }
             .width('100%')
             .padding({ top: 8, bottom: 8 })
@@ -329,7 +329,7 @@ export struct AncientStudy {
           }, (c: AncientChapter) => 'ch' + c.序)
           Text('内容据馆藏抄本整理，仅供传统文化研习参考')
             .fontSize(10)
-            .fontColor('#5A4F3D')
+            .fontColor('#A8986E')
             .width('100%')
             .textAlign(TextAlign.Center)
             .padding({ top: 20, bottom: 72 })
@@ -376,7 +376,7 @@ export struct AncientStudy {
       .width('100%')
       Text('上神 / 下神（右起第一课）')
         .fontSize(9)
-        .fontColor('#6B5F45')
+        .fontColor('#A8986E')
         .width('100%')
     }
     .width('100%')
@@ -406,7 +406,7 @@ export struct AncientStudy {
           if (ri === 0 && this.diskRows(p).length > 1) {
             Text('初 · 中 · 末')
               .fontSize(9)
-              .fontColor('#6B5F45')
+              .fontColor('#A8986E')
           }
         }
         .width('100%')
@@ -618,11 +618,11 @@ export struct AncientStudy {
               .fontColor('#F0D98C')
             Text(this.listRows()[this.curIdx].卷 + ' · ' + this.listRows()[this.curIdx].导语)
               .fontSize(11)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
               .textAlign(TextAlign.Center)
             Text('文中【存疑】为整理者校勘标注 · 经文原文照录 · 仅供传统文化研习参考')
               .fontSize(9)
-              .fontColor('#6B5F45')
+              .fontColor('#A8986E')
               .textAlign(TextAlign.Center)
               .width('100%')
           }
@@ -665,7 +665,7 @@ export struct AncientStudy {
               Text(this.cleanMd(p))
                 .fontSize(12)
                 .fontStyle(FontStyle.Italic)
-                .fontColor('#7A6E55')
+                .fontColor('#A8986E')
                 .lineHeight(19)
                 .width('100%')
                 .padding({ left: 10, right: 8, top: 6, bottom: 6 })

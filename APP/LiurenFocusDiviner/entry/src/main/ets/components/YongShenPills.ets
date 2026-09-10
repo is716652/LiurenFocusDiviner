@@ -15,11 +15,11 @@ export struct YongShenPills {
       Row() {
         Text('类神候选')
           .fontSize(11)
-          .fontColor('#8A7B5C')
+          .fontColor('#A8986E')
         Blank()
         Text('金色=当前 · 朱砂=天将类神')
           .fontSize(10)
-          .fontColor('#5A4F3D')
+          .fontColor('#A8986E')
       }
       .width('100%')
 

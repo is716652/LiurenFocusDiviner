@@ -41,10 +41,10 @@ struct PrivacyPolicyPage {
           Row() {
             Text('更新日期：2026/08/18  ')
               .fontSize(12)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
             Text('生效日期：2026/08/18')
               .fontSize(12)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
           }
           .width('100%')
           .margin({ bottom: 6 })

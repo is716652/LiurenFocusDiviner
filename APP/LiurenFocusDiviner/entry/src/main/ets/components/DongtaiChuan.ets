@@ -13,11 +13,11 @@ export struct DongtaiChuan {
       Row() {
         Text('动态三传')
           .fontSize(11)
-          .fontColor('#8A7B5C')
+          .fontColor('#A8986E')
         Blank()
         Text('传来递生 · 随用神而变')
           .fontSize(10)
-          .fontColor('#5A4F3D')
+          .fontColor('#A8986E')
       }
       .width('100%')
 
@@ -35,7 +35,7 @@ export struct DongtaiChuan {
           Column({ space: 2 }) {
             Text(it.pos)
               .fontSize(10)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
             Text(it.jiang !== '' ? it.jiang + ' · ' + it.lq : it.lq)
               .fontSize(11)
               .fontColor('#B8A97F')

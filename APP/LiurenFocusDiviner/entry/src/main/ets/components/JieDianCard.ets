@@ -18,7 +18,7 @@ export struct JieDianCard {
       Row() {
         Text('用神节点')
           .fontSize(11)
-          .fontColor('#8A7B5C')
+          .fontColor('#A8986E')
         Blank()
         Text(this.head)
           .fontSize(12)

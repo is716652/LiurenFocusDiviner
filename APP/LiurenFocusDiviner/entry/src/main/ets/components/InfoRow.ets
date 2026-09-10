@@ -12,7 +12,7 @@ export struct InfoRow {
     Row() {
       Text(this.label)
         .fontSize(12)
-        .fontColor('#8A7B5C')
+        .fontColor('#A8986E')
       Blank()
       Text(this.value)
         .fontSize(13)

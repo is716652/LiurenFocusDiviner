@@ -300,20 +300,20 @@ struct Home {
         Blank()
         Text(this.dateStr())
           .fontSize(12)
-          .fontColor('#A8843C')
+          .fontColor('#C4A25C')
       }
       Row({ space: 20 }) {
         Row({ space: 8 }) {
           Text('‹')
             .fontSize(24)
-            .fontColor('#A8843C')
+            .fontColor('#C4A25C')
             .onClick(() => {
               this.changeYear(-1);
             })
           Column({ space: 2 }) {
             Text('年 · 点击输入')
               .fontSize(10)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
             if (this.yearEditing) {
               TextInput({ text: this.yearEditVal, placeholder: String(this.year) })
                 .type(InputType.Number)
@@ -345,7 +345,7 @@ struct Home {
           }
           Text('›')
             .fontSize(24)
-            .fontColor('#A8843C')
+            .fontColor('#C4A25C')
             .onClick(() => {
               this.changeYear(1);
             })
@@ -353,14 +353,14 @@ struct Home {
         Row({ space: 8 }) {
           Text('‹')
             .fontSize(24)
-            .fontColor('#A8843C')
+            .fontColor('#C4A25C')
             .onClick(() => {
               this.changeMonth(-1);
             })
           Column({ space: 2 }) {
             Text('月')
               .fontSize(10)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
             Text(String(this.month))
               .fontSize(16)
               .fontWeight(FontWeight.Medium)
@@ -368,7 +368,7 @@ struct Home {
           }
           Text('›')
             .fontSize(24)
-            .fontColor('#A8843C')
+            .fontColor('#C4A25C')
             .onClick(() => {
               this.changeMonth(1);
             })
@@ -390,7 +390,7 @@ struct Home {
           GridItem() {
             Text(h)
               .fontSize(11)
-              .fontColor(hi >= 5 ? '#A8843C' : '#8A7B5C')
+              .fontColor(hi >= 5 ? '#C4A25C' : '#A8986E')
               .textAlign(TextAlign.Center)
               .width('100%')
           }
@@ -411,11 +411,11 @@ struct Home {
                 .fontColor(this.dayNum(r) === this.day ? '#1A1410' : '#F0E6C8')
               Text(r.dg + r.dz)
                 .fontSize(9)
-                .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : '#8A7B5C')
+                .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : '#A8986E')
               if (r.st && r.st.length > 0) {
                 Text(r.st)
                   .fontSize(8)
-                  .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : '#A8843C')
+                  .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : '#C4A25C')
               } else {
                 Text(' ')
                   .fontSize(8)
@@ -455,7 +455,7 @@ struct Home {
         Blank()
         Text('子 23-01 · 午 11-13')
           .fontSize(10)
-          .fontColor('#6B5F45')
+          .fontColor('#A8986E')
       }
       Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
         ForEach(HOURS, (z: string) => {
@@ -522,7 +522,7 @@ struct Home {
         .margin({ left: 20, top: 24 })
       Text('月将加时 · 四课三传 · 神煞格局 · 读象研习')
         .fontSize(11)
-        .fontColor('#8A7B5C')
+        .fontColor('#A8986E')
         .letterSpacing(1)
         .margin({ left: 20, top: 4 })
       Divider()
@@ -536,7 +536,7 @@ struct Home {
 
           Text(this.ready ? '选择日期时辰后，点「排盘」进入盘面' : '正在载入历法数据…')
             .fontSize(11)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
             .textAlign(TextAlign.Center)
             .width('100%')
 
@@ -565,14 +565,14 @@ struct Home {
                   .fontColor('#F0D98C')
                 Text('保存的排盘记录，点击一键恢复重排')
                   .fontSize(10)
-                  .fontColor('#8A7B5C')
+                  .fontColor('#A8986E')
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
               Blank()
               Text('›')
                 .fontSize(22)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
             }
             .width('100%')
           }
@@ -600,14 +600,14 @@ struct Home {
                   .fontColor('#F0D98C')
                 Text('中黄五变经全文，目录与逐篇阅读')
                   .fontSize(10)
-                  .fontColor('#8A7B5C')
+                  .fontColor('#A8986E')
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
               Blank()
               Text('›')
                 .fontSize(22)
-                .fontColor('#6B5F45')
+                .fontColor('#A8986E')
             }
             .width('100%')
           }
@@ -623,7 +623,7 @@ struct Home {
           /* 引导页入口（回看开屏/引导） */
           Text('· 查看引导页 ·')
             .fontSize(11)
-            .fontColor('#6B5F45')
+            .fontColor('#A8986E')
             .letterSpacing(1)
             .textAlign(TextAlign.Center)
             .width('100%')

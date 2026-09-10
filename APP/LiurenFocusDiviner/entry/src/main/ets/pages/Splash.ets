@@ -113,7 +113,7 @@ struct Splash {
       Column({ space: 8 }) {
         Text('以炁为基 · 四课三传 · 神煞格局 · 读象研习')
           .fontSize(12)
-          .fontColor('#6B5F45')
+          .fontColor('#A8986E')
           .letterSpacing(2)
         /* 合规链接（暂不显示）：隐私政策 · 用户协议
            —— 华为已由平台托管隐私政策、用户协议非必填；代码与页面保留，开关 showLegalLinks 控制显示 */
@@ -121,16 +121,16 @@ struct Splash {
           Row({ space: 24 }) {
             Text('隐私政策')
               .fontSize(12)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
               .onClick(() => {
                 this.getUIContext().getRouter().pushUrl({ url: 'pages/Legal/PrivacyPolicy' });
               })
             Text('|')
               .fontSize(12)
-              .fontColor('#4A4030')
+              .fontColor('#A8986E')
             Text('用户协议')
               .fontSize(12)
-              .fontColor('#8A7B5C')
+              .fontColor('#A8986E')
               .onClick(() => {
                 this.getUIContext().getRouter().pushUrl({ url: 'pages/Legal/UserAgreement' });
               })
@@ -156,7 +156,7 @@ struct Splash {
     const cx = w / 2;
     const cy = h / 2;
     const gold = '#E9C878';
-    const dim = '#8A7448';
+    const dim = '#A8986E';
     const line = 'rgba(233,200,120,0.30)';
     ctx.clearRect(0, 0, w, h);
 

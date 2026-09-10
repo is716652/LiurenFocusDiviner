@@ -72,8 +72,8 @@ export struct PanDisk {
     const cy = h / 2;
     const gold = '#E9C878';
     const goldBright = '#F0D98C';
-    const dim = '#8A7448';
-    const faint = '#6B5F45';
+    const dim = '#A8986E';
+    const faint = '#A8986E';
     const cinnabar = '#C0704A';
     const line = 'rgba(233,200,120,0.30)';
     const kongList: string[] = c.dx.xunkong;
@@ -171,7 +171,7 @@ export struct PanDisk {
       ctx.arc(tx, ty, w * 0.032, 0, Math.PI * 2);
       ctx.fillStyle = isKong ? 'rgba(120,110,90,0.25)' : 'rgba(240,217,140,0.16)';
       ctx.fill();
-      ctx.fillStyle = isKong ? '#7A6E55' : goldBright;
+      ctx.fillStyle = isKong ? '#A8986E' : goldBright;
       ctx.font = fontPx(w * 0.06);
       ctx.fillText(tianPan, tx, ty);
 
@@ -264,7 +264,7 @@ export struct PanDisk {
         const rBS = w * 0.128;
         const bx = cx + rBS * Math.cos(ang);
         const by = cy + rBS * Math.sin(ang);
-        ctx.fillStyle = '#8A7448';
+        ctx.fillStyle = '#A8986E';
         ctx.font = fontPx(w * 0.026);
         ctx.fillText(LiurenCore.BENSHEN[gongZhi] || '', bx, by);
       }
@@ -335,7 +335,7 @@ export struct PanDisk {
     ctx.arc(cx, cy, w * 0.062, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(233,200,120,0.55)';
     ctx.fill();
-    ctx.fillStyle = '#8A7448';
+    ctx.fillStyle = '#A8986E';
     ctx.font = fontPx(w * 0.034);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
