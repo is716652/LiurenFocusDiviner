@@ -280,6 +280,20 @@ APP/screenshots_out/免费版下一版 2026-9-5
 - 释己身第一参证思路：丙寄巳 → 巳上申 → 申干不克丙 → 三传不克日 → 变干壬官鬼落戌旬空不入传，只作参证。
 - 非中黄源案例：中黄只作旁证，不压主断。
 
+### 剧情数据「一局多占」（2026-09-10 起，Web 原型已跑通）
+
+设计讨论稿：`大六壬文档/古籍案例剧情动态演进讨论稿.txt`（主线/支线、取证后揭断）。当前落地口径：
+
+- 真源：`APP/LiurenFocusDiviner/entry/src/main/resources/rawfile/ancient/case_story.json`，key = 案例 id（与 `case_gallery.json` 对齐）。
+- 网页导出：`python _tools/export_case_story_web.py` → `UI/_data/case_story.js`（`window.CASE_STORY`）。
+- 结构：`story = { brief, note, asks[] }`；`ask = { id, role:'original'|'derived', topic, title, badge, intro, question, clues[], goodWords[], endings[4], ending }`。
+- 线索锚点：`clue.anchors = [{kind, ref?, pos?}]`，kind 与证据链同一套，另增 `shensha`（ref = `支/神煞名`）。
+- 纪律：`original` 支线的 hint 只给盘面事实与古法通则，**不得抄录该案原文断语与应验**（原断留到「呈上断语」后揭，揭的是 `case_gallery.original`，剧情数据不复制原文）；`derived`（同课异占）只给取象清单与规则依据，`ending.note` 必写「非古籍原断」并加现实免责，`ending.text` 不得含结论。
+- 反验：`node _tests/_test_case_story.js`（锚点必须落到复算盘面 + 反抄录检测 + 合规 + 导出同步）、`node _tests/_test_case_story_web.js`（无头跑原型：每条线索都有点位可点、支线结算不泄露原文、切换支线复位、无剧情案例不崩）。
+- 已写剧情：`duanan_001_han_qixue`（原占祈雪 + 同课异占·占行人 + 同课异占·占远行，三支线）、`renzhan_jiazi_011_xue_xingren`（原占）。其余 43 案待补，每案按「1 条原占 + 2~3 条异占」扩。
+- 原型：`UI/壬案推演原型.html`（一局多占版）：卷宗 → 选占问方向 → 起盘 → 点盘取证 → 呈上断语。原型把「可点位」先登记进 `SURFACES` 再挂事件（数据先行），无头环境才能遍历校验；`protoSurfaces()/protoState()` 为测试钩子。
+- 待办（上架相关）：剧情数据将来只随收费版发布时，需在 `sync_free_edition.py` 侧确认免费包不带 `case_story.json`。
+
 ---
 
 ## 9. 工程命令
@@ -301,7 +315,10 @@ node --check core/liuren-core.js
 ### 案例反验
 
 ```powershell
-node _tests/_test_ancient_gallery.js
+node _tests/_test_ancient_gallery.js       # 45 案：expect 复算比对 + 证据链锚点
+node _tests/_test_case_story.js            # 剧情数据：锚点 + 反抄录 + 口径 + 导出同步
+python _tools/export_case_story_web.py     # 改完 case_story.json 后必须重导（测试会查同步）
+node _tests/_test_case_story_web.js        # 无头跑原型：点位可达性 / 结算不泄露原文
 ```
 
 ### 排盘规则反验（天将顺逆 / 昴星 / 九宗门，2026-09-10 新增）

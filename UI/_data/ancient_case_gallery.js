@@ -25,7 +25,7 @@ window.ANCIENT_CASES=[
         "午"
       ],
       "chuanGz": [
-        "甲戌",
+        "戌",
         "壬申",
         "庚午"
       ],
@@ -175,7 +175,8 @@ window.ANCIENT_CASES=[
     ],
     "topics": [
       "来意"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "zhonghuang_c1_shen_body",
@@ -202,14 +203,14 @@ window.ANCIENT_CASES=[
         "寅"
       ],
       "chuanGz": [
-        "丙申",
-        "己亥",
-        "庚寅"
+        "壬申",
+        "亥",
+        "丙寅"
       ],
       "chuanJiang": [
-        "天后",
-        "朱雀",
-        "青龙"
+        "螣蛇",
+        "太阴",
+        "白虎"
       ],
       "xunkong": [
         "戌",
@@ -226,124 +227,311 @@ window.ANCIENT_CASES=[
         "bianInChuan": ""
       }
     },
-    "original": "课体涉害，三传申亥寅。驿马乘天后临身，朱雀入关，青龙入末。",
-    "summary": "己身以干上申为动象，初传申乘天后主身动而有私门之事；中传亥乘朱雀主音信文书；末传寅乘青龙为解神，终归有解。",
+    "original": "此课地支，复见天上日，丙申，丙临，丙，天上丙寄宫巳临寅，入庙兼带财还家，盖日上申，遁得下吉神吉将，是以所求成遂得安宁。亦所行有财禄，故日上日辰上下，俱吉即吉，俱凶即凶。又三传不剋日，凡事幹求遂心称意，更无凶。依此断之。",
+    "summary": "涉害课，三传申亥寅。经文断意：天上丙寄宫巳临寅，为“入庙兼带财还家”；日上申遁得吉神吉将，三传不克日，故所求成遂、所行有财禄。程序复算：初传申乘螣蛇（凶将，申为寅日驿马）、中传亥乘太阴、末传寅乘白虎（寅为丙火长生），中传亥落旬空。",
     "chain": [
-      "课体：涉害课，事从艰难中出。",
-      "事类：干上申为驿马，临丙干，身动之象。",
-      "天将：初传天后、中传朱雀、末传青龙，先私后文书，终得青龙之解。",
-      "盘态：丙寅日子月，日干囚；旬空戌亥，中传亥空，音信先虚后实。"
+      "课体：涉害课，事从艰难中出；四课三传与经文课式表一致（申亥寅）。",
+      "事类：初传申为寅日驿马（寅午戌马在申），临日干丙上，身动而有财禄之象；经文云“天上丙寄宫巳临寅，入庙兼带财还家”。",
+      "天将：丙日戌时用夜贵酉，落午宫逆布；初传申乘螣蛇、中传亥乘太阴、末传寅乘白虎（经文未逐传标将）。",
+      "盘态：丙寅日子月，日干囚；旬空戌亥，中传亥落空——三传中唯一克日者既空，故经文曰三传不剋日，凡事幹求遂心。",
+      "存疑：经文云“日上申，遁得下吉神吉将”，而按标准十二天将复算初传申乘螣蛇（凶将）；中黄另有两套天神排法（见《日干遁与时干遁下的两套天神排法》），此语或指中黄天神系统，两存待考。"
     ],
     "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
     "topics": [
       "己身"
-    ]
+    ],
+    "routes": [
+      "base",
+      "duxiang",
+      "zhonghuang"
+    ],
+    "focus": {
+      "hour": "戌",
+      "bianGong": "戌",
+      "chuan": [
+        "申",
+        "亥",
+        "寅"
+      ]
+    },
+    "reasoning": [
+      {
+        "claim": "己身主断：所求成遂、有财禄，三传不克日则无凶",
+        "route": "base",
+        "role": "main",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "申",
+            "why": "初传申为寅日驿马，临日干丙上，主身动；经文云日上申遁得吉神吉将"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "申/螣蛇",
+            "why": "初传申乘螣蛇，凶将主虚惊怪异，故动中带惊，须以入庙带财与三传不克日为主断"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "亥/太阴",
+            "why": "中传亥乘太阴，主隐曲暗昧、文书在中段"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "寅/白虎",
+            "why": "末传寅乘白虎，而寅为丙火长生之地，末传生我，凶中带解"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "亥",
+            "why": "中传亥落旬空（戌亥空），三传中唯一克日之亥既空，故经文曰三传不剋日"
+          },
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "涉害",
+            "why": "涉害课，事从艰难中出，故动而不顺"
+          }
+        ]
+      },
+      {
+        "claim": "中黄参证：官鬼壬落戌宫而空，不克己身",
+        "route": "zhonghuang",
+        "role": "cross",
+        "evidence": [
+          {
+            "view": "zhonghuang",
+            "kind": "shiGan",
+            "ref": "戊",
+            "why": "丙日戌时，时干遁得戊"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "bianGan",
+            "ref": "壬",
+            "why": "时干遁盘占时支戌上得壬，壬为日干丙之官鬼"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "gong",
+            "ref": "戌",
+            "why": "变干壬落戌宫，戌亦在旬空（戌亥空），官鬼现而力虚"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "hour",
+            "ref": "戌",
+            "why": "占时戌为先锋门，变干之宫即占时之宫，官鬼之动在事端之初"
+          }
+        ]
+      }
+    ],
+    "dunKouJing": "xun",
+    "chapterNo": 1
   },
   {
-    "id": "zhonghuang_c8_1_fuguan_zhengui",
-    "title": "释复建真鬼：十一月将庚子日申时",
+    "id": "zhonghuang_c13_1_fuguan_zhengui",
+    "title": "释复建真鬼：十一月（丑）将庚子日申时",
     "source": "中黄五变经",
     "chapter": "释复建真鬼",
     "input": {
-      "mj": "子",
+      "mj": "丑",
       "dg": "庚",
       "dz": "子",
       "hour": "申",
-      "monthZhi": "亥"
+      "monthZhi": "子"
     },
     "expect": {
       "kegs": [
-        "子/庚",
-        "辰/子",
-        "辰/子",
-        "申/辰"
+        "丑/庚",
+        "午/丑",
+        "巳/子",
+        "戌/巳"
       ],
       "chuans": [
-        "辰",
-        "申",
-        "子"
+        "巳",
+        "戌",
+        "卯"
       ],
       "chuanGz": [
-        "庚辰",
-        "甲申",
-        "丙子"
+        "辛巳",
+        "丙戌",
+        "己卯"
       ],
       "chuanJiang": [
+        "太常",
         "六合",
-        "白虎",
-        "天后"
+        "太阴"
       ],
       "xunkong": [
         "辰",
         "巳"
       ],
-      "dayWangShuai": "囚",
-      "monthZhi": "亥",
-      "method": "涉害",
+      "dayWangShuai": "死",
+      "monthZhi": "子",
+      "method": "重审",
       "zhonghuang": {
         "shiGan": "甲",
         "bianGan": "壬",
         "bianGong": "申",
         "bianLq": "子孙",
-        "bianInChuan": "中传"
+        "bianInChuan": ""
       }
     },
-    "original": "三传辰申子，初传六合临辰，中传白虎临申，末传天后临子。",
-    "summary": "复建真鬼以辰为初传，辰戌丑未为墓地结绝；中传申乘白虎为刑杀动象，末传子乘天后为润下，先合后战，终归阴私。",
+    "original": "此课是遁得庚辰，辰上得乙酉，故曰建合，是夫妇相见。单丙不敢克庚，故以一鬼不能克夫妇二位，若两处见丙，丙却克庚有理，旧注谓：两处是二心，夫妇相见一心，故不敢为庚鬼，是以却取丙辛上下合处为鬼，丙便克庚，辛克乙，此课中传戌临巳，戌得丙戌，又初传巳临子，初传太常，中传六合，其课乃建合，亦有辛，子中亦有丙，初传太常，中传六合，其课乃建合，鬼复克今日上下，酒食和合上官事矣。其理犹未尽，依果园子先生异变经解其理，日上之神与今日合即为己身，不合则不是己身。以建合干就日上合，名曰合神，若合处却有暗下克上，即为凶，上克下，即为平矣。若战克两停，取旺为主矣。",
+    "summary": "重审课，三传巳戌卯（与经文13 课式表一致）。经文断意：日干遁得庚辰、辰上得乙酉，乙庚相合，故曰建合（夫妇相见）；取丙辛上下合处为鬼，初传太常、中传六合，主酒食和合、上官事。程序复算：末传卯乘太阴；初传巳落旬空（辰巳空）。",
     "chain": [
-      "课体：涉害，事由逼近而成。",
-      "事类：初传辰为墓地，乘六合，主结交中藏结绝。",
-      "过程：中传申乘白虎，金气刑杀，动中见战。",
-      "转归：末传子乘天后，水局润下，事归阴私隐秘。"
+      "课体：重审课（下贼上发用），三传巳戌卯；四课三传与经文13 课式表逐项一致。",
+      "事类：经文13 以“建合”立断——日干遁得庚辰、辰上得乙酉，乙庚相合为夫妇相见；取丙辛上下合处为鬼，主酒食和合、上官事。",
+      "天将：庚日申时昼占，贵人丑落申宫逆布；初传巳乘太常、中传戌乘六合——与经文断语“初传太常，中传六合”相合；末传卯乘太阴（经文未标末传将）。",
+      "遁干：本盘三传遁干依经文原样用日干遁（五子元遁），得辛巳/丙戌/己卯，与经文13 课式表所标（辛、丙）一致，经文末传遁干原阙；此案口径标记 dunKouJing=rigan，其余各案默认旬遁。",
+      "盘态：庚子日子月，日干死；旬空辰巳，初传巳落空，故和合之事吉处带虚。"
     ],
     "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
     "topics": [
       "复建"
-    ]
+    ],
+    "routes": [
+      "base",
+      "zhonghuang"
+    ],
+    "focus": {
+      "hour": "申",
+      "bianGong": "申",
+      "chuan": [
+        "巳",
+        "戌",
+        "卯"
+      ]
+    },
+    "reasoning": [
+      {
+        "claim": "复建真鬼主断（依经文13）：建合之课，主酒食和合、上官事",
+        "route": "base",
+        "role": "main",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "重审",
+            "why": "重审课，下贼上发用，事自下起；经文13 取建合、合处之鬼立断"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "巳",
+            "why": "初传巳临子（经文课式表同），巳为丙火之禄位，亦为鬼合之处"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "巳/太常",
+            "why": "初传巳乘太常——经文断语明标“初传太常”，太常主酒食、衣冠、和合"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "戌/六合",
+            "why": "中传戌乘六合——经文断语明标“中传六合”，六合主和合成事"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "卯/太阴",
+            "why": "末传卯乘太阴，归宿偏于隐曲暗昧（经文未标末传将）"
+          },
+          {
+            "view": "base",
+            "kind": "xunkong",
+            "ref": "巳",
+            "why": "初传巳落旬空（辰巳空），和合之始带虚，须防落空"
+          }
+        ]
+      },
+      {
+        "claim": "中黄参证：变干壬为子孙落申宫，不入三传",
+        "route": "zhonghuang",
+        "role": "cross",
+        "evidence": [
+          {
+            "view": "zhonghuang",
+            "kind": "shiGan",
+            "ref": "甲",
+            "why": "庚日申时，时干遁得甲"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "bianGan",
+            "ref": "壬",
+            "why": "时干遁盘占时支申上得壬，壬为日干庚之子孙"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "gong",
+            "ref": "申",
+            "why": "变干壬落申宫，子孙之气在申，但申不入本课三传，只作参证"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "hour",
+            "ref": "申",
+            "why": "占时申为先锋门，变干之宫即占时之宫，子孙之气发于事端之初"
+          }
+        ]
+      }
+    ],
+    "dunKouJing": "rigan",
+    "chapterNo": 13
   },
   {
-    "id": "zhonghuang_c10_5_guansong",
-    "title": "释官讼门：壬子人十一月将癸卯日卯时",
+    "id": "zhonghuang_c16_1_guansong",
+    "title": "释官讼门：壬子人十一月（丑）将癸卯日卯时",
     "source": "中黄五变经",
     "chapter": "释官讼门",
     "input": {
-      "mj": "子",
+      "mj": "丑",
       "dg": "癸",
       "dz": "卯",
       "hour": "卯",
       "yearGan": "壬",
       "yearZhi": "子",
-      "monthZhi": "亥"
+      "monthZhi": "子"
     },
     "expect": {
       "kegs": [
-        "戌/癸",
-        "未/戌",
-        "子/卯",
-        "酉/子"
+        "亥/癸",
+        "酉/亥",
+        "丑/卯",
+        "亥/丑"
       ],
       "chuans": [
-        "戌",
-        "未",
-        "辰"
+        "亥",
+        "酉",
+        "未"
       ],
       "chuanGz": [
-        "壬戌",
-        "己未",
-        "丙辰"
+        "己亥",
+        "丁酉",
+        "乙未"
       ],
       "chuanJiang": [
-        "青龙",
-        "朱雀",
-        "天后"
+        "天空",
+        "太常",
+        "太阴"
       ],
       "xunkong": [
         "辰",
         "巳"
       ],
       "dayWangShuai": "旺",
-      "monthZhi": "亥",
-      "method": "元首",
+      "monthZhi": "子",
+      "method": "涉害",
       "zhonghuang": {
         "shiGan": "乙",
         "bianGan": "己",
@@ -352,126 +540,323 @@ window.ANCIENT_CASES=[
         "bianInChuan": ""
       }
     },
-    "original": "元首课，三传戌未辰。初传青龙临戌，中传朱雀临未，末传天后临辰。",
-    "summary": "官讼以朱雀为口舌文书，入中传而未土；初传戌乘青龙主事端有名分之争，末传辰乘天后而旬空，讼势虽起而终陷虚空。",
+    "original": "此课初传丑为勾陈，加卯建得癸丑为木临门，正是勾陈带木克日也，合有官事凶。中传亥加丑为天空，末传酉加亥为太常，又本命上戌加子为白虎，壬戌加壬子，正是白虎坐壬，又为贵神克日，此课止合前言事凶，谓癸丑初传是天上日辰，主十日见大凶，戌日最恶。此法秘之。",
+    "summary": "涉害课，三传亥酉未（程序复算）。经文16 课例断意：初传丑为勾陈、加卯得癸丑为木临门，正是勾陈带木克日，合有官事凶；中传亥加丑为天空，末传酉加亥为太常，本命上白虎坐壬，主十日见大凶。本盘四课与经文课式表一致，惟涉害深浅取亥发用，与经文取丑有异，存疑对读。",
     "chain": [
-      "课体：元首，事由上起，名分先立。",
-      "事类：中传朱雀临未，文书口舌进入事中。",
-      "转归：末传辰旬空，乘天后，官讼终归虚耗。",
-      "盘态：癸日子月旺，能任其争；辰巳空，末传落空。"
+      "课体：涉害课；四课亥/癸、酉/亥、丑/卯、亥/丑与经文16 课式表逐项一致。",
+      "存疑对读：经文16 三传作丑亥酉（发用丑，勾陈带木克日），本盘涉害深浅取亥发用、三传亥酉未；经文“中传亥乘天空、末传酉乘太常”两处天将与复算一致，仅发用深浅有别，两存不硬合。",
+      "事类：经文以勾陈带木克日定官事之凶，并推“癸丑初传是天上日辰，主十日见大凶，戌日最恶”。",
+      "天将：癸日卯时昼占，贵人巳落未宫逆布；本盘初传亥乘天空、中传酉乘太常、末传未乘太阴。",
+      "盘态：癸卯日子月，日干旺；旬空辰巳——讼势虽起，空亡在内，事多虚而不实。"
     ],
     "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
     "topics": [
       "官讼"
-    ]
+    ],
+    "routes": [
+      "base",
+      "duxiang",
+      "zhonghuang"
+    ],
+    "focus": {
+      "hour": "卯",
+      "bianGong": "卯",
+      "chuan": [
+        "亥",
+        "酉",
+        "未"
+      ],
+      "yearZhi": "子"
+    },
+    "reasoning": [
+      {
+        "claim": "官讼主断：勾陈带木克日，合有官事凶；本盘发用另取，存疑对读",
+        "route": "base",
+        "role": "main",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "keg",
+            "ref": "亥/癸",
+            "why": "第一课亥加癸上（经文课式表同），日干癸水临亥得比和之气"
+          },
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "涉害",
+            "why": "涉害课，事由艰难而起；经文16 断语“初传丑为勾陈…正是勾陈带木克日也，合有官事凶”"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "亥",
+            "why": "本盘涉害取亥发用（经文课例作丑发用，两存待考）"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "亥/天空",
+            "why": "初传亥乘天空——经文16 亦载“中传亥加丑为天空”，天空主虚诈、文书落空"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "酉/太常",
+            "why": "中传酉乘太常——经文16 载“末传酉加亥为太常”，太常主官家文书、衣冠酒食（经文作末传，本盘作中传）"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "未/太阴",
+            "why": "末传未乘太阴，讼事归宿偏于阴私暗昧"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "旺",
+            "why": "癸卯日子月，日干旺，主事者气盛而讼不易速解"
+          }
+        ]
+      },
+      {
+        "claim": "中黄参证：变干己为官鬼落卯宫，助攻讼之势",
+        "route": "zhonghuang",
+        "role": "cross",
+        "evidence": [
+          {
+            "view": "zhonghuang",
+            "kind": "shiGan",
+            "ref": "乙",
+            "why": "癸日卯时，时干遁得乙"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "bianGan",
+            "ref": "己",
+            "why": "时干遁盘占时支卯上得己，己土为日干癸水之官鬼"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "gong",
+            "ref": "卯",
+            "why": "变干己落卯宫，官鬼之气在门户（卯为门），与经文“木临门”之说同向"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "hour",
+            "ref": "卯",
+            "why": "占时卯为先锋门，变干之宫即占时之宫"
+          }
+        ]
+      }
+    ],
+    "dunKouJing": "xun",
+    "chapterNo": 16
   },
   {
-    "id": "zhonghuang_c12_1_wangdao",
-    "title": "释占亡盗门：乙亥生人十一月将乙未日卯时",
+    "id": "zhonghuang_c18_1_wangdao",
+    "title": "释占亡盗门：乙亥生人十一月（丑）将乙未日卯时",
     "source": "中黄五变经",
     "chapter": "释占亡盗门",
     "input": {
-      "mj": "子",
+      "mj": "丑",
       "dg": "乙",
       "dz": "未",
       "hour": "卯",
       "yearGan": "乙",
       "yearZhi": "亥",
-      "monthZhi": "亥"
+      "monthZhi": "子"
     },
     "expect": {
       "kegs": [
-        "丑/乙",
-        "戌/丑",
-        "辰/未",
-        "丑/辰"
+        "寅/乙",
+        "子/寅",
+        "巳/未",
+        "卯/巳"
       ],
       "chuans": [
-        "丑",
-        "戌",
-        "未"
+        "亥",
+        "寅",
+        "巳"
       ],
       "chuanGz": [
-        "丁丑",
-        "丙戌",
-        "癸未"
+        "己亥",
+        "壬寅",
+        "巳"
       ],
       "chuanJiang": [
-        "螣蛇",
-        "太阴",
-        "白虎"
+        "天后",
+        "朱雀",
+        "青龙"
       ],
       "xunkong": [
         "辰",
         "巳"
       ],
       "dayWangShuai": "相",
-      "monthZhi": "亥",
-      "method": "重审",
+      "monthZhi": "子",
+      "method": "昴星",
       "zhonghuang": {
         "shiGan": "己",
         "bianGan": "丁",
         "bianGong": "卯",
         "bianLq": "子孙",
         "bianInChuan": ""
-      }
+      },
+      "keti": "昴星·冬蛇掩目"
     },
-    "original": "重审课，三传丑戌未。初传螣蛇临丑，中传太阴临戌，末传白虎临未。",
-    "summary": "亡盗取玄武类神不现，而见太阴、白虎分守中末；丑戌未三传相刑，主失物因内部刑害而起，终见肃杀。",
+    "original": "亥加丑为初传天后，中传寅加辰朱雀，末传巳加未青龙，主财帛事。谓巳元遁辛合破财，更本命是亥，酉加亥是玄武克日，见青龙、玄武克日，主贼人来破财，虽末传巳火克得酉金，其贼东南上去被女人告许捕捉合败，却为初传是亥水，十一月水旺却克巳火，酉在亥上是金入水中，是以其贼却不败也。若问其贼何处住家？何方来？何方去？老少依课断其贼是西北上来。何谓也？经云：玄武之后为贼来路，谓坐酉也。戌是西北，故言自戌上来。其贼西北去为武酉临亥，亥是西北，故云亥上去也。贼住家在正西，为是酉，酉是西，贼偷赃出西北，往戌地上去，便回酉地还家也，更不往别方去，谓玄武不行绝地，避贵神还家也。其贼人年中岁，或属鸡，为玄武坐酉也。今日以巳为财，后得巳酉，名曰玄武就财，故财与贼俱难败。客曰：问贼去远近？经曰：酉六，亥四，四六共通十数也；酉中遁得乙八，亥中遁得丁六，又八六共通十四也，共计二十四里，为酉亥无气，合正西二百四十步寻之。问贼住处有何物近甚的？经曰：贼住家院前有林木，后有水。取玄武初临下神为前，酉临亥，亥是水，是水木也，玄武支酉为后也。玄武是酉，酉是金，金生水，故云院后有水。玄武坐酉，酉是金，金生水，水生木，故云林木也。乙是木，又生火，主窑冶，丁主火，火生土，土为平田地，土却生金，主岗岭。若五行衰败又别论。假令玄武是",
+    "summary": "昴星·冬蛇掩目（柔日昴星，取天盘酉下神亥为初传），三传亥寅巳，与经文18 课式表及天盘环列图完全一致。经文断意：亥加丑为初传天后、中传寅加辰朱雀、末传巳加未青龙，主财帛事；玄武（酉加亥）克日，主贼人来破财，贼自西北来、往西北去，终难败。",
     "chain": [
-      "课体：重审，事多反覆审度。",
-      "事类：初传丑乘螣蛇，虚惊暗昧；中传戌乘太阴，阴私藏匿。",
-      "转归：末传未乘白虎，肃杀见伤，失脱难全。",
-      "盘态：乙日子月相，辰巳空，支上辰空，藏处不实。"
+      "课体：四课无贼克、无遥克，柔日昴星——冬蛇掩目，初传取天盘酉下神（亥）；四课寅/乙、子/寅、巳/未、卯/巳与经文18 课式表一致。",
+      "天将：乙日卯时昼占（昼贵子），贵人落寅宫顺布；初传亥乘天后、中传寅乘朱雀、末传巳乘青龙——与经文18 天盘环列图“亥天后、寅朱雀、巳青龙”逐项一致。",
+      "遁干口径：三传按旬遁配干，得己亥/壬寅/（末传巳空，本旬无干）——与经文18 课式图所标「己、壬、（原阙）」逐项一致（App 三传干支＝旬遁，为传统层默认）。",
+      "事类：经文以“玄武坐酉、酉加亥”定贼之来去——贼自西北来、往西北去，住家在正西，与课断方位、里程（酉六亥四，二十四里）相参。",
+      "盘态：乙未日子月，日干相（木得相气）；旬空辰巳。"
     ],
     "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
     "topics": [
       "亡盗"
-    ]
+    ],
+    "routes": [
+      "base",
+      "duxiang",
+      "zhonghuang"
+    ],
+    "focus": {
+      "hour": "卯",
+      "bianGong": "卯",
+      "chuan": [
+        "亥",
+        "寅",
+        "巳"
+      ],
+      "yearZhi": "亥"
+    },
+    "reasoning": [
+      {
+        "claim": "亡盗主断：玄武克日主破财，贼在西北而终难败（依经文18）",
+        "route": "base",
+        "role": "main",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "昴星",
+            "why": "四课无贼克无遥克，柔日为冬蛇掩目，取天盘酉下神发用（经文18“玄武不行绝地，避贵神还家”即本课之玄武坐酉）"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "亥",
+            "why": "初传亥即天盘酉下神；经文云“亥加丑为初传天后”"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "亥/天后",
+            "why": "初传亥乘天后——与经文环列“亥天后”一致，天后主阴私、女人"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "寅/朱雀",
+            "why": "中传寅乘朱雀——与经文环列“寅朱雀”一致，主音信文书在中段"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "巳/青龙",
+            "why": "末传巳乘青龙——与经文环列“巳青龙”一致；经文云“主财帛事”，青龙主财帛"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "相",
+            "why": "乙未日子月，日干乙木得相气，主人气未衰，故贼虽现而财与贼俱难败"
+          }
+        ]
+      },
+      {
+        "claim": "中黄参证：变干丁为子孙落卯宫，不入三传",
+        "route": "zhonghuang",
+        "role": "cross",
+        "evidence": [
+          {
+            "view": "zhonghuang",
+            "kind": "shiGan",
+            "ref": "己",
+            "why": "乙日卯时，时干遁得己"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "bianGan",
+            "ref": "丁",
+            "why": "时干遁盘占时支卯上得丁，丁火为日干乙木之子孙"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "gong",
+            "ref": "卯",
+            "why": "变干丁落卯宫，子孙之气在卯，但卯不入本课三传，只作参证"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "hour",
+            "ref": "卯",
+            "why": "占时卯为先锋门，变干之宫即占时之宫"
+          }
+        ]
+      }
+    ],
+    "dunKouJing": "xun",
+    "chapterNo": 18
   },
   {
-    "id": "zhonghuang_c14_1_yuanxing",
-    "title": "释占远行近出：癸丑生人行年丁亥十一月将甲午日寅时",
+    "id": "zhonghuang_c20_1_yuanxing",
+    "title": "释占远行近出：癸丑生人行年丁亥十一月（丑）将甲午日寅时",
     "source": "中黄五变经",
     "chapter": "释占远行近出",
     "input": {
-      "mj": "子",
+      "mj": "丑",
       "dg": "甲",
       "dz": "午",
       "hour": "寅",
       "yearGan": "癸",
       "yearZhi": "丑",
-      "monthZhi": "亥"
+      "monthZhi": "子"
     },
     "expect": {
       "kegs": [
-        "子/甲",
-        "戌/子",
-        "辰/午",
-        "寅/辰"
+        "丑/甲",
+        "子/丑",
+        "巳/午",
+        "辰/巳"
       ],
       "chuans": [
-        "戌",
-        "申",
-        "午"
+        "子",
+        "亥",
+        "戌"
       ],
       "chuanGz": [
-        "甲戌",
-        "壬申",
-        "庚午"
+        "庚子",
+        "己亥",
+        "戊戌"
       ],
       "chuanJiang": [
-        "六合",
-        "螣蛇",
-        "天后"
+        "白虎",
+        "太常",
+        "玄武"
       ],
       "xunkong": [
         "辰",
         "巳"
       ],
       "dayWangShuai": "相",
-      "monthZhi": "亥",
-      "method": "涉害",
+      "monthZhi": "子",
+      "method": "比用",
       "zhonghuang": {
         "shiGan": "丙",
         "bianGan": "庚",
@@ -480,19 +865,113 @@ window.ANCIENT_CASES=[
         "bianInChuan": ""
       }
     },
-    "original": "三传戌申午，初传六合临戌，中传螣蛇临申，末传天后临午。",
-    "summary": "远行看道路与驿马：初传戌乘六合主出行有伴，中传申乘螣蛇主道路虚惊，末传午乘天后主归处阴私；申子辰水局暗动，行而有阻。",
+    "original": "此课本命子临丑，行年亥临子，其人正北作客去，自西北还家。何谓正北去？故经云行年临处为去，方位合正北去，由西北还家。问有无财帛？其人无财。谓何？三传行年本命日上没财，却为玄武克行年日干，是以无财也。问在外行有无病患？无病。谓何？行年立处，不见白虎克行年之道，是以无病。问多少远近？行二千六十里还家。谓何？行年上下相乘，得五十三数，占远行人，十则言百，得五十三数，作五百三十里。谓亥加子，冬至十一月水旺，旺则便加一倍，是一千六十里；又将虚得干数加入一千，通是二千六十里。问便有何阻隔？无阻。谓何？为行年日上不见关隔也。若见关隔者，是何隔者？若是玄武，主河水隔。若见六合、太阴、天后，被妇人隔。见白虎、天空，是病隔。若见勾陈、朱雀，是官事隔。若见青龙，财物隔。若见贵人，是山岭隔。若见太常，是道路隔。何年月日还家？子年二月、四月快来。谓十一月、十二月，天马信神临卯，卯主二月内有信来，人来为卯处之门后；辰临巳，其辰为十一月，游神入巳，主人动于四月建巳。问何日到家？看生今日辰者，到家日期也。",
+    "summary": "比用课，三传子亥戌，与经文20 课式表一致。经文断意：本命子临丑、行年亥临子，主人正北作客去、自西北还家；三传行年本命日上无财，玄武又克行年日干，故无财；行年立处不见白虎克之，故在外无病；行程二千六十里，通途无阻。程序复算：初传子乘白虎、中传亥乘太常、末传戌乘玄武（原书环列“戌下注玄武”）。",
     "chain": [
-      "课体：涉害，行途多阻。",
-      "事类：初传戌为足，乘六合，出行结伴。",
-      "过程：中传申为道路，乘螣蛇，途中虚惊缠绕。",
-      "转归：末传午乘天后，归处近水阴私。",
-      "盘态：甲午日子月相，辰巳空，支上午上辰空，行期多改。"
+      "课体：比用课，三传子亥戌；四课丑/甲、子/丑、巳/午、辰/巳与经文20 课式表逐项一致。",
+      "天将：甲日寅时夜占（夜贵未），贵人落申宫逆布；末传戌乘玄武——与原书环列“戌下注玄武”及按语“未贵人、申天后、酉太阴”相合。",
+      "事类：经文以行年立处定去方（正北）、以行年上下相乘定里程（二千六十里）、以不见关隔定无阻；又“若是玄武，主河水隔”，本课玄武在传，故有水隔之象。",
+      "盘态：甲午日子月，日干相（木得相气）；旬空辰巳，课内无空亡落传，行程之象落实。",
+      "参证：三传行年本命日上无财，末传戌乘玄武克行年日干，经文断“其人无财”，与盘面一致。"
     ],
     "compliance": "以上为古籍术数案例的程序化复原与断法链路整理，仅供传统文化与算法研习参考，不构成现实判断、医疗法律或投资建议。",
     "topics": [
       "远行"
-    ]
+    ],
+    "routes": [
+      "base",
+      "duxiang",
+      "zhonghuang"
+    ],
+    "focus": {
+      "hour": "寅",
+      "bianGong": "寅",
+      "chuan": [
+        "子",
+        "亥",
+        "戌"
+      ],
+      "yearZhi": "丑"
+    },
+    "reasoning": [
+      {
+        "claim": "远行主断：行人在外无财、无病，自西北还家（依经文20）",
+        "route": "base",
+        "role": "main",
+        "evidence": [
+          {
+            "view": "base",
+            "kind": "method",
+            "ref": "比用",
+            "why": "比用课，三传子亥戌；经文20 此课为“癸丑生人，行年丁亥，十一月将甲午日寅时”"
+          },
+          {
+            "view": "base",
+            "kind": "chuan",
+            "pos": "初传",
+            "ref": "子",
+            "why": "初传子为北方、又为道路之神；经文云“行年临处为去，方位合正北去”"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "子/白虎",
+            "why": "初传子乘白虎，主道路惊险；经文以“行年立处不见白虎克行年之道”断在外无病，本课白虎在初传而非克行年，两说并存"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "亥/太常",
+            "why": "中传亥乘太常；经文以“见太常是道路隔”取象，太常主道路酒食，人中段而滞于途"
+          },
+          {
+            "view": "base",
+            "kind": "jiang",
+            "ref": "戌/玄武",
+            "why": "末传戌乘玄武（原书环列“戌下注玄武”）；经文云“玄武克行年日干，是以无财”，又“若是玄武，主河水隔”"
+          },
+          {
+            "view": "base",
+            "kind": "dayWangShuai",
+            "ref": "相",
+            "why": "甲午日子月，日干甲木得相气，行人本身有气，故虽无财而无病"
+          }
+        ]
+      },
+      {
+        "claim": "中黄参证：变干庚为官鬼落寅宫，不入三传",
+        "route": "zhonghuang",
+        "role": "cross",
+        "evidence": [
+          {
+            "view": "zhonghuang",
+            "kind": "shiGan",
+            "ref": "丙",
+            "why": "甲日寅时，时干遁得丙"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "bianGan",
+            "ref": "庚",
+            "why": "时干遁盘占时支寅上得庚，庚金为日干甲木之官鬼"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "gong",
+            "ref": "寅",
+            "why": "变干庚落寅宫，官鬼之气在东北，但寅不入本课三传，只作参证"
+          },
+          {
+            "view": "zhonghuang",
+            "kind": "hour",
+            "ref": "寅",
+            "why": "占时寅为先锋门，变干之宫即占时之宫"
+          }
+        ]
+      }
+    ],
+    "dunKouJing": "xun",
+    "chapterNo": 20
   },
   {
     "id": "renzhan_jiazi_006_shao_shengshi",
@@ -660,7 +1139,8 @@ window.ANCIENT_CASES=[
     ],
     "topics": [
       "省试"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_jiazi_011_xue_xingren",
@@ -690,7 +1170,7 @@ window.ANCIENT_CASES=[
       ],
       "chuanGz": [
         "壬申",
-        "乙亥",
+        "亥",
         "丙寅"
       ],
       "chuanJiang": [
@@ -811,7 +1291,8 @@ window.ANCIENT_CASES=[
     ],
     "topics": [
       "行人"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_jiazi_013_shao_liunian",
@@ -842,7 +1323,7 @@ window.ANCIENT_CASES=[
       "chuanGz": [
         "甲子",
         "己巳",
-        "甲戌"
+        "戌"
       ],
       "xunkong": [
         "戌",
@@ -945,7 +1426,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "流年",
       "官讼"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_jiazi_016_shao_yibing",
@@ -1083,7 +1565,8 @@ window.ANCIENT_CASES=[
     ],
     "topics": [
       "疾病"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_jiazi_017_wang_jibing",
@@ -1112,7 +1595,7 @@ window.ANCIENT_CASES=[
         "寅"
       ],
       "chuanGz": [
-        "甲戌",
+        "戌",
         "庚午",
         "丙寅"
       ],
@@ -1223,7 +1706,8 @@ window.ANCIENT_CASES=[
     ],
     "topics": [
       "疾病"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_jiazi_002_xu_laiyi",
@@ -1334,7 +1818,7 @@ window.ANCIENT_CASES=[
         "午"
       ],
       "chuanGz": [
-        "甲戌",
+        "戌",
         "壬申",
         "庚午"
       ],
@@ -1355,7 +1839,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "来意",
       "疾病"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_jiazi_004_shao_jibing",
@@ -1465,7 +1950,7 @@ window.ANCIENT_CASES=[
         "午"
       ],
       "chuanGz": [
-        "甲戌",
+        "戌",
         "壬申",
         "庚午"
       ],
@@ -1491,7 +1976,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "疾病"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_jiazi_005_fanli_wuwang",
@@ -1621,7 +2107,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "疾病"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_yichou_021_chen_huishi",
@@ -1739,9 +2226,9 @@ window.ANCIENT_CASES=[
         "酉"
       ],
       "chuanGz": [
-        "辛巳",
-        "丁丑",
-        "乙酉"
+        "己巳",
+        "乙丑",
+        "癸酉"
       ],
       "chuanJiang": [
         "青龙",
@@ -1764,7 +2251,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "会试"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_yichou_022_shao_liujia",
@@ -1878,9 +2366,9 @@ window.ANCIENT_CASES=[
         "未"
       ],
       "chuanGz": [
-        "丁亥",
-        "乙酉",
-        "癸未"
+        "亥",
+        "癸酉",
+        "辛未"
       ],
       "chuanJiang": [
         "天后",
@@ -1903,7 +2391,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "生产"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_yichou_024_xu_laiyi",
@@ -2020,9 +2509,9 @@ window.ANCIENT_CASES=[
         "戌"
       ],
       "chuanGz": [
-        "丙子",
-        "丁亥",
-        "丙戌"
+        "甲子",
+        "亥",
+        "戌"
       ],
       "chuanJiang": [
         "贵人",
@@ -2045,7 +2534,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "来意"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_yichou_028_chen_shihuan",
@@ -2162,9 +2652,9 @@ window.ANCIENT_CASES=[
         "丑"
       ],
       "chuanGz": [
-        "癸未",
-        "丙戌",
-        "丁丑"
+        "辛未",
+        "戌",
+        "乙丑"
       ],
       "xunkong": [
         "戌",
@@ -2183,7 +2673,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "仕宦",
       "补官"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_yichou_030_shao_yishi",
@@ -2317,11 +2808,17 @@ window.ANCIENT_CASES=[
         "bianGong": "戌",
         "bianLq": "妻财",
         "bianInChuan": "末传"
-      }
+      },
+      "chuanGz": [
+        "丙寅",
+        "辛未",
+        "甲子"
+      ]
     },
     "topics": [
       "役事"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_yichou_031_wang_furen",
@@ -2456,12 +2953,18 @@ window.ANCIENT_CASES=[
         "bianGan": "辛",
         "bianGong": "丑",
         "bianLq": "官鬼"
-      }
+      },
+      "chuanGz": [
+        "戌",
+        "戊辰",
+        "戌"
+      ]
     },
     "topics": [
       "仕宦",
       "复任"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_bingyin_035_miao_guansong",
@@ -2594,11 +3097,17 @@ window.ANCIENT_CASES=[
         "bianGan": "乙",
         "bianGong": "丑",
         "bianLq": "父母"
-      }
+      },
+      "chuanGz": [
+        "甲子",
+        "辛未",
+        "丙寅"
+      ]
     },
     "topics": [
       "官讼"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_bingyin_038_liu_xingren",
@@ -2731,11 +3240,17 @@ window.ANCIENT_CASES=[
         "bianGan": "辛",
         "bianGong": "卯",
         "bianLq": "妻财"
-      }
+      },
+      "chuanGz": [
+        "己巳",
+        "壬申",
+        "丙寅"
+      ]
     },
     "topics": [
       "行人"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_bingyin_039_shao_furen",
@@ -2826,8 +3341,8 @@ window.ANCIENT_CASES=[
           {
             "view": "base",
             "kind": "jiang",
-            "ref": "午/白虎",
-            "why": "中传午乘白虎，古断以飞廉白虎致凶"
+            "ref": "辰/白虎",
+            "why": "初传辰乘白虎，凶将当头，与登三天高峻之险相合（旧版将名误锚于中传午，随天将顺逆修正）"
           },
           {
             "view": "base",
@@ -2854,9 +3369,9 @@ window.ANCIENT_CASES=[
         "申"
       ],
       "chuanGz": [
-        "壬辰",
-        "甲午",
-        "丙申"
+        "戊辰",
+        "庚午",
+        "壬申"
       ],
       "xunkong": [
         "戌",
@@ -2875,7 +3390,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "仕宦",
       "赴任"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_bingyin_044_xu_laiyi",
@@ -3008,11 +3524,17 @@ window.ANCIENT_CASES=[
         "bianGan": "癸",
         "bianGong": "未",
         "bianLq": "官鬼"
-      }
+      },
+      "chuanGz": [
+        "甲子",
+        "亥",
+        "戌"
+      ]
     },
     "topics": [
       "来意"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_bingyin_041_shao_pingsheng",
@@ -3164,9 +3686,9 @@ window.ANCIENT_CASES=[
         "寅"
       ],
       "chuanGz": [
-        "丙申",
-        "己亥",
-        "庚寅"
+        "壬申",
+        "亥",
+        "丙寅"
       ],
       "xunkong": [
         "戌",
@@ -3186,7 +3708,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "前程",
       "终身"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_bingyin_042_shao_shenwei",
@@ -3337,9 +3860,9 @@ window.ANCIENT_CASES=[
         "戌"
       ],
       "chuanGz": [
-        "戊子",
-        "癸巳",
-        "戊戌"
+        "甲子",
+        "己巳",
+        "戌"
       ],
       "chuanJiang": [
         "六合",
@@ -3365,7 +3888,8 @@ window.ANCIENT_CASES=[
       "己身",
       "风水",
       "疾病"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_bingyin_045_huang_zhongshen",
@@ -3515,9 +4039,9 @@ window.ANCIENT_CASES=[
         "戌"
       ],
       "chuanGz": [
-        "戊子",
-        "己亥",
-        "戊戌"
+        "甲子",
+        "亥",
+        "戌"
       ],
       "xunkong": [
         "戌",
@@ -3538,7 +4062,8 @@ window.ANCIENT_CASES=[
       "终身",
       "省试",
       "己身"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "duanan_001_han_qixue",
@@ -3661,9 +4186,9 @@ window.ANCIENT_CASES=[
         "卯"
       ],
       "chuanGz": [
-        "己巳",
+        "辛巳",
         "甲戌",
-        "丁卯"
+        "己卯"
       ],
       "chuanJiang": [
         "玄武",
@@ -3687,7 +4212,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "应候"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "duanan_004_zhang_zhai",
@@ -3829,8 +4355,8 @@ window.ANCIENT_CASES=[
         "亥"
       ],
       "chuanGz": [
-        "辛巳",
-        "戊寅",
+        "癸巳",
+        "庚寅",
         "丁亥"
       ],
       "chuanJiang": [
@@ -3856,7 +4382,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "风水",
       "己身"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "duanan_054_ma_shengqian",
@@ -3979,9 +4506,9 @@ window.ANCIENT_CASES=[
         "申"
       ],
       "chuanGz": [
-        "壬辰",
-        "甲午",
-        "丙申"
+        "庚辰",
+        "壬午",
+        "申"
       ],
       "xunkong": [
         "申",
@@ -4001,7 +4528,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "仕宦",
       "前程"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "duanan_058_guo_furen",
@@ -4122,9 +4650,9 @@ window.ANCIENT_CASES=[
         "申"
       ],
       "chuanGz": [
-        "甲寅",
-        "癸亥",
-        "庚申"
+        "寅",
+        "辛亥",
+        "戊申"
       ],
       "xunkong": [
         "寅",
@@ -4144,7 +4672,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "赴任",
       "仕宦"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "duanan_200_zhixian_shiwu",
@@ -4266,8 +4795,8 @@ window.ANCIENT_CASES=[
       ],
       "chuanGz": [
         "癸丑",
-        "壬戌",
-        "己未"
+        "庚戌",
+        "丁未"
       ],
       "xunkong": [
         "寅",
@@ -4287,7 +4816,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "亡盗",
       "官讼"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_dingmao_046_shao_shiwu",
@@ -4408,9 +4938,9 @@ window.ANCIENT_CASES=[
         "卯"
       ],
       "chuanGz": [
-        "乙巳",
-        "庚戌",
-        "癸卯"
+        "己巳",
+        "戌",
+        "丁卯"
       ],
       "chuanJiang": [
         "太常",
@@ -4434,7 +4964,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "亡盗"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_dingmao_049_wang_shengqian",
@@ -4554,9 +5085,9 @@ window.ANCIENT_CASES=[
         "卯"
       ],
       "chuanGz": [
-        "己酉",
-        "庚子",
-        "癸卯"
+        "癸酉",
+        "甲子",
+        "丁卯"
       ],
       "xunkong": [
         "戌",
@@ -4575,7 +5106,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "仕宦"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_dingmao_051_huang_weichai",
@@ -4698,9 +5230,9 @@ window.ANCIENT_CASES=[
         "未"
       ],
       "chuanGz": [
-        "辛亥",
-        "癸卯",
-        "丁未"
+        "亥",
+        "丁卯",
+        "辛未"
       ],
       "xunkong": [
         "戌",
@@ -4720,7 +5252,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "役事",
       "仕宦"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_wuchen_052_wang_shijiu",
@@ -4843,9 +5376,9 @@ window.ANCIENT_CASES=[
         "辰"
       ],
       "chuanGz": [
-        "壬子",
-        "庚申",
-        "丙辰"
+        "甲子",
+        "壬申",
+        "戊辰"
       ],
       "chuanJiang": [
         "青龙",
@@ -4870,7 +5403,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "风水",
       "来意"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_wuchen_053_shao_jiazhai",
@@ -4972,8 +5506,8 @@ window.ANCIENT_CASES=[
           {
             "view": "base",
             "kind": "jiang",
-            "ref": "酉/朱雀",
-            "why": "酉乘朱雀，与传本太阴异文，故只作课式参证"
+            "ref": "酉/太阴",
+            "why": "酉乘太阴，与原文「太阴乘酉加亥」一致（旧版顺逆布列误作朱雀，随天将修正）"
           }
         ],
         "ruleRef": "卯门；土木相克",
@@ -5021,9 +5555,9 @@ window.ANCIENT_CASES=[
         "酉"
       ],
       "chuanGz": [
-        "癸丑",
-        "癸亥",
-        "辛酉"
+        "乙丑",
+        "亥",
+        "癸酉"
       ],
       "xunkong": [
         "戌",
@@ -5043,7 +5577,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "风水",
       "己身"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_wuchen_056_shao_qiancheng",
@@ -5173,9 +5708,9 @@ window.ANCIENT_CASES=[
         "子"
       ],
       "chuanGz": [
-        "庚申",
-        "壬戌",
-        "壬子"
+        "壬申",
+        "戌",
+        "甲子"
       ],
       "chuanJiang": [
         "白虎",
@@ -5200,7 +5735,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "前程",
       "终身"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_wuchen_058_xu_laiyi",
@@ -5346,9 +5882,9 @@ window.ANCIENT_CASES=[
         "巳"
       ],
       "chuanGz": [
-        "癸亥",
-        "甲寅",
-        "丁巳"
+        "亥",
+        "丙寅",
+        "己巳"
       ],
       "chuanJiang": [
         "勾陈",
@@ -5372,7 +5908,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "来意"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_wuchen_060_chen_huishi",
@@ -5493,9 +6030,9 @@ window.ANCIENT_CASES=[
         "亥"
       ],
       "chuanGz": [
-        "癸亥",
-        "丁巳",
-        "癸亥"
+        "亥",
+        "己巳",
+        "亥"
       ],
       "xunkong": [
         "戌",
@@ -5515,7 +6052,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "会试",
       "前程"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_dingmao_047_wang_guansong",
@@ -5636,9 +6174,9 @@ window.ANCIENT_CASES=[
         "卯"
       ],
       "chuanGz": [
-        "癸卯",
-        "己酉",
-        "癸卯"
+        "丁卯",
+        "癸酉",
+        "丁卯"
       ],
       "chuanJiang": [
         "天空",
@@ -5662,7 +6200,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "官讼"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "renzhan_dingmao_048_shao_jiazhai",
@@ -5783,9 +6322,9 @@ window.ANCIENT_CASES=[
         "午"
       ],
       "chuanGz": [
-        "庚子",
-        "己酉",
-        "丙午"
+        "甲子",
+        "癸酉",
+        "庚午"
       ],
       "chuanJiang": [
         "螣蛇",
@@ -5809,7 +6348,8 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "风水"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "duanan_063_he_furen",
@@ -5932,9 +6472,9 @@ window.ANCIENT_CASES=[
         "未"
       ],
       "chuanGz": [
-        "己未",
+        "丁未",
         "癸丑",
-        "己未"
+        "丁未"
       ],
       "chuanJiang": [
         "朱雀",
@@ -5959,7 +6499,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "赴任",
       "仕宦"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "duanan_140_liu_dian",
@@ -6080,9 +6621,9 @@ window.ANCIENT_CASES=[
         "午"
       ],
       "chuanGz": [
-        "丙辰",
-        "丁巳",
-        "戊午"
+        "庚辰",
+        "辛巳",
+        "壬午"
       ],
       "xunkong": [
         "申",
@@ -6102,7 +6643,8 @@ window.ANCIENT_CASES=[
     "topics": [
       "索债",
       "己身"
-    ]
+    ],
+    "dunKouJing": "xun"
   },
   {
     "id": "duanan_180_mou_jibing",
@@ -6224,9 +6766,9 @@ window.ANCIENT_CASES=[
         "戌"
       ],
       "chuanGz": [
-        "丙申",
-        "丁酉",
-        "戊戌"
+        "戊申",
+        "己酉",
+        "庚戌"
       ],
       "xunkong": [
         "寅",
@@ -6245,6 +6787,7 @@ window.ANCIENT_CASES=[
     },
     "topics": [
       "疾病"
-    ]
+    ],
+    "dunKouJing": "xun"
   }
 ];
