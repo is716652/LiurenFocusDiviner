@@ -9,7 +9,7 @@
  * 组件化：本文件只做编排与状态回传，各区块均为独立子组件
  */
 import { LiurenCore } from '../model/LiurenCore';
-import type { Chart } from '../model/LiurenCore';
+import type { Chart, ZhonghuangDun } from '../model/LiurenCore';
 import { YongShenCore } from '../model/YongShenCore';
 import type {
   AffairCfg,
@@ -59,6 +59,12 @@ export struct YongShenSheet {
   @Prop leixiang: Record<string, Object> = {};
   @Prop xiangyi: Record<string, Object> = {};
   @Prop hourZhi: string = '';
+  /* 天地盘显示口径（与主盘一致：旬遁/中黄 + 辅助层开关） */
+  @Prop zhonghuangMode: string = '旬遁';
+  @Prop zhonghuang: ZhonghuangDun | null = null;
+  @Prop showDunDi: boolean = false;
+  @Prop showBenshen: boolean = false;
+  @Prop showRiDun: boolean = false;
   /* 状态（由父级持有，受控） */
   @Prop affairName: string = '';
   @Prop @Watch('onYSChange') yongShen: string = '';
@@ -140,8 +146,9 @@ export struct YongShenSheet {
     const posNames: string[] = ['初传', '中传', '末传'];
     for (let i = 0; i < items.length && i < 3; i++) {
       const it = items[i];
-      const gan = it.gz.length > 0 ? it.gz.slice(0, 1) : '';
-      const zhi = it.gz.length > 1 ? it.gz.slice(1) : '';
+      /* 三传干支：旬遁下空亡传支本旬无干，gz 只余地支，故不再按 gz 长度切分 */
+      const zhi = it.zhi;
+      const gan = c.dunXun[zhi] || '';
       const ss = (c.dx.shensha.byZhi[zhi] || []);
       const ssNames: string[] = [];
       for (let k = 0; k < ss.length; k++) {
@@ -403,6 +410,11 @@ export struct YongShenSheet {
                   chart: this.chart,
                   yongShen: this.yongShen,
                   cands: this.candZhis(),
+                  zhonghuangMode: this.zhonghuangMode,
+                  zhonghuang: this.zhonghuang,
+                  showDunDi: this.showDunDi,
+                  showBenshen: this.showBenshen,
+                  showRiDun: this.showRiDun,
                   onPickZhi: (z: string, layer: string) => {
                     this.onPickZhi(z, layer);
                   }

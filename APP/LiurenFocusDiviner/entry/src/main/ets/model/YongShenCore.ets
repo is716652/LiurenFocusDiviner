@@ -196,18 +196,21 @@ export class YongShenCore {
     for (let i = 0; i < aff.zhi.length; i++) {
       YongShenCore.pushCand(cands, aff.zhi[i], "象", '');
     }
-    /* 3. 天将类神：按布列位置反查（jiangMap[地盘宫]=天将 → 天将所在宫位） */
+    /* 3. 天将类神：将所在之地盘宫 → 取该宫之上神（天盘支）为候选支
+       说明：用神＝初传＝盘面候选圈一律按【天盘支】处理（PanDisk 高亮、dongtai 动态三传），
+       故不能把地盘宫当候选支。 */
     for (let i = 0; i < aff.jiang.length; i++) {
       const j = aff.jiang[i];
-      const gong = LiurenCore.gongOf(c.jiangMap, j);
-      if (gong !== j && gong !== null) {
-        YongShenCore.pushCand(cands, gong, "将", j);
+      const gong = LiurenCore.gongOf(c.jiangMap, j); /* 将 j 所落之地盘宫 */
+      const tz = (gong !== '') ? (c.tp[gong] || '') : '';
+      if (tz !== '' && tz !== j) {
+        YongShenCore.pushCand(cands, tz, "将", j);
       }
     }
-    /* 补充：候选宫位的乘将标注（天将候选已带；六/象候选查 jiangMap） */
+    /* 补充：候选支的乘将标注。jiangMap 以【地盘宫】为键，故须经 gongOf(tp, 支) 换算 */
     for (let i = 0; i < cands.length; i++) {
       if (cands[i].jiang === '') {
-        const g = c.jiangMap[cands[i].zhi] || '';
+        const g = c.jiangMap[LiurenCore.gongOf(c.tp, cands[i].zhi)] || '';
         cands[i] = { zhi: cands[i].zhi, type: cands[i].type, jiang: g };
       }
     }

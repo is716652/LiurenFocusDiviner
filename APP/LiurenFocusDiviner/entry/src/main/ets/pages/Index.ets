@@ -2197,6 +2197,11 @@ struct Index {
         affairName: this.affairName,
         yongShen: this.yongShen,
         anchor: this.anchor,
+        zhonghuangMode: this.zhonghuangMode,
+        zhonghuang: this.zhonghuang,
+        showDunDi: this.showDunDi,
+        showBenshen: this.showBenshen,
+        showRiDun: this.showRiDun,
         onAffairChange: (n: string) => {
           this.pickYongShenAffair(n);
         },
