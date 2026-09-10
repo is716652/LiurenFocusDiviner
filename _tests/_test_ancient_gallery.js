@@ -69,8 +69,17 @@ for (const item of cases) {
   const e = item.expect || {};
   const actualKegs = c.kegs.map(k => k.x + '/' + k.s);
   const actualChuans = c.sanchuan.chuans.map(x => x.z);
-  const actualGz = c.sanchuan.chuans.map(x => x.gz);
+  /* 三传遁干口径：默认「旬遁」（传统层；空亡支本旬无干 → gz 只余地支）；
+     个别案依经文原样用日干遁（item.dunKouJing === 'rigan'，如中黄经文13）。
+     依据：《六壬集成五要权衡·遁干》"须用旬遁……旬遁方有空亡……若用时遁无空亡"。 */
+  const kouJing = item.dunKouJing === 'rigan' ? 'rigan' : 'xun';
+  const gzTable = kouJing === 'rigan' ? c.dun : c.dunXun;
+  const actualGz = c.sanchuan.chuans.map(x => (gzTable[x.z] || '') + x.z);
   const actualJiang = actualChuans.map(z => c.jiangMap[gongOf(c, z)] || '');
+
+  if (item.dunKouJing !== undefined && item.dunKouJing !== 'xun' && item.dunKouJing !== 'rigan') {
+    bad('dunKouJing 取值', String(item.dunKouJing));
+  } else if (item.dunKouJing !== undefined) { ok('遁干口径字段'); }
 
   if (e.kegs && !eqArr(actualKegs, e.kegs)) { bad('四课', '实际=' + actualKegs.join(' ') + ' 期望=' + e.kegs.join(' ')); } else if (e.kegs) { ok('四课'); }
   if (e.chuans && !eqArr(actualChuans, e.chuans)) { bad('三传', '实际=' + actualChuans.join('') + ' 期望=' + e.chuans.join('')); } else if (e.chuans) { ok('三传'); }

@@ -173,7 +173,10 @@ for (const sample of samples) {
       diffs.push('sanchuan.method 不一致：\n    ' + diffsTmp.slice(0, 4).join('\n    '));
     }
     const diffsTmp2 = [];
-    if (!deepEqual(oldC.sanchuan.chuans, newC.sanchuan.chuans, 'sanchuan.chuans', diffsTmp2)) {
+    /* 三传只比地支：gz（遁干）口径 2026-09-10 由「日干遁」改为「旬遁」（传统层），
+       旧引擎为日干遁，故遁干不参与新旧比对；三传干支口径由 _test_dungan.js 用传本锚点覆盖 */
+    const chuansZ = (c) => (c.sanchuan.chuans || []).map((x) => x.z);
+    if (!deepEqual(chuansZ(oldC), chuansZ(newC), 'sanchuan.chuans', diffsTmp2)) {
       diffs.push('sanchuan.chuans 不一致：\n    ' + diffsTmp2.slice(0, 4).join('\n    '));
     }
   }

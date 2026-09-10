@@ -15,8 +15,8 @@ export struct PanDisk {
   @Prop @Watch('onChartChange') chart: Chart | null = null;
   @Prop @Watch('onHighlightChange') yongShen: string = '';
   @Prop @Watch('onHighlightChange') cands: string[] = [];
-  /* 遁干显示模式：'常遁'=传统日干遁（默认）| '中黄'=时干遁盘（中黄）；旬只用于空亡，不作天干模式 */
-  @Prop @Watch('onHighlightChange') zhonghuangMode: string = '常遁';
+  /* 遁干显示模式：'旬遁'=传统旬遁（默认；空亡支本旬无干，故中圈不显干）| '中黄'=日干遁(体)＋时干遁(用)双干 */
+  @Prop @Watch('onHighlightChange') zhonghuangMode: string = '旬遁';
   /* 中黄天干两遁数据（父级传入 ZhonghuangDun；null=不启用） */
   @Prop @Watch('onHighlightChange') zhonghuang: ZhonghuangDun | null = null;
   /* 中黄完整分析（可选；用于身/变/传标记） */
@@ -173,10 +173,12 @@ export struct PanDisk {
       ctx.font = fontPx(w * 0.06);
       ctx.fillText(tianPan, tx, ty);
 
-      /* 遁干（中圈，天盘支之干）：常遁为主；中黄开时同宫并排小字显示中黄干
-         注：四课三传的天干皆为天盘支之干，故中圈标天盘支的遁干（dun[tianPan]），非地盘宫 */
+      /* 遁干（中圈，天盘支之干）：
+         · 默认「旬遁」（传统层）：旬内同支取干；空亡支本旬无干，故不显（天盘支降暗即为「空」）；
+         · 中黄模式：同宫并排双干 = 日干遁（体·淡）＋时干遁（用·金）。
+         注：四课三传的天干皆为天盘支之干，故中圈标天盘支的遁干，非地盘宫 */
       const rG = w * 0.255;
-      const changGan = c.dun[tianPan];
+      const changGan = (this.zhonghuangMode === '中黄' || this.zhonghuangMode === '时遁') ? c.dun[tianPan] : c.dunXun[tianPan];
       const zhOn = this.zhonghuang !== null && (this.zhonghuangMode === '中黄' || this.zhonghuangMode === '时遁');
       const zhGan = zhOn && this.zhonghuang ? this.zhonghuang.shiDun[tianPan] : '';
       if (zhOn && zhGan !== '' && zhGan !== changGan) {
@@ -249,7 +251,10 @@ export struct PanDisk {
         const ddy = cy + rDD * Math.sin(ang);
         ctx.fillStyle = '#7FA69A';
         ctx.font = fontPx(w * 0.034);
-        ctx.fillText(c.dun[gongZhi], ddx, ddy);
+        const diGan = c.dunXun[gongZhi]; /* 地盘干同理用旬遁；空亡支无干则不显 */
+        if (diGan !== undefined && diGan !== '') {
+          ctx.fillText(diGan, ddx, ddy);
+        }
       }
       /* 辅助层：本位神（内圈外沿，暗金极小字；默认关） */
       if (this.showBenshen) {

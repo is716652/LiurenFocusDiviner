@@ -250,7 +250,8 @@ export class YongShenCore {
     const c1 = zhi;
     const c2 = c.tp[c1];
     const c3 = c.tp[c2];
-    const dun = LiurenCore.dunMap(c.r.dg);
+    /* 动态三传干支按旬遁（传统层）配干；空亡支无干故 gz 只余地支 */
+    const dun = c.dunXun;
     const mk = (z: string, pos: string): DongtaiItem => {
       const gz = (dun[z] || '') + z;
       const jiang = c.jiangMap[LiurenCore.gongOf(c.tp, z)] || '';
@@ -269,7 +270,7 @@ export class YongShenCore {
   /* 用神节点 → 词云：天将类象 / 地支象义特征+物象 / 天干类象 / 纳音象义 */
   static jieDianWords(c: Chart, z: string, leixiang: Record<string, Object>): JieDianWord[] {
     const words: JieDianWord[] = [];
-    const g = c.dun[z] || '';
+    const g = c.dunXun[z] || '';
     const jiang = c.jiangMap[LiurenCore.gongOf(c.tp, z)] || '';
     /* 天将类象 */
     if (jiang !== '' && TIANJIANG_LEIXIANG[jiang]) {
@@ -384,7 +385,7 @@ export class YongShenCore {
     const ev1 = YongShenCore.evidenceOf(c, pick1, cur, zhi);
     const nd = c.dx.nodes[zhi];
     const jj = cur ? cur.jiang : '';
-    const stateT = "用神" + (c.dun[zhi] || '') + zhi + (jj !== '' ? "乘" + jj : '') +
+    const stateT = "用神" + (c.dunXun[zhi] || '') + zhi + (jj !== '' ? "乘" + jj : '') +
       "，临" + String(nd.qiJi || '?') + "（" + String(nd.wangShuai || '?') + "）" +
       (nd.kong ? "落空" : '');
     const ge0 = String(pick0["歌诀"] || pick0["释义"] || '').substring(0, 30);

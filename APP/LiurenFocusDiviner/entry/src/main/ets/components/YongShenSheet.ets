@@ -254,7 +254,7 @@ export struct YongShenSheet {
     const nd = c.dx.nodes[this.yongShen];
     const cur = YongShenCore.findCand(this.cands(), this.yongShen);
     const jiang = cur && cur.jiang !== '' ? cur.jiang : '';
-    const g = c.dun[this.yongShen] || '';
+    const g = c.dunXun[this.yongShen] || '';
     const lq = YongShenCore.liuqinOf(c, this.yongShen);
     return g + this.yongShen + ' · ' + lq + (jiang !== '' ? ' · 乘' + jiang : '') +
       ' · ' + nd.wangShuai + (nd.kong ? ' 空' : '');

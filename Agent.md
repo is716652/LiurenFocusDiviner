@@ -1,8 +1,8 @@
 # Agent.md —— LargeLiuRen-Design 项目交接与实施手册
 
 > 写给后续 AI / 开发者：先读这份，再动代码。  
-> 最近更新：2026-09-05  
-> 本文档更新前 main HEAD：`79e9ca2 docs(store): 修正免费版中黄可见边界`
+> 最近更新：2026-09-10  
+> 本文档更新前 main HEAD：`621e2be feat(gallery): 中黄五变经 5 案补全 reasoning 证据链`
 
 ---
 
@@ -16,9 +16,20 @@
 
 当前重点：
 
-- 免费版已上架（用户反馈：早上 10 点多定时上架，初期零下载属正常）。
+- 免费版已上架（2026-09-05 早上定时上架，初期零下载属正常）。
 - 已上架商店素材先不动；新截图只作下一版备用，不重新提交。
 - 主线最近在做：中黄天地盘 UX v1（常遁/中黄、双干同宫、身/变/传、点宫宫情）。
+
+发布包位置（2026-09-10 更新）：
+
+- **在架版（1.0.1 / 1000001）**：已归档为 `APP/release_pkg/LiurenFocusDiviner-free-release-signed-1.0.1-onshelf-20260826.app`
+  （与原 `…-free-release-signed.app` 字节一致，构建于 2026-08-26 20:47，约对应 `46a5ea9`/`84b755e` 时点）。
+  商店在架版**没有中黄、没有案例鉴赏**，且含本轮修正前的天将/昴星/遁干问题。
+- **待提审版（1.0.2 / 1000002）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`（1,565,831 字节，2026-09-10 构建，
+  `verify-app` 签名校验通过；包内 versionName=1.0.2、versionCode=1000002、requestPermissions=0）。
+  相对 1.0.1 的增量：十二天将顺逆修正、柔日昴星取用修正、三传/盘面天干改旬遁（空亡可见）、中黄 UX v1、状态栏/导航适配、合规断语降级。
+- 提审与否待真机验证后决定；**未动商店素材、未上传管理台**。
+- 案例鉴赏在两版免费包中都隐藏（`FeatureFlags.SHOW_ANCIENT_CASE_GALLERY=false`）；案例库 45 案与证据链升级只影响主版。
 
 ---
 
@@ -29,9 +40,9 @@
    - 已上架 8 张截图继续使用；新处理截图仅归档备用。
    - 商店素材变更也可能触发资料审核；无必要不提交。
 
-2. **版本号不要随手 bump**
-   - 当前记录：`versionName=1.0.1` / `versionCode=1000001`。
-   - 只有商店后台明确要求新一轮提审时，才统一升 `versionCode`。
+2. **版本号（2026-09-10 起）**
+   - 当前记录：`versionName=1.0.2` / `versionCode=1000002`（因算法修正升版，用户确认后执行）。
+   - 上一版：`1.0.1` / `1000001`（在架）。除发版外不要随手 bump；升版只在主版 `AppScope/app.json5` 改，免费版由 sync 脚本生成。
 
 3. **免费版由脚本生成，不手改免费版当源头**
    - 主版源头：`APP/LiurenFocusDiviner`
@@ -43,7 +54,13 @@
    - 医疗、法律、投资、仕途、生死内容必须带“非现实判断/非医疗法律投资建议”。
    - 免费版不得出现 `付费/解锁/会员/VIP/价格/购买` 等可见字样。
 
-5. **古籍案例入库原则**
+5. **遁干口径（2026-09-10 起）**
+   - 三传/盘面天干**默认「旬遁」**（传统层）；旬外二支为旬空、本旬无干 → **留空**，由三传卡打「空」标；
+   - 中黄模式另以「日干遁(体)＋时干遁(用)」二次遁，仅供中黄双干与宫情；
+   - 依据：《六壬集成五要权衡·遁干》「须用旬遁……旬遁方有空亡……若用时遁无空亡」；
+   - 案例库 `expect.chuanGz` 默认按旬遁校验，个案可用 `dunKouJing: "rigan"` 声明按日干遁（如中黄经文13）。
+
+6. **古籍案例入库原则**
    - 先用核心排盘复算，再写 `expect`。
    - `expect` 强校验以程序可复核项为主：四课、三传、遁干、旬空、旺衰、月令、宗门、中黄。
    - 天将 `chuanJiang` 只在传本与程序一致时强校验。
@@ -69,6 +86,13 @@
 
 - **中黄开关、常遁/中黄、身/变/传、古籍研习不是免费版禁用项**。只要当前免费包真实可见，商店图可以如实展示。
 - 免费版不能展示：古籍案例鉴赏入口、证据链/异断对读等未开放内容、任何付费暗示。
+
+### 安装与共存（2026-09-10 确认）
+
+- 两个工程 `bundleName` 相同（`cn.is716652.LiurenFocusDiviner`）：**同机不能共存，后装覆盖先装**；商店视角是同一应用走版本升级。
+- 用户自己手机装的是**主版**（通过 DevEco 手动安装，无需 hdc 代劳）；想对比免费版效果时自行换装即可，切换成本低。
+- 免费/收费的唯一分界目前是 `FeatureFlags.SHOW_ANCIENT_CASE_GALLERY` 编译期常量；将来接 IAP 时把它换成购买态决定，路径已预留。
+- 本机工具链：hdc 在 `D:\HarmonyOS\command-line-tools-6.1.1-release\sdk\default\openharmony\toolchains\hdc.exe`，可用于装包/截图/日志；但用户优先 DevEco 手动安装。
 
 ### 收费版（以后）
 
@@ -119,10 +143,11 @@
 
 - 远程：`git@github.com:is716652/LiurenFocusDiviner.git`
 - 分支：`main`
-- 本文档更新前 HEAD：`79e9ca2`
+- 本文档更新前 HEAD：`621e2be`
 
 最近关键提交线：
 
+- `621e2be` 中黄五变经 5 案补全 reasoning 证据链
 - `eafc71e` 案例按来源日课分组并支持占类筛选
 - `734aba1` 壬占汇选戊辰日入库（安全 tag 前）
 - `a33123a` 正名常遁/中黄并修变干乘将与参证口吻
@@ -147,7 +172,7 @@
 
 已实现：
 
-- 主盘模式：`常遁 / 中黄`；默认常遁干净，无身/变/传。
+- 主盘模式：`旬遁 / 中黄`；默认**旬遁（传统层）**干净，无身/变/传（旧称「常遁」＝中黄·日干遁，现只在中黄模式内作为「体」层出现）。
 - 中黄开时：双干同宫；常遁弱显，中黄小字金显；两干相同不重复。
 - 变干常显，余宫弱显；点宫看详情。
 - 身/变/传只在切到中黄后出现：
@@ -251,7 +276,7 @@ APP/screenshots_out/免费版下一版 2026-9-5
 
 ### 待精修
 
-- 中黄五变经 5 案：`zhonghuang_c1_shen_body / c8_1 / c10_5 / c12_1 / c14_1` 还缺完整 `reasoning`（route 应用 `zhonghuang`）。
+- ~~中黄五变经 5 案 reasoning~~ 已完成（`621e2be`，route 用 `zhonghuang`，参证口吻）。
 - 释己身第一参证思路：丙寄巳 → 巳上申 → 申干不克丙 → 三传不克日 → 变干壬官鬼落戌旬空不入传，只作参证。
 - 非中黄源案例：中黄只作旁证，不压主断。
 
@@ -259,11 +284,19 @@ APP/screenshots_out/免费版下一版 2026-9-5
 
 ## 9. 工程命令
 
-### 核心编译
+### 核心编译（真源 → 产物）
+
+`core/liuren-core.ts` 是**真源**（ArkTS 兼容子集，无 import/export 的全局脚本）；
+`core/liuren-core.js` 由它经 tsc 产出，供 Node 测试与 Web 端加载；`LiurenCore.ets` 是 ArkTS 端口（手工同构）。
 
 ```powershell
+# 改完真源后必须重编译产物，否则测试跑的仍是旧逻辑
 npx tsc core/liuren-core.ts --target ES2017 --module commonjs --strict --noImplicitAny
+node --check core/liuren-core.js
+# 再手工把同一改动同步到 APP/LiurenFocusDiviner/entry/src/main/ets/model/LiurenCore.ets
 ```
+
+三份实现（.ts / .js / .ets）关键点抽查：`JIANG_NI` 应为 0、`buildJiang`/`xunDun`/`maoxingFirst` 应齐全。
 
 ### 案例反验
 
@@ -271,11 +304,29 @@ npx tsc core/liuren-core.ts --target ES2017 --module commonjs --strict --noImpli
 node _tests/_test_ancient_gallery.js
 ```
 
+### 排盘规则反验（天将顺逆 / 昴星 / 九宗门，2026-09-10 新增）
+
+```powershell
+node _tests/_test_jiangpan.js        # 传本锚点：经文13/18/20 + 汇选046~049 + 昴星取用
+node _tests/_test_dungan.js          # 遁干口径：旬遁传本锚点 + 空亡留空 + 中黄双遁 + 抓用神同口径
+node _tests/_test_jiangpan_all.js    # 天将布列结构（840 项）
+node _tests/_test_keti.js            # 九宗门课体
+node _tests/_test_zhonghuang_dun.js  # 日干遁/时干遁
+```
+
 ### 免费版同步与校验
 
 ```powershell
 python _tools/sync_free_edition.py
 python _tools/verify_free_edition.py
+```
+
+### 发布打包（release 产品 + 正式签名 → release_pkg）
+
+```powershell
+python _tools/sign_release.py free    # 免费版（上架用）= 默认；main = 主版
+# 产物：APP/release_pkg/LiurenFocusDiviner-free-release-signed.app（自动 verify-app 校验签名）
+# 注意：generic 名会被覆盖，归档旧包请先改名保留（如 …-1.0.1-onshelf-20260826.app）
 ```
 
 ### 构建
@@ -296,7 +347,12 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
    - 处理：等待几秒 → 重新 read → 再 edit。
    - 不要并行改同一个文件。
 
-2. **ArkTS 严格模式**
+2. **真源漂移（2026-09-10 踩过）**
+   - 只改 `core/liuren-core.js` 而没改 `core/liuren-core.ts`（或反之），会让真源与产物不一致；
+   - 只改 .ts 而不跑 tsc，测试仍在旧产物上跑（测试加载的是 .js）；
+   - 改核心算法一律三步：改 .ts → tsc 重编译 → 手工同构 .ets，最后跑全套 `_tests/_test_*.js`。
+
+3. **ArkTS 严格模式**
    - 禁止 any/unknown。
    - `ForEach` 回调最好显式写类型。
    - 中文 key 可点访问，但接口要先定义。
@@ -333,20 +389,57 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
    - 古籍文本盘：原文不动，后续只加今盘对照；
    - 案例详情后续再考虑中黄开关/宫情。
 
-3. **中黄 5 案补 reasoning**
-   - route 用 `zhonghuang`；
-   - 讲清：时干 → 变干 → 落宫 → 六亲 → 是否入传/落空/有气/制化；
-   - 语气保持参证，不单独定凶。
+3. ~~中黄 5 案补 reasoning~~ ✅ 已完成（`621e2be`）。
 
-4. **继续案例入库**
+4. ~~修中黄 5 案数据~~ ✅ 已完成（2026-09-10，随天将修正一并做）
+   - 4 案（`c13_1/c16_1/c18_1/c20_1`）月将改回「十一月将＝丑将」、月令子，`expect` 全部复算；
+   - 5 案 `original` 换为**经文断语原句**（逐字取自经文 1/13/16/18/20），「朱雀入关」等无据概括语删除；
+   - `c13_1`（经文13）、`c18_1`（经文18）、`c20_1`（经文20）修正后与经文课例**逐项吻合**；`c16_1` 与经文16 有涉害深浅之异 → 已写「存疑对读」；
+   - 连带重锚两张逆布案证据链：`renzhan_bingyin_039`（午/白虎→辰/白虎）、`renzhan_wuchen_053`（酉/朱雀→酉/太阴，与原文「太阴乘酉加亥」一致）；
+   - `_test_ancient_gallery.js` 已回到 `ALL PASS (45 cases)`。
+
+5. **继续案例入库**
    - 延续“用户找源/选源，助手 OCR 转写、写提取笔记、复算、入库、跑 validator”的节奏；
    - 《壬占汇选》更多日课；
    - 易藏其他书只作后续 mining，UI 提交不要带入 untracked 文本。
+   - 中黄 4 案 id 已按章号统一（`c13_1`/`c16_1`/`c18_1`/`c20_1`）并补 `chapterNo`；`title` 统一作「十一月（丑）将」。
 
-5. **付费版准备**
+6. **付费版准备**
    - 只在免费版正式上线稳定后开始；
    - 付费内容定位为“古籍案例研读库增量”，不做功能锁；
    - 商品/IAP 真机与沙盒流程最后再接。
+
+---
+
+## 11.5 引擎修正：十二天将顺逆 / 昴星取用 / 遁干口径（2026-09-10）
+
+> 详见 `大六壬文档/排盘/天将顺逆修正对照.md`（含前后对照、自查清单、影响面统计）。
+
+**改了什么**
+
+| # | 问题 | 修法 |
+|:--:|:--|:--|
+| 1 | 天将顺逆失效：`order = shun ? JIANG_SHUN : JIANG_NI` 与「逆方向」叠加互相抵消 → 恒顺布，应逆布的盘十二天将整体镜像（10/12 宫错） | 抽唯一实现 `LiurenCore.buildJiang(dg, tp, hourZhi)`（js+ets 两个起盘入口共用）；`JIANG_ORDER` 恒定将序、方向由 `JIANG_SHUN_GONGS` 决定；删除 `JIANG_NI` |
+| 2 | 柔日昴星初传写死为「午」：`Z[(Z.indexOf("酉") - 3 + 12) % 12]` | 抽 `LiurenCore.maoxingFirst(tp, yangGan)`：刚日取地盘酉上神、柔日取天盘酉下神 |
+| 3 | 九宗门散落的魔数 | 八专 `BA_ZHUAN_STEP`、返吟井栏射 `JINGLAN_SHE`、伏吟自刑 `ZI_XING`、昴星锚 `MAOXING_ANCHOR` 全部具名化 |
+
+**规则唯一来源**：`core/liuren-core.js` 末尾「十二天将布列规则」块 + `LiurenCore.ets` 同名块（注释互指，改一处必须同步另一处）。
+
+**影响面（17280 盘全枚举）**：天将变化 50.0%（每盘 10/12 宫）；中黄变干乘将 41.7%；毕法命中变化 15.5%；柔日昴星 1.6%；至少一处 50.9%。
+
+**传本锚点**：经文13（初传太常·中传六合）、经文18（环列 亥天后·寅朱雀·巳青龙）、经文20（未贵人·申天后·酉太阴·戌玄武）、汇选046~049 课式图 —— 已固化进 `_tests/_test_jiangpan.js`。
+
+**注意**：`_tests/_test_jiangpan.js` 旧版把错误口径写成了断言（“巳时逆布：辰宫=天后”），已重写为传本锚点测试；`_test_core_regress.js` 本就排除天将比对，不受影响。
+
+**在架包同病**：上架包（2026-08-26 构建自 `84b755e`）同样含这两个 bug；按硬纪律不撤回/不重提，随下一版修正。
+
+**随修正一并处理**：① 中黄 5 案数据重修（月将/月令、expect 复算、`original` 换经文原句）——见 §11.4；② 两张逆布案证据链将名重锚（`renzhan_bingyin_039`、`renzhan_wuchen_053`）；③ `_test_ancient_gallery.js` 回到 `ALL PASS (45 cases)`。
+
+**遁干口径（同轮一并修正）**：新增 `LiurenCore.xunDun(dg,dz)`（旬遁，唯一实现）＋ chart 带 `dunXun`；三传 `gz`、天地盘中圈（默认）、地盘干、抓用神动态三传、用神节点卡一律走旬遁；中黄模式仍为日干遁(体)＋时干遁(用)双干。旬遁下空亡支留空 → 三传卡补「空」标（`ChuanCard.mark`）。传本锚点：汇选035/046/052、断案001、经文18（含「（原阙）」）固化进 `_tests/_test_dungan.js`。
+
+**贵人表校勘**：两份中黄文档的丁/辛/壬 三行已按传本校正（丁 昼亥/夜酉、辛 昼午/夜寅、壬 昼巳/夜卯）并附依据；代码未动。
+
+**仍待定**：① 辛/壬 贵人表暂缺本库传本实证；② 商店在架包不含本轮修正；③ 案例鉴赏收费设计（另议）。
 
 ---
 
@@ -354,8 +447,11 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
 
 - 先跑：`node _tests/_test_ancient_gallery.js`
 - 改案例后必跑：反验 → 免费同步 → 免费校验 → 主版构建 → 免费版构建 → commit/push。
-- 改中黄/盘后必跑：`node _tests/_test_zhonghuang.js`、`node _tests/_test_zhonghuang_analyze.js`，并构建主/免费 HAP。
+- 改中黄/盘后必跑：`node _tests/_test_zhonghuang.js`、`node _tests/_test_zhonghuang_analyze.js`、`node _tests/_test_zhonghuang_dun.js`、`node _tests/_test_jiangpan.js`，并构建主/免费 HAP。
+- 改核心算法：改 `core/liuren-core.ts`（真源）→ `npx tsc` 重编译 `core/liuren-core.js` → 手工同步 `LiurenCore.ets`（含 `ChartCore`/`Chart` 接口字段）；三份实现必须同构，且新增盘字段别忘 `withDx` 浅拷贝。
 - 写古籍案例时：先程序复算，再写断语解释；不要先信 OCR。
 - 遇到传本不一致：宁可写“存疑对读”，不要硬改引擎去迎合 OCR。
+- **盘面规则不要再写死**：天将/贵人/九宗门取用/遁干的常量与阈值一律进「规则块」并抽成具名常量或方法；两个起盘入口（`buildChart`/`buildChartAncient`）共用同一实现。
+- **遁干分层**：默认旬遁（三传/盘面）＝传统层；中黄两次遁只在「中黄」模式叠加，不得再拿日干遁当默认。
 - 任何涉及医疗/法律/投资/仕途/生死的文本，都加非建议口径。
 - 商店素材：默认不动；要动先确认是否真有必要，且只更新资料，不碰包和版本号。

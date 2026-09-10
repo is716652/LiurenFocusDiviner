@@ -26,6 +26,8 @@ function mkChart(dg, dz, tp, dun, jiangMap, hourGan) {
     tp: tp,
     kegs: [],
     dun: dun,
+    /* 三传/动态三传配干用旬遁（传统层）：mock 用日干遁表等价填充（丙午日在甲辰旬，旬内十支取值同构） */
+    dunXun: dun,
     sanchuan: { method: '元首', chuans: [] },
     jiangMap: jiangMap,
     gui: '丑', shun: true, night: false,

@@ -52,6 +52,8 @@ interface ChuanRow {
   jiang: string;
   lq: string;
   color: string;
+  /* 小标注：空亡传支标「空」（1–2 字） */
+  mark: string;
 }
 
 /* 四课展示行（倒序渲染：右起第一课） */
@@ -117,8 +119,8 @@ struct Index {
   @State private customYS: boolean = false;
   /* 外应取用来源层（天盘/地盘），仅提示用 */
   @State private customLayer: string = '天盘';
-  /* 中黄研习：遁干模式（常遁/中黄）+ 两遁数据 + 完整分析；旬只用于空亡 */
-  @State private zhonghuangMode: string = '常遁';
+  /* 遁干模式：旬遁（传统层·默认）／中黄（日干遁·体 ＋ 时干遁·用 双干）+ 两遁数据 + 完整分析 */
+  @State private zhonghuangMode: string = '旬遁';
   @State private zhonghuang: ZhonghuangDun | null = null;
   @State private zhonghuangAna: ZhonghuangAnalyze | null = null;
   /* 中黄点宫详情：非空=当前查看的地盘宫（仅中黄模式点盘时设置） */
@@ -717,7 +719,9 @@ struct Index {
       const jiang = this.jiangOf(z);
       const lq = this.liuqinOf(z);
       const color = (LiurenCore.JIANG_JX[jiang] === '吉') ? '#E9C878' : '#D0704A';
-      out.push({ pos: posNames[i], gz: chuans[i].gz, jiang: jiang, lq: lq, color: color });
+      /* 空亡传支标「空」：旬遁下该支本旬无干，gz 只余地支，此处补上标记 */
+      const mark = (c.dx.xunkong.indexOf(z) >= 0) ? '空' : '';
+      out.push({ pos: posNames[i], gz: chuans[i].gz, jiang: jiang, lq: lq, color: color, mark: mark });
     }
     return out;
   }
@@ -837,7 +841,7 @@ struct Index {
           /* 遁干模式切换 + 辅助层开关（看盘免费；中黄断语块仍锁定） */
           if (PayConfig.paidVisible() && this.zhonghuang) {
             Row({ space: 4 }) {
-              ForEach(['常遁', '中黄'], (m: string) => {
+              ForEach(['旬遁', '中黄'], (m: string) => {
                 Text(m)
                   .fontSize(10)
                   .fontColor(this.zhonghuangMode === m ? '#1A1410' : '#C4B183')
@@ -979,7 +983,7 @@ struct Index {
             .margin({ top: 5 })
           }
           Text(this.zhonghuangMode === '中黄' ?
-            (this.zhongGong !== '' ? '中黄宫情：' + this.zhongGong + '宫 · 点盘换宫；切回常遁恢复外应取用' : '中黄开：点盘看宫情 · 切回常遁恢复外应取用') :
+            (this.zhongGong !== '' ? '中黄宫情：' + this.zhongGong + '宫 · 点盘换宫；切回旬遁恢复外应取用' : '中黄开：点盘看宫情 · 切回旬遁恢复外应取用') :
             (this.customYS ? '⚡ 外应取用：' + this.yongShen + '（' + (this.customLayer === '天盘' ? '天盘加临之象' : '地盘本位之象') + '）· 点盘可换' :
               '点盘任一支 = 外应取用（天盘优先）'))
             .fontSize(10)
@@ -1049,13 +1053,15 @@ struct Index {
         Row({ space: 8 }) {
           ChuanCard({ pos: this.chuanRows()[0].pos, gz: this.chuanRows()[0].gz,
             jiang: this.chuanRows()[0].jiang, lq: this.chuanRows()[0].lq, color: this.chuanRows()[0].color,
-            highlight: true })
+            mark: this.chuanRows()[0].mark, highlight: true })
             .layoutWeight(1)
           ChuanCard({ pos: this.chuanRows()[1].pos, gz: this.chuanRows()[1].gz,
-            jiang: this.chuanRows()[1].jiang, lq: this.chuanRows()[1].lq, color: this.chuanRows()[1].color })
+            jiang: this.chuanRows()[1].jiang, lq: this.chuanRows()[1].lq, color: this.chuanRows()[1].color,
+            mark: this.chuanRows()[1].mark })
             .layoutWeight(1)
           ChuanCard({ pos: this.chuanRows()[2].pos, gz: this.chuanRows()[2].gz,
-            jiang: this.chuanRows()[2].jiang, lq: this.chuanRows()[2].lq, color: this.chuanRows()[2].color })
+            jiang: this.chuanRows()[2].jiang, lq: this.chuanRows()[2].lq, color: this.chuanRows()[2].color,
+            mark: this.chuanRows()[2].mark })
             .layoutWeight(1)
         }
         .width('100%')
@@ -1593,7 +1599,7 @@ struct Index {
             .width('100%')
 
             /* ① 双视角对比：常遁 vs 中黄 六亲变化 */
-            Text('① 六亲视角对比（常遁 → 中黄）· 变化 ' + this.zhonghuangAna.changed.length + ' 宫')
+            Text('① 六亲视角对比（常遁/日遁 → 中黄/时遁）· 变化 ' + this.zhonghuangAna.changed.length + ' 宫')
               .fontSize(11)
               .fontWeight(FontWeight.Medium)
               .fontColor('#C4B183')
@@ -1649,7 +1655,7 @@ struct Index {
               }, (jh: ZhonghuangJianhe) => 'jh' + jh.pos)
             }
 
-            Text('注：中黄以日干、时干各起五鼠遁排天干；旬只用于旬空/旬首，不作盘面天干模式（古籍研习参考）')
+            Text('注：盘面天干默认「旬遁」（传统：旬内同支取干，空亡支本旬无干故不显，即空亡之验——《六壬集成五要权衡》云「旬遁方有空亡」）；中黄模式另以日干、时干各起五鼠遁作二次遁（古籍研习参考）')
               .fontSize(9)
               .fontColor('#5A4F3D')
               .lineHeight(13)
@@ -1982,7 +1988,7 @@ struct Index {
     this.customYS = false;
   }
 
-  /* 中黄点宫：盘面点击 → 查看地盘宫详情（不切用神；切回常遁才恢复外应取用） */
+  /* 中黄点宫：盘面点击 → 查看地盘宫详情（不切用神；切回旬遁才恢复外应取用） */
   private pickZhongGong(zhi: string, layer: string): void {
     const c = this.chart;
     if (!c) {
@@ -2035,7 +2041,7 @@ struct Index {
     const tp = c.tp[this.zhongGong];
     const cg = c.dun[tp];
     const zg = z.shiDun[tp];
-    return '常遁' + cg + '｜中黄' + zg + (zg !== '' ? '（' + this.ganLq(zg) + '）' : '') + (cg === zg ? ' · 两遁同干' : '');
+    return '常遁(日遁)' + cg + '｜中黄(时遁)' + zg + (zg !== '' ? '（' + this.ganLq(zg) + '）' : '') + (cg === zg ? ' · 两遁同干' : '');
   }
 
   private zhGongLine3(): string {
@@ -2135,11 +2141,11 @@ struct Index {
     if (lq === '官鬼') {
       txt += '（古籍云：鬼贼主官非疾病之诫；须兼看落空、入传、有气与制化，不以变干单独定凶）';
     } else if (lq === '妻财') {
-      txt += '（古籍云：财主财利机缘之象；仍须看常遁三传与空亡制化）';
+      txt += '（古籍云：财主财利机缘之象；仍须看旬遁三传与空亡制化）';
     } else if (lq === '父母') {
-      txt += '（古籍云：父母主文书长辈扶助之象；仍须看常遁三传与空亡制化）';
+      txt += '（古籍云：父母主文书长辈扶助之象；仍须看旬遁三传与空亡制化）';
     } else if (lq === '子孙') {
-      txt += '（古籍云：子孙主救应化解之象；仍须看常遁三传与空亡制化）';
+      txt += '（古籍云：子孙主救应化解之象；仍须看旬遁三传与空亡制化）';
     } else {
       txt += '（古籍云：比肩主同辈合作，争夺之诫仅作文献参考）';
     }

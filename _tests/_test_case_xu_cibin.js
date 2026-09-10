@@ -48,7 +48,8 @@ check('四课 子/甲 戌/子 戌/子 申/戌',
   c.kegs[2].x === '戌' && c.kegs[2].s === '子' &&
   c.kegs[3].x === '申' && c.kegs[3].s === '戌');
 check('三传=戌申午', c.sanchuan.chuans.map(x => x.z).join('') === '戌申午');
-check('三传遁干=甲戌/壬申/庚午', c.sanchuan.chuans.map(x => x.gz).join('/') === '甲戌/壬申/庚午');
+/* 三传遁干改按旬遁（传统层）：甲子日属甲子旬，初传戌落旬空 → 本旬无干（留空），故 gz 只余地支 */
+check('三传遁干=戌(空无干)/壬申/庚午', c.sanchuan.chuans.map(x => x.gz).join('/') === '戌/壬申/庚午');
 check('初传戌乘玄武（财逢玄武=盗）', c.sanchuan.chuans[0].z === '戌' && c.jiangMap[gongOf(c, '戌')] === '玄武');
 check('中传申乘白虎（传送带白虎=坠马/风）', c.sanchuan.chuans[1].z === '申' && c.jiangMap[gongOf(c, '申')] === '白虎');
 check('末传午乘青龙（胜光火，秋囚死不论救）', c.sanchuan.chuans[2].z === '午' && c.jiangMap[gongOf(c, '午')] === '青龙');

@@ -230,30 +230,24 @@ class LiurenCore {
             { x: g3, s: dz },
             { x: g4, s: g3 }
         ];
-        /* 遁干 */
+        /* 遁干：dun = 日干遁（五子元遁·中黄体层）；dunXun = 旬遁（传统层） */
         const dun = LiurenCore.dunMap(dg);
-        /* 三传九宗门 */
-        const sanchuan = LiurenCore.resolveSanchuan(dg, tp, kegs, dun);
-        /* 天将 */
-        const night = !(LiurenCore.ZHI.indexOf(hourZhi) >= 3 && LiurenCore.ZHI.indexOf(hourZhi) <= 8);
-        const gui = night ? LiurenCore.GUIREN[dg][1] : LiurenCore.GUIREN[dg][0];
-        const guiGong = LiurenCore.gongOf(tp, gui);
-        const guiIdx = LiurenCore.ZHI.indexOf(guiGong);
-        const shun = guiIdx === 11 || guiIdx <= 4;
-        const order = shun ? LiurenCore.JIANG_SHUN : LiurenCore.JIANG_NI;
-        const jiangMap = {};
-        for (let k = 0; k < 12; k++) {
-            const g = shun
-                ? LiurenCore.ZHI[(LiurenCore.ZHI.indexOf(guiGong) + k) % 12]
-                : LiurenCore.ZHI[(LiurenCore.ZHI.indexOf(guiGong) - k + 12) % 12];
-            jiangMap[g] = order[k];
-        }
+        const dunXun = LiurenCore.xunDun(dg, dz);
+        /* 三传九宗门：三传干支按旬遁配干（空亡支留空） */
+        const sanchuan = LiurenCore.resolveSanchuan(dg, tp, kegs, dunXun);
+        /* 天将：昼夜定贵人 → 贵人落宫定顺逆 → 依固定将序布列（实现见 buildJiang） */
+        const jd = LiurenCore.buildJiang(dg, tp, hourZhi);
+        const jiangMap = jd.jiangMap;
+        const gui = jd.gui;
+        const shun = jd.shun;
+        const night = jd.night;
         const core = {
             r: r,
             yj: yj,
             tp: tp,
             kegs: kegs,
             dun: dun,
+            dunXun: dunXun,
             sanchuan: sanchuan,
             jiangMap: jiangMap,
             gui: gui,
@@ -268,6 +262,7 @@ class LiurenCore {
             tp: tp,
             kegs: kegs,
             dun: dun,
+            dunXun: dunXun,
             sanchuan: sanchuan,
             jiangMap: jiangMap,
             gui: gui,
@@ -284,6 +279,62 @@ class LiurenCore {
     /* 相克判断：a 克 b */
     static ke(a, b) {
         return LiurenCore.KE[LiurenCore.wxOf(a)] === LiurenCore.wxOf(b);
+    }
+    /* ---------------- 十二天将布列（唯一实现） ----------------
+       buildChart / buildChartAncient 共用；规则见本文件「十二天将布列规则」块 */
+    static buildJiang(dg, tp, hourZhi) {
+        const night = LiurenCore.JIANG_DAY_HOURS.indexOf(hourZhi) < 0;
+        const gui = night ? LiurenCore.GUIREN[dg][1] : LiurenCore.GUIREN[dg][0];
+        const guiGong = LiurenCore.gongOf(tp, gui);
+        const shun = LiurenCore.JIANG_SHUN_GONGS.indexOf(guiGong) >= 0;
+        const step = shun ? 1 : -1;
+        const gi = LiurenCore.ZHI.indexOf(guiGong);
+        const jiangMap = {};
+        for (let k = 0; k < LiurenCore.JIANG_ORDER.length; k++) {
+            const g = LiurenCore.ZHI[(gi + step * k + 120) % 12];
+            jiangMap[g] = LiurenCore.JIANG_ORDER[k];
+        }
+        const out = { jiangMap: jiangMap, gui: gui, guiGong: guiGong, shun: shun, night: night };
+        return out;
+    }
+    /* ---------------- 昴星取用（唯一实现） ----------------
+       阳日（虎视转蓬）：取地盘「酉」位对应的上神；
+       阴日（冬蛇掩目）：取天盘「酉」位对应的下神（即天盘酉所压之地盘支） */
+    static maoxingFirst(tp, yangGan) {
+        const anchor = LiurenCore.MAOXING_ANCHOR;
+        if (yangGan) {
+            const up = tp[anchor];
+            return up ? up : "";
+        }
+        for (let i = 0; i < LiurenCore.ZHI.length; i++) {
+            if (tp[LiurenCore.ZHI[i]] === anchor) {
+                return LiurenCore.ZHI[i];
+            }
+        }
+        return "";
+    }
+    /* 旬遁（传统层）：日干支 -> {地支:旬遁干}；旬外二支为旬空，无干（留空）
+       出处：大六壬文档/古籍原文-易藏-术数/六壬集成五要权衡--佚名「须用旬遁……旬遁方有空亡……若用时遁无空亡」；
+             大六壬文档/中黄五变经/中黄五变经研读整理.md「旬遁＝三传/盘面配干（标准六壬）＝传统层」 */
+    static xunDun(dg, dz) {
+        const Z = LiurenCore.ZHI;
+        const G = LiurenCore.GAN;
+        let n = -1;
+        for (let k = 0; k < 60; k++) {
+            if (G[k % 10] === dg && Z[k % 12] === dz) {
+                n = k;
+                break;
+            }
+        }
+        const m = {};
+        if (n < 0) {
+            return m;
+        }
+        const sz = Z[(Math.floor(n / 10) * 10) % 12];
+        for (let k = 0; k < 12; k++) {
+            m[Z[(Z.indexOf(sz) + k) % 12]] = k < 10 ? G[k % 10] : "";
+        }
+        return m;
     }
     /* 五子元遁：日干 -> {地支:遁干} */
     static dunMap(dg) {
@@ -359,34 +410,24 @@ class LiurenCore {
             { x: g3, s: r.dz },
             { x: g4, s: g3 }
         ];
-        /* 遁干 */
+        /* 遁干：dun = 日干遁（五子元遁·中黄体层）；dunXun = 旬遁（传统层） */
         const dun = LiurenCore.dunMap(r.dg);
-        /* 三传九宗门 */
-        const sanchuan = LiurenCore.resolveSanchuan(r.dg, tp, kegs, dun);
-        /* 天将：贵加占时（昼=卯-申 index3-8，夜=酉-寅 index9-11,0-2）
-           贵人 = 天盘上的一支（如甲日昼贵丑）；月将加时后天盘丑落在哪个地盘宫，
-           就从那个宫起布十二天将（贵人加临于占时宫位 = 贵人支随天盘加时后落宫） */
-        const night = !(LiurenCore.ZHI.indexOf(input.hourZhi) >= 3 && LiurenCore.ZHI.indexOf(input.hourZhi) <= 8);
-        const gui = night ? LiurenCore.GUIREN[r.dg][1] : LiurenCore.GUIREN[r.dg][0];
-        const guiGong = LiurenCore.gongOf(tp, gui);
-        /* 顺逆只看贵人落宫（天盘贵人支所落的地盘宫）的天门地户分野：
-           亥子丑寅卯辰(index 11,0,1,2,3,4) 顺布；巳午未申酉戌(index 5-10) 逆布 */
-        const guiIdx = LiurenCore.ZHI.indexOf(guiGong);
-        const shun = guiIdx === 11 || guiIdx <= 4;
-        const order = shun ? LiurenCore.JIANG_SHUN : LiurenCore.JIANG_NI;
-        const jiangMap = {};
-        for (let k = 0; k < 12; k++) {
-            const g = shun
-                ? LiurenCore.ZHI[(LiurenCore.ZHI.indexOf(guiGong) + k) % 12]
-                : LiurenCore.ZHI[(LiurenCore.ZHI.indexOf(guiGong) - k + 12) % 12];
-            jiangMap[g] = order[k];
-        }
+        const dunXun = LiurenCore.xunDun(r.dg, r.dz);
+        /* 三传九宗门：三传干支按旬遁配干（空亡支留空） */
+        const sanchuan = LiurenCore.resolveSanchuan(r.dg, tp, kegs, dunXun);
+        /* 天将：昼夜定贵人 → 贵人落宫定顺逆 → 依固定将序布列（实现见 buildJiang） */
+        const jd = LiurenCore.buildJiang(r.dg, tp, input.hourZhi);
+        const jiangMap = jd.jiangMap;
+        const gui = jd.gui;
+        const shun = jd.shun;
+        const night = jd.night;
         const core = {
             r: r,
             yj: yj,
             tp: tp,
             kegs: kegs,
             dun: dun,
+            dunXun: dunXun,
             sanchuan: sanchuan,
             jiangMap: jiangMap,
             gui: gui,
@@ -401,6 +442,7 @@ class LiurenCore {
             tp: tp,
             kegs: kegs,
             dun: dun,
+            dunXun: dunXun,
             sanchuan: sanchuan,
             jiangMap: jiangMap,
             gui: gui,
@@ -414,7 +456,8 @@ class LiurenCore {
     /* ---------------- 九宗门·课体识别层（《大六壬指南》三传排法规范） ----------------
        优先级 1→9：贼克(重审/元首) → 比用 → 涉害 → 遥克(蒿矢/弹射) → 昴星 → 别责 → 八专 → 伏吟 → 返吟
        keti：伏吟/返吟/八专/别责/昴星（虎视转蓬/冬蛇掩目）等课体名；普通课为"" */
-    static resolveSanchuan(dg, tp, kegs, dun) {
+    /* dunChuan = 三传配干用表（旬遁） */
+    static resolveSanchuan(dg, tp, kegs, dunChuan) {
         const Z = LiurenCore.ZHI;
         const yangGan = !!LiurenCore.G_YANG[dg];
         const ji = LiurenCore.JI_GONG[dg];
@@ -479,7 +522,7 @@ class LiurenCore {
         const chuanOf = (z) => tp[z] || "";
         const mk = (c1, c2, c3) => {
             const arr = [c1, c2, c3];
-            const chuans = arr.map((z) => ({ z: z, gz: dun[z] + z }));
+            const chuans = arr.map((z) => ({ z: z, gz: dunChuan[z] + z }));
             return { method: "", keti: "", chuans: chuans };
         };
         let method = "";
@@ -501,7 +544,8 @@ class LiurenCore {
                 fuyinC1 = yangGan ? k1.x : kegs[2].x;
             }
             /* 自刑：辰午酉亥 */
-            const ziXing = fuyinC1 === "辰" || fuyinC1 === "午" || fuyinC1 === "酉" || fuyinC1 === "亥";
+            /* 自刑四支：见 LiurenCore.ZI_XING（辰午酉亥） */
+            const ziXing = !!LiurenCore.ZI_XING[fuyinC1];
             if (ziXing) {
                 c1 = fuyinC1;
                 c2 = yangGan ? kegs[2].x : k1.x; /* 自刑：阳日取日支上神、阴日取日干上神 */
@@ -530,17 +574,10 @@ class LiurenCore {
                 method = "返吟";
             }
             else {
-                /* 无贼克（井栏射）：丑日取亥、未日取巳 */
                 keti = "返吟·井栏射";
-                if (kegs[2].s === "丑") {
-                    c1 = "亥";
-                }
-                else if (kegs[2].s === "未") {
-                    c1 = "巳";
-                }
-                else {
-                    c1 = kegs[2].x;
-                }
+                /* 取用表见 LiurenCore.JINGLAN_SHE（丑日取亥、未日取巳） */
+                const sheFirst = LiurenCore.JINGLAN_SHE[kegs[2].s];
+                c1 = sheFirst ? sheFirst : kegs[2].x;
                 c2 = chuanOf(kegs[2].s);
                 c3 = chuanOf(kegs[0].x);
                 method = "返吟";
@@ -556,7 +593,8 @@ class LiurenCore {
             /* 阳日：日干上神顺数3；阴日：日支上神逆数3（无贼克才入八专） */
             const base = yangGan ? kegs[0].x : kegs[2].x;
             const idx = Z.indexOf(base);
-            c1 = yangGan ? Z[(idx + 3) % 12] : Z[(idx - 3 + 12) % 12];
+            const bzStep = LiurenCore.BA_ZHUAN_STEP;
+            c1 = yangGan ? Z[(idx + bzStep) % 12] : Z[(idx - bzStep + 12) % 12];
             c2 = kegs[0].x; /* 中末固定取日干上神 */
             c3 = kegs[0].x;
             method = "八专";
@@ -638,27 +676,25 @@ class LiurenCore {
             c1 = kegs[danshe[0]].x;
         }
         else {
-            /* 昴星 */
+            /* 昴星：阳日虎视转蓬 / 阴日冬蛇掩目，取用见 LiurenCore.maoxingFirst */
             method = "昴星";
             keti = yangGan ? "昴星·虎视转蓬" : "昴星·冬蛇掩目";
-            if (yangGan) {
-                c1 = tp["酉"];
-            }
-            else {
-                c1 = Z[(Z.indexOf("酉") - 3 + 12) % 12];
-            }
+            c1 = LiurenCore.maoxingFirst(tp, yangGan);
         }
-        /* 中末传 */
+        /* 中末传：昴星阳日「中取支上神、末取干上神」，阴日「中取干上神、末取支上神」；
+           其余宗门中末传皆顺取天盘覆盖 */
         if (method === "昴星") {
-            c2 = yangGan ? tp[kegs[2].s] : tp[ji];
-            c3 = yangGan ? tp[ji] : tp[kegs[2].s];
+            const ganShang = tp[ji];
+            const zhiShang = tp[kegs[2].s];
+            c2 = yangGan ? zhiShang : ganShang;
+            c3 = yangGan ? ganShang : zhiShang;
         }
         else {
             c2 = chuanOf(c1);
             c3 = chuanOf(c2);
         }
         const arr = [c1, c2, c3];
-        const chuans = arr.map((z) => ({ z: z, gz: dun[z] + z }));
+        const chuans = arr.map((z) => ({ z: z, gz: dunChuan[z] + z }));
         return { method: method, keti: keti, chuans: chuans };
     }
     /* ---------------- 盘态计算 ---------------- */
@@ -1063,6 +1099,7 @@ class LiurenCore {
             tp: c.tp,
             kegs: c.kegs,
             dun: c.dun,
+            dunXun: c.dunXun,
             sanchuan: c.sanchuan,
             jiangMap: c.jiangMap,
             gui: c.gui,
@@ -1690,8 +1727,23 @@ LiurenCore.GUIREN = {
     "丙": ["亥", "酉"], "丁": ["亥", "酉"],
     "壬": ["巳", "卯"], "癸": ["巳", "卯"], "辛": ["午", "寅"]
 };
-LiurenCore.JIANG_SHUN = ["贵人", "螣蛇", "朱雀", "六合", "勾陈", "青龙", "天空", "白虎", "太常", "玄武", "太阴", "天后"];
-LiurenCore.JIANG_NI = ["贵人", "天后", "太阴", "玄武", "太常", "白虎", "天空", "青龙", "勾陈", "六合", "朱雀", "螣蛇"];
+/* ==================== 十二天将布列规则（本文件唯一来源） ====================
+   出处：大六壬文档/排盘/十二天神与昼贵夜贵说明.md（昼夜贵人表、昼夜分界）
+         大六壬文档/中黄五变经/天将顺逆排布核心规则.md（顺逆判据：贵人落宫分野）
+   四步：1) 昼夜定贵人（卯~申昼）2) 贵人支落于某地盘宫即布将起点
+         3) 起点宫属亥子丑寅卯辰顺布、属巳午未申酉戌逆布
+         4) 十二将次序恒定 JIANG_ORDER；逆布只改方向，不改将序
+   历史坑（2026-09-10 修正）：旧实现把「逆序表」与「逆方向」叠加，二者互相抵消 →
+   恒顺布，导致应逆布的盘十二天将整体镜像（青龙↔白虎、朱雀↔太阴、六合↔玄武、
+   勾陈↔太常、螣蛇↔天后），仅贵人宫与天空宫不变。 */
+LiurenCore.JIANG_ORDER = ["贵人", "螣蛇", "朱雀", "六合", "勾陈", "青龙", "天空", "白虎", "太常", "玄武", "太阴", "天后"];
+LiurenCore.JIANG_DAY_HOURS = ["卯", "辰", "巳", "午", "未", "申"];
+LiurenCore.JIANG_SHUN_GONGS = ["亥", "子", "丑", "寅", "卯", "辰"];
+/* 九宗门零散写死项，抽为具名常量 */
+LiurenCore.MAOXING_ANCHOR = "酉";
+LiurenCore.BA_ZHUAN_STEP = 3;
+LiurenCore.JINGLAN_SHE = { "丑": "亥", "未": "巳" };
+LiurenCore.ZI_XING = { "辰": 1, "午": 1, "酉": 1, "亥": 1 };
 LiurenCore.BENSHEN = {
     "子": "天后", "丑": "贵人", "寅": "青龙", "卯": "六合", "辰": "勾陈", "巳": "螣蛇",
     "午": "朱雀", "未": "太常", "申": "白虎", "酉": "太阴", "戌": "天空", "亥": "玄武"
@@ -2001,7 +2053,8 @@ class YongShenCore {
         const c1 = zhi;
         const c2 = c.tp[c1];
         const c3 = c.tp[c2];
-        const dun = LiurenCore.dunMap(c.r.dg);
+        /* 动态三传干支按旬遁（传统层）配干；空亡支无干故 gz 只余地支 */
+        const dun = c.dunXun;
         const mk = (z, pos) => {
             const gz = (dun[z] || '') + z;
             const jiang = c.jiangMap[LiurenCore.gongOf(c.tp, z)] || '';
