@@ -2,7 +2,7 @@
  * Ancient —— 古籍页（独立路由页）
  * ----------------------------------------------------------------------------
  * 封装 AncientStudy（中黄五变经目录 + 阅读）；数据由本页自加载（loadAncient）
- * 入口：Home「古籍」；返回：router.back()
+ * 入口：Home「古籍」；页签「排盘/课例」走 NavUtil（栈内有则回退、否则新开）
  * ArkTS 合规：零 any / unknown
  */
 import { common } from '@kit.AbilityKit';
@@ -13,6 +13,7 @@ import { FeatureFlags } from '../FeatureFlags';
 import { AncientStudy } from '../components/AncientStudy';
 import { AncientCaseGallery } from '../components/AncientCaseGallery';
 import { PageHeader } from '../components/PageHeader';
+import { goTab } from '../model/NavUtil';
 
 @Entry
 @Component
@@ -78,9 +79,10 @@ struct Ancient {
         },
         onSwitch: (i: number) => {
           if (i === 0) {
-            this.getUIContext().getRouter().back();
+            /* 排盘：回到栈中已有的排盘页（保留盘面），没有才新开 */
+            goTab(this.getUIContext(), 'pages/Index');
           } else if (i === 1) {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/Cases' });
+            goTab(this.getUIContext(), 'pages/Cases');
           }
         }
       })

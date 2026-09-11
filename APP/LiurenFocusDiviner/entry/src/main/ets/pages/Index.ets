@@ -39,6 +39,7 @@ import { KegCard } from '../components/KegCard';
 import { PanDisk } from '../components/PanDisk';
 import { TagBadge } from '../components/TagBadge';
 import { YongShenSheet } from '../components/YongShenSheet';
+import { goTab } from '../model/NavUtil';
 
 const MIN_YEAR: number = 1900;
 const MAX_YEAR: number = 2060;
@@ -83,6 +84,9 @@ struct Index {
   @State private hourZhi: string = '午';
   /* 已从路由收到日期参数（Home 传入）：为 true 时 initData 不再用当前时间覆盖 */
   private routeDateSet: boolean = false;
+  /* 最近一次「带参返回」的令牌（课例恢复用）：只有收到新令牌才按新日期重排，
+     普通页签返回不带令牌，盘面保持不动（页签回到本页时不会重建页面） */
+  private routeToken: string = '';
   /* 当前盘来源：'self'=自己起课 / 'ancient'=古籍案例反推（保存课例标题用） */
   @State private caseSource: string = 'self';
   @State private ready: boolean = false;
@@ -155,6 +159,32 @@ struct Index {
     /* 收首页路由参数（y/m/d/hz）；无参数则回退当天 */
     this.applyRouteParams();
     this.initData();
+  }
+
+  /* 从课例/古籍页签返回时触发（页签用 back 回到本页，不重建页面）：
+     仅当本次是「带参返回」（课例恢复，params 带新令牌 t）才按新日期重排；
+     普通页签切换不带令牌，盘面与用神保持原样 */
+  onPageShow(): void {
+    let p: Record<string, Object> | undefined = undefined;
+    try {
+      p = this.getUIContext().getRouter().getParams() as Record<string, Object>;
+    } catch (e) {
+      p = undefined;
+    }
+    if (!p) {
+      return;
+    }
+    const tk = p['t'];
+    if (tk === undefined || tk === null) {
+      return;
+    }
+    const t = String(tk);
+    if (t === '' || t === this.routeToken) {
+      return;
+    }
+    this.routeToken = t;
+    this.applyRouteParams();
+    this.recastFromRoute();
   }
 
   /* 读取首页传入的日期时辰参数（Home → pushUrl params）
@@ -629,6 +659,26 @@ struct Index {
     } else {
       this.syncCal();
       doCast();
+    }
+  }
+
+  /* 按当前日期字段重排（必要的年历法先补载）；课例恢复与「带参返回」共用 */
+  private recastFromRoute(): void {
+    const y = this.year;
+    const ctx = this.abilityCtx();
+    if (!this.calData[String(y)] && ctx) {
+      DataLoader.loadCal(ctx, y).then((arr: DayRec[]) => {
+        if (arr.length > 0) {
+          const m2: Record<string, DayRec[]> = {};
+          m2[String(y)] = arr;
+          this.calData = m2;
+          this.clampDay();
+        }
+        this.doChart();
+      });
+    } else {
+      this.syncCal();
+      this.doChart();
     }
   }
 
@@ -1743,9 +1793,9 @@ struct Index {
         },
         onSwitch: (i: number) => {
           if (i === 1) {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/Cases' });
+            goTab(this.getUIContext(), 'pages/Cases');
           } else if (i === 2) {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/Ancient' });
+            goTab(this.getUIContext(), 'pages/Ancient');
           }
         }
       })

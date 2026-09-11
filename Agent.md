@@ -332,6 +332,15 @@ node _tools/contrast_audit.js --trace AncientCaseGallery.ets:376   # 打印某�
 深底文字安全线：与本文件 `DARK_WORST`（`#352F22`，12% 金底叠加后的最亮深底）达到 4.5:1；
 **浅色面板内的文字必须反过来用深色**，改色时不能全局一把梭（案例鉴赏的纸面板即反例）。
 
+### 页签导航反验（1.0.3 审核反馈，2026-09-10 新增）
+
+```powershell
+node _tests/_test_navutil.js    # 抽出 NavUtil.ets 跑模拟路由栈：反复横跳后回排盘等 9 项
+```
+
+注意：该测试验证的是**决策逻辑 + 官方文档语义**（模拟栈按 `back(index)`/`pushUrl` 语义实现），
+真机行为仍需上机确认。
+
 ### 排盘规则反验（天将顺逆 / 昴星 / 九宗门，2026-09-10 新增）
 
 ```powershell
@@ -409,6 +418,13 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
    - 反方向同样会踩：浅色面板（案例鉴赏纸/淡蓝面板）里的文字必须用深色，
      改配色**不能全库替换色值**，务必按容器分别处理。
    - 改完必跑：`node _tools/contrast_audit.js`，要求 0 处低于 4.5:1。
+
+8. **页签导航（1.0.3 审核反馈）**
+   - 页签不要写「进入用 pushUrl、回排盘用 back()」：反复切换会把页面栈堆起来，回不到排盘页。
+   - 统一走 `model/NavUtil.ets` 的 `goTab / goTabWith`（栈里有就 `back(index)`，没有才 `pushUrl`）。
+   - `back({ url })` 不是可靠写法：栈里没有该页时**不响应**（等于没点）；
+     要先 `getStateByUrl` 查栈拿索引，再 `back(index)`。
+   - 页签回到已存在的实例不会重建页面 → 需要刷新的数据自己加 `onPageShow`。
 
 ---
 
@@ -512,6 +528,42 @@ SHA256 `3E55D6CA4A847DCB4F4F2D1E9117EEF8F635B85374E2DF73600FDA5D966B500E`，veri
 🔒/🧭 图标行），在系统浅色模式下会取到主题的深色默认字色 → 深底上几乎不可见；
 声明单主题深色后这些文字回归浅色，同时浅色面板内也没有这类无字色文字（已扫描确认 0 处）。
 
+**结果**：1.0.3 应用市场审核通过（2026-09-10）。
+
+---
+
+## 11.7 页签导航修复（1.0.3 审核反馈 · 未升版号）
+
+**审核反馈**：「排盘-排盘/课例/古籍：在重复进入课例/古籍界面时，点击排盘不能正确回到排盘」
+（测试环境 HarmonyOS 6.1.0 / API 6.1.1(24) 实机，要求下一版修复）。
+
+**根因**：三个页签「进入」用 `pushUrl`、「回排盘」用 `router.back()`——只退**一层**。
+反复进入课例/古籍会把页面栈堆成 `Index→Cases→Ancient→Cases…`，点「排盘」只退到上一个页签页。
+
+**修法**：新增 `entry/src/main/ets/model/NavUtil.ets`，三页页签切换统一走 `goTab / goTabWith`：
+1. 目标页已在页面栈中 → `back(index)` 直接回到它（页面不重建，排盘页盘面与用神保留）；
+2. 目标页不在栈中 → `pushUrl` 新开一页；
+3. 目标页就是当前页 → 不动（页签允许点当前项）。
+
+不用 `back({ url })`：文档明确「如果页面栈上没有 url 页面，则不响应该情况」（不在栈里等于没点），
+所以必须先 `getStateByUrl` 查栈、拿到索引后再 `back(index)`。
+SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均在 `@ohos.arkui.UIContext` 的 Router 上。
+
+**配套改动**：
+- `Index.ets` 页签跳转改 `goTab`；新增 `onPageShow`：**仅在收到新令牌 `t`** 时按新日期重排
+  （`recastFromRoute()`），普通页签返回不带令牌 → 盘面保持不动；`restoreCase` 的重排逻辑抽为
+  `recastFromRoute()` 共用。
+- `Cases.ets` 页签跳转改 `goTab`；新增 `onPageShow` 刷新课例列表（页签回到已存在实例不会重建页面）；
+  `restoreCase` 改 `goTabWith(..., { y, m, d, hz, t })` 带令牌返回。
+- `Ancient.ets` 页签跳转改 `goTab`；`onBackPress`（案例详情先回列表）不变；`‹ 返回` 仍为 `back()`。
+
+**校验**：`node _tests/_test_navutil.js` —— 把 `NavUtil.ets` 真实代码抽出（去注释/类型注解），
+用按官方语义实现的模拟路由栈跑 9 项，含审核那串操作（反复横跳后点排盘回到排盘页、横跳不堆栈、
+栈中无排盘页时新开、课例恢复带参、`‹ 返回` 仍退一层）。**仅验证决策逻辑与文档语义，真机行为待上机确认。**
+
+**状态**：未升版号、未打包（1.0.3 已在架）；随下一版一并提交，更新说明草案见
+`鸿蒙规范文档/商店页文案与截图清单.md` §10。
+
 ---
 
 ## 12. 给后续 AI 的操作建议
@@ -520,6 +572,7 @@ SHA256 `3E55D6CA4A847DCB4F4F2D1E9117EEF8F635B85374E2DF73600FDA5D966B500E`，veri
 - 改案例后必跑：反验 → 免费同步 → 免费校验 → 主版构建 → 免费版构建 → commit/push。
 - 改中黄/盘后必跑：`node _tests/_test_zhonghuang.js`、`node _tests/_test_zhonghuang_analyze.js`、`node _tests/_test_zhonghuang_dun.js`、`node _tests/_test_jiangpan.js`，并构建主/免费 HAP。
 - 改配色后必跑：`node _tools/contrast_audit.js`（须 0 处低于 4.5:1）→ 主版构建 → 免费 sync/verify → 免费版构建 → `python _tools/sign_release.py free`。
+- 改页签/路由后必跑：`node _tests/_test_navutil.js`（决策逻辑），并**上机确认**（模拟测试不覆盖真机行为）。
 - 改核心算法：改 `core/liuren-core.ts`（真源）→ `npx tsc` 重编译 `core/liuren-core.js` → 手工同步 `LiurenCore.ets`（含 `ChartCore`/`Chart` 接口字段）；三份实现必须同构，且新增盘字段别忘 `withDx` 浅拷贝。
 - 写古籍案例时：先程序复算，再写断语解释；不要先信 OCR。
 - 遇到传本不一致：宁可写“存疑对读”，不要硬改引擎去迎合 OCR。

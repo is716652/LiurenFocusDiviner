@@ -10,6 +10,7 @@ import { CaseStore } from '../model/CaseStore';
 import type { CaseRec } from '../model/CaseStore';
 import { CaseBoard } from '../components/CaseBoard';
 import { PageHeader } from '../components/PageHeader';
+import { goTab, goTabWith } from '../model/NavUtil';
 
 @Entry
 @Component
@@ -17,6 +18,11 @@ struct Cases {
   @State private cases: CaseRec[] = [];
 
   aboutToAppear(): void {
+    this.initData();
+  }
+
+  /* 由其他页签返回本页时刷新列表（页签用 back 回到已存在的实例，不重建页面） */
+  onPageShow(): void {
     this.initData();
   }
 
@@ -39,7 +45,9 @@ struct Cases {
     });
   }
 
-  /* 恢复课例：回排盘页并携带日期时辰（Index 收参自动出盘） */
+  /* 恢复课例：回排盘页并携带日期时辰（Index 收参自动出盘）
+     t = 本次带参返回的令牌：排盘页收到新令牌才按新日期重排，
+     普通页签返回不带参，盘面保持不动。 */
   private restoreCase(rec: CaseRec): void {
     const y = parseInt(rec.date.slice(0, 4));
     const m = parseInt(rec.date.slice(5, 7));
@@ -51,12 +59,10 @@ struct Cases {
       'y': y,
       'm': m,
       'd': d,
-      'hz': rec.hourZhi
+      'hz': rec.hourZhi,
+      't': String(Date.now())
     };
-    this.getUIContext().getRouter().pushUrl({
-      url: 'pages/Index',
-      params: params
-    });
+    goTabWith(this.getUIContext(), 'pages/Index', params);
   }
 
   build() {
@@ -77,9 +83,10 @@ struct Cases {
         },
         onSwitch: (i: number) => {
           if (i === 0) {
-            this.getUIContext().getRouter().back();
+            /* 排盘：回到栈中已有的排盘页（保留盘面），没有才新开 */
+            goTab(this.getUIContext(), 'pages/Index');
           } else if (i === 2) {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/Ancient' });
+            goTab(this.getUIContext(), 'pages/Ancient');
           }
         }
       })
