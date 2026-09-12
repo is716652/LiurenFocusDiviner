@@ -1,8 +1,8 @@
 /* ============================================================================
- * _o1.js —— 给 .ets 模块做与 .ts 相同的「归属限定符」改写（A6 三端同构要求）
+ * _ets_qualify.js —— 给 .ets 模块做与 .ts 相同的「归属限定符」改写（A6 三端同构要求）
  *   常量/工具 → LrBase / LrDungan / LrJiang / LrSanchuan / LrTiandipan / LrShensha /
  *               LrXunkong / LrDx；跨模块业务方法保持 LiurenCore.*（门面转发）。
- * 用法：node _tools/_etsgen.js && node _tools/_o1.js
+ * 用法：node _tools/_ets_split.js && node _tools/_ets_qualify.js
  * ==========================================================================*/
 'use strict';
 const fs = require('fs');

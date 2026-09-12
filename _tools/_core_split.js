@@ -1,14 +1,15 @@
 /* ============================================================================
- * _slice.js —— 临时工具：按 §13 模块边界把引擎单体**逐字搬移**成多模块
+ * _core_split.js —— 临时工具：按 §13 模块边界把引擎单体**逐字搬移**成多模块
  * ----------------------------------------------------------------------------
  * 纪律：纯结构改动 —— 被搬移的行逐字保留（只做 static 方法改名、四课等价抽取、
  *      「引用归属模块」限定符改写），不评论化、不改任何规则/数值/判据。
- * 用法：node _tools/_slice.js check   # 只跑覆盖检查
- *       node _tools/_slice.js ts      # core/liuren-core.ts → core/liuren/*.ts + 装配层
+ * 用法：node _tools/_core_split.js check   # 只跑覆盖检查
+ *       node _tools/_core_split.js ts      # core/liuren-core.ts → core/liuren/*.ts + 装配层
  * ==========================================================================*/
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const MODE = process.argv[2] || 'check';
@@ -301,8 +302,15 @@ const FACADE_METHODS = [
 
 /* ============================ 主流程 ============================ */
 /* 源文件是 CRLF：先归一化为 LF，避免搬运时把 \r 带进新文件（也会让逐字匹配失配） */
-const lines = fs.readFileSync(path.join(ROOT, 'core', 'liuren-core.ts'), 'utf-8')
-  .replace(/\r\n/g, '\n').split('\n');
+/* 基线一律取自拆分前的 tag：磁盘上的 core/liuren-core.ts 现在是**装配产物**，不能当基线 */
+const BASE_TAG = 'v1.0.4-pre-componentize';
+const lines = execFileSync('git', ['show', BASE_TAG + ':core/liuren-core.ts'],
+  { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 }).toString('utf-8').replace(/\r\n/g, '\n').split('\n');
+if (lines.length < 2400) {
+  console.log('!! 基线不像拆分前单体（仅 ' + lines.length + ' 行）—— 检查 tag ' + BASE_TAG);
+  process.exit(1);
+}
+console.log('基线 ' + BASE_TAG + ':core/liuren-core.ts（' + lines.length + ' 行）');
 
 /* 覆盖检查（四课段与 tiandipan 有意重叠，单独剔除重叠报告） */
 {

@@ -180,7 +180,7 @@ bodyOf['tiandipan'] = bodyOf['tiandipan'].map((txt) => {
 {
   const EXTRAS = path.join(__dirname, '_ets_extras_dx.txt');
   if (fs.existsSync(EXTRAS)) bodyOf['dx'].push(fs.readFileSync(EXTRAS, 'utf-8').replace(/\n+$/, ''));
-  else { console.log('    !! 缺 _tools/_ets_extras_dx.txt，请先跑 node _tools/_ets_extras.js'); process.exit(1); }
+  else { console.log('    !! 缺 _tools/_ets_extras_dx.txt，请先跑 node _tools/_ets_ets_facade_extras.js'); process.exit(1); }
 }
 
 /* ---------- 写文件 ---------- */

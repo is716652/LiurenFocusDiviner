@@ -1,7 +1,7 @@
 # Agent.md —— LargeLiuRen Design 项目交接与实施手册
 
 > 写给后续 AI / 开发者：先读这份，再动代码。  
-> 最近更新：2026-09-10  
+> 最近更新：2026-09-12（引擎组件化落地，§9/§10/§13/§14 已按新口径订正）  
 > 本文档更新前 main HEAD：`621e2be feat(gallery): 中黄五变经 5 案补全 reasoning 证据链`
 
 ---
@@ -110,8 +110,9 @@
 
 ### 根目录
 
-- `core/liuren-core.ts`：大六壬核心 TypeScript 源。
-- `core/liuren-core.js`：由 TS 编译出的 JS，用于 Node 测试与参考。
+- `core/liuren/**`：大六壬核心 TypeScript **真源**（`facade.ts` 门面 + 各模块；组件化见 §13）。
+- `core/liuren-core.ts`：**装配产物**，由 `node _tools/build_core.js` 拼装生成，**勿手改**。
+- `core/liuren-core.js`：由 TS 编译出的单一 JS 产物，用于 Node 测试与 Web 端加载。
 - `_tests/`：核心与案例反验脚本。
 - `_tools/`：免费版生成/校验等工程脚本。
 - `鸿蒙规范文档/`：合规、上架、文案落地记录。
@@ -126,7 +127,9 @@
 
 关键文件：
 
-- `APP/LiurenFocusDiviner/entry/src/main/ets/model/LiurenCore.ets`：ArkTS 核心，应与 `core/liuren-core.js` 保持同步。
+- `APP/LiurenFocusDiviner/entry/src/main/ets/model/LiurenCore.ets`：ArkTS 核心门面（**生成产物**），
+  与 `core/liuren-core.js` 同构；其实现分散在 `model/pan/*.ets` 与 `model/{bifa,zhonghuang}.ets`，
+  两侧统一由 `core/liuren/**` 重建（§9）。
 - `APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets`：数据结构与 rawfile 加载。
 - `APP/LiurenFocusDiviner/entry/src/main/resources/rawfile/ancient/case_gallery.json`：古籍案例库（当前 **45 案**）。
 - `APP/LiurenFocusDiviner/entry/src/main/ets/components/PanDisk.ets`：天地盘绘制（中圈单干：旬遁/时干遁；含身/变/传标记）。
@@ -300,17 +303,35 @@ APP/screenshots_out/免费版下一版 2026-9-5
 
 ### 核心编译（真源 → 产物）
 
-`core/liuren-core.ts` 是**真源**（ArkTS 兼容子集，无 import/export 的全局脚本）；
-`core/liuren-core.js` 由它经 tsc 产出，供 Node 测试与 Web 端加载；`LiurenCore.ets` 是 ArkTS 端口（手工同构）。
+组件化（§13）后，真源已拆成多模块：**真源 = `core/liuren/facade.ts`（门面）+ `core/liuren/**`（各模块）**。
+`core/liuren-core.ts` 是**装配产物**（由脚本按固定顺序拼装，文件头有「勿手改」警告），
+`core/liuren-core.js` 仍是**单一编译产物**——Node 测试与 Web 端只加载它，加载方式未变。
 
 ```powershell
-# 改完真源后必须重编译产物，否则测试跑的仍是旧逻辑
-npx tsc core/liuren-core.ts --target ES2017 --module commonjs --strict --noImplicitAny
-node --check core/liuren-core.js
-# 再手工把同一改动同步到 APP/LiurenFocusDiviner/entry/src/main/ets/model/LiurenCore.ets
+# core 侧（Node/Web 产物）：改动一律写在 core/liuren/** 里，不要碰 core/liuren-core.ts
+node _tools/build_core.js            # 拼装 → tsc → node --check（唯一重建入口）
+node _tools/build_core.js --check    # 只校验：产物与真源不一致即 exit 1
+
+# ArkTS 侧（另一条链，真源同为 core/liuren/**，手工同构）
+node _tools/_ets_pipeline.js         # _extras.js → _etsgen.js → _o1.js → 免费版 sync/verify
+#   之后接主版构建（工作目录 APP/LiurenFocusDiviner）：
+#   D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode module -p product=default --no-daemon
 ```
 
-三份实现（.ts / .js / .ets）关键点抽查：`JIANG_NI` 应为 0、`buildJiang`/`xunDun`/`maoxingFirst` 应齐全。
+**禁止直接编辑 `core/liuren-core.ts`**：它是装配产物，会被下一次 `build_core.js` 整体覆盖；
+同理 ArkTS 侧 `model/LiurenCore.ets`、`model/pan/*.ets`、`model/{bifa,zhonghuang}.ets` 也是产物。
+
+同步关系（取代旧的「三份实现 .ts / .js / .ets 同步」口径）：**真源只在一处 = `core/liuren/**`**；
+`.js` 由 `_tools/build_core.js` 重建，`.ets` 由 `_tools/_ets_pipeline.js` 重建，两侧各一个入口。
+
+辅助校验：
+
+```powershell
+node _tools/_core_snapshot.js        # 行为快照比对（基线 _tests/_data/core_snapshot.json，185981 条规范化输出逐条哈希）
+node _tools/_api_parity.js           # 与 tag v1.0.4-pre-componentize 的产物逐成员比对外 API
+```
+
+关键点抽查：`JIANG_NI` 应为 0、`buildJiang`/`xunDun`/`maoxingFirst` 应齐全；真源基线 tag 为 `v1.0.4-pre-componentize`（两侧切片脚本都从它取单体基线）。
 
 ### 案例反验
 
@@ -434,10 +455,16 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
    - 处理：等待几秒 → 重新 read → 再 edit。
    - 不要并行改同一个文件。
 
-2. **真源漂移（2026-09-10 踩过）**
-   - 只改 `core/liuren-core.js` 而没改 `core/liuren-core.ts`（或反之），会让真源与产物不一致；
-   - 只改 .ts 而不跑 tsc，测试仍在旧产物上跑（测试加载的是 .js）；
-   - 改核心算法一律三步：改 .ts → tsc 重编译 → 手工同构 .ets，最后跑全套 `_tests/_test_*.js`。
+2. **真源漂移（2026-09-10 踩过；2026-09-12 按组件化更新）**
+   - 只改 `core/liuren-core.js` 而没改真源（或反之），会让真源与产物不一致；
+   - 只改 `core/liuren/**` 而忘了 `node _tools/build_core.js`，测试跑的仍是**旧产物**
+     （测试加载的是 `core/liuren-core.js`，它不会自己变）；
+   - 手改 `core/liuren-core.ts`，或手改 `model/LiurenCore.ets` / `model/pan/*.ets`
+     → 下一次重建整体覆盖，改动直接丢失：**这三个位置是产物，不是真源**；
+   - 两侧不同步：改完 core 侧还要跑 `node _tools/_ets_pipeline.js`，
+     否则 A6 三端同构门禁会红（.ets 侧仍停在旧实现）；
+   - 改核心算法一律五步：改 `core/liuren/**` → `node _tools/build_core.js`
+     → `node _tools/_ets_pipeline.js` → 主版 hvigorw 构建 → 最后跑全套 `_tests/_test_*.js`。
 
 3. **ArkTS 严格模式**
    - 禁止 any/unknown。
@@ -528,7 +555,7 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
 | 2 | 柔日昴星初传写死为「午」：`Z[(Z.indexOf("酉") - 3 + 12) % 12]` | 抽 `LiurenCore.maoxingFirst(tp, yangGan)`：刚日取地盘酉上神、柔日取天盘酉下神 |
 | 3 | 九宗门散落的魔数 | 八专 `BA_ZHUAN_STEP`、返吟井栏射 `JINGLAN_SHE`、伏吟自刑 `ZI_XING`、昴星锚 `MAOXING_ANCHOR` 全部具名化 |
 
-**规则唯一来源**：`core/liuren-core.js` 末尾「十二天将布列规则」块 + `LiurenCore.ets` 同名块（注释互指，改一处必须同步另一处）。
+**规则唯一来源**：`core/liuren/pan/jiang.ts` 末尾「十二天将布列规则」块 + `LiurenCore.ets` 同名块（注释互指，改一处必须同步另一处）。
 
 **影响面（17280 盘全枚举）**：天将变化 50.0%（每盘 10/12 宫）；中黄变干乘将 41.7%；毕法命中变化 15.5%；柔日昴星 1.6%；至少一处 50.9%。
 
@@ -690,7 +717,7 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 - 改配色后必跑：`node _tools/contrast_audit.js`（须 0 处低于 4.5:1）→ 主版构建 → 免费 sync/verify → 免费版构建 → `python _tools/sign_release.py free`。
 - 改页签/路由后必跑：`node _tests/_test_navutil.js`（决策逻辑），并**上机确认**（模拟测试不覆盖真机行为）。
 - 改天将/贵人相关代码或改 `大六壬文档/json/十二天神与贵人.json` 后必跑：`node _tests/_test_jiangpan_rules.js`。
-- 改核心算法：改 `core/liuren-core.ts`（真源）→ `npx tsc` 重编译 `core/liuren-core.js` → 手工同步 `LiurenCore.ets`（含 `ChartCore`/`Chart` 接口字段）；三份实现必须同构，且新增盘字段别忘 `withDx` 浅拷贝。
+- 改核心算法：改 `core/liuren/**`（真源，**不要手改装配产物 `core/liuren-core.ts`**）→ `node _tools/build_core.js` 重建 `core/liuren-core.js` → `node _tools/_ets_pipeline.js` 重建 `.ets` 模块与门面（含 `ChartCore`/`Chart` 接口字段）；三端必须同构（A6 抽查），且新增盘字段别忘 `withDx` 浅拷贝。
 - 写古籍案例时：先程序复算，再写断语解释；不要先信 OCR。
 - 遇到传本不一致：宁可写“存疑对读”，不要硬改引擎去迎合 OCR。
 - **盘面规则不要再写死**：天将/贵人/九宗门取用/遁干的常量与阈值一律进「规则块」并抽成具名常量或方法；两个起盘入口（`buildChart`/`buildChartAncient`）共用同一实现。
@@ -702,7 +729,7 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 
 ---
 
-## 13. 引擎组件化方案（2026-09-10 定，待执行）
+## 13. 引擎组件化方案（2026-09-10 定，2026-09-12 已执行）
 
 **回滚点**：附注标签 `v1.0.4-pre-componentize` → commit `7f988c95911d9bf97e19daf7555d5b4f46c57de1`（2026-09-10 打，已推远端；含三传九宗门规范重写＋涉害孟仲季优先＋防写死门禁＋1.0.4 包）。回滚：`git reset --hard v1.0.4-pre-componentize`。
 
@@ -736,6 +763,80 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 **执行顺序（2026-09-10 定）**：先把三传正确性收敛（八专余量、回归基线、主/免费版构建、命中率报告）
 → 再做组件化拆分（纯结构改动、行为不变、以现有测试与传本锚点为回归网）→ 拆分完成后再动规则。
 
+### 执行结果（2026-09-12）
+
+**已按上表拆分完成，纯结构改动、行为不变。** 真源从单体搬到 `core/liuren/**`，两侧各有**唯一重建入口**。
+
+**core 侧实际模块清单（与上表逐行对应）**：
+
+| 上表模块 | 实际文件 | 类名 |
+|:--|:--|:--|
+| （类型） | `core/liuren/types.ts` | 顶层 `interface` 集中定义（无类） |
+| （公共底座） | `core/liuren/liuren-const.ts` | `LrBase` |
+| `pan/jigong` | `core/liuren/pan/jigong.ts` | `LrJigong` |
+| `pan/xunkong` | `core/liuren/pan/xunkong.ts` | `LrXunkong` |
+| `pan/jiang` | `core/liuren/pan/jiang.ts` | `LrJiang` |
+| `pan/dungan` | `core/liuren/pan/dungan.ts` | `LrDungan` |
+| `pan/sanchuan` | `core/liuren/pan/sanchuan.ts` | `LrSanchuan` |
+| `pan/sike` | `core/liuren/pan/sike.ts` | `LrSike`（四课实现集中在 `sikeOf`） |
+| `pan/tiandipan` | `core/liuren/pan/tiandipan.ts` | `LrTiandipan` |
+| `pan/shensha` | `core/liuren/pan/shensha.ts` | `LrShensha` |
+| `pan/dx` | `core/liuren/pan/dx.ts` | `LrDx` |
+| `bifa` | `core/liuren/bifa.ts` | `LrBifa` |
+| `zhonghuang` | `core/liuren/zhonghuang.ts` | `LrZhonghuang` |
+| `yongshen` | `core/liuren/yongshen.ts` | `YongShenCore`（独立文件，抓用神/读象） |
+| （门面） | `core/liuren/facade.ts` | `LiurenCore`：只做常量绑定、公开方法转发、类型 re-export |
+
+**core 侧装配方式（为什么需要装配层）**：模块间靠**全局同名 class** 互调（`LrXxx` 互调 + 门面转发），
+而 `tsc` **无法把多个文件拼成一个全局脚本**（一文件一产物、全局脚本无 import/export）。
+故必须有一层装配：`_tools/build_core.js` 按固定顺序拼装各模块 → **装配产物** `core/liuren-core.ts`
+→ `tsc` → **单一产物** `core/liuren-core.js`（Node 测试与 Web 端仍只加载这一个，加载方式未变）。
+
+**两侧各一个重建入口**（真源同为 `core/liuren/**`）：
+
+- core 侧：`node _tools/build_core.js`（拼装 → 同一条 `npx tsc core/liuren-core.ts --target ES2017 --module commonjs --strict --noImplicitAny` → `node --check`）；
+  另有 `--check` 只校验「产物 vs 真源」是否一致（不一致 exit 1）。
+- ArkTS 侧：`node _tools/_ets_pipeline.js`（`_extras.js` → `_etsgen.js` → `_o1.js` → 免费版 `sync_free_edition.py` / `verify_free_edition.py`）；
+  生成物为 `APP/.../model/pan/*.ets` + `model/{bifa,zhonghuang}.ets` + 门面 `model/LiurenCore.ets`，之后接主版 hvigorw 构建。
+
+**可见性放宽 5 个成员（不是笔误，不要改回 `private`）**：
+
+| 成员 | 所在模块 | 放宽原因 |
+|:--|:--|:--|
+| `EMPTY_NODE` | `pan/dx.ts` | 跨模块引用空盘态节点 |
+| `wangT` | `pan/dx.ts` | 跨模块取旺衰表 |
+| `yearZhiOf` | `pan/dx.ts` | 跨模块由日记录取年支 |
+| `withDx` | `pan/dx.ts` | 跨模块附加盘态（新增盘字段别忘它） |
+| `findDayRec` | `pan/tiandipan.ts` | 跨模块按日期取日记录 |
+
+上述成员**原为 `private static`**，因被跨模块调用/被门面转发而提升为 `static`（两侧同一批）。
+性质是**可见性放宽，非逻辑改动**——看到它们不再 `private` 不要当成笔误改回去。
+
+**唯一的等价抽取**：四课实现抽为 `LrSike.sikeOf`（两个起盘入口 `buildChart` / `buildChartAncient`
+不再各自内联四课），**判定不变**。
+
+**门禁口径随之订正（均已生效）**：
+
+- **A2**（`_tests/_test_no_hardcode.js`）：例外只开给 **`.ets` 侧**——ArkTS 里 import 是唯一的
+  模块机制，允许模块 import（仍受 `require/fs/process/Date.now/new Date` 约束，**实质约束未放宽**）。
+  **`.ts` 侧维持原判据不放宽：任何 `import` / `export` 都违规**——真源是全局脚本，模块间靠
+  **全局同名 class** 互调（实测 `core/liuren/**` 一条 import 都没有，给 `.ts` 开口子等于白送）。
+  收紧后已做变异测试：往模块 `.ts` 注入「值 import / `import type` / `export`」三者均被判否，
+  注入后逐字节还原并复跑门禁通过。
+- **A3**（`_tests/_test_component_audit.js`）：原实现逐行近似判「这行是不是注释」，
+  块注释里含 `?` 的续行会被误判成代码（组件化后 `pan/jiang.ets` 中讲历史坑的那段正好被误报）。
+  已改为**字符级求块注释区间**。判据方向不变：**非注释**代码成组出现天将名仍违规。
+
+**回归证据（2026-09-12）**：
+
+- 行为快照 `node _tools/_core_snapshot.js`：**185981 条规范化输出逐条一致** ✓（总哈希
+  `f2a02d139a053ff7c820d8483eb2de923fc6e5159053c6987ac2eff8ed273aa1` 未变）；
+- 对外 API `node _tools/_api_parity.js`：与 tag `v1.0.4-pre-componentize` 产物比对 **0 缺失**（只增不改：新增 `buildSiKe`/`ruleHealth`/`missingRules`/`palaceLookup` + 16 项模块类暴露；常量 31 项全一致）✓；
+- **25 个测试全绿**；`node _tools/build_core.js --check` 报「与真源一致 ✓」；
+- 两侧 HAP **BUILD SUCCESSFUL**（主版 + 免费版）。
+
+**真源基线 tag**：`v1.0.4-pre-componentize`（两侧切片脚本都从它取单体基线）。
+
 ---
 
 ## 14. 空态纪律与自查工具（组件化后实施）
@@ -749,7 +850,7 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 | # | 空的种类 | 例子 | 用户应看到 | 现状 |
 |:--:|:--|:--|:--|:--|
 | ① | **本来就该空** | 本课确实未命中毕法；该支本位确实不带神煞 | 「为什么空」的一句说明 + 规则出处入口 | 无说明 |
-| ② | **数据被改坏或未加载** | `rule/神煞起法.json` 被改名 / 规则表缺失 / 加载抛错 | **必须显式报错**：该栏标「规则表未加载」+ 一次性提示 + 日志 | **静默空白 ✗（当前行为）** |
+| ② | **数据被改坏或未加载** | 某张规则表被改名 / 规则表缺失 / 加载抛错（**提示里不得写数据文件名**，见 §14.2 纪律） | **必须显式报错**：该栏标「规则表未加载」+ 一次性提示 + 日志 | **静默空白 ✗（当前行为）** |
 | ③ | **用户不懂为何不中** | 有 100 法却一条未中；神煞名看不懂 | 判定口径、规则表、可检索全文 | 无入口 |
 
 **根因**：①与②在代码里走的是同一条「没有值 → 不渲染 / 显示 `—`」路径。
@@ -773,6 +874,10 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 
 **口径**：文案必须**只陈述规则、不给现实结论**；照 §11.6 的合规口径，不得出现医疗/法律/投资/仕途/生死的确定断语。
 
+**纪律（2026-09-12 补）**：**缺表提示不得出现数据文件名**——不得写「`xxx.json` 未加载」，
+要写「某规则表未加载」（规则表名可写，文件名不可写）；引擎代码里出现 `.json` 会被
+`_tests/_test_no_hardcode.js` 的 **A1** 判否（A1 token 表含 `.json` 与 `rawfile`）。
+
 ### 14.3 数据健康徽标 + 自检页
 
 **徽标**（设置页 / 首页常显）：
@@ -786,6 +891,16 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 **一键导出诊断信息**：上述自检结果 + 表清单哈希 + 版本号 + 日期时辰，可复制文本（离线，不联网）。
 
 **实现注记**：「加载成功与否」必须由 `DataLoader` 逐表返回状态，**不得**再用 `try/catch` + 空兜底吞掉（§14.6）。
+
+**可查询的缺失清单 API 现状（2026-09-12 补）**：
+
+- **core / Node 侧：已提供**——`LiurenCore.ruleHealth()` 与 `LiurenCore.missingRules()`
+  （读**引擎真正使用**的路径，不是扫目录）：缺表 → `loaded=false` + `note`；
+  表在但无条目 → `loaded=true` / `entries=0`（**这两种必须区分开**，后者是数据问题不是加载问题）。
+- **ArkTS 侧：暂未提供**——其「按表名取字典」的写法会触发 ArkTS 的 `arkts-no-props-by-index` 编译报错，
+  故 `.ets` 侧不提供同名 API，改由 `DataLoader` 的**逐表状态**承担（见本节上面的计数口径）。
+- **UI 侧待办**：设置页 / 首页的**数据健康徽标与缺表清单要吃这两侧的状态**
+  （count 口径以 `DataLoader` 逐表登记为准，core/Node 侧对话框与 Web 端走 `ruleHealth()/missingRules()`）。
 
 ### 14.4 点宫速查卡（点天地盘任一宫）
 

@@ -1,9 +1,9 @@
 /* ============================================================================
- * _core_post.js —— core 侧切片后的收尾（可重复执行，幂等）
+ * _core_assemble.js —— core 侧切片后的收尾（可重复执行，幂等）
  *   1) 装配层 core/liuren/facade.ts：补常量绑定 / 模块别名 / 新只读接口转发
  *   2) 可见性：跨模块被调用的原 private static 提升为 public（与 .ets 侧同一批）
  *   3) DuxiangRulesRaw 补三个已在 rawfile 的规则表键声明（引擎本就在读，接口原先漏声明）
- * 用法：node _tools/_slice.js ts && node _tools/_core_post.js && node _tools/build_core.js
+ * 用法：node _tools/_core_split.js ts && node _tools/_core_assemble.js && node _tools/build_core.js
  * ==========================================================================*/
 'use strict';
 const fs = require('fs');

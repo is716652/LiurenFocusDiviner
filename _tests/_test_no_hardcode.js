@@ -273,26 +273,23 @@ head('A2', '引擎不得有 I/O 与环境依赖');
 const A2_PATTERNS = [
   { name: 'require(', re: /\brequire\s*\(/g },
   { name: 'import ', re: /\bimport\b/g },
+  { name: 'export ', re: /\bexport\b/g },
   { name: 'fs', re: /\bfs\b/g },
   { name: 'process', re: /\bprocess\b/g },
   { name: 'Date.now', re: /\bDate\s*\.\s*now\b/g },
   { name: 'new Date(', re: /\bnew\s+Date\s*\(/g }
 ];
-/* 组件化后（§13）模块化的例外口径：
-   - .ts：只允许 `import type {...} from '<相对路径>types'`（类型擦除，无运行时依赖）；
-     任何**值 import** 仍然违规。
-   - .ets：允许模块 import（ArkTS 唯一模块机制）；它仍受 require/fs/process/Date 约束。 */
-const A2_TYPE_ONLY_IMPORT = /^import\s+type\s+\{[\s\S]*?\}\s+from\s+['"][^'"]*types['"];?/m;
-function a2AllowedImport(rel, code, m) {
-  if (rel.endsWith('.ets')) return true;
-  if (!rel.endsWith('.ts')) return false;
-  const stmt = /import[\s\S]*?;/.exec(code.slice(m.index));
-  return !!stmt && A2_TYPE_ONLY_IMPORT.test(stmt[0].replace(/\s+/g, ' ').replace(/, /g, ','));
+/* 组件化后（§13）的例外口径：
+   - .ets：允许模块 import（ArkTS 唯一的模块机制）；仍受 require/fs/process/Date 约束。
+   - .ts：**任何 import / export 都违规** —— 真源是全局脚本，模块间靠全局同名 class 互调
+     （实测 core/liuren/** 一条 import 都没有，故此处不开口子）。 */
+function a2AllowedImport(rel) {
+  return rel.endsWith('.ets');
 }
 /* Date 白名单：若引擎确需用 Date 做历法换算，在此登记 {file, reason}；
    当前为空（引擎三端均不使用 Date，历法数据一律由宿主经 init/buildChart 注入）。 */
 const A2_DATE_WHITELIST = [];
-/* 允许的模块 import（.ts 仅限 import type ... from '.../types'；.ets 允许模块 import） */
+/* 允许的模块 import（仅 .ets：ArkTS 模块机制；.ts 侧任何 import/export 都违规） */
 const A2_IMPORT_OK = [];
 
 for (const rel of ENGINE_FILES) {
@@ -302,7 +299,7 @@ for (const rel of ENGINE_FILES) {
     let m;
     while ((m = p.re.exec(st.code)) !== null) {
       if (whitelisted('A2', rel, p.name)) continue;
-      if (p.name === 'import ' && a2AllowedImport(rel, st.code, m)) { A2_IMPORT_OK.push(rel); continue; }
+      if ((p.name === 'import ' || p.name === 'export ') && a2AllowedImport(rel)) { A2_IMPORT_OK.push(rel); continue; }
       fail('A2', rel, lineOf(st.offs, m.index), '代码中出现环境依赖「' + p.name + '」',
         JSON.stringify(st.code.slice(Math.max(0, m.index - 40), m.index + 40).trim()));
     }
@@ -320,7 +317,7 @@ for (const rel of ENGINE_FILES) {
   }
 }
 console.log('  ✓ 引擎' + ENGINE_FILES.length + ' 份文件均无 require/fs/process/Date.now/new Date/Date'
-    + (A2_IMPORT_OK.length ? '；模块 import ' + A2_IMPORT_OK.length + ' 处（.ts 仅 import type，编译擦除；.ets 为 ArkTS 模块机制）' : '；无 import'));
+    + (A2_IMPORT_OK.length ? '；.ets 模块 import ' + A2_IMPORT_OK.length + ' 处（ArkTS 模块机制）；.ts 侧 0 处 import/export' : '；无 import'));
 
 /* ============================================================================
  * 引擎装载（A3 用；两份独立实例以查跨实例状态）
