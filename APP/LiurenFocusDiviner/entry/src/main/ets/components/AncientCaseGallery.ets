@@ -214,30 +214,42 @@ export struct AncientCaseGallery {
     return ['全部', '来意', '疾病', '官讼', '行人', '仕宦', '生产', '风水', '应候', '役事', '终身', '省试', '会试', '流年', '前程', '己身', '复建', '亡盗', '远行', '索债', '赴任', '复任', '补官', '六甲'];
   }
 
+  /* 分组名由数据现推（不再把「甲子日/乙丑日…戊辰日」这类个案口径写死在代码里）。
+     分组只用于展示分栏，不参与任何排盘判定。 */
   private groupNames(): string[] {
-    return ['中黄五变经', '六壬断案', '壬占汇选·甲子日', '壬占汇选·乙丑日', '壬占汇选·丙寅日', '壬占汇选·丁卯日', '壬占汇选·戊辰日'];
+    const seen: string[] = [];
+    for (let i = 0; i < this.cases.length; i++) {
+      const g = this.groupOf(this.cases[i]);
+      if (seen.indexOf(g) < 0) {
+        seen.push(g);
+      }
+    }
+    return seen;
   }
 
+  /* 日柱标记：完全取自数据自带字段（source / title / chapter 里的「X日」），
+     不做任何 id→日柱 的硬编码回填；都没有则归「其他」。 */
+  private dayMarkOf(c: AncientCase): string {
+    const pool: string = c.source + '|' + c.title + '|' + c.chapter;
+    const m = /[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]日/.exec(pool);
+    if (m !== null) {
+      return m[0];
+    }
+    return '其他';
+  }
+
+  /* 归属：按数据自带的书目字段分流（不再按个案 id 片段特判具体课） */
   private groupOf(c: AncientCase): string {
     if (c.source.indexOf('中黄五变经') >= 0) {
       return '中黄五变经';
     }
-    if (c.source.indexOf('六壬断案') >= 0 || c.id.indexOf('duanan_') >= 0) {
+    if (c.source.indexOf('六壬断案') >= 0) {
       return '六壬断案';
     }
-    if (c.id.indexOf('_yichou_') >= 0 || c.title.indexOf('乙丑日') >= 0 || c.chapter === '乙丑日') {
-      return '壬占汇选·乙丑日';
+    if (c.source.indexOf('壬占汇选') >= 0) {
+      return '壬占汇选·' + this.dayMarkOf(c);
     }
-    if (c.id.indexOf('_bingyin_') >= 0 || c.title.indexOf('丙寅日') >= 0 || c.chapter === '丙寅日') {
-      return '壬占汇选·丙寅日';
-    }
-    if (c.id.indexOf('_dingmao_') >= 0 || c.title.indexOf('丁卯日') >= 0 || c.chapter === '丁卯日') {
-      return '壬占汇选·丁卯日';
-    }
-    if (c.id.indexOf('_wuchen_') >= 0 || c.title.indexOf('戊辰日') >= 0 || c.chapter === '戊辰日') {
-      return '壬占汇选·戊辰日';
-    }
-    return '壬占汇选·甲子日';
+    return '古籍案例鉴赏';
   }
 
   private filteredCases(): AncientCase[] {
