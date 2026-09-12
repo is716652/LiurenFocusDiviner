@@ -8,9 +8,12 @@
  * 路由：getRouter().pushUrl(params) 传日期时辰到 Index
  * ArkTS 合规：零 any / unknown；显式类型
  */
-import { common } from '@kit.AbilityKit';
+import { common, bundleManager } from '@kit.AbilityKit';
 import type { DayRec } from '../model/LiurenCore';
 import { DataLoader } from '../model/DataLoader';
+import { RuleHealth } from '../model/RuleHealth';
+import { RuleHealthBadge } from '../components/RuleHealthBadge';
+import { RuleHealthPanel } from '../components/RuleHealthPanel';
 
 const MIN_YEAR: number = 1900;
 const MAX_YEAR: number = 2060;
@@ -31,11 +34,17 @@ struct Home {
   /* 年份就地编辑 */
   @State private yearEditing: boolean = false;
   @State private yearEditVal: string = '';
+  /* 数据健康（§14.3）：摘要 / 是否缺表 / 自检面板开关 / 应用版本（诊断用） */
+  @State private healthSummary: string = '规则数据：自检中…';
+  @State private healthProblem: boolean = false;
+  @State private showHealth: boolean = false;
+  @State private appVersion: string = '';
 
   aboutToAppear(): void {
     /* 收 Index 返回时带回的日期参数（replaceUrl 回 Home） */
     this.applyRouteParams();
     this.initData();
+    this.refreshHealth();
   }
 
   /* 读取 Index 返回的日期时辰参数；无参数用当天 */
@@ -115,6 +124,46 @@ struct Home {
       return host as common.UIAbilityContext;
     }
     return null;
+  }
+
+  /* ---------------- 数据健康（§14.3） ---------------- */
+
+  /* 逐表加载规则数据并刷新健康摘要：缺表照旧可用，只是把状态说清楚（不再静默） */
+  private async refreshHealth(): Promise<void> {
+    const ctx = this.abilityCtx();
+    if (!ctx) {
+      return;
+    }
+    this.appVersion = Home.versionName();
+    try {
+      await DataLoader.loadCoreRules(ctx);
+      await DataLoader.loadZhanShi(ctx);
+      await DataLoader.loadGuanlu(ctx);
+      await DataLoader.loadLeixiang(ctx);
+      await DataLoader.loadXiangyi(ctx);
+      await DataLoader.loadBifaCoach(ctx);
+      await DataLoader.loadKetiYi(ctx);
+    } catch (e) {
+      /* 单表失败已在 DataLoader 内逐表登记（不静默）；此处只保证首页照常可用 */
+    }
+    RuleHealth.init();
+    this.healthSummary = RuleHealth.summaryText();
+    this.healthProblem = RuleHealth.hasProblem();
+  }
+
+  /* 诊断补充信息（导出用；不含个人信息） */
+  private healthExtra(): string {
+    return '界面：首页（起课台）';
+  }
+
+  /* 应用版本（诊断用；versionName 在 BundleInfo 上，不在 ApplicationInfo 上） */
+  private static versionName(): string {
+    try {
+      const info = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_DEFAULT);
+      return info.versionName;
+    } catch (e) {
+      return '';
+    }
   }
 
   /* ---------------- 日期导航（与 Index 一致） ---------------- */
@@ -508,7 +557,8 @@ struct Home {
   }
 
   build() {
-    Column() {
+    Stack() {
+      Column() {
       /* 根布局首个子元素 Text 渲染异常：首位置放空占位 Column，文字全部后移 */
       Column()
         .width('100%')
@@ -533,6 +583,15 @@ struct Home {
         Column({ space: 14 }) {
           this.dateCard()
           this.hourCard()
+
+          /* 数据健康徽标（常显）：点开进自检面板 */
+          RuleHealthBadge({
+            summary: this.healthSummary,
+            hasProblem: this.healthProblem,
+            onTap: () => {
+              this.showHealth = true;
+            }
+          })
 
           Text(this.ready ? '选择日期时辰后，点「排盘」进入盘面' : '正在载入历法数据…')
             .fontSize(11)
@@ -639,10 +698,27 @@ struct Home {
       .layoutWeight(1)
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Spring)
+      }
+      .width('100%')
+      .height('100%')
+      .backgroundColor('#14120F')
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
+
+      /* 数据自检面板（覆盖层）：缺表清单 + 逐表自检 + 导出诊断 */
+      if (this.showHealth) {
+        RuleHealthPanel({
+          appVersion: this.appVersion,
+          extra: this.healthExtra(),
+          onClose: () => {
+            this.showHealth = false;
+          },
+          onRecheck: () => {
+            this.refreshHealth();
+          }
+        })
+      }
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#14120F')
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 }

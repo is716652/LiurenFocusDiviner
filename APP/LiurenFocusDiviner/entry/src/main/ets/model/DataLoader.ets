@@ -24,6 +24,7 @@ import type {
   XingNianScoreRule,
   YueJiangSeg
 } from './LiurenCore';
+import { RuleHealth } from './RuleHealth';
 
 /* 组装后的 duxiang 扩展形态（在 DuxiangRulesRaw 基础上附带三个气机规则段，供读象扩展用） */
 interface DuxiangRulesExt extends DuxiangRulesRaw {
@@ -152,6 +153,78 @@ export class DataLoader {
     return decoder.decodeToString(data);
   }
 
+  /* 读规则表：失败即登记状态（面向用户措辞，不含文件名），返回空串由调用方兜底 */
+  private static async readRule(ctx: common.UIAbilityContext, key: string, p: string): Promise<string> {
+    const txt = await DataLoader.readRaw(ctx, p);
+    if (!txt) {
+      RuleHealth.fail(key, '规则表未读取到');
+    }
+    return txt;
+  }
+
+  /* 解析规则表：空串说明读取阶段已登记过，不再重复登记；解析失败单独登记 */
+  private static parseRule(txt: string, key: string): Record<string, Object> {
+    if (txt === '') {
+      return {};
+    }
+    try {
+      return JSON.parse(txt) as Record<string, Object>;
+    } catch (e) {
+      RuleHealth.fail(key, '规则表内容无法解析');
+      return {};
+    }
+  }
+
+  /* 条目数：数组取长度、对象取键数、缺失取 0 */
+  private static countKeys(v: Object | undefined): number {
+    if (v === undefined || v === null) {
+      return 0;
+    }
+    if (Array.isArray(v)) {
+      return (v as Object[]).length;
+    }
+    return Object.keys(v as Record<string, Object>).length;
+  }
+
+  /* 表内版本/来源字段：优先 元数据.版本，其次 schemaVersion（没有则空串） */
+  private static versionOf(parsed: Record<string, Object>): string {
+    const meta = parsed['元数据'] as Record<string, Object> | undefined;
+    if (meta !== undefined && meta !== null) {
+      const v = meta['版本'] as string | undefined;
+      if (v !== undefined && v !== null && v !== '') {
+        return v;
+      }
+    }
+    const sv = parsed['schemaVersion'] as string | undefined;
+    if (sv !== undefined && sv !== null && sv !== '') {
+      return sv;
+    }
+    return '';
+  }
+
+  /* 必填键缺失清单 */
+  private static missingKeys(parsed: Record<string, Object>, keys: string[]): string[] {
+    const out: string[] = [];
+    for (const k of keys) {
+      if (parsed[k] === undefined) {
+        out.push(k);
+      }
+    }
+    return out;
+  }
+
+  /* 登记：解析为空 → 沿用读取阶段的原因（不覆盖）；否则记 条目数/版本/必填键 */
+  private static report(key: string, entries: number, required: string[], parsed: Record<string, Object>): void {
+    if (Object.keys(parsed).length === 0) {
+      if (RuleHealth.failReasonOf(key) === '') {
+        RuleHealth.fail(key, '规则表未读取到');
+      }
+      return;
+    }
+    RuleHealth.okWithMissingKeys(key, entries, DataLoader.versionOf(parsed),
+      DataLoader.missingKeys(parsed, required));
+  }
+
   /* ---------------- 规则组装 ---------------- */
 
   /* 组装 7 个规则文件 -> CoreRules；结果缓存 */
@@ -159,18 +232,24 @@ export class DataLoader {
     if (DataLoader.ruleCache) {
       return DataLoader.ruleCache;
     }
-    const wsTxt = await DataLoader.readRaw(ctx, 'rule/旺衰休囚死.json');
-    const qjTxt = await DataLoader.readRaw(ctx, 'rule/十二宫气机点.json');
-    const kxTxt = await DataLoader.readRaw(ctx, 'rule/空亡规则.json');
-    const zrTxt = await DataLoader.readRaw(ctx, 'rule/助日规则.json');
-    const jcTxt = await DataLoader.readRaw(ctx, 'rule/基础关系.json');
-    const ssTxt = await DataLoader.readRaw(ctx, 'rule/神煞起法.json');
-    const bfTxt = await DataLoader.readRaw(ctx, 'rule/毕法赋一百法.json');
+    /* 逐表读取 + 状态登记（§14.3）：读不到 / 解析失败 / 必填键缺，都要被登记，
+       界面据此显示「规则表未加载 / 内容不完整」而不是静默留白（§14.1、§14.7）。 */
+    RuleHealth.init();
+    const wsTxt = await DataLoader.readRule(ctx, 'wangshuai', 'rule/旺衰休囚死.json');
+    const qjTxt = await DataLoader.readRule(ctx, 'qijidian', 'rule/十二宫气机点.json');
+    const kxTxt = await DataLoader.readRule(ctx, 'kongwang', 'rule/空亡规则.json');
+    const zrTxt = await DataLoader.readRule(ctx, 'zhuri', 'rule/助日规则.json');
+    const jcTxt = await DataLoader.readRule(ctx, 'jichu', 'rule/基础关系.json');
+    const ssTxt = await DataLoader.readRule(ctx, 'shensha', 'rule/神煞起法.json');
+    const bfTxt = await DataLoader.readRule(ctx, 'bifa', 'rule/毕法赋一百法.json');
 
-    const wsParsed = JSON.parse(wsTxt) as Record<string, Object>;
-    const jcParsed = JSON.parse(jcTxt) as Record<string, Object>;
-    const ssParsed = JSON.parse(ssTxt) as Record<string, Object>;
-    const bfParsed = JSON.parse(bfTxt) as Record<string, Object>;
+    const wsParsed = DataLoader.parseRule(wsTxt, 'wangshuai');
+    const jcParsed = DataLoader.parseRule(jcTxt, 'jichu');
+    const ssParsed = DataLoader.parseRule(ssTxt, 'shensha');
+    const bfParsed = DataLoader.parseRule(bfTxt, 'bifa');
+    const qjParsed = DataLoader.parseRule(qjTxt, 'qijidian');
+    const kxParsed = DataLoader.parseRule(kxTxt, 'kongwang');
+    const zrParsed = DataLoader.parseRule(zrTxt, 'zhuri');
 
     const wsSection: WangShuaiSection = {
       "旺衰": wsParsed["旺衰"] as Record<string, Record<string, string>>
@@ -183,11 +262,19 @@ export class DataLoader {
     };
     const duxiang: DuxiangRulesExt = {
       "旺衰休囚死": wsSection,
-      "十二宫气机点": JSON.parse(qjTxt),
-      "空亡规则": JSON.parse(kxTxt),
-      "助日规则": JSON.parse(zrTxt),
+      "十二宫气机点": qjParsed,
+      "空亡规则": kxParsed,
+      "助日规则": zrParsed,
       "基础关系": jcSection
     };
+    /* 核心 7 表的自检登记（条目数 / 版本 / 必填键） */
+    DataLoader.report('wangshuai', DataLoader.countKeys(wsParsed['旺衰']), ['旺衰'], wsParsed);
+    DataLoader.report('jichu', DataLoader.countKeys(jcParsed), ['六冲', '六合', '六害', '三刑'], jcParsed);
+    DataLoader.report('shensha', DataLoader.countKeys(ssParsed['神煞']), ['神煞'], ssParsed);
+    DataLoader.report('bifa', DataLoader.countKeys(bfParsed['一百法']), ['一百法'], bfParsed);
+    DataLoader.report('qijidian', DataLoader.countKeys(qjParsed), [], qjParsed);
+    DataLoader.report('kongwang', DataLoader.countKeys(kxParsed), [], kxParsed);
+    DataLoader.report('zhuri', DataLoader.countKeys(zrParsed), [], zrParsed);
     const shensha: ShenshaRulesRaw = {
       "神煞": ssParsed["神煞"] as Record<string, ShenshaRuleRaw>
     };
@@ -199,9 +286,13 @@ export class DataLoader {
       shensha: shensha,
       bifa: bifa
     };
-    try {
-      const xnTxt = await DataLoader.readRaw(ctx, 'rule/行年打分.json');
-      const xnParsed = JSON.parse(xnTxt) as Record<string, Object>;
+    /* 行年打分表：过去整个 try/catch 吞掉（键被改名时引擎抛错 → 行年被宿主吞成静默消失，§14.7 第 3 条）。
+       现在读/解析/必填键三态都被登记，行年栏据此显示原因而不是消失。 */
+    const xnTxt = await DataLoader.readRule(ctx, 'xingnian', 'rule/行年打分.json');
+    const xnParsed = DataLoader.parseRule(xnTxt, 'xingnian');
+    DataLoader.report('xingnian', DataLoader.countKeys(xnParsed['bands']),
+      ['liuQin', 'kong', 'wangShuai', 'taiSui', 'jiangJx', 'bands'], xnParsed);
+    if (Object.keys(xnParsed).length > 0) {
       const xingnian: XingNianScoreRule = {
         liuQin: xnParsed["liuQin"] as Record<string, number>,
         kong: xnParsed["kong"] as number,
@@ -211,8 +302,6 @@ export class DataLoader {
         bands: xnParsed["bands"] as ScoreBand[]
       };
       rules.xingnian = xingnian;
-    } catch (e) {
-      /* 行年打分表缺失：引擎用内置默认表 */
     }
     DataLoader.ruleCache = rules;
     return rules;
@@ -257,8 +346,9 @@ export class DataLoader {
     if (DataLoader.zsCache) {
       return DataLoader.zsCache;
     }
-    const txt = await DataLoader.readRaw(ctx, 'rule/占事体系.json');
-    const obj = JSON.parse(txt) as Record<string, Object>;
+    const txt = await DataLoader.readRule(ctx, 'zhanshi', 'rule/占事体系.json');
+    const obj = DataLoader.parseRule(txt, 'zhanshi');
+    DataLoader.report('zhanshi', DataLoader.countKeys(obj['占事大类']), ['占事大类'], obj);
     DataLoader.zsCache = obj;
     return obj;
   }
@@ -268,8 +358,9 @@ export class DataLoader {
     if (DataLoader.glCache) {
       return DataLoader.glCache;
     }
-    const txt = await DataLoader.readRaw(ctx, 'rule/管辂类神取用.json');
-    const obj = JSON.parse(txt) as Record<string, Object>;
+    const txt = await DataLoader.readRule(ctx, 'guanlu', 'rule/管辂类神取用.json');
+    const obj = DataLoader.parseRule(txt, 'guanlu');
+    DataLoader.report('guanlu', DataLoader.countKeys(obj), [], obj);
     DataLoader.glCache = obj;
     return obj;
   }
@@ -279,8 +370,9 @@ export class DataLoader {
     if (DataLoader.lxCache) {
       return DataLoader.lxCache;
     }
-    const txt = await DataLoader.readRaw(ctx, 'rule/类象库.json');
-    const obj = JSON.parse(txt) as Record<string, Object>;
+    const txt = await DataLoader.readRule(ctx, 'leixiang', 'rule/类象库.json');
+    const obj = DataLoader.parseRule(txt, 'leixiang');
+    DataLoader.report('leixiang', DataLoader.countKeys(obj), [], obj);
     DataLoader.lxCache = obj;
     return obj;
   }
@@ -290,22 +382,27 @@ export class DataLoader {
     if (DataLoader.xyCache) {
       return DataLoader.xyCache;
     }
-    const txt = await DataLoader.readRaw(ctx, 'rule/管辂象意.json');
-    const obj = JSON.parse(txt) as Record<string, Object>;
+    const txt = await DataLoader.readRule(ctx, 'xiangyi', 'rule/管辂象意.json');
+    const obj = DataLoader.parseRule(txt, 'xiangyi');
+    DataLoader.report('xiangyi', DataLoader.countKeys(obj), [], obj);
     DataLoader.xyCache = obj;
     return obj;
   }
 
   /* 毕法教练（格局吉凶 / 倾向 / 行动建议；毕法教练层数据） */
   static async loadBifaCoach(ctx: common.UIAbilityContext): Promise<Record<string, Object>> {
-    const txt = await DataLoader.readRaw(ctx, 'rule/毕法教练.json');
-    return JSON.parse(txt) as Record<string, Object>;
+    const txt = await DataLoader.readRule(ctx, 'bifacoach', 'rule/毕法教练.json');
+    const obj = DataLoader.parseRule(txt, 'bifacoach');
+    DataLoader.report('bifacoach', DataLoader.countKeys(obj['格局']), ['格局'], obj);
+    return obj;
   }
 
   /* 课体课义（九宗门课体 → 通用课义断语） */
   static async loadKetiYi(ctx: common.UIAbilityContext): Promise<Record<string, Object>> {
-    const txt = await DataLoader.readRaw(ctx, 'rule/课体课义.json');
-    return JSON.parse(txt) as Record<string, Object>;
+    const txt = await DataLoader.readRule(ctx, 'ketiyi', 'rule/课体课义.json');
+    const obj = DataLoader.parseRule(txt, 'ketiyi');
+    DataLoader.report('ketiyi', DataLoader.countKeys(obj['课体']), ['课体'], obj);
+    return obj;
   }
 
   /* ---------------- 古籍研习 ---------------- */

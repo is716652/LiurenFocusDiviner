@@ -25,6 +25,9 @@ import type {
   ZhonghuangJianhe
 } from '../model/LiurenCore';
 import { DataLoader } from '../model/DataLoader';
+import { RuleHealth } from '../model/RuleHealth';
+import { EmptyKind, SlotId } from '../model/ReasonText';
+import { SlotEmpty } from '../components/SlotEmpty';
 import type { AncientBook } from '../model/DataLoader';
 import { CaseStore } from '../model/CaseStore';
 import type { CaseRec } from '../model/CaseStore';
@@ -103,6 +106,10 @@ struct Index {
   @State private birthYear: number = 1990;
   @State private gender: string = '男';
   @State private xingnian: XingNianResult | null = null;
+  /* 行年状态（§14.7 第 3 条）：'' / ok / unset / missing —— 行年不得静默消失 */
+  @State private xingnianKind: string = '';
+  /* 缺表一次性顶部提示（每次启动只提示一次） */
+  @State private showRuleTip: boolean = false;
   /* 年份就地编辑（点击数字切换为输入框，回车/失焦确认） */
   @State private yearEditing: boolean = false;
   @State private yearEditVal: string = '';
@@ -165,6 +172,8 @@ struct Index {
      仅当本次是「带参返回」（课例恢复，params 带新令牌 t）才按新日期重排；
      普通页签切换不带令牌，盘面与用神保持原样 */
   onPageShow(): void {
+    /* 缺表 → 顶部一次性提示（§14.7 第 1 条：只提示一次；日志已在 RuleHealth 内记） */
+    this.showRuleTip = RuleHealth.hasProblem() && RuleHealth.consumeTip();
     let p: Record<string, Object> | undefined = undefined;
     try {
       p = this.getUIContext().getRouter().getParams() as Record<string, Object>;
@@ -364,8 +373,48 @@ struct Index {
     this.birthYear = ny;
     const c = this.chart;
     if (c) {
-      this.xingnian = LiurenCore.xingNian(c, ny, this.year, this.gender, this.yongShen);
+      this.computeXingNian(c, ny, this.yongShen);
     }
+  }
+
+  /* ---------------- 空态与数据健康（§14.2 / §14.7） ---------------- */
+
+  /* 行年推算：成功 / 未填 / 缺表 / 异常都要**可见**。
+     过去此处直接赋值、外层 try/catch 一吞 —— 行年打分表键被改名时行年整块静默消失。 */
+  private computeXingNian(c: Chart, birthYear: number, yongShen: string): void {
+    if (birthYear <= 0) {
+      this.xingnian = null;
+      this.xingnianKind = EmptyKind.UNSET;
+      return;
+    }
+    if (!RuleHealth.usable('xingnian')) {
+      this.xingnian = null;
+      this.xingnianKind = EmptyKind.MISSING;
+      return;
+    }
+    try {
+      const r = LiurenCore.xingNian(c, birthYear, this.year, this.gender, yongShen);
+      this.xingnian = r;
+      this.xingnianKind = 'ok';
+    } catch (e) {
+      this.xingnian = null;
+      this.xingnianKind = EmptyKind.MISSING;
+      RuleHealth.fail('xingnian', '行年打分表内容不完整，行年无法推算');
+    }
+  }
+
+  /* 神煞总条数（判断「本课该支本位无神煞」用） */
+  private shenshaTotal(): number {
+    let n = 0;
+    for (const g of this.shenshaGroups()) {
+      n += g.names.length;
+    }
+    return n;
+  }
+
+  /* 毕法栏空态种类：规则表不可用 → missing；表在但本课未中 → none */
+  private bifaEmptyKind(): string {
+    return RuleHealth.usable('bifa') ? EmptyKind.NONE : EmptyKind.MISSING;
   }
 
   /* 行年吉凶档位配色（大吉/吉=金，凶/大凶=绯，平=灰） */
@@ -396,7 +445,7 @@ struct Index {
       this.birthYear = n;
       const c = this.chart;
       if (c) {
-        this.xingnian = LiurenCore.xingNian(c, n, this.year, this.gender, this.yongShen);
+        this.computeXingNian(c, n, this.yongShen);
       }
     }
   }
@@ -518,7 +567,7 @@ struct Index {
       if (this.nianZhi !== '') {
         this.nianming = LiurenCore.nianmingAdvice(c, this.nianZhi, this.yongShen);
       }
-      this.xingnian = LiurenCore.xingNian(c, this.birthYear, this.year, this.gender, this.yongShen);
+      this.computeXingNian(c, this.birthYear, this.yongShen);
       this.zhonghuang = LiurenCore.zhonghuangDun(c, this.hourZhi);
       this.zhonghuangAna = LiurenCore.zhonghuangAnalyze(c, this.hourZhi);
       this.zhongGong = '';
@@ -574,7 +623,7 @@ struct Index {
     this.customYS = false;
     this.nianZhi = '';
     this.nianming = null;
-    this.xingnian = LiurenCore.xingNian(c, this.birthYear, this.year, this.gender, '');
+    this.computeXingNian(c, this.birthYear, '');
     this.expandedBifa = -1;
     this.route = '';
   }
@@ -1248,9 +1297,18 @@ struct Index {
                 .onClick(() => {
                   this.showYongShen = true;
                 })
-              Text(this.yongShen !== '' ? '当前用神：' + this.yongShen : '尚未取用神')
-                .fontSize(11)
-                .fontColor('#A8986E')
+              if (this.yongShen === '') {
+                SlotEmpty({
+                  slot: SlotId.YONGSHEN, kind: EmptyKind.NONE,
+                  onEntry: () => {
+                    this.showYongShen = true;
+                  }
+                })
+              } else {
+                Text('当前用神：' + this.yongShen)
+                  .fontSize(11)
+                  .fontColor('#A8986E')
+              }
             }
             .width('100%')
           }
@@ -1269,11 +1327,7 @@ struct Index {
                 .lineHeight(16)
                 .width('100%')
             } else {
-              Text('本课无毕法格局命中')
-                .fontSize(11)
-                .fontColor('#A8986E')
-                .lineHeight(16)
-                .width('100%')
+              SlotEmpty({ slot: SlotId.BIFA, kind: this.bifaEmptyKind() })
             }
           }
           .width('100%')
@@ -1284,6 +1338,9 @@ struct Index {
               .fontColor('#C4B183')
               .lineHeight(16)
               .width('100%')
+            if (this.zhonghuangMode !== '中黄') {
+              SlotEmpty({ slot: SlotId.ZHONGHUANG, kind: EmptyKind.UNSET })
+            }
             if (this.zhonghuangAna) {
               Text('时支' + this.zhonghuangAna.dun.hourZhi + ' → 变干' + this.zhonghuangAna.dun.bianGan +
                 '(' + this.zhonghuangAna.bianGong + '宫' +
@@ -1351,6 +1408,12 @@ struct Index {
           .width('100%')
           .padding({ top: 4, bottom: 4 })
         }, (g: ShenshaGroup) => g.label)
+        /* 神煞为空时说明原因：规则表未加载 vs 本课该支本位确无（§14.2） */
+        if (!RuleHealth.usable('shensha')) {
+          SlotEmpty({ slot: SlotId.SHENSHA, kind: EmptyKind.MISSING })
+        } else if (this.shenshaTotal() === 0) {
+          SlotEmpty({ slot: SlotId.SHENSHA, kind: EmptyKind.NONE })
+        }
       }
       .width('100%')
       .padding(12)
@@ -1434,10 +1497,7 @@ struct Index {
           .border({ width: 1, color: this.coach.xiong > this.coach.ji ? 'rgba(208,112,74,0.35)' : 'rgba(233,200,120,0.25)' })
         }
         if (this.cur().dx.bifa.length === 0) {
-          Text('本课无毕法格局命中')
-            .fontSize(12)
-            .fontColor('#A8986E')
-            .margin({ top: 2 })
+          SlotEmpty({ slot: SlotId.BIFA, kind: this.bifaEmptyKind() })
         }
         ForEach(this.cur().dx.bifa, (hit: BifaHit) => {
           Column({ space: 6 }) {
@@ -1534,6 +1594,8 @@ struct Index {
                 .fontColor('#F0D98C')
                 .lineHeight(18)
                 .width('100%')
+            } else {
+              SlotEmpty({ slot: SlotId.NIANMING, kind: EmptyKind.UNSET })
             }
 
             /* 行年小运：出生年 + 性别 → 本命/行年/上神 */
@@ -1607,7 +1669,7 @@ struct Index {
                       this.gender = g;
                       const c = this.chart;
                       if (c) {
-                        this.xingnian = LiurenCore.xingNian(c, this.birthYear, this.year, g, this.yongShen);
+                        this.computeXingNian(c, this.birthYear, this.yongShen);
                       }
                     })
                 }, (g: string) => 'g' + g)
@@ -1656,6 +1718,8 @@ struct Index {
                 .fontColor('#A8986E')
                 .lineHeight(13)
                 .width('100%')
+            } else {
+              SlotEmpty({ slot: SlotId.XINGNIAN, kind: this.xingnianKind === '' ? EmptyKind.UNSET : this.xingnianKind })
             }
           }
           .width('100%')
@@ -1778,6 +1842,30 @@ struct Index {
       Column()
         .width('100%')
         .height(1)
+      /* 缺表一次性提示（§14.7 第 1 条）：照旧出盘，但把状态说出来；可关闭，每次启动只提示一次 */
+      if (this.showRuleTip) {
+        Row({ space: 8 }) {
+          Text('⚠')
+            .fontSize(13)
+            .fontColor('#E8C46A')
+          Text('部分规则表未加载，相关栏目已标注「规则表未加载」· 盘仍照旧排出')
+            .fontSize(11)
+            .fontColor('#E8C46A')
+            .layoutWeight(1)
+          Text('知道了')
+            .fontSize(11)
+            .fontColor('#C4A25C')
+            .onClick(() => {
+              this.showRuleTip = false;
+            })
+        }
+        .width('100%')
+        .padding({ left: 12, right: 12, top: 8, bottom: 8 })
+        .margin({ left: 16, right: 16, top: 6 })
+        .borderRadius(10)
+        .backgroundColor('rgba(232,196,106,0.10)')
+        .border({ width: 1, color: 'rgba(232,196,106,0.30)' })
+      }
       /* 页头：PageHeader 组件（标题 + ModeSwitch + 改期）——组件为独立渲染单元，规避首子渲染问题 */
       PageHeader({
         title: '六壬 · 读象工作台',
@@ -2184,7 +2272,7 @@ struct Index {
       if (this.nianZhi !== '') {
         this.nianming = LiurenCore.nianmingAdvice(c, this.nianZhi, this.yongShen);
       }
-      this.xingnian = LiurenCore.xingNian(c, this.birthYear, this.year, this.gender, this.yongShen);
+      this.computeXingNian(c, this.birthYear, this.yongShen);
     }
     /* 自动弹出抓用神，告知所选用神（迷你盘同步显示） */
     this.showYongShen = true;

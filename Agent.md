@@ -952,7 +952,10 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 **徽标**（设置页 / 首页常显）：
 
 - 正常：`规则数据：已加载 14/14 表 ✓`
-- 缺表：黄色警示 `规则数据：已加载 11/14 表 ⚠`，点开给**缺表清单**（表名 + 期望路径 + 失败原因）。
+- 缺表：黄色警示 `规则数据：已加载 11/14 表 ⚠`，点开给**缺表清单**（表名 + 失败原因）。
+  > **口径订正（2026-09-12 实施）**：原文写「表名 + 期望路径 + 失败原因」，但 §14.2（补）的纪律要求
+  > **缺表提示不得出现数据文件名**，两条冲突 → 取更严的一条：用户可见的清单与导出诊断**只给规则表名 + 原因**，
+  > 不给文件名/路径；排查需要的文件路径在源码与自检脚本里查，不进用户界面。
 
 **计数口径**（不要写成「CoreRules 有 8 表」就完事）：以 `rawfile/rule/*.json` 的**已知表清单**为分母（当前 14 张），逐表记录「读到 / 未读到 / 解析失败」；`DataLoader.loadCoreRules()` 只组装其中 7 张（另 1 张 `行年打分.json` 单独 try 加载），其余由 `loadZhanShi / loadBifaCoach / loadKetiYi / loadLeixiang / loadXiangyi` 各自加载——徽标计数按**实际入口逐个登记**，不按目录数硬编码。
 
@@ -968,8 +971,24 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
   表在但无条目 → `loaded=true` / `entries=0`（**这两种必须区分开**，后者是数据问题不是加载问题）。
 - **ArkTS 侧：暂未提供**——其「按表名取字典」的写法会触发 ArkTS 的 `arkts-no-props-by-index` 编译报错，
   故 `.ets` 侧不提供同名 API，改由 `DataLoader` 的**逐表状态**承担（见本节上面的计数口径）。
-- **UI 侧待办**：设置页 / 首页的**数据健康徽标与缺表清单要吃这两侧的状态**
-  （count 口径以 `DataLoader` 逐表登记为准，core/Node 侧对话框与 Web 端走 `ruleHealth()/missingRules()`）。
+- **UI 侧：已落地（2026-09-12）**——首页常显徽标 + 自检面板，吃的是 ArkTS 侧 `DataLoader` 的逐表登记；
+  core/Node 侧对话框与 Web 端仍走 `ruleHealth()/missingRules()`。
+  实测文件：`model/RuleHealth.ets`（登记/自检/诊断）、`components/SlotEmpty.ets`（空态说话）、
+  `components/RuleHealthBadge.ets`（徽标）、`components/RuleHealthPanel.ets`（自检面板 + 导出诊断）、
+  `model/ReasonText.ets`（空态文案登记表）、`model/DataLoader.ets`（逐表 `readRule/parseRule/report`）。
+
+### 14.3.1 实施记录（2026-09-12，与本节规范逐条对应）
+
+| 规范要求 | 落点 |
+|:--|:--|
+| 徽标常显 + 缺表可点开 | `components/RuleHealthBadge.ets`（首页 `Home.ets` 常显），点开 `RuleHealthPanel.ets` |
+| 计数按实际入口逐表登记 | `RuleHealth.TABLE_KEYS`（14 张）+ `DataLoader` 各 loader 内 `readRule/parseRule/report` 登记；`_test_ui_empty_state.js` E6 核对「登记张数 = 实际规则表张数」且无漏登记 |
+| 一键数据自检 | `RuleHealth.selfCheckText()`（条目数 / 必填键 / 版本 / 登记时间）；面板逐表列出 |
+| 一键导出诊断（离线可复制） | `RuleHealth.diagnoseText()` + 面板「导出诊断（复制）」走 `pasteboard`，并同屏显示可长按选择的诊断文本 |
+| 不得用 try/catch 空兜底吞掉 | `readRule` 读失败即 `fail`；`parseRule` 解析失败即 `fail`；`report` 记必填键缺失；盘仍照旧排出 |
+| 行年不得静默消失（§14.7 第 3 条） | `Index.ets` 新增 `computeXingNian()`（成功 / 未填 / 缺表 / 异常四态），**全部 6 处**调用点统一改走它；`_test_ui_empty_state.js` E5 断言「Index 里只剩 1 处 `LiurenCore.xingNian(`，且必须在 `computeXingNian` 内」 |
+| 缺表一次性顶部提示 | `Index.ets` 顶部横幅（`RuleHealth.consumeTip()` 保证每次启动只提示一次）+ `hilog` 日志（每表一次） |
+| 无声空态 = 测试失败 | 新增常驻门禁 `_tests/_test_ui_empty_state.js`（E1–E8，见 §9） |
 
 ### 14.4 点宫速查卡（点天地盘任一宫）
 
