@@ -1,5 +1,5 @@
 {
- "生成时间": "2026-09-12T10:49:44.323Z",
+ "生成时间": "2026-09-12T12:35:13.331Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 48,
@@ -7,12 +7,12 @@
   "core（真源 .ts）": 16,
   "core（产物 .js）": 1,
   "core 合计": 17,
-  "_tools/*.py": 109
+  "_tools/*.py": 110
  },
  "结论": {
   "B4耦合判定": "脆链接（fragile）：改 JSON 键会**静默改变排盘结果**而无人察觉——4/5 个实验里引擎不报错但输出变了",
   "A组件写死": {
-   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 20 处、数据路径引用 12 处、注释出处 54 处、_tools 脚本字面量 24 处，均只计数不计失败）",
+   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 20 处、数据路径引用 12 处、注释出处 56 处、_tools 脚本字面量 24 处，均只计数不计失败）",
    "A2按课特判": "0 处（静态）",
    "A2维度敏感性": "日干 500/500，日支 231/231，月将 500/500，占时 500/500",
    "A3盘面事实硬编码": "0 处",
@@ -256,7 +256,7 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 1644,
+     "line": 1649,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "ight(18)\r\n                .width('100%')\r\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\r\n      "
@@ -326,7 +326,7 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 1644,
+     "line": 1649,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "ight(18)\r\n                .width('100%')\r\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\r\n      "
@@ -340,7 +340,7 @@
     }
    ],
    "数据路径引用计数": 12,
-   "注释计数": 54,
+   "注释计数": 56,
    "注释明细": [
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/DuyuCard.ets",
@@ -371,6 +371,12 @@
      "line": 42,
      "lit": "管辂",
      "text": "/* 管辂象意选句 */"
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/InfoRow.ets",
+     "line": 1,
+     "lit": "2026-09-12",
+     "text": "/** * InfoRow —— 一行信息（盘态/神煞明细用） * tone: 'gold' | 'cinnabar' | 'plain' * stack: false（默认）= "
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
@@ -535,6 +541,12 @@
      "text": "/* 管辂象意选句 */"
     },
     {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/InfoRow.ets",
+     "line": 1,
+     "lit": "2026-09-12",
+     "text": "/** * InfoRow —— 一行信息（盘态/神煞明细用） * tone: 'gold' | 'cinnabar' | 'plain' * stack: false（默认）= "
+    },
+    {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
      "line": 248,
      "lit": "管辂",
@@ -669,7 +681,7 @@
    ]
   },
   "A2静态": {
-   "条件数": 3522,
+   "条件数": 3524,
    "可疑": []
   },
   "A2运行期": {
