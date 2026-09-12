@@ -42,3 +42,4 @@ __pycache__/
 
 # 根目录 hvigor 缓存
 .hvigor/
+_tests/_tmp_rulehealth/

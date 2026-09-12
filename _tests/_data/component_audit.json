@@ -1,5 +1,5 @@
 {
- "生成时间": "2026-09-12T14:24:42.333Z",
+ "生成时间": "2026-09-12T14:35:19.709Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 53,
@@ -256,21 +256,21 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/RuleHealth.ets",
-     "line": 51,
+     "line": 53,
      "what": "展示文案引用书名",
      "lit": "管辂",
      "ctx": "', '空亡规则', '助日规则', '基础关系（冲合害刑）',\n  '神煞起法', '毕法赋一百法', '行年打分', '占事体系', '管辂类神取用',\n  '类象库', '管辂象意', '毕法教"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/RuleHealth.ets",
-     "line": 52,
+     "line": 54,
      "what": "展示文案引用书名",
      "lit": "管辂",
      "ctx": "'基础关系（冲合害刑）',\n  '神煞起法', '毕法赋一百法', '行年打分', '占事体系', '管辂类神取用',\n  '类象库', '管辂象意', '毕法教练', '课体课义'\n];\n\nexpo"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/RuleHealth.ets",
-     "line": 51,
+     "line": 53,
      "what": "展示文案引用书名",
      "lit": "毕法赋",
      "ctx": "g[] = [\n  '旺衰休囚死', '十二宫气机点', '空亡规则', '助日规则', '基础关系（冲合害刑）',\n  '神煞起法', '毕法赋一百法', '行年打分', '占事体系', '管辂类神"
@@ -347,21 +347,21 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/RuleHealth.ets",
-     "line": 51,
+     "line": 53,
      "what": "展示文案引用书名",
      "lit": "管辂",
      "ctx": "', '空亡规则', '助日规则', '基础关系（冲合害刑）',\n  '神煞起法', '毕法赋一百法', '行年打分', '占事体系', '管辂类神取用',\n  '类象库', '管辂象意', '毕法教"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/RuleHealth.ets",
-     "line": 52,
+     "line": 54,
      "what": "展示文案引用书名",
      "lit": "管辂",
      "ctx": "'基础关系（冲合害刑）',\n  '神煞起法', '毕法赋一百法', '行年打分', '占事体系', '管辂类神取用',\n  '类象库', '管辂象意', '毕法教练', '课体课义'\n];\n\nexpo"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/RuleHealth.ets",
-     "line": 51,
+     "line": 53,
      "what": "展示文案引用书名",
      "lit": "毕法赋",
      "ctx": "g[] = [\n  '旺衰休囚死', '十二宫气机点', '空亡规则', '助日规则', '基础关系（冲合害刑）',\n  '神煞起法', '毕法赋一百法', '行年打分', '占事体系', '管辂类神"
@@ -723,7 +723,7 @@
    ]
   },
   "A2静态": {
-   "条件数": 3662,
+   "条件数": 3672,
    "可疑": []
   },
   "A2运行期": {

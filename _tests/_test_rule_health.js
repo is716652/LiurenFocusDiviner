@@ -166,10 +166,14 @@ truthy(uiSrc.indexOf("RuleHealth.usable('bifa')") >= 0 && uiSrc.indexOf("RuleHea
   && uiSrc.indexOf("RuleHealth.usable('xingnian')") >= 0, 'Index 用 usable 判定毕法/神煞/行年栏目可用性');
 
 /* ---------------- 收尾 ---------------- */
-fs.rmSync(TMP, { recursive: true, force: true });
-console.log('');
+/* 无论成败都要删临时目录：失败路径若直接 process.exit(1) 跳过清理，会留下 _tmp_rulehealth 垃圾 */
+const finish = (code, msg) => {
+  try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (e) { /* 忽略 */ }
+  console.log('');
+  console.log(msg);
+  process.exit(code);
+};
 if (FAIL > 0) {
-  console.log('数据健康运行期断言：不通过 ✗（' + FAIL + ' 项）');
-  process.exit(1);
+  finish(1, '数据健康运行期断言：不通过 ✗（' + FAIL + ' 项）');
 }
-console.log('数据健康运行期断言：通过 ✓（摘要/三态/诊断/一次性提示/空态文案兜底 均符合规范）');
+finish(0, '数据健康运行期断言：通过 ✓（摘要/三态/诊断/一次性提示/空态文案兜底 均符合规范）');
