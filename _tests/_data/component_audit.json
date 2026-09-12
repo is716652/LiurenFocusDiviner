@@ -1,5 +1,5 @@
 {
- "生成时间": "2026-09-12T07:38:02.780Z",
+ "生成时间": "2026-09-12T07:38:42.482Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 35,
@@ -21,7 +21,7 @@
    "B1类型不符": "0 处",
    "B2危险兜底": "28 处",
    "B2运行期静默项": "4 个规则表",
-   "B2 DataLoader口径危险项": "4 个（不报错但改盘）；行年面抛错 1 个（会被 Index.ets 的 try/catch 吞掉）",
+   "B2 DataLoader口径危险项": "4 个（不报错但改盘）；行年面抛错 2 个（会被 Index.ets 的 try/catch 吞掉）",
    "B3重复真源": "6 组，其中不一致 0 组",
    "B4判定": "脆链接（fragile）：改 JSON 键会**静默改变排盘结果**而无人察觉——4/5 个实验里引擎不报错但输出变了"
   }
@@ -42,7 +42,7 @@
   "B2 APP/LiurenFocusDiviner/entry/src/main/ets/model/YongShenCore.ets:343  空表兜底掩盖规则缺失  «|| []»  i < cats.length; i++) { const arr = (xiangyi[cats[i]] as Record<string, Object>[]) || []; for (let j = 0; j < arr.le",
   "B2 以下规则表缺失时引擎**不报错但输出改变**（宿主若吞异常即静默算错）：旺衰休囚死.json(旺衰/毕法命中)，基础关系.json(盘态关系/毕法命中)，神煞起法.json(神煞)，毕法赋一百法.json(毕法命中)",
   "B2 DataLoader 口径下，以下键缺失时引擎不报错但输出改变（这就是\"改 JSON 静默改盘\"的机制）：旺衰休囚死.json 顶层键「旺衰」缺失；基础关系.json 四个键全缺失；神煞起法.json 顶层键「神煞」缺失；毕法赋一百法.json 顶层键「一百法」缺失",
-  "B2 DataLoader 口径下，行年打分键缺失会让 xingNian 抛错（宿主 Index.ets 的 try/catch 会吞掉它 → 行年整块静默消失）：行年打分.json 六个键全缺失 → 抛错：Cannot read properties of undefined (reading '妻财')"
+  "B2 DataLoader 口径下，行年打分键缺失会让 xingNian 抛错（宿主 Index.ets 的 try/catch 会吞掉它 → 行年整块静默消失）：行年打分.json 六个键全缺失 → 抛错：Cannot read properties of undefined (reading '妻财')；行年打分.json 只缺 kong/bands（其余键仍在） → 抛错：Cannot read properties of undefined (reading 'length')"
  ],
  "证据": {
   "A1": {
@@ -1813,6 +1813,13 @@
     "盘签名改变": "0/120",
     "受影响字段": [],
     "行年面": "抛错：Cannot read properties of undefined (reading '妻财')"
+   },
+   {
+    "场景": "行年打分.json 只缺 kong/bands（其余键仍在）",
+    "抛错": null,
+    "盘签名改变": "0/120",
+    "受影响字段": [],
+    "行年面": "抛错：Cannot read properties of undefined (reading 'length')"
    }
   ],
   "B3代码侧关系表": [],

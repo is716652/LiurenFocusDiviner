@@ -327,6 +327,14 @@ function loaderBundle(overrides) {
   if (ov.jichu) b.duxiang['基础关系'] = { '六冲': undefined, '六合': undefined, '六害': undefined, '三刑': undefined };
   if (ov.wangshuai) b.duxiang['旺衰休囚死'] = { '旺衰': undefined };
   if (ov.xingnian) b.xingnian = { liuQin: undefined, kong: undefined, wangShuai: undefined, taiSui: undefined, jiangJx: undefined, bands: undefined };
+  if (ov.xingnianPartial) {
+    /* 只缺 kong / bands（其余键仍在）：看是抛错还是静默把分数算成 NaN → 档位退化为「平」 */
+    const b0 = ruleBundle();
+    b0.xingnian = b0.xingnian || {};
+    b0.xingnian.kong = undefined;
+    b0.xingnian.bands = undefined;
+    b.xingnian = b0.xingnian;
+  }
   return b;
 }
 /* loader 口径探针：逐个键缺失场景，看引擎是抛错还是静默变值（含行年面） */
@@ -348,7 +356,8 @@ function loaderImpact() {
     { 名称: '基础关系.json 四个键全缺失', 覆盖: { jichu: true } },
     { 名称: '神煞起法.json 顶层键「神煞」缺失', 覆盖: { shensha: true } },
     { 名称: '毕法赋一百法.json 顶层键「一百法」缺失', 覆盖: { bifa: true } },
-    { 名称: '行年打分.json 六个键全缺失', 覆盖: { xingnian: true } }
+    { 名称: '行年打分.json 六个键全缺失', 覆盖: { xingnian: true } },
+    { 名称: '行年打分.json 只缺 kong/bands（其余键仍在）', 覆盖: { xingnianPartial: true } }
   ];
   reinit();
   const sigBase = cases.map((a) => sigOf(chartOf(a[0], a[1], a[2], a[3], a[4], a[5], a[6])));
