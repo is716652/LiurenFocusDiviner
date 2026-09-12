@@ -376,6 +376,12 @@ interface CoreRules {
 }
 
 /* ============================== 核心类 ============================== */
+/* 涉害深浅比较中间项（九宗门·涉害）：上神与其涉害克数 */
+interface SheHaiItem {
+  shang: string;
+  cnt: number;
+}
+
 class LiurenCore {
   /* ---------------- 常量（自 HTML 常量块） ---------------- */
   static readonly GAN: string[] = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
@@ -997,51 +1003,52 @@ class LiurenCore {
     return chart;
   }
 
-  /* ---------------- 九宗门·课体识别层（《大六壬指南》三传排法规范） ----------------
-     优先级 1→9：贼克(重审/元首) → 比用 → 涉害 → 遥克(蒿矢/弹射) → 昴星 → 别责 → 八专 → 伏吟 → 返吟
-     keti：伏吟/返吟/八专/别责/昴星（虎视转蓬/冬蛇掩目）等课体名；普通课为"" */
+  /* ---------------- 九宗门·三传取用（规范：《大六壬指南》四课三传·三传排法） ----------------
+     2026-09-10 按规范整段重写（原实现与规范不符，全枚举对账 24.4% 盘不一致）。规范要点：
+       1) 结构课先行：伏吟（天盘＝地盘）、返吟（天盘＝地盘之冲）；
+       2) 贼克：仅 1 课下贼上 → 重审（**不论是否另有上克下**）；无下贼上且仅 1 课上克下 → 元首；
+       3) 比用：2 课以上贼/克，取与日干比（同阴阳）者，唯一则用之；
+       4) 涉害：比用无法筛选（多课均比／均不比）→ 自「上神所临地盘宫（克处）」**顺数**至本家，
+          计地盘支克上神之数，取多者；数相等则复等：孟（见机）→ 仲（察微）→ 缀瑕（阳日取日上神、阴日取辰上神）；
+       5) 遥克：无贼克 → 第 2/3/4 课上神克日干为蒿矢（比照取）；无蒿矢则取日干所克之上神为弹射；
+       6) 昴星：无贼克无遥克（四课全）→ 阳日取地盘酉上神、阴日取天盘酉下神；中末按阴阳互换；
+       7) 别责：四课仅三课、无贼克无遥克 → 阳日取干合寄宫上神、阴日取日支前三合上神；中末取干上神；
+       8) 八专：干支同位（四课二课）、**有克仍走贼克/比用/涉害；无克不再取遥克**，直接用八专法：
+          阳日自干上神顺数三位（含起点）、阴日自支上神逆数三位；中末取干上神；
+       9) 井栏射（返吟无克）：初传取日支之驿马（丑日亥、未日巳）；中传取日支上神、末传取日干上神；
+      10) 中末传：除特别注明者皆为「初传支之阴神」（以初传支为地盘宫，取其天盘）。
+     传本锚点（已入 _tests/_test_sanchuan_spec.js）：
+       《六壬断案》88）甲寅日未将戌时（八专）→ 丑/亥/亥；93）丁未日午将子时（返吟·井栏射）→ 巳/丑/丑。 */
   /* dunChuan = 三传配干用表（旬遁） */
   static resolveSanchuan(dg: string, tp: Record<string, string>, kegs: Keg[], dunChuan: Record<string, string>): SanChuan {
     const Z = LiurenCore.ZHI;
     const yangGan = !!LiurenCore.G_YANG[dg];
     const ji = LiurenCore.JI_GONG[dg];
-    /* 伏吟：天盘与地盘完全重合（tp[z]===z 全同） */
+    const MENG: string[] = ["寅", "申", "巳", "亥"];
+    const ZHONG: string[] = ["子", "午", "卯", "酉"];
+    const chuanOf = (z: string): string => tp[z] || "";
+    const chongZhi = (z: string): string => Z[(Z.indexOf(z) + 6) % 12];
+    const newSc = (method: string, keti: string, c1: string, c2: string, c3: string): SanChuan => {
+      const arr: string[] = [c1, c2, c3];
+      const chuans: Chuan[] = arr.map((z: string): Chuan => ({ z: z, gz: dunChuan[z] + z }));
+      return { method: method, keti: keti, chuans: chuans };
+    };
+    /* 中末＝初传之阴神（天盘覆盖） */
+    const chain = (c1: string): SanChuan => newSc("", "", c1, chuanOf(c1), chuanOf(chuanOf(c1)));
+
+    /* ---------- 结构判定 ---------- */
     let fuYin = true;
+    let fanYin = true;
     for (let i = 0; i < Z.length; i++) {
       if (tp[Z[i]] !== Z[i]) {
         fuYin = false;
-        break;
       }
-    }
-    /* 返吟：天盘与地盘互冲（tp[z] 为 z 之冲） */
-    let fanYin = true;
-    for (let i = 0; i < Z.length; i++) {
-      const zz = Z[i];
-      const chong = LiurenCore.ZHI[(LiurenCore.ZHI.indexOf(zz) + 6) % 12];
-      if (tp[zz] !== chong) {
+      if (tp[Z[i]] !== Z[(i + 6) % 12]) {
         fanYin = false;
-        break;
       }
     }
-    /* 八专：干支同位（日干寄宫 === 日支，如甲寅/丁未），四课仅 2 课；须无贼克 */
-    const baZhuan = (ji === kegs[2].s);
-    /* 四课去重后课数（别责=3 课、八专=2 课） */
-    const uniqKegs: Keg[] = [];
-    for (let i = 0; i < kegs.length; i++) {
-      let dup = false;
-      for (let j = 0; j < uniqKegs.length; j++) {
-        if (uniqKegs[j].x === kegs[i].x && uniqKegs[j].s === kegs[i].s) {
-          dup = true;
-          break;
-        }
-      }
-      if (!dup) {
-        uniqKegs.push(kegs[i]);
-      }
-    }
-    const nUniq = uniqKegs.length;
 
-    /* 贼克：下贼上 / 上克下 */
+    /* ---------- 贼克候选（课1 下神为日干，ke 直接吃天干） ---------- */
     const down: number[] = [];
     const up: number[] = [];
     kegs.forEach((k: Keg, i: number) => {
@@ -1051,189 +1058,177 @@ class LiurenCore {
         up.push(i);
       }
     });
-    /* 遥克（第 2/3/4 课上神 遥克日干 = 蒿矢；日干遥克上神 = 弹射） */
+    /* ---------- 遥克候选（第 2/3/4 课上神） ---------- */
     const haoshi: number[] = [];
     const danshe: number[] = [];
-    kegs.forEach((k: Keg, i: number) => {
-      if (i > 0 && LiurenCore.ke(k.x, dg)) {
+    for (let i = 1; i < kegs.length; i++) {
+      if (LiurenCore.ke(kegs[i].x, dg)) {
         haoshi.push(i);
       }
-      if (i > 0 && LiurenCore.ke(dg, k.x)) {
+      if (LiurenCore.ke(dg, kegs[i].x)) {
         danshe.push(i);
       }
+    }
+    /* ---------- 四课课数（按上神去重） ---------- */
+    const uniqShang: string[] = [];
+    kegs.forEach((k: Keg) => {
+      if (uniqShang.indexOf(k.x) < 0) {
+        uniqShang.push(k.x);
+      }
     });
+    const nSanKe: number = uniqShang.length;
+    const baZhuan: boolean = (ji === kegs[2].s) && nSanKe === 2;   /* 干支同位、四课二课 */
 
-    /* 三传工具：中末传 = 天盘覆盖 */
-    const chuanOf = (z: string): string => tp[z] || "";
-    const mk = (c1: string, c2: string, c3: string): SanChuan => {
-      const arr: string[] = [c1, c2, c3];
-      const chuans: Chuan[] = arr.map((z: string): Chuan => ({ z: z, gz: dunChuan[z] + z }));
-      return { method: "", keti: "", chuans: chuans };
+    /* ---------- 取用工具 ---------- */
+    const biList = (list: number[]): number[] => list.filter((i: number) => !!LiurenCore.YANG_ZHI[kegs[i].x] === yangGan);
+    const yaoKeFirst = (): string => {
+      const bi: number[] = biList(haoshi);
+      return kegs[(bi.length > 0 ? bi : haoshi)[0]].x;
+    };
+    /* 涉害：自克处顺数至本家、计克数取深；相等则复等（孟/仲/缀瑕） */
+    const sheHai = (list: number[]): string => {
+      const items: SheHaiItem[] = list.map((i: number): SheHaiItem => {
+        const shang: string = kegs[i].x;
+        let cnt: number = 0;
+        let cur: number = Z.indexOf(LiurenCore.gongOf(tp, shang));
+        for (let n = 0; n < 12; n++) {
+          if (LiurenCore.ke(Z[cur], shang)) {
+            cnt++;
+          }
+          if (Z[cur] === shang) {
+            break;
+          }
+          cur = (cur + 1) % 12;
+        }
+        return { shang: shang, cnt: cnt };
+      });
+      let max: number = -1;
+      items.forEach((x: SheHaiItem) => {
+        if (x.cnt > max) {
+          max = x.cnt;
+        }
+      });
+      let top: SheHaiItem[] = items.filter((x: SheHaiItem) => x.cnt === max);
+      if (top.length > 1) {
+        const meng: SheHaiItem[] = top.filter((x: SheHaiItem) => MENG.indexOf(x.shang) >= 0);
+        if (meng.length > 0) {
+          top = meng;
+        } else {
+          const zhong: SheHaiItem[] = top.filter((x: SheHaiItem) => ZHONG.indexOf(x.shang) >= 0);
+          if (zhong.length > 0) {
+            top = zhong;
+          }
+        }
+      }
+      if (top.length === 1) {
+        return top[0].shang;
+      }
+      const fallback: string = yangGan ? kegs[0].x : kegs[2].x;   /* 缀瑕 */
+      const hit: SheHaiItem[] = top.filter((x: SheHaiItem) => x.shang === fallback);
+      return hit.length > 0 ? hit[0].shang : top[0].shang;
+    };
+    /* 贼克/比用/涉害 三法取初传（返吟有克时复用）；取不到返回空串 */
+    const zeiKeBiShe = (): string => {
+      if (down.length === 1) {
+        return kegs[down[0]].x;
+      }
+      if (down.length === 0 && up.length === 1) {
+        return kegs[up[0]].x;
+      }
+      if (down.length + up.length >= 2) {
+        const ks: number[] = down.length > 0 ? down : up;
+        const bi: number[] = biList(ks);
+        if (bi.length === 1) {
+          return kegs[bi[0]].x;
+        }
+        return sheHai(bi.length > 1 ? bi : ks);
+      }
+      return "";
     };
 
-    let method = "";
-    let keti = "";
-    let c1 = "", c2 = "", c3 = "";
-
-    /* ---------- 8. 伏吟 ---------- */
+    /* ---------- 1. 伏吟 ---------- */
     if (fuYin) {
-      keti = "伏吟";
-      /* 初传：第1课有贼克按贼克，无则阳日取日干上神、阴日取日支上神 */
-      const k1 = kegs[0];
-      let fuyinC1 = "";
-      if (LiurenCore.ke(k1.s, k1.x)) {
-        fuyinC1 = k1.x;
-      } else if (LiurenCore.ke(k1.x, k1.s)) {
-        fuyinC1 = k1.x;
+      const k1: Keg = kegs[0];
+      const c1: string = (LiurenCore.ke(k1.s, k1.x) || LiurenCore.ke(k1.x, k1.s)) ? k1.x : (yangGan ? k1.x : kegs[2].x);
+      let c2: string = "";
+      let c3: string = "";
+      if (!!LiurenCore.ZI_XING[c1]) {
+        c2 = yangGan ? kegs[2].x : k1.x;
+        c3 = LiurenCore.XING_MAP[c2] || chongZhi(c2);          /* 规范：取中传之刑或冲 */
       } else {
-        fuyinC1 = yangGan ? k1.x : kegs[2].x;
-      }
-      /* 自刑：辰午酉亥 */
-      /* 自刑四支：见 LiurenCore.ZI_XING（辰午酉亥） */
-      const ziXing: boolean = !!LiurenCore.ZI_XING[fuyinC1];
-      if (ziXing) {
-        c1 = fuyinC1;
-        c2 = yangGan ? kegs[2].x : k1.x;   /* 自刑：阳日取日支上神、阴日取日干上神 */
-        c3 = chuanOf(c2) !== "" ? chuanOf(c2) : c2;  /* 取中传之刑或冲 */
-      } else {
-        c1 = fuyinC1;
         c2 = LiurenCore.XING_MAP[c1] || c1;
         c3 = LiurenCore.XING_MAP[c2] || c2;
       }
-      method = "伏吟";
-      const out: SanChuan = mk(c1, c2, c3);
-      out.method = method;
-      out.keti = keti;
-      return out;
+      return newSc("伏吟", "伏吟", c1, c2, c3);
     }
 
-    /* ---------- 9. 返吟 ---------- */
+    /* ---------- 2. 返吟 ---------- */
     if (fanYin) {
-      keti = "返吟";
-      if (down.length + up.length > 0 || haoshi.length > 0 || danshe.length > 0) {
-        /* 有贼克/遥克：按对应法取初传 */
-        const ks = down.length > 0 ? down : (up.length > 0 ? up : (haoshi.length > 0 ? haoshi : danshe));
-        c1 = kegs[ks[0]].x;
-        c2 = chuanOf(c1);
-        c3 = chuanOf(c2);
-        method = "返吟";
-      } else {
-        keti = "返吟·井栏射";
-        /* 取用表见 LiurenCore.JINGLAN_SHE（丑日取亥、未日取巳） */
-        const sheFirst: string = LiurenCore.JINGLAN_SHE[kegs[2].s];
-        c1 = sheFirst ? sheFirst : kegs[2].x;
-        c2 = chuanOf(kegs[2].s);
-        c3 = chuanOf(kegs[0].x);
-        method = "返吟";
+      const zk: string = zeiKeBiShe();
+      if (zk !== "" || haoshi.length > 0 || danshe.length > 0) {
+        const first: string = zk !== "" ? zk : (haoshi.length > 0 ? yaoKeFirst() : kegs[danshe[0]].x);
+        const sc: SanChuan = chain(first);
+        sc.method = "返吟";
+        sc.keti = "返吟";
+        return sc;
       }
-      const out: SanChuan = mk(c1, c2, c3);
-      out.method = method;
-      out.keti = keti;
-      return out;
+      /* 井栏射：初传取日支之驿马；中传取日支上神、末传取日干上神 */
+      const she: string = LiurenCore.JINGLAN_SHE[kegs[2].s] || kegs[2].x;
+      return newSc("返吟", "返吟·井栏射", she, kegs[2].x, kegs[0].x);
     }
 
-    /* ---------- 7. 八专 ---------- */
-    if (baZhuan && down.length + up.length === 0 && haoshi.length === 0 && danshe.length === 0) {
-      keti = "八专";
-      /* 阳日：日干上神顺数3；阴日：日支上神逆数3（无贼克才入八专） */
-      const base = yangGan ? kegs[0].x : kegs[2].x;
-      const idx = Z.indexOf(base);
-      const bzStep: number = LiurenCore.BA_ZHUAN_STEP;
-      c1 = yangGan ? Z[(idx + bzStep) % 12] : Z[(idx - bzStep + 12) % 12];
-      c2 = kegs[0].x;   /* 中末固定取日干上神 */
-      c3 = kegs[0].x;
-      method = "八专";
-      const out: SanChuan = mk(c1, c2, c3);
-      out.method = method;
-      out.keti = keti;
-      return out;
+    /* ---------- 3. 八专（干支同位）：有克已由上面结构之外的贼克/比用/涉害处理，无克则用八专法 ---------- */
+    if (baZhuan && down.length + up.length === 0) {
+      const base: string = yangGan ? kegs[0].x : kegs[2].x;
+      const idx: number = Z.indexOf(base);
+      const step: number = LiurenCore.BA_ZHUAN_STEP;            /* 3 位（含起点）→ 位移 2 */
+      const c1: string = yangGan ? Z[(idx + step - 1) % 12] : Z[(idx - step + 1 + 12) % 12];
+      return newSc("八专", "八专", c1, kegs[0].x, kegs[0].x);
     }
 
-    /* ---------- 6. 别责 ---------- */
-    if (nUniq <= 3 && down.length + up.length === 0 && haoshi.length === 0 && danshe.length === 0) {
-      keti = "别责";
-      /* 阳日：日干相合处地盘上神；阴日：日支前三合处地盘上神 */
-      if (yangGan) {
-        const he = LiurenCore.HE_GAN[dg] || "";
-        c1 = chuanOf(LiurenCore.JI_GONG[he] || he);
-      } else {
-        const qianSanHe = LiurenCore.QIAN_SANHE[kegs[2].s] || kegs[2].s;
-        c1 = chuanOf(qianSanHe);
-      }
-      c2 = kegs[0].x;   /* 中末固定取日干上神 */
-      c3 = kegs[0].x;
-      method = "别责";
-      const out: SanChuan = mk(c1, c2, c3);
-      out.method = method;
-      out.keti = keti;
-      return out;
+    /* ---------- 4. 别责（四课仅三课、无贼克无遥克） ---------- */
+    if (nSanKe === 3 && down.length + up.length === 0 && haoshi.length === 0 && danshe.length === 0) {
+      const c1: string = yangGan
+        ? chuanOf(LiurenCore.JI_GONG[LiurenCore.HE_GAN[dg]] || "")
+        : chuanOf(LiurenCore.QIAN_SANHE[kegs[2].s] || kegs[2].s);
+      return newSc("别责", "别责", c1, kegs[0].x, kegs[0].x);
     }
 
-    /* ---------- 1-5. 贼克 / 比用 / 涉害 / 遥克 / 昴星（普通课） ---------- */
-    if (down.length === 1 && up.length === 0) {
-      method = "重审";
-      c1 = kegs[down[0]].x;
-    } else if (down.length === 0 && up.length === 1) {
-      method = "元首";
-      c1 = kegs[up[0]].x;
-    } else if (down.length + up.length >= 2) {
-      const ks = down.length > 0 ? down : up;
-      const bi = ks.filter((i: number) => !!LiurenCore.YANG_ZHI[kegs[i].x] === yangGan);
-      if (bi.length === 1) {
-        method = "比用";
-        c1 = kegs[bi[0]].x;
-      } else if (bi.length > 1) {
-        method = "涉害";
-        let best = -1;
-        let bestK: string | null = null;
-        bi.forEach((i: number) => {
-          const shang = kegs[i].x;
-          const xia = kegs[i].s;
-          let cnt = 0;
-          let cur = Z.indexOf(xia);
-          while (Z[cur] !== shang) {
-            if (LiurenCore.ke(Z[cur], shang)) {
-              cnt++;
-            }
-            cur = (cur + 1) % 12;
-          }
-          if (cnt > best) {
-            best = cnt;
-            bestK = shang;
-          }
-        });
-        c1 = bestK === null ? "" : bestK;
+    /* ---------- 5. 贼克 / 比用 / 涉害 ---------- */
+    const c1zk: string = zeiKeBiShe();
+    if (c1zk !== "") {
+      let method: string = "涉害";
+      if (down.length === 1) {
+        method = "重审";
+      } else if (down.length === 0 && up.length === 1) {
+        method = "元首";
       } else {
-        method = "涉害";
-        c1 = kegs[ks[0]].x;
+        const ks: number[] = down.length > 0 ? down : up;
+        method = biList(ks).length === 1 ? "比用" : "涉害";
       }
-    } else if (haoshi.length > 0) {
-      method = "遥克·蒿矢";
-      const pick = haoshi.filter((i: number) => !!LiurenCore.YANG_ZHI[kegs[i].x] === yangGan);
-      c1 = kegs[(pick.length ? pick[0] : haoshi[0])].x;
-    } else if (danshe.length > 0) {
-      method = "遥克·弹射";
-      c1 = kegs[danshe[0]].x;
-    } else {
-      /* 昴星：阳日虎视转蓬 / 阴日冬蛇掩目，取用见 LiurenCore.maoxingFirst */
-      method = "昴星";
-      keti = yangGan ? "昴星·虎视转蓬" : "昴星·冬蛇掩目";
-      c1 = LiurenCore.maoxingFirst(tp, yangGan);
+      const sc: SanChuan = chain(c1zk);
+      sc.method = method;
+      return sc;
     }
-    /* 中末传：昴星阳日「中取支上神、末取干上神」，阴日「中取干上神、末取支上神」；
-       其余宗门中末传皆顺取天盘覆盖 */
-    if (method === "昴星") {
-      const ganShang: string = tp[ji];
-      const zhiShang: string = tp[kegs[2].s];
-      c2 = yangGan ? zhiShang : ganShang;
-      c3 = yangGan ? ganShang : zhiShang;
-    } else {
-      c2 = chuanOf(c1);
-      c3 = chuanOf(c2);
+
+    /* ---------- 6. 遥克（蒿矢 / 弹射） ---------- */
+    if (haoshi.length > 0) {
+      const sc: SanChuan = chain(yaoKeFirst());
+      sc.method = "遥克·蒿矢";
+      return sc;
     }
-    const arr: string[] = [c1, c2, c3];
-    const chuans: Chuan[] = arr.map((z: string): Chuan => ({ z: z, gz: dunChuan[z] + z }));
-    return { method: method, keti: keti, chuans: chuans };
+    if (danshe.length > 0) {
+      const sc: SanChuan = chain(kegs[danshe[0]].x);
+      sc.method = "遥克·弹射";
+      return sc;
+    }
+
+    /* ---------- 7. 昴星（无贼克无遥克、四课全） ---------- */
+    const mx: string = yangGan ? tp[LiurenCore.MAOXING_ANCHOR] : LiurenCore.gongOf(tp, LiurenCore.MAOXING_ANCHOR);
+    const ganShang: string = tp[ji];
+    const zhiShang: string = tp[kegs[2].s];
+    return newSc("昴星", yangGan ? "昴星·虎视转蓬" : "昴星·冬蛇掩目",
+      mx, yangGan ? zhiShang : ganShang, yangGan ? ganShang : zhiShang);
   }
 
 
