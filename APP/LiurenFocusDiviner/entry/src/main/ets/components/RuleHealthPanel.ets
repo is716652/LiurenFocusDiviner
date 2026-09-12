@@ -79,7 +79,7 @@ export struct RuleHealthPanel {
                 .textAlign(TextAlign.Start)
               ForEach(this.problems, (s: RuleTableStatus) => {
                 Column({ space: 2 }) {
-                  Text('· ' + s.label + '：' + (s.missingKeys.length > 0 ? ('缺 ' + s.missingKeys.join('、')) : '未加载'))
+                  Text('· ' + s.label + '：' + this.stateOf(s))
                     .fontSize(12)
                     .fontColor('#E8A483')
                     .width('100%')
@@ -207,9 +207,20 @@ export struct RuleHealthPanel {
     .alignItems(HorizontalAlign.Start)
   }
 
+  /* 缺表清单里的状态词：把「压根没试过」与「试过但没读到」分开（加载完成前不至于全报未加载） */
+  private stateOf(s: RuleTableStatus): string {
+    if (s.missingKeys.length > 0) {
+      return '缺 ' + s.missingKeys.join('、');
+    }
+    if (s.loaded) {
+      return '正常';
+    }
+    return s.attempted ? '未加载' : '尚未加载';
+  }
+
   private detailOf(s: RuleTableStatus): string {
     if (!s.loaded) {
-      return '未加载';
+      return s.attempted ? '未加载' : '尚未加载';
     }
     let out = s.entries >= 0 ? (s.entries + ' 条') : '';
     if (s.version !== '') {

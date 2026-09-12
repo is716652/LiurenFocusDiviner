@@ -22,6 +22,7 @@ export interface RuleTableStatus {
   key: string;            /* 稳定 id（内部用） */
   label: string;          /* 面向用户的规则表名（不含文件名） */
   loaded: boolean;        /* 读到且解析成功 */
+  attempted: boolean;     /* 本次启动是否执行过加载入口（用于区分「没读到」与「还没试」） */
   entries: number;        /* 条目数；-1 = 不适用 */
   failReason: string;     /* 面向用户的失败原因（空 = 无失败） */
   missingKeys: string[];  /* 必填键缺失（表读到了但内容不全） */
@@ -34,6 +35,7 @@ class RuleTableRec {
   key: string = '';
   label: string = '';
   loaded: boolean = false;
+  attempted: boolean = false;
   entries: number = -1;
   failReason: string = '';
   missingKeys: string[] = [];
@@ -96,6 +98,7 @@ export class RuleHealth {
       return;
     }
     r.loaded = true;
+    r.attempted = true;
     r.entries = entries;
     r.version = version;
     r.missingKeys = [];
@@ -124,6 +127,7 @@ export class RuleHealth {
       return;
     }
     r.loaded = false;
+    r.attempted = true;
     r.entries = -1;
     r.failReason = reason;
     r.ts = Date.now();
@@ -147,9 +151,15 @@ export class RuleHealth {
   static statusList(): RuleTableStatus[] {
     const out: RuleTableStatus[] = [];
     for (const r of RuleHealth.recs) {
+      /* 未加载的原因要区分「执行过入口但没读到」与「本次启动压根没执行过入口」——
+         否则首页/自检面板在加载完成前会把 14 张表全报成「未加载」，吓人也失真。 */
+      let reason = r.failReason;
+      if (!r.loaded && reason === '') {
+        reason = r.attempted ? '规则表未读取到' : '尚未尝试加载（本次启动该入口未执行）';
+      }
       out.push({
-        key: r.key, label: r.label, loaded: r.loaded, entries: r.entries,
-        failReason: r.failReason, missingKeys: r.missingKeys, version: r.version, ts: r.ts
+        key: r.key, label: r.label, loaded: r.loaded, attempted: r.attempted, entries: r.entries,
+        failReason: reason, missingKeys: r.missingKeys, version: r.version, ts: r.ts
       });
     }
     return out;
