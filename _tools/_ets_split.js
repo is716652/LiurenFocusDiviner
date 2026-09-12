@@ -1,5 +1,5 @@
 /* ============================================================================
- * _ets_build.js —— ArkTS 侧组件化【唯一入口】（可重复执行）
+ * _ets_split.js —— ArkTS 侧切片生成（重建链第 2 步，由 _ets_pipeline.js 调用）
  * ----------------------------------------------------------------------------
  *   1) 取基线单体（tag v1.0.4-pre-componentize 的 model/LiurenCore.ets）
  *   2) 按**显式成员→模块映射表**切出各成员（边界由花括号配平确定，不靠行号/位置）
@@ -9,7 +9,7 @@
  *
  * 纪律：纯结构改动 —— 成员体逐字搬移；跨模块引用一律经门面 LiurenCore（与 .ts 侧同口径），
  *       故 A6 三端同构成立（三端函数体逐行相同）。
- * 用法：node _tools/_ets_build.js
+ * 用法：node _tools/_ets_split.js（通常由 _ets_pipeline.js 依次调用，勿单独跑）
  * ==========================================================================*/
 'use strict';
 const fs = require('fs');
@@ -180,7 +180,7 @@ bodyOf['tiandipan'] = bodyOf['tiandipan'].map((txt) => {
 {
   const EXTRAS = path.join(__dirname, '_ets_extras_dx.txt');
   if (fs.existsSync(EXTRAS)) bodyOf['dx'].push(fs.readFileSync(EXTRAS, 'utf-8').replace(/\n+$/, ''));
-  else { console.log('    !! 缺 _tools/_ets_extras_dx.txt，请先跑 node _tools/_ets_ets_facade_extras.js'); process.exit(1); }
+  else { console.log('    !! 缺 _tools/_ets_extras_dx.txt，请先跑 node _tools/_ets_facade_extras.js'); process.exit(1); }
 }
 
 /* ---------- 写文件 ---------- */
@@ -191,7 +191,7 @@ function header(title, note) {
     + note.split('\n').map((s) => ' * ' + s).join('\n') + '\n'
     + ' * 由单体 LiurenCore.ets 按 Agent.md §13 模块边界**逐字搬移**（纯结构拆分，行为不变）。\n'
     + ' * ArkTS：原生 import/export；跨模块引用经门面 LiurenCore（与 .ts 侧同口径）。\n'
-    + ' * 重新生成：node _tools/_ets_build.js（勿手改本文件）\n'
+    + ' * 重新生成：node _tools/_ets_pipeline.js（勿手改本文件）\n'
     + ' * ==========================================================================*/';
 }
 function relTo(target, selfPath) {
@@ -335,7 +335,7 @@ const FORWARD = {
     ' *   pan/types · pan/liuren-const · pan/xunkong · pan/jiang · pan/dungan · pan/sanchuan',
     ' *   pan/sike · pan/tiandipan · pan/shensha · pan/dx · bifa · zhonghuang',
     ' * 本文件只做：模块别名 + 常量绑定 + 公开方法转发 + 全部类型 re-export。',
-    ' * 重新生成：node _tools/_ets_build.js（勿手改本文件）',
+    ' * 重新生成：node _tools/_ets_pipeline.js（勿手改本文件）',
     ' * ==========================================================================*/'].join('\n');
   console.log('[3] model/LiurenCore.ets（门面）'.padEnd(22)
     + writeFile('LiurenCore.ets', HEAD + '\n\n' + typeImport + '\n' + extraImport + '\n'

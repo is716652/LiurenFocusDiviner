@@ -309,11 +309,12 @@ APP/screenshots_out/免费版下一版 2026-9-5
 
 ```powershell
 # core 侧（Node/Web 产物）：改动一律写在 core/liuren/** 里，不要碰 core/liuren-core.ts
-node _tools/build_core.js            # 拼装 → tsc → node --check（唯一重建入口）
+node _tools/rebuild_core.js          # 唯一重建入口：切片 → 补只读接口 → 门面收尾 → 装配+tsc
+node _tools/build_core.js            # 仅装配+编译（rebuild_core 的第 4 步；不切片）
 node _tools/build_core.js --check    # 只校验：产物与真源不一致即 exit 1
 
 # ArkTS 侧（另一条链，真源同为 core/liuren/**，手工同构）
-node _tools/_ets_pipeline.js         # _extras.js → _etsgen.js → _o1.js → 免费版 sync/verify
+node _tools/_ets_pipeline.js         # _ets_facade_extras → _ets_split → _ets_qualify → 免费版 sync/verify
 #   之后接主版构建（工作目录 APP/LiurenFocusDiviner）：
 #   D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode module -p product=default --no-daemon
 ```
@@ -330,6 +331,33 @@ node _tools/_ets_pipeline.js         # _extras.js → _etsgen.js → _o1.js → 
 node _tools/_core_snapshot.js        # 行为快照比对（基线 _tests/_data/core_snapshot.json，185981 条规范化输出逐条哈希）
 node _tools/_api_parity.js           # 与 tag v1.0.4-pre-componentize 的产物逐成员比对外 API
 ```
+
+### 门禁有效性自检（变异测试，2026-09-12 新增）
+
+```powershell
+node _tools/gate_mutation_check.js   # 往真实文件里临时注入可疑写法 → 跑门禁 → 期望结果 → 逐字节还原
+```
+
+**为什么必须有这一项**：门禁全绿只说明「没抓到东西」，不说明「抓得住」。组件化把扫描面从
+单体文件换成目录、又放宽过豁免面，结果 `_test_component_audit.js` 的 A3（UI 不得硬编码盘面事实）
+**一度形同虚设**：它的「规则表数据区」豁免条件是「任何含 ≥4 个引号的 `{}`/`[]` 区间」，
+于是任何含 2 个字符串字面量的函数体/if 块都被当成规则表 —— 实测 `pages/Index.ets` 里最大豁免区间
+覆盖全文 **97%**，连「同一行 3 个天将名」的变异体都判不出来（基线依旧全绿）。
+现行判据收紧为三条同时成立：① 开括号处于表达式位置（前一非空字符 ∈ `= : ( , [ { >`）；
+② 区间内无控制流关键字（if/else/for/while/switch/return/=>）；③ 长度 ≤ 30000。
+另加**文案豁免**：名字只出现在带文案标点的字符串里（… ： （ ） 、 ， —）时不算写死
+（例：`'宗门法：' + name + '（贼克/比用/涉害/遥克…）'` 是给用户看的举例）。
+扫描面＝App 侧 `.ets` 的**非引擎**目录（`pages/` `components/` `pay/` `entryability/` 等）；
+**排除 `model/**`**（引擎真源与生成镜像本来就是天将/课体/神煞名的权威来源，
+例如 sanchuan 依阳日/阴日给昴星取「昴星·虎视转蓬」/「昴星·冬蛇掩目」变体名）。
+引擎侧写死个案由 A1（个案标识）/A2（I-O）/A4（死常量）+ 17280 全枚举规范门禁 + 传本锚点把关。
+
+自检脚本 11 条用例（8 正例必须拦下 + 3 反例必须放过，反例防止门禁重新变成误报机器）：
+`P1–P2` 个案日期串/案例 id 写进引擎模块、`P3` 值 import、`P4` `Date.now`、`P5` 死常量、
+`P6–P8` UI 页把天将名/课体名/神煞名当映射表用；`N1` 引擎取变体名、`N2` UI 文案举例、
+`N3` UI 规则常量表（数组形态，其是否多余由 A4 判）。
+
+**改动门禁后必须重跑本项**（改判据、改扫描面、放宽任何豁免都要跑），并确认退出码 0。
 
 关键点抽查：`JIANG_NI` 应为 0、`buildJiang`/`xunDun`/`maoxingFirst` 应齐全；真源基线 tag 为 `v1.0.4-pre-componentize`（两侧切片脚本都从它取单体基线）。
 
@@ -794,9 +822,10 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 
 **两侧各一个重建入口**（真源同为 `core/liuren/**`）：
 
-- core 侧：`node _tools/build_core.js`（拼装 → 同一条 `npx tsc core/liuren-core.ts --target ES2017 --module commonjs --strict --noImplicitAny` → `node --check`）；
+- core 侧：`node _tools/rebuild_core.js`（唯一入口：切片 `_core_split.js` → 补只读接口 `_core_api_extras.js` → 门面收尾 `_core_assemble.js` → 装配编译 `build_core.js`）；
+  只想装配不想重切片时用 `node _tools/build_core.js`（拼装 → 同一条 `npx tsc core/liuren-core.ts --target ES2017 --module commonjs --strict --noImplicitAny` → `node --check`）；
   另有 `--check` 只校验「产物 vs 真源」是否一致（不一致 exit 1）。
-- ArkTS 侧：`node _tools/_ets_pipeline.js`（`_extras.js` → `_etsgen.js` → `_o1.js` → 免费版 `sync_free_edition.py` / `verify_free_edition.py`）；
+- ArkTS 侧：`node _tools/_ets_pipeline.js`（`_ets_facade_extras.js` → `_ets_split.js` → `_ets_qualify.js` → 免费版 `sync_free_edition.py` / `verify_free_edition.py`）；
   生成物为 `APP/.../model/pan/*.ets` + `model/{bifa,zhonghuang}.ets` + 门面 `model/LiurenCore.ets`，之后接主版 hvigorw 构建。
 
 **可见性放宽 5 个成员（不是笔误，不要改回 `private`）**：

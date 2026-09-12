@@ -1,9 +1,9 @@
 /* ============================================================================
- * _core_api_ets_facade_extras.js —— 把「组件化后新增的只读接口」补回 core 侧（幂等）
+ * _core_api_extras.js —— 把「组件化后新增的只读接口」补回 core 侧（重建链第 2 步，幂等）
  *   - core/liuren/types.ts：RuleHealthItem / PalaceRole / PalaceLookup
  *   - core/liuren/pan/dx.ts：LrDx.ruleHealth / missingRules / palaceLookup
  *   （与 .ets 侧 palaceLookup 同源；ruleHealth/missingRules 暂只在 .ts 提供，见 Agent.md §14）
- * 用法：node _tools/_core_api_ets_facade_extras.js
+ * 用法：node _tools/_core_api_extras.js（通常由 rebuild_core.js 依次调用）
  * ==========================================================================*/
 'use strict';
 const fs = require('fs');

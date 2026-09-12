@@ -1,9 +1,9 @@
 /* ============================================================================
- * _ets_ets_facade_ets_facade_extras.js —— 从 core/liuren/pan/dx.ts 抽出「组件化后新增的只读接口」，
+ * _ets_facade_extras.js —— 从 core/liuren/pan/dx.ts 抽出「组件化后新增的只读接口」，
  *   生成 ArkTS 片段 _tools/_ets_extras_dx.txt：palaceLookup（点宫速查卡只读接口）
  *   （findZhiOfGong 不在此列：它由 _ets_split.js 的 MEMBER 映射搬移，重复会实现冲突）
  * 由 _ets_split.js 在生成 pan/dx.ets 时追加到类体末尾。
- * 用法：node _tools/_ets_ets_facade_ets_facade_extras.js && node _tools/_ets_split.js
+ * 用法：node _tools/_ets_facade_extras.js && node _tools/_ets_split.js（通常由 _ets_pipeline.js 依次调用）
  * ==========================================================================*/
 'use strict';
 const fs = require('fs');

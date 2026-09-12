@@ -5,7 +5,7 @@
  *   pan/types · pan/liuren-const · pan/xunkong · pan/jiang · pan/dungan · pan/sanchuan
  *   pan/sike · pan/tiandipan · pan/shensha · pan/dx · bifa · zhonghuang
  * 本文件只做：模块别名 + 常量绑定 + 公开方法转发 + 全部类型 re-export。
- * 重新生成：node _tools/_ets_build.js（勿手改本文件）
+ * 重新生成：node _tools/_ets_pipeline.js（勿手改本文件）
  * ==========================================================================*/
 
 import type {

@@ -4,7 +4,7 @@
  * 不变量：旬遁下空亡支不配干；旬表 甲子戌亥 … 甲寅子丑。
  * 由单体 LiurenCore.ets 按 Agent.md §13 模块边界**逐字搬移**（纯结构拆分，行为不变）。
  * ArkTS：原生 import/export；跨模块引用经门面 LiurenCore（与 .ts 侧同口径）。
- * 重新生成：node _tools/_ets_build.js（勿手改本文件）
+ * 重新生成：node _tools/_ets_pipeline.js（勿手改本文件）
  * ==========================================================================*/
 
 import { LiurenCore } from '../LiurenCore';

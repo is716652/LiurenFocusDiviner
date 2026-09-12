@@ -229,9 +229,18 @@ function codeSite(token) {
   return CORE_TS[0] + ':1 (未定位：' + token + ')';
 }
 
-/* 数据字面量区：由 { [ 配平得到、内部含 ≥4 个引号（即 ≥2 个字符串字面量）的区间。
-   规则常量表（不论横跨多少行）都落在这些区间内，故不算「UI 里写死盘面事实」；
+/* 数据字面量区：**只**豁免真正的规则常量表（数组/对象字面量）。
+   旧口径「任何含 ≥4 个引号的花括号区」过宽 —— 任何含 2 个字符串字面量的函数体、
+   if/else 块都会落进豁免面（实测 Index.ets 最大豁免区间覆盖全文 97%，A3 形同虚设；
+   连「同一行 3 个天将名」的变异体都判不出来）。收紧为三条同时成立：
+     ① 开括号处于**表达式位置**（前一非空字符 ∈ = : ( , [ { > ）—— 类体/函数体的 `{`
+        前面是 `)` 或类型名，不属于表达式位置；
+     ② 区内**不含控制流关键字**（if/else/for/while/switch/return/=>）—— 规则表里不该有；
+     ③ 长度不超过上限（防御性，避免把超大块当真值表）。
    区间**外**成组出现天将/课体/神煞名才是可疑（这些表本身是否死常量由 A4 另判）。 */
+const DATA_LITERAL_EXT_POS = /[=:(\[{>,]/;
+const DATA_LITERAL_CTRL = /\b(if|else|for|while|switch|return|case|break)\b|=>/;
+const DATA_LITERAL_MAX = 30000;
 function dataLiteralRanges(code) {
   const ranges = [];
   const stack = [];
@@ -244,11 +253,21 @@ function dataLiteralRanges(code) {
       continue;
     }
     if (c === '"' || c === "'" || c === '`') { quote = c; continue; }
-    if (c === '{' || c === '[') { stack.push(i); continue; }
+    if (c === '{' || c === '[') {
+      let j = i - 1;
+      while (j >= 0 && /\s/.test(code[j])) j--;
+      stack.push({ s: i, exprPos: j >= 0 && DATA_LITERAL_EXT_POS.test(code[j]) });
+      continue;
+    }
     if (c === '}' || c === ']') {
-      const s = stack.pop();
-      if (s === undefined) continue;
-      if (((code.slice(s, i + 1).match(/["'`]/g) || []).length) >= 4) ranges.push({ s: s, e: i });
+      const top = stack.pop();
+      if (top === undefined) continue;
+      if (!top.exprPos) continue;
+      if (i - top.s > DATA_LITERAL_MAX) continue;
+      const seg = code.slice(top.s, i + 1);
+      if (((seg.match(/["'`]/g) || []).length) < 4) continue;
+      if (DATA_LITERAL_CTRL.test(seg)) continue;
+      ranges.push({ s: top.s, e: i });
     }
   }
   return ranges;
@@ -519,9 +538,41 @@ function blockCommentLines(src) {
   return out;
 }
 function inLines(ranges, n) { return ranges.some((r) => n >= r[0] && n <= r[1]); }
+/* 「文案/图例」判定：该名字只出现在**带文案标点**的字符串字面量里（… ： （ ） 、 ， ——）。
+   例：'宗门法：' + name + '（贼克/比用/涉害/遥克…）' —— 名字是给用户看的举例，不是拿来做判断。
+   真正的写死是把名字当条件/映射用（if (x === '贵人') …），那种行名字不会全落在文案串里。
+   只豁免「名字全在文案串里」的行，不做整行豁免，避免把真写死一起放过。 */
+function proseSpans(line) {
+  const out = []; let q = '';
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (q === '') {
+      if (c === '"' || c === "'" || c === '`') { q = c; out.push({ s: i, e: line.length, text: '' }); }
+      continue;
+    }
+    if (c === '\\') { if (out.length) out[out.length - 1].text += line[i + 1] || ''; i++; continue; }
+    if (c === q) { out[out.length - 1].e = i; q = ''; continue; }
+    out[out.length - 1].text += c;
+  }
+  return out.map((o) => ({ s: o.s, e: o.e, prose: /[…：（）（）、，—]/.test(o.text) }));
+}
+function nameOnlyInProse(line, name) {
+  const spans = proseSpans(line);
+  const k = line.indexOf(name);
+  if (k < 0) return false;
+  const hit = spans.filter((s) => k >= s.s && k <= s.e);
+  return hit.length > 0 && hit.every((s) => s.prose);
+}
 
 const A3_HITS = [];
-for (const rel of ETS_FILES.concat(ETS_FREE)) {
+/* 扫描面＝App 侧「非引擎」.ets（pages / components / pay / entryability 等）。
+   **排除 model/**（引擎真源 core/liuren/** 及其生成镜像）**：引擎本来就是天将/课体/神煞名的
+   权威来源——例如 sanchuan 依阳日/阴日给昴星取「昴星·虎视转蓬」/「昴星·冬蛇掩目」变体名，
+   按「同一行成组出现名字」判定会把这种正常命名判成写死。引擎侧若真写死个案，由
+   A1（个案标识）/A2（I/O）/A4（死常量）+ 17280 全枚举规范门禁 + 传本锚点把关，不靠本项。
+   本项要挡的是**UI 自己拿盘面名字做判断**（与引擎重复实现、必然漂移）。 */
+const A3_TARGETS = ETS_FILES.concat(ETS_FREE).filter((f) => !/\/model\//.test(f));
+for (const rel of A3_TARGETS) {
   const st = strip(rel);
   const code = st.code;
   const lines = st.raw.split('\n');
@@ -551,6 +602,7 @@ for (const rel of ETS_FILES.concat(ETS_FREE)) {
         }
       }
       if (hits.length < min) return;
+      if (hits.every((n) => nameOnlyInProse(body, n))) return;   /* 名字全在文案串里：给用户看的举例，不是判断 */
       A3_HITS.push({ file: rel, line: i + 1, kind: kind, hits: hits, text: body.trim().slice(0, 130) });
       fail('A3', rel, i + 1, '同一行（非规则表、非数据字面量区）出现 ' + hits.length + ' 个' + kind
         + '（' + hits.join('/') + '）', JSON.stringify(body.trim().slice(0, 120)), kind);
