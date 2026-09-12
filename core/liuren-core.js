@@ -296,22 +296,6 @@ class LiurenCore {
         const out = { jiangMap: jiangMap, gui: gui, guiGong: guiGong, shun: shun, night: night };
         return out;
     }
-    /* ---------------- 昴星取用（唯一实现） ----------------
-       阳日（虎视转蓬）：取地盘「酉」位对应的上神；
-       阴日（冬蛇掩目）：取天盘「酉」位对应的下神（即天盘酉所压之地盘支） */
-    static maoxingFirst(tp, yangGan) {
-        const anchor = LiurenCore.MAOXING_ANCHOR;
-        if (yangGan) {
-            const up = tp[anchor];
-            return up ? up : "";
-        }
-        for (let i = 0; i < LiurenCore.ZHI.length; i++) {
-            if (tp[LiurenCore.ZHI[i]] === anchor) {
-                return LiurenCore.ZHI[i];
-            }
-        }
-        return "";
-    }
     /* 旬遁（传统层）：日干支 -> {地支:旬遁干}；旬外二支为旬空，无干（留空）
        出处：大六壬文档/古籍原文-易藏-术数/六壬集成五要权衡--佚名「须用旬遁……旬遁方有空亡……若用时遁无空亡」；
              大六壬文档/中黄五变经/中黄五变经研读整理.md「旬遁＝三传/盘面配干（标准六壬）＝传统层」 */
@@ -457,8 +441,9 @@ class LiurenCore {
          1) 结构课先行：伏吟（天盘＝地盘）、返吟（天盘＝地盘之冲）；
          2) 贼克：仅 1 课下贼上 → 重审（**不论是否另有上克下**）；无下贼上且仅 1 课上克下 → 元首；
          3) 比用：2 课以上贼/克，取与日干比（同阴阳）者，唯一则用之；
-         4) 涉害：比用无法筛选（多课均比／均不比）→ 自「上神所临地盘宫（克处）」**顺数**至本家，
-            计地盘支克上神之数，取多者；数相等则复等：孟（见机）→ 仲（察微）→ 缀瑕（阳日取日上神、阴日取辰上神）；
+         4) 涉害：比用无法筛选（多课均比／均不比）→ 自「上神所临地盘宫（克处）」**顺数**地盘至本家，
+            计地盘支克上神之数，取多者；数相等则复等：**所临地盘宫**属孟（见机）→ 属仲（察微）→
+            缀瑕（阳日取日上神、阴日取辰上神）；
          5) 遥克：无贼克 → 第 2/3/4 课上神克日干为蒿矢（比照取）；无蒿矢则取日干所克之上神为弹射；
          6) 昴星：无贼克无遥克（四课全）→ 阳日取地盘酉上神、阴日取天盘酉下神；中末按阴阳互换；
          7) 别责：四课仅三课、无贼克无遥克 → 阳日取干合寄宫上神、阴日取日支前三合上神；中末取干上神；
@@ -532,12 +517,17 @@ class LiurenCore {
             const bi = biList(haoshi);
             return kegs[(bi.length > 0 ? bi : haoshi)[0]].x;
         };
-        /* 涉害：自克处顺数至本家、计克数取深；相等则复等（孟/仲/缀瑕） */
+        /* 涉害深浅（取深者）：
+           候选上神 A（临地盘宫 G）；自 G 起顺数地盘、止于 A 之**本家**，
+           沿途地盘支克 A 者计一，计数多者涉害深、取为初传。
+           佐证（《中黄五变经》经文）：乙亥丑将巳时 未:2 ＝ 卯:2 → 复等取所临地盘宫属孟者（未）；
+           丙子丑将午时 子:2 ＝ 寅:2 → 复等取孟（子）；辛酉丑将申时 未:2 > 卯:0 → 初传未。 */
         const sheHai = (list) => {
             const items = list.map((i) => {
                 const shang = kegs[i].x;
+                const gong = LiurenCore.gongOf(tp, shang); /* 上神所临地盘宫 */
                 let cnt = 0;
-                let cur = Z.indexOf(LiurenCore.gongOf(tp, shang));
+                let cur = Z.indexOf(gong);
                 for (let n = 0; n < 12; n++) {
                     if (LiurenCore.ke(Z[cur], shang)) {
                         cnt++;
@@ -545,9 +535,9 @@ class LiurenCore {
                     if (Z[cur] === shang) {
                         break;
                     }
-                    cur = (cur + 1) % 12;
+                    cur = (cur + 1) % 12; /* 顺数地盘，止于本家 */
                 }
-                return { shang: shang, cnt: cnt };
+                return { shang: shang, cnt: cnt, gong: gong };
             });
             let max = -1;
             items.forEach((x) => {
@@ -557,12 +547,14 @@ class LiurenCore {
             });
             let top = items.filter((x) => x.cnt === max);
             if (top.length > 1) {
-                const meng = top.filter((x) => MENG.indexOf(x.shang) >= 0);
+                /* 复等·见机：取所临地盘宫属孟（寅申巳亥）者 */
+                const meng = top.filter((x) => MENG.indexOf(x.gong) >= 0);
                 if (meng.length > 0) {
                     top = meng;
                 }
                 else {
-                    const zhong = top.filter((x) => ZHONG.indexOf(x.shang) >= 0);
+                    /* 复等·察微：取所临地盘宫属仲（子午卯酉）者 */
+                    const zhong = top.filter((x) => ZHONG.indexOf(x.gong) >= 0);
                     if (zhong.length > 0) {
                         top = zhong;
                     }

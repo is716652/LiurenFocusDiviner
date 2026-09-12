@@ -1,14 +1,32 @@
 /* ============================================================================
- * _test_core_regress.js —— 新旧逻辑回归比对（重构前后输出逐项一致）
+ * _test_core_regress.js —— 新旧逻辑回归比对 + 三传规范基线
  * ----------------------------------------------------------------------------
- * 旧逻辑：从 _backup/2026-08-17-核心解耦前/大六壬万年历起课.html（改造前快照）
- *         用正则截取「常量 + 排盘引擎 + 盘态计算块」
- *         （配齐 GAN/ZHI 等）拼成 _old_engine.js，原样 eval 运行
- * 新核心：core/liuren-core.js（core/liuren-core.ts 的 tsc 编译产物）
- * 历法数据：UI/_data/yj_all.js + cal_1990s/2020s/2030s/2040s.js（eval 设 window.CAL/YJ_ALL）
- * 规则数据：UI/_data/duxiang_rules.js + shensha_rules.js + bifa.js
- * 6 个样本逐字段比对；全部 PASS 输出：回归比对: 6/6 全过
- * 用法：node _test_core_regress.js
+ * 本脚本有两类期望值，来源与效力不同，不得混用：
+ *
+ * A. 旧逻辑（历史行为交叉校验；只用于「三传以外」的引擎层）
+ *    旧逻辑：从 _backup/2026-08-17-核心解耦前/大六壬万年历起课.html（改造前快照）
+ *            用正则截取「常量 + 排盘引擎 + 盘态计算块」（配齐 GAN/ZHI 等）拼成
+ *            _tests/_old_engine.js，原样 eval 运行
+ *    新核心：core/liuren-core.js（core/liuren-core.ts 的 tsc 编译产物）
+ *    历法数据：UI/_data/yj_all.js + cal_1990s/2020s/2030s/2040s.js（eval 设 window.CAL/YJ_ALL）
+ *    规则数据：UI/_data/duxiang_rules.js + shensha_rules.js + bifa.js
+ *    ⚠ 旧逻辑的 resolveSanchuan 不是规范实现：无伏吟/返吟/八专/别责课体识别、「重审」误要求
+ *      「无上克下」、涉害无复等（孟/仲/缀瑕），柔日昴星初传写死「午」。
+ *      故**三传不再拿旧逻辑当期望值**（旧口径会把下贼上一课 + 上克下一课判成涉害/比用，
+ *      且涉害取用与规范不同），三传期望值一律取 B 项基线。
+ *
+ * B. 三传规范基线（本文件固化的三传期望值）
+ *    文件：_tests/_data/sanchuan_baseline.json
+ *          盘 → [宗门名, 课体, 三传地支] ；samples 键为 "日期|时"，sweep 键为 "日干支+月将+时"
+ *          （同一签名必同盘，故扩展扫描按签名去重）。
+ *    口径：**本基线固化的是《大六壬指南》三传排法规范口径（2026-09-10 三传重写后），
+ *          不是历史行为快照**——基线由当时引擎输出落盘，只能当「防漂移」用；
+ *          规范符合性由 _tests/_test_sanchuan_spec.js（17280 盘全枚举 × 独立参考实现 + 传本锚点）
+ *          独立把关，本基线不承担「证明合规范」的职责。
+ *    重生成：node _tests/_test_core_regress.js --regen（随后必须 git diff 审阅该 JSON）
+ *
+ * 6 个样本逐字段比对 + 扩展扫描；全部通过输出：回归比对: 6/6 全过
+ * 用法：node _test_core_regress.js [--regen]（SWEEP=0 可跳过扩展扫描）
  * ==========================================================================*/
 'use strict';
 const fs = require('fs');
@@ -20,6 +38,19 @@ const DATA = path.join(ROOT, 'UI', '_data');
 const HTML = path.join(ROOT, 'UI', '大六壬万年历起课.html');
 const CORE_JS = path.join(ROOT, 'core', 'liuren-core.js');
 const OLD_ENGINE = path.join(__dirname, '_old_engine.js');
+/* 三传规范基线（见文件头 B 项；--regen 重生成） */
+const BASELINE_FILE = path.join(__dirname, '_data', 'sanchuan_baseline.json');
+const REGEN = process.argv.includes('--regen');
+const BASELINE_META = {
+  '口径': '《大六壬指南》四课三传三传排法规范（大六壬文档/排盘/大六壬指南的四课三传的三传排法.md）',
+  '固化时点': '2026-09-10 三传（九宗门）按规范整段重写之后',
+  '性质': '防漂移回归基线，不是历史行为快照；基线值由三传重写后的引擎输出落盘',
+  '值形态': '[宗门名, 课体, 三传地支(初/中/末)]',
+  'samples 键': '日期|占时（本脚本 6 个样本）',
+  'sweep 键': '日干+日支+月将+占时（同一签名必同盘，故按签名去重）',
+  '重生成': 'node _tests/_test_core_regress.js --regen',
+  '独立校验': '_tests/_test_sanchuan_spec.js（17280 盘全枚举 × 规范独立参考实现）+ 传本锚点（六壬断案 88/165/93）'
+};
 /* 旧引擎提取源：优先 _backup 改造前快照（当前 HTML 已不含内联引擎），缺失时回退 */
 const OLD_HTML = fs.existsSync(path.join(ROOT, '_backup', '2026-08-17-核心解耦前', '大六壬万年历起课.html'))
   ? path.join(ROOT, '_backup', '2026-08-17-核心解耦前', '大六壬万年历起课.html')
@@ -111,7 +142,34 @@ function deepEqual(a, b, pathStr, diffs) {
   return ok;
 }
 
-/* ---------------- 4. 样本与比对字段 ---------------- */
+/* ---------------- 4. 三传规范基线（文件头 B 项；--regen 重生成） ---------------- */
+if (!REGEN && !fs.existsSync(BASELINE_FILE)) {
+  console.log('缺少三传规范基线：' + BASELINE_FILE);
+  console.log('生成：node _tests/_test_core_regress.js --regen');
+  process.exit(1);
+}
+const BASELINE = REGEN ? { samples: {}, sweep: {} } : JSON.parse(fs.readFileSync(BASELINE_FILE, 'utf8'));
+const baselineOut = { samples: {}, sweep: {} };
+/* 盘 → [宗门名, 课体, 三传地支(初/中/末)] */
+const sanchuanKey = (c) => [c.sanchuan.method, c.sanchuan.keti || '', (c.sanchuan.chuans || []).map((x) => x.z).join('')];
+const sameSanchuan = (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+/* 扩展扫描签名：日干+日支+月将+占时（这四者定盘，同一签名必同盘） */
+const sweepSig = (c, hour) => c.r.dg + c.r.dz + ((c.yj && c.yj.zhi) ? c.yj.zhi : '') + hour;
+function writeBaseline(out) {
+  const oneLine = (o, keys) => keys.map((k, i) =>
+    '    ' + JSON.stringify(k) + ': ' + JSON.stringify(o[k]) + (i === keys.length - 1 ? '' : ',')).join('\n');
+  const sk = Object.keys(out.samples).sort();
+  const wk = Object.keys(out.sweep).sort();
+  const text = '{\n' +
+    '  "_meta": ' + JSON.stringify(BASELINE_META, null, 2).replace(/\n/g, '\n  ') + ',\n' +
+    '  "samples": {\n' + oneLine(out.samples, sk) + '\n  },\n' +
+    '  "sweep": {\n' + oneLine(out.sweep, wk) + '\n  }\n' +
+    '}\n';
+  fs.mkdirSync(path.dirname(BASELINE_FILE), { recursive: true });
+  fs.writeFileSync(BASELINE_FILE, text, 'utf8');
+}
+
+/* ---------------- 5. 样本与比对字段 ---------------- */
 const samples = [
   ['2026-01-08', '酉'],
   ['2026-08-15', '酉'],
@@ -155,29 +213,18 @@ for (const sample of samples) {
     continue;
   }
   const diffs = [];
-  /* 课体识别层（2026-08-18 增强）：新引擎识别伏吟/返吟/八专/别责等课体
-     （旧引擎误判为昴星）；普通课三传必须一致，课体课仅校验 keti 非空与三传完整 */
-  const newKeti = newC.sanchuan.keti || '';
-  const isKeti = newKeti !== '';
-  if (isKeti) {
-    if (newKeti !== '伏吟' && newKeti !== '返吟' && newKeti !== '八专' && newKeti !== '别责' &&
-        newKeti.indexOf('昴星') < 0) {
-      diffs.push('未知课体: ' + newKeti);
-    }
-    if (!newC.sanchuan.chuans || newC.sanchuan.chuans.length !== 3) {
-      diffs.push('课体三传不完整');
-    }
+  /* 三传期望值取自规范基线（文件头 B 项），不再与旧逻辑比对：
+     旧逻辑 resolveSanchuan 非规范实现（无课体识别；重审误要求无上克下；涉害无复等；柔日昴星写死午） */
+  const baseKey = d + '|' + h;
+  const cur = sanchuanKey(newC);
+  if (REGEN) {
+    baselineOut.samples[baseKey] = cur;
   } else {
-    const diffsTmp = [];
-    if (!deepEqual(oldC.sanchuan.method, newC.sanchuan.method, 'sanchuan.method', diffsTmp)) {
-      diffs.push('sanchuan.method 不一致：\n    ' + diffsTmp.slice(0, 4).join('\n    '));
-    }
-    const diffsTmp2 = [];
-    /* 三传只比地支：gz（遁干）口径 2026-09-10 由「日干遁」改为「旬遁」（传统层），
-       旧引擎为日干遁，故遁干不参与新旧比对；三传干支口径由 _test_dungan.js 用传本锚点覆盖 */
-    const chuansZ = (c) => (c.sanchuan.chuans || []).map((x) => x.z);
-    if (!deepEqual(chuansZ(oldC), chuansZ(newC), 'sanchuan.chuans', diffsTmp2)) {
-      diffs.push('sanchuan.chuans 不一致：\n    ' + diffsTmp2.slice(0, 4).join('\n    '));
+    const exp = BASELINE.samples[baseKey];
+    if (!exp) {
+      diffs.push('基线缺少样本 ' + baseKey + '：node _tests/_test_core_regress.js --regen 重生成');
+    } else if (!sameSanchuan(cur, exp)) {
+      diffs.push('三传与规范基线不一致：' + cur.join(' / ') + '  vs 基线 ' + exp.join(' / '));
     }
   }
   for (const check of checks) {
@@ -196,15 +243,16 @@ for (const sample of samples) {
     console.log('FAIL ' + d + ' ' + h + '时');
     console.log(diffs.join('\n'));
   }
-  summary.push(d + ' ' + h + '时 [' + oldC.sanchuan.method + ']');
+  summary.push(d + ' ' + h + '时 [' + cur[0] + ' / 旧引擎 ' + oldC.sanchuan.method + ']');
 }
 console.log('');
 console.log('样本三传宗门：' + summary.join(' | '));
 console.log('');
 console.log('回归比对: ' + passCount + '/' + samples.length + (passCount === samples.length ? ' 全过' : ' 未全过'));
 
-/* ---------------- 5. 扩展扫描（补充置信：全年代跨月跨时辰，非验收项） ---------------- */
-if (process.env.SWEEP !== '0') {
+/* ---------------- 6. 扩展扫描（补充置信：全年代跨月跨时辰；三传对基线，其余对旧引擎） ---------------- */
+let sweepFailFinal = 0;
+if (process.env.SWEEP !== '0' || REGEN) {
   try {
     /* 载入其余年代数据，覆盖 1900~2059 */
     const extraDecades = [];
@@ -242,13 +290,24 @@ if (process.env.SWEEP !== '0') {
             }
             continue;
           }
-          const swKeti = newC.sanchuan.keti || '';
-          if (swKeti === '') {
-            const diffsTmpM = [];
-            if (!deepEqual(oldC.sanchuan.method, newC.sanchuan.method, 'sanchuan.method', diffsTmpM)) {
+          /* 三传对规范基线（含课体课：旧引擎无课体识别，不能当期望值） */
+          const sig = sweepSig(newC, h);
+          const cur = sanchuanKey(newC);
+          if (REGEN) {
+            baselineOut.sweep[sig] = cur;
+          } else {
+            const exp = BASELINE.sweep[sig];
+            if (!exp) {
               sweepFail++;
               if (sweepFail <= 5) {
-                console.log('  SWEEP FAIL ' + d + ' ' + h + '时 sanchuan.method：' + diffsTmpM.slice(0, 2).join('; '));
+                console.log('  SWEEP FAIL ' + d + ' ' + h + '时 基线缺少签名 ' + sig + '（--regen 重生成）');
+              }
+              continue;
+            }
+            if (!sameSanchuan(cur, exp)) {
+              sweepFail++;
+              if (sweepFail <= 5) {
+                console.log('  SWEEP FAIL ' + d + ' ' + h + '时 三传与规范基线不一致：' + cur.join(' / ') + ' vs 基线 ' + exp.join(' / '));
               }
               continue;
             }
@@ -268,12 +327,22 @@ if (process.env.SWEEP !== '0') {
     }
     console.log('扩展扫描（1901~2059 跨月跨时辰）：' + (sweepTotal - sweepFail) + '/' + sweepTotal + ' 一致' +
       (sweepFail === 0 ? '（全过）' : '（有 ' + sweepFail + ' 处不一致！）'));
+    sweepFailFinal = sweepFail;
     if (sweepFail > 0) {
       process.exitCode = 1;
     }
   } catch (e) {
     console.log('扩展扫描跳过：' + e.message);
   }
+}
+
+if (REGEN) {
+  writeBaseline(baselineOut);
+  console.log('');
+  console.log('[--regen] 三传规范基线已写出：' + BASELINE_FILE);
+  console.log('  samples ' + Object.keys(baselineOut.samples).length + ' 项，sweep ' + Object.keys(baselineOut.sweep).length + ' 项（按「日干+日支+月将+占时」签名去重）');
+  console.log('  口径：《大六壬指南》三传排法规范（2026-09-10 三传重写后），不是历史行为快照；请 git diff 审阅。');
+  process.exit(passCount === samples.length && sweepFailFinal === 0 ? 0 : 1);
 }
 
 process.exitCode = passCount === samples.length && process.exitCode !== 1 ? 0 : 1;
