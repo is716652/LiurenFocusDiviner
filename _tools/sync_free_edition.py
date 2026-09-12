@@ -4,6 +4,7 @@
  - 复制后把免费版 PayConfig.PREVIEW_FREE 写为 false（当前策略：过审版全功能开放、无锁无付费痕迹，
    与申报「无收费项」一致；收费版上架后如需锁定导流，把此处改回 true 并同步更新申报信息）
  - 复制后把免费版 FeatureFlags.SHOW_ANCIENT_CASE_GALLERY 写为 false（案例鉴赏随包隐藏，不显示入口）
+ - 复制后从免费版 rawfile 删除案例鉴赏/剧情数据（收费块数据不随免费包分发，防翻包读取）
  - 复制后自动移除免费版 module.json5 的 INTERNET 权限（保持零权限申报）
  - 用法：python _tools/sync_free_edition.py
 """
@@ -18,6 +19,16 @@ DST = os.path.join(BASE, 'LiurenFocusDivinerFree')
 # 排除项（构建产物 / IDE 状态）
 SKIP_DIRS = {'.hvigor', '.idea', '.preview', 'build', 'oh_modules', '.cxx', '.clangd'}
 SKIP_EXT = {'.iml'}
+
+# 收费块数据（不随免费包分发）：案例鉴赏库 + 案例剧情
+# 依据：案例鉴赏是收费研习内容，HAP 即 zip，rawfile 内 JSON 为明文，随包发出等于公开收费数据；
+#       免费版只保留入口开关隐藏不够，必须在同步阶段物理剔除。
+# 白名单外一律不动：中黄经文 ancient/zhonghuang_jing.json（免费古籍功能）、
+#       rawfile/rule/*（引擎规则）、rawfile/cal/*（历法 + yj_all.json）均为免费功能数据，必须保留。
+PAID_RAWFILE = (
+    'ancient/case_gallery.json',
+    'ancient/case_story.json',
+)
 
 def copy_tree(src, dst):
     os.makedirs(dst, exist_ok=True)
@@ -66,6 +77,19 @@ def hide_ancient_case_gallery():
     io.open(p, 'w', encoding='utf-8', newline='').write(s)
     print('SHOW_ANCIENT_CASE_GALLERY -> false (hidden in free edition)')
 
+def drop_paid_rawfile():
+    """免费版剔除收费块数据：案例鉴赏库 + 案例剧情（入口隐藏之外，数据本身也不随免费包分发）"""
+    rawfile = os.path.join(DST, 'entry', 'src', 'main', 'resources', 'rawfile')
+    for rel in PAID_RAWFILE:
+        p = os.path.join(rawfile, *rel.split('/'))
+        if not os.path.exists(p):
+            print('已剔除（源即无此文件）:', rel)
+            continue
+        size = os.path.getsize(p)
+        os.remove(p)
+        print('已剔除:', rel, '(%d bytes)' % size)
+
+
 def remove_internet():
     """免费版无 IAP：移除 module.json5 的 INTERNET 权限（保持零权限申报）"""
     p = os.path.join(DST, 'entry', 'src', 'main', 'module.json5')
@@ -92,6 +116,7 @@ def main():
     copy_tree(SRC, DST)
     flip_switch()
     hide_ancient_case_gallery()
+    drop_paid_rawfile()
     remove_internet()
     remove_permission_reason_string()
     print('SYNC OK')

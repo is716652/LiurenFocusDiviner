@@ -292,7 +292,7 @@ APP/screenshots_out/免费版下一版 2026-9-5
 - 反验：`node _tests/_test_case_story.js`（锚点必须落到复算盘面 + 反抄录检测 + 合规 + 导出同步）、`node _tests/_test_case_story_web.js`（无头跑原型：每条线索都有点位可点、支线结算不泄露原文、切换支线复位、无剧情案例不崩）。
 - 已写剧情：`duanan_001_han_qixue`（原占祈雪 + 同课异占·占行人 + 同课异占·占远行，三支线）、`renzhan_jiazi_011_xue_xingren`（原占）。其余 43 案待补，每案按「1 条原占 + 2~3 条异占」扩。
 - 原型：`UI/壬案推演原型.html`（一局多占版）：卷宗 → 选占问方向 → 起盘 → 点盘取证 → 呈上断语。原型把「可点位」先登记进 `SURFACES` 再挂事件（数据先行），无头环境才能遍历校验；`protoSurfaces()/protoState()` 为测试钩子。
-- 待办（上架相关）：剧情数据将来只随收费版发布时，需在 `sync_free_edition.py` 侧确认免费包不带 `case_story.json`。
+- **已完成**（2026-09-12 1.0.4 重打包）：剧情/案例数据只随主版发布，免费包已物理剔除。落在 `_tools/sync_free_edition.py` 的 `PAID_RAWFILE`（第 28 行白名单）+ `drop_paid_rawfile()`（第 80 行，输出 `已剔除: ancient/case_gallery.json (184956 bytes)` / `已剔除: ancient/case_story.json (17823 bytes)`），调用点第 119 行；由 `_tools/verify_free_edition.py` 硬断言守住（`check_paid_data_absent()` 第 61 行 / `check_free_data_present()` 第 71 行 / `check_free_data_matches_main()` 第 92 行，调用第 159–161 行）。包内实证：`resources/rawfile/ancient/` 只剩 `zhonghuang_jing.json`，`rawfile` 35 → 33 条，`.app` 1,576,778 → 1,520,926 字节（−55,852）。
 
 ---
 
@@ -363,8 +363,17 @@ node _tests/_test_zhonghuang_dun.js  # 日干遁/时干遁
 ### 免费版同步与校验
 
 ```powershell
-python _tools/sync_free_edition.py
-python _tools/verify_free_edition.py
+python _tools/sync_free_edition.py     # 复制主版 → 免费版；剔除收费块数据（case_gallery/case_story）
+python _tools/verify_free_edition.py   # 硬断言：收费数据不得在 + 免费数据必须全 + 与主版逐文件比对
+```
+
+### 包内实证（.app → .hap → rawfile）
+
+```powershell
+python _tools/_inspect_app_pkg.py APP\release_pkg\LiurenFocusDiviner-free-release-signed.app
+# 列出 rawfile/ancient、rule、cal 全部条目；免费包内若命中收费块数据则 exit 2
+python _tools/_diff_app_pkg.py <旧 .app> <新 .app>
+# 逐条目对比两包，定位字节差异来源（是否只少了该少的）
 ```
 
 ### 发布打包（release 产品 + 正式签名 → release_pkg）
