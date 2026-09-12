@@ -1258,16 +1258,16 @@ class LrDx {
         return LrDx.ruleHealth().filter((x) => !x.loaded);
     }
     /* ==================== 点宫速查卡（只读接口，§14.4） ====================
-       入参：chart、地盘宫（若传天盘支则先反查其地盘宫）、当前用神支（可空）。
+       入参：chart、**地盘宫**（UI 点盘点到的就是宫）、当前用神支（可空）。
+       注：地盘宫与天盘支取值域同为十二支、不可分；传非宫但合法的支时按天盘支尽力反查。
        纯读盘 + 查表，不改盘、不写状态。 */
     static palaceLookup(c, gongOrZhi, yongShenZhi) {
         const G = LrBase.ZHI;
-        let gong = gongOrZhi;
-        if (G.indexOf(gong) < 0) {
-            gong = "";
-        }
-        if (c.tp[gong] === undefined) {
-            gong = LrBase.gongOf(c.tp, gongOrZhi);
+        /* 入参分辨：地盘宫恒为天盘映射的键（c.tp 覆盖全部十二宫）→
+           「是键」按地盘宫；「不是键但为合法支」按天盘支反查；否则视为非法值（gong=""）。 */
+        let gong = "";
+        if (G.indexOf(gongOrZhi) >= 0) {
+            gong = (c.tp[gongOrZhi] !== undefined) ? gongOrZhi : LrBase.gongOf(c.tp, gongOrZhi);
         }
         const tianZhi = c.tp[gong] || gong;
         const nd = c.dx.nodes[tianZhi] || c.dx.nodes[gong] || LrDx.EMPTY_NODE;

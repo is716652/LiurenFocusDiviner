@@ -1,5 +1,5 @@
 {
- "生成时间": "2026-09-12T10:05:36.227Z",
+ "生成时间": "2026-09-12T10:08:34.073Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 48,
@@ -669,7 +669,7 @@
    ]
   },
   "A2静态": {
-   "条件数": 3528,
+   "条件数": 3522,
    "可疑": []
   },
   "A2运行期": {
@@ -1537,7 +1537,7 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-     "line": 591,
+     "line": 584,
      "fallback": "|| {}",
      "kind": "待人工确认",
      "ctx": "relToRiGan: relGan, relToYongShen: relYs, qiJi: (LrDx.QIJI_GONG[c.r.dg] || {})[tianZhi] || \"\", kong: nd.",
@@ -1856,7 +1856,7 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 591,
+     "line": 584,
      "fallback": "|| {}",
      "kind": "待人工确认",
      "ctx": "relToRiGan: relGan, relToYongShen: relYs, qiJi: (LrDx.QIJI_GONG[c.r.dg] || {})[tianZhi] || \"\", kong: nd.",

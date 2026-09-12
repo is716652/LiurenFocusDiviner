@@ -517,32 +517,25 @@ export class LrDx {
      palaceLookup：点天地盘任一宫 → 该支盘面全貌（只读，不改盘）。 */
     static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup {
       const G = LrBase.ZHI;
-      let gong: string = gongOrZhi;
-      if (G.indexOf(gong) < 0) { gong = ""; }
-      if (c.tp[gong] === undefined) { gong = LrBase.gongOf(c.tp, gongOrZhi); }
+      /* 入参分辨：地盘宫恒为天盘映射的键（c.tp 覆盖全部十二宫）→
+         「是键」按地盘宫；「不是键但为合法支」按天盘支反查；否则视为非法值（gong=""）。 */
+      let gong: string = "";
+      if (G.indexOf(gongOrZhi) >= 0) {
+        gong = (c.tp[gongOrZhi] !== undefined) ? gongOrZhi : LrBase.gongOf(c.tp, gongOrZhi);
+      }
       const tianZhi: string = c.tp[gong] || gong;
       const nd: NodeState = c.dx.nodes[tianZhi] || c.dx.nodes[gong] || LrDx.EMPTY_NODE;
       const wx: string = LrBase.WX[tianZhi] || "";
       const dwx: string = LrBase.WXG[c.r.dg] || "";
-      const yangZhi: Record<string, number> = { "子": 1, "寅": 1, "辰": 1, "午": 1, "申": 1, "戌": 1 };
-      /* 与日干：六亲 + 生克（同一套五行口径，与 yongshen 的 liuqinOf 一致） */
       let liuQin: string = "";
-      if (wx !== "" && dwx !== "") {
-        if (wx === dwx) { liuQin = "比肩"; }
-        else if (LrBase.KE[dwx] === wx) { liuQin = "妻财"; }
-        else if (LrBase.KE[wx] === dwx) { liuQin = "官鬼"; }
-        else if (LrBase.SHENG(dwx) === wx) { liuQin = "子孙"; }
-        else { liuQin = "父母"; }
-      }
       let relGan: string = "";
       if (wx !== "" && dwx !== "") {
-        if (wx === dwx) { relGan = "比和"; }
-        else if (LrBase.SHENG(wx) === dwx) { relGan = "生干"; }
-        else if (LrBase.KE[wx] === dwx) { relGan = "克干"; }
-        else if (LrBase.SHENG(dwx) === wx) { relGan = "干生"; }
-        else { relGan = "干克"; }
+        if (wx === dwx) { liuQin = "比肩"; relGan = "比和"; }
+        else if (LrBase.KE[dwx] === wx) { liuQin = "妻财"; relGan = "干克"; }
+        else if (LrBase.KE[wx] === dwx) { liuQin = "官鬼"; relGan = "克干"; }
+        else if (LrBase.SHENG(dwx) === wx) { liuQin = "子孙"; relGan = "干生"; }
+        else { liuQin = "父母"; relGan = "生干"; }
       }
-      /* 与用神：同为五行生克（未选用神时显式说明，不留白） */
       let relYs: string = "未选用神";
       if (yongShenZhi !== "" && G.indexOf(yongShenZhi) >= 0) {
         const wy: string = LrBase.WX[yongShenZhi] || "";
@@ -554,10 +547,10 @@ export class LrDx {
           else { relYs = "用神克"; }
         }
       }
-      /* 该支在本课的角色 */
-      const chuanZhi: string[] = c.sanchuan.chuans.map((x: Chuan) => x.z);
-      const chuIdx: number = chuanZhi.indexOf(tianZhi);
-      const inChuan: string = chuIdx >= 0 ? ["初传", "中传", "末传"][chuIdx] : "未入传";
+      const chuZhi: string[] = c.sanchuan.chuans.map((x: Chuan) => x.z);
+      const chuIdx: number = chuZhi.indexOf(tianZhi);
+      let inChuan: string = "未入传";
+      if (chuIdx === 0) { inChuan = "初传"; } else if (chuIdx === 1) { inChuan = "中传"; } else if (chuIdx === 2) { inChuan = "末传"; }
       const ji: string = LrBase.JI_GONG[c.r.dg] || "";
       const yjGong: string = LrBase.gongOf(c.tp, c.yj.zhi);
       const guiGong: string = LrBase.gongOf(c.jiangMap, "贵人");
@@ -584,7 +577,7 @@ export class LrDx {
         gong: gong,
         tianZhi: tianZhi,
         wuXing: wx,
-        yinYang: yangZhi[tianZhi] ? "阳" : "阴",
+        yinYang: LrBase.YANG_ZHI[tianZhi] ? "阳" : "阴",
         liuQin: liuQin,
         relToRiGan: relGan,
         relToYongShen: relYs,
