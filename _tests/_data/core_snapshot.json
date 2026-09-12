@@ -1,0 +1,52 @@
+{
+ "说明": "引擎全量行为快照（_tools/_core_snapshot.js）",
+ "条目": 185981,
+ "总哈希": "f2a02d139a053ff7c820d8483eb2de923fc6e5159053c6987ac2eff8ed273aa1",
+ "分区": [
+  {
+   "name": "常量表",
+   "n": 31,
+   "hash": "8855a8f77817e25675a65ecf2cc9fa828bd28300d8032813e83407952d436a74"
+  },
+  {
+   "name": "基础工具",
+   "n": 2566,
+   "hash": "ad29478dfcb2dfa38574e495ed32904426e5270a00ddd3b4b7a0f19845d365c9"
+  },
+  {
+   "name": "全枚举盘",
+   "n": 8640,
+   "hash": "50afcda68db236ff349df4d29fad988d5621bd4b18e3bed0b7077331363d11bb"
+  },
+  {
+   "name": "天将布列",
+   "n": 1440,
+   "hash": "4e6acfb1a482189a57922809083514b14453bb12bff843192b77c74de2e3b63a"
+  },
+  {
+   "name": "带年干支月支",
+   "n": 14400,
+   "hash": "9a0a8d4bf99501abdb89d3a6bf5a90965e8aff177d5dc5c6cdf4ef7fe51c6f36"
+  },
+  {
+   "name": "中黄",
+   "n": 4320,
+   "hash": "7110616c66c2a3fa2468b59fb4982caafe5cc25abd5223f58dd9a57a75acb0d0"
+  },
+  {
+   "name": "毕法",
+   "n": 51840,
+   "hash": "5fb8f2a8afbac5d31f16f706b5e0457da3930519f538e9418666ee9de475d311"
+  },
+  {
+   "name": "神煞行年用神读象",
+   "n": 102600,
+   "hash": "4f54c75bd207c682c673f575e744a9cc28d107737ad1731f39f5dee54fdf65ef"
+  },
+  {
+   "name": "buildChart历法",
+   "n": 144,
+   "hash": "94b199b8a894143057f54a70e5b60b2efbfca43c0094901457a0bd704196960e"
+  }
+ ]
+}

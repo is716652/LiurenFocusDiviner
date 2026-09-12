@@ -142,27 +142,92 @@ function collect(rel) {
 }
 const ETS_FILES = collect(APP_ETS);
 const ETS_FREE = collect('APP/LiurenFocusDivinerFree/entry/src/main/ets');
-const CORE_FILES = ['core/liuren-core.ts', 'core/liuren-core.js'];
+/* 引擎真源（组件化后按目录覆盖，不再固定单文件）：core/liuren-core.ts（装配层）+ core/liuren/**
+   产物 core/liuren-core.js 单列（它是拼接产物；重复声明/死常量按真源判，产物只作 I/O 面扫描）。 */
+function collectExt(rel, re) {
+  const abs = path.join(ROOT, rel);
+  if (!fs.existsSync(abs)) return [];
+  const out = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { walk(p); continue; }
+      if (re.test(e.name)) out.push(path.relative(ROOT, p).replace(/\\/g, '/'));
+    }
+  };
+  walk(abs);
+  return out.sort();
+}
+const CORE_GENERATED = ['core/liuren-core.js'];
+const CORE_TS = (() => {
+  const all = collectExt('core', /\.ts$/);
+  const entry = 'core/liuren-core.ts';
+  return [entry].concat(all.filter((f) => f !== entry));
+})();
+const CORE_FILES = CORE_TS.concat(CORE_GENERATED);
 const PY_FILES = fs.existsSync(path.join(ROOT, '_tools'))
   ? fs.readdirSync(path.join(ROOT, '_tools')).filter((f) => /\.py$/.test(f)).map((f) => '_tools/' + f)
   : [];
-/* A1/A3 扫描面：组件层 + core + _tools */
+/* A1/A3 扫描面：组件层 + core（真源 + 产物）+ _tools */
 const SCAN_FILES = ETS_FILES.concat(ETS_FREE, CORE_FILES, PY_FILES);
 REPORT.扫描面 = {
   '.ets（主版）': ETS_FILES.length,
   '.ets（免费版）': ETS_FREE.length,
-  'core': CORE_FILES.length,
+  'core（真源 .ts）': CORE_TS.length,
+  'core（产物 .js）': CORE_GENERATED.length,
+  'core 合计': CORE_FILES.length,
   '_tools/*.py': PY_FILES.length
 };
 console.log('扫描面：主版 .ets ' + ETS_FILES.length + ' 个，免费版 .ets ' + ETS_FREE.length
-  + ' 个，core ' + CORE_FILES.length + ' 个，_tools/*.py ' + PY_FILES.length + ' 个');
+  + ' 个，core ' + CORE_FILES.length + ' 个（真源 .ts ' + CORE_TS.length + ' + 产物 .js '
+  + CORE_GENERATED.length + '），_tools/*.py ' + PY_FILES.length + ' 个');
 
-/* 引擎真源文件（A1 里已由旧门禁覆盖；此处不重复判，仅避免重复报同一处） */
-const ENGINE_ALREADY_GATED = new Set([
-  'core/liuren-core.ts', 'core/liuren-core.js',
+/* 引擎真源文件（A1 里已由旧门禁覆盖；此处不重复判，仅避免重复报同一处）
+   —— 组件化后按目录动态取，新增模块自动在册 */
+const ENGINE_ALREADY_GATED = new Set(CORE_FILES.concat([
   APP_ETS + '/model/LiurenCore.ets',
   'APP/LiurenFocusDivinerFree/entry/src/main/ets/model/LiurenCore.ets'
-]);
+]));
+
+/* ---------------- 引擎整体代码视图（组件化后真源分散在多模块） ----------------
+ * B3 的「代码侧真源」不再假设它在某一个文件里：把全部引擎真源 .ts 拼成整体视图再正则抓表；
+ * 「代码读取点」也不再写死行号（拆模块后行号必漂），改为按 token 现查 → 模文件:行号。 */
+function stripOf(rel) {
+  let st = CACHE[rel];
+  if (!st) {
+    const txt = fs.readFileSync(path.join(ROOT, rel), 'utf-8');
+    st = stripComments(txt);
+    st.raw = txt;
+    CACHE[rel] = st;
+  }
+  return st;
+}
+function engineCode() {
+  if (!engineCode._v) {
+    const src = [];
+    const spans = [];
+    let off = 0;
+    for (const rel of CORE_TS) {
+      const code = stripOf(rel).code;
+      src.push(code);
+      spans.push({ rel: rel, start: off, end: off + code.length });
+      off += code.length + 1;
+    }
+    engineCode._v = { code: src.join('\n'), spans: spans };
+  }
+  return engineCode._v;
+}
+/* 「代码读取点」定位：按 token 现查所在模文件与行号（找不到显式标「未定位」，不静默） */
+function codeSite(token) {
+  for (const rel of CORE_TS) {
+    const st = stripOf(rel);
+    const i = st.code.indexOf(token);
+    if (i >= 0) return rel + ':' + lineOf(st.offs, i);
+    const j = st.raw.indexOf(token);
+    if (j >= 0) return rel + ':' + lineOf(st.offs, j);
+  }
+  return CORE_TS[0] + ':1 (未定位：' + token + ')';
+}
 
 /* 数据字面量区：由 { [ 配平得到、内部含 ≥4 个引号（即 ≥2 个字符串字面量）的区间。
    规则常量表（不论横跨多少行）都落在这些区间内，故不算「UI 里写死盘面事实」；
@@ -598,19 +663,19 @@ C('ancient/case_gallery.json', [], 'array', DL + ':334', 'AncientCase[]');
 
 /* --- 引擎内读 rules 的键（LiurenCore.ets） --- */
 const LC = APP_ETS + '/model/LiurenCore.ets';
-C('rule/旺衰休囚死.json', ['旺衰'], 'object', LC + ':1255', 'wangT() 读 rules.duxiang.旺衰休囚死.旺衰');
-C('rule/神煞起法.json', ['神煞'], 'object', LC + ':1276', 'computeShensha 读 rules.shensha.神煞');
-C('rule/毕法赋一百法.json', ['一百法'], 'array', LC + ':1324', 'bifaForChuans 读 rules.bifa.一百法');
-C('rule/基础关系.json', ['六合'], 'object', LC + ':1487', '读象 六合');
-C('rule/基础关系.json', ['六冲'], 'object', LC + ':1637', '读象 六冲');
-C('rule/基础关系.json', ['六害'], 'object', LC + ':1639', '读象 六害');
-C('rule/基础关系.json', ['三刑'], 'object', LC + ':1640', '读象 三刑');
+C('rule/旺衰休囚死.json', ['旺衰'], 'object', codeSite('旺衰休囚死'), 'wangT() 读 rules.duxiang.旺衰休囚死.旺衰');
+C('rule/神煞起法.json', ['神煞'], 'object', codeSite('rules.shensha["神煞"]'), 'computeShensha 读 rules.shensha.神煞');
+C('rule/毕法赋一百法.json', ['一百法'], 'array', codeSite('rules.bifa["一百法"]'), 'bifaForChuans 读 rules.bifa.一百法');
+C('rule/基础关系.json', ['六合'], 'object', codeSite('六合'), '读象 六合');
+C('rule/基础关系.json', ['六冲'], 'object', codeSite('六冲'), '读象 六冲');
+C('rule/基础关系.json', ['六害'], 'object', codeSite('六害'), '读象 六害');
+C('rule/基础关系.json', ['三刑'], 'object', codeSite('三刑'), '读象 三刑');
 
 /* --- 神煞表内部的键形态（按基准分派） --- */
-C('rule/神煞起法.json', ['神煞', '*', '基准'], 'string', LC + ':1293', '每神煞须有 基准（年支/月支/日干/日支/旬）');
-C('rule/神煞起法.json', ['神煞', '*', '表'], 'object', LC + ':1294', '每神煞须有 表（查表映射）');
-C('rule/神煞起法.json', ['神煞', '*', '吉凶'], 'string', LC + ':1317', 'computeShensha 用 吉凶');
-C('rule/神煞起法.json', ['神煞', '*', '置信度'], 'string', LC + ':1317', 'computeShensha 用 置信度');
+C('rule/神煞起法.json', ['神煞', '*', '基准'], 'string', codeSite('s["基准"]'), '每神煞须有 基准（年支/月支/日干/日支/旬）');
+C('rule/神煞起法.json', ['神煞', '*', '表'], 'object', codeSite('s["表"]'), '每神煞须有 表（查表映射）');
+C('rule/神煞起法.json', ['神煞', '*', '吉凶'], 'string', codeSite('s["吉凶"]'), 'computeShensha 用 吉凶');
+C('rule/神煞起法.json', ['神煞', '*', '置信度'], 'string', codeSite('s["置信度"]'), 'computeShensha 用 置信度');
 
 /* --- .ets 直读 rawfile 数据的键（Index/KongShen/Gallery 等） --- */
 const YS = APP_ETS + '/model/YongShenCore.ets';
@@ -636,8 +701,8 @@ C('rule/管辂象意.json', ['杂占总诀'], 'array', YS + ':343', 'xiangyi 分
 /* 占事体系的「用神·六亲」取值必须在 LIUQIN_ZHI 的键域内（代码表），否则候选恒空 */
 /* 一百法里仅部分法条带 判定.定位 / 判定.适用占事；代码读取点已守卫（(f.判定 && f.判定.定位) || {}），
    故列为可选键：缺失不违规，但一旦出现就必须是 object/array。 */
-C('rule/毕法赋一百法.json', ['一百法', '*', '判定', '定位'], 'object', LC + ':1733', '毕法 判定.定位（可选，代码已守卫）', true);
-C('rule/毕法赋一百法.json', ['一百法', '*', '判定', '适用占事'], 'array', LC + ':1835', '毕法 判定.适用占事（可选，代码已守卫）', true);
+C('rule/毕法赋一百法.json', ['一百法', '*', '判定', '定位'], 'object', codeSite('f["判定"]'), '毕法 判定.定位（可选，代码已守卫）', true);
+C('rule/毕法赋一百法.json', ['一百法', '*', '判定', '适用占事'], 'array', codeSite('apply'), '毕法 判定.适用占事（可选，代码已守卫）', true);
 C('rule/课体课义.json', ['课体'], 'array', 'APP/' + 'LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets:271', 'loadKetiYi → 课体课义表');
 
 /* cal/*.json：DayRec 字段 */
@@ -947,7 +1012,7 @@ function dup(name, codeSite, jsonRel, codeVal, jsonVal, note) {
 /* 1) 六冲 / 六合 / 六害 既是引擎常量又是 rule/基础关系.json */
 {
   const jc = jsonOf('rule/基础关系.json').json;
-  const codeSrc = strip(LC).code;
+  const codeSrc = engineCode().code;
   function grabRecord(varName) {
     const re = new RegExp('static\\s+readonly\\s+' + varName + '\\s*:\\s*Record<[^>]*>\\s*=\\s*\\{');
     const m = re.exec(codeSrc);
@@ -1059,7 +1124,7 @@ function dup(name, codeSite, jsonRel, codeVal, jsonVal, note) {
 /* 5) 行年打分表：代码 XN_SCORE_DEFAULT ↔ rule/行年打分.json */
 {
   const xn = jsonOf('rule/行年打分.json').json;
-  const codeSrc = strip(LC).code;
+  const codeSrc = engineCode().code;
   const m = /XN_SCORE_DEFAULT[^=]*=\s*\{/.exec(codeSrc);
   if (m) {
     const litSrc = objectLiteralAt(codeSrc, m.index);
@@ -1105,7 +1170,7 @@ function dup(name, codeSite, jsonRel, codeVal, jsonVal, note) {
   const yj = jsonOf('cal/yj_all.json').json;
   const pairsJson = new Set();
   for (const s of yj) pairsJson.add(s.j + '/' + s.z);
-  const codeSrc = strip(LC).code;
+  const codeSrc = engineCode().code;
   const m = /const ZQ[^=]*=\s*\{([\s\S]*?)\};/.exec(codeSrc);
   const pairsCode = new Set();
   if (m) {

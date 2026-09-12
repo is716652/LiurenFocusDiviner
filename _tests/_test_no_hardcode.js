@@ -31,16 +31,45 @@ const vm = require('vm');
 const ROOT = path.join(__dirname, '..');
 const VERBOSE = process.argv.includes('--verbose');
 
-/* ---------------- 被扫文件 ---------------- */
+/* ---------------- 被扫文件（组件化后：按目录覆盖全部模块，不再固定单文件） ----------------
+ * 引擎真源已按 §13 拆为 core/liuren-core.ts（装配层）+ core/liuren/**（模块）。
+ * 本门禁不得写死"四份引擎文件"，否则新增模块会落在扫描面之外（等于静默放宽）。 */
+function scanFiles(dirRel, extRe) {
+  const abs = path.join(ROOT, dirRel);
+  if (!fs.existsSync(abs)) return [];
+  const out = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { walk(p); continue; }
+      if (extRe.test(e.name)) out.push(path.relative(ROOT, p).replace(/\\/g, '/'));
+    }
+  };
+  walk(abs);
+  return out.sort();
+}
+/* 引擎 .ts：装配层 core/liuren-core.ts 在前，模块 core/liuren/ 下的 .ts 在后 */
+const ENGINE_TS = (() => {
+  const all = scanFiles('core', /\.ts$/);
+  const entry = 'core/liuren-core.ts';
+  return [entry].concat(all.filter((f) => f !== entry));
+})();
 const ENGINE = {
   ts: 'core/liuren-core.ts',
   js: 'core/liuren-core.js',
   etsMain: 'APP/LiurenFocusDiviner/entry/src/main/ets/model/LiurenCore.ets',
   etsFree: 'APP/LiurenFocusDivinerFree/entry/src/main/ets/model/LiurenCore.ets'
 };
-const ENGINE_FILES = [ENGINE.ts, ENGINE.js, ENGINE.etsMain, ENGINE.etsFree];
-/* 同构三端（真源 → 主版 → 免费版）；.js 为编译产物（无类型注解），不参与逐行同构比对 */
+/* 扫描面：全部引擎 .ts 模块 + 编译产物 .js + 两版 .ets */
+const ENGINE_FILES = ENGINE_TS.concat([ENGINE.js, ENGINE.etsMain, ENGINE.etsFree]);
+/* 同构三端（真源 → 主版 → 免费版）；.js 为编译产物（无类型注解），不参与逐行同构比对。
+   三端各自可能是"多个模块文件"，同构比对按**三端代码库整体**取函数体（见 A6）。 */
 const TRIPLE = [ENGINE.ts, ENGINE.etsMain, ENGINE.etsFree];
+const TRIPLE_TREES = [
+  ENGINE_TS,                                                                     /* .ts：装配层 + 模块 */
+  scanFiles('APP/LiurenFocusDiviner/entry/src/main/ets/model', /\.ets$/),        /* 主版 .ets */
+  scanFiles('APP/LiurenFocusDivinerFree/entry/src/main/ets/model', /\.ets$/)     /* 免费版 .ets */
+];
 
 /* 个案级数据文件（A5 扫描面） */
 const CASE_DATA_FILES = [
@@ -431,8 +460,30 @@ const A4_REQUIRED = [
   'JI_GONG', 'MA_ZHI'
 ];
 const tsSrc = readText(ENGINE.ts);
-const tsCode = stripped(ENGINE.ts).code;
-const tsOffs = stripped(ENGINE.ts).offs;
+/* 组件化后：真源分布在 core/liuren-core.ts（装配层）+ core/liuren/**（模块），
+   故 A4 按**引擎整体**判定（某文件内只定义、但被另一模块引用 ⇒ 在用，不算死常量）。
+   同时保留**逐声明所属文件**，违规行号仍精确到真实文件。 */
+function engineCodeView() {
+  const parts = [];
+  const spans = [];
+  let off = 0;
+  for (const rel of ENGINE_TS) {
+    const st = stripped(rel);
+    parts.push(st.code);
+    spans.push({ rel: rel, start: off, end: off + st.code.length, offs: st.offs });
+    off += st.code.length + 1;
+  }
+  return { code: parts.join('\n'), spans: spans };
+}
+function locOf(spans, idx) {
+  for (const s of spans) {
+    if (idx >= s.start && idx < s.end) return { rel: s.rel, line: lineOf(s.offs, idx - s.start) };
+  }
+  return { rel: ENGINE.ts, line: 1 };
+}
+const VIEW = engineCodeView();
+const tsCode = VIEW.code;
+const tsOffs = null;
 
 /* 声明发现：static readonly NAME / 顶层 const NAME（全大写具名表） */
 const DECLS = [];
@@ -494,7 +545,8 @@ for (const d of DECLS) {
     continue;
   }
   deadCount++;
-  fail('A4', ENGINE.ts, lineOf(tsOffs, d.start), '死常量「' + d.name + '」：非注释代码中只定义、无任何引用');
+  const at = locOf(VIEW.spans, d.start);
+  fail('A4', at.rel, at.line, '死常量「' + d.name + '」：非注释代码中只定义、无任何引用（按引擎整体判定）');
 }
 for (const n of A4_REQUIRED) {
   if (!declSeen.has(n)) {
@@ -502,7 +554,8 @@ for (const n of A4_REQUIRED) {
   }
 }
 if (deadCount === 0) {
-  console.log('  ✓ 扫得具名常量 ' + declSeen.size + ' 个（含必检 ' + A4_REQUIRED.length + ' 个）：全部在用，无死常量');
+  console.log('  ✓ 扫得具名常量 ' + declSeen.size + ' 个（含必检 ' + A4_REQUIRED.length + ' 个）：全部在用，无死常量'
+    + '（扫描面＝引擎 ' + ENGINE_TS.length + ' 个 .ts 文件整体）');
 }
 
 /* ============================================================================
@@ -595,18 +648,24 @@ if (a5Missing.length === 0) {
 /* ============================================================================
  * A6 三端同构抽查
  * ==========================================================================*/
-head('A6', '三端同构抽查：resolveSanchuan / buildJiang / xunDun 归一化后逐行相同');
+head('A6', '三端同构抽查：resolveSanchuan / buildJiang / xunDun 归一化后逐行相同（按三端代码库整体取函数体）');
 
-function grabStaticMethod(src, name) {
+/* 函数体可在**该端的任一模文件**里（组件化后实现按模块分散）；
+   故先在该端代码库内整体定位 `static <name>(`，再取配平花括号区间。 */
+function grabStaticMethodInTree(tree, name) {
   const re = new RegExp('static\\s+' + name + '\\s*\\(');
-  const m = re.exec(src);
-  if (!m) return null;
-  let j = src.indexOf('{', m.index);
-  if (j < 0) return null;
-  let depth = 0;
-  for (let k = j; k < src.length; k++) {
-    if (src[k] === '{') depth++;
-    else if (src[k] === '}') { depth--; if (depth === 0) return src.slice(m.index, k + 1); }
+  for (const rel of tree) {
+    if (!rel) continue;
+    const src = readText(rel);
+    const m = re.exec(src);
+    if (!m) continue;
+    const j = src.indexOf('{', m.index);
+    if (j < 0) continue;
+    let depth = 0;
+    for (let k = j; k < src.length; k++) {
+      if (src[k] === '{') depth++;
+      else if (src[k] === '}') { depth--; if (depth === 0) return src.slice(m.index, k + 1); }
+    }
   }
   return null;
 }
@@ -628,9 +687,9 @@ function normLines(s) {
 }
 const A6_FUNCS = ['resolveSanchuan', 'buildJiang', 'xunDun'];
 for (const fn of A6_FUNCS) {
-  const bodies = TRIPLE.map((rel) => grabStaticMethod(readText(rel), fn));
+  const bodies = TRIPLE_TREES.map((tree) => grabStaticMethodInTree(tree, fn));
   if (bodies.some((b) => b === null)) {
-    fail('A6', ENGINE.ts, 1, fn + '：三端中至少一端未找到 `static ' + fn + '(` 定义');
+    fail('A6', ENGINE.ts, 1, fn + '：三端中至少一端未找到 `static ' + fn + '(` 定义（该端代码库内全模文件已扫）');
     continue;
   }
   const strong = bodies.map(normStrong);
