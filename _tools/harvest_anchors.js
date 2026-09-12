@@ -32,8 +32,56 @@
  * 用法：
  *   node _tools/harvest_anchors.js                 # 统计报告
  *   node _tools/harvest_anchors.js --verbose       # 报告 + 逐条不命中明细 + 丢弃原因
- *   node _tools/harvest_anchors.js --write         # 同时写出 _tests/_data/anchors_corpus.json
+ *   node _tools/harvest_anchors.js --write         # 写出 _tests/_data/anchors_corpus.json
+ *                                                  #   + anchors_rejected.json + anchors_kouJing.json
  *   node _tools/harvest_anchors.js --src 断案      # 只跑某源（文件名含该关键字）
+ *   node _tools/harvest_anchors.js --audit         # 逐条打印采集校验判定（槽位/证据窗口/路由）
+ *
+ * ============================================================================
+ * 【2026-09-12 清洗与采集校验】依据两轮逐例裁决：
+ *   _tests/_data/sanchuan_dizhi_adjudication.json（B 类：26 条三传地支不符）
+ *   _tests/_data/jiang_adjudication.json          （C 类：12 条三传乘将不符）
+ * 结论：220 条锚点中 32 条不可留在主集 ——
+ *   28 条 → anchors_rejected.json（11 抄录错 + 3 他例窜入 + 3 原文段内无三传［含本轮新发现 1］
+ *            + 2 书侧传刻/标题互斥（116/199）+ 8 乘将类书版存疑［含本轮更正 115］
+ *            + 1 标题与课式块互斥（132，本轮新发现））
+ *    4 条 → anchors_kouJing.json（昼夜取贵口径差异：038/065/113/173）
+ * 为让**重跑不再把它们收回来**，本脚本新增下列**显式校验**（规则 + 逐例登记）：
+ *
+ * V1 三传天盘链（正课自洽闸门）
+ *    非伏吟/返吟/昴星/别责/八专诸课，要求 中传＝tp[初传]、末传＝tp[中传]。
+ *    依据《六壬指南》第 23 行：「俱以所得发用为初传，以初传地盘上所乘者为中传，
+ *    以中传地盘上所乘者为末传，故曰相因也」。五类特殊课各有专法（伏吟自任/杜传、
+ *    返吟井栏射、昴星虎视/冬蛇、别责、八专），故免检（课例头自标课体名时亦免检）。
+ *    回测：清洗前 220 条中链不合格 43 条；扣除五课免检的 24 条，余 19 条**全部**落在
+ *    裁决认定的坏条目上（V1 直接命中 116 传刻倒置、199 标题与块互斥、misc__3 讲解段窜入；
+ *    其余 16 条由 V2/V4 或「三传行不齐」同批拦下），无一条误伤正常锚点。
+ * V2 三传行版式槽
+ *    三传行尾部结构固定为「六亲｜干支位｜天将位｜位置字」，位置字左 2 格即干支位。
+ *    若旧读法取得的支不在该槽位（实读偏移 ≠ 0），则判版式不符并丢弃（禁止在槽外取支）。
+ *    依据：「抄录错」11 条中的 9 条由此产生 —— 如 duanan_007 中传印作「空申」（空亡支无
+ *    遁干、遁干位空缺），旧读法越过槽位取到四课格里的「卯」；duanan_082 末传取到六亲字「子」。
+ *    六亲位字面不予判定（断案或作「父兄鬼财子孙官」或径用天干，如 duanan_096 作「癸」）。
+ * V3 串文三传窗口＝本课例段
+ *    断案课式的「三传XYZ」补充读法只在**本课例块内**（课例头→下一课例头）查找，
+ *    不再向前取 4000 字符。依据：duanan_159/160 的三传「丑寅卯」实取自 3400–4000
+ *    字符外另一壬日课断语（断案行 1774）。
+ * V4 源C 三传证据窗口
+ *    其他古籍的「初传X…将Y／三传XYZ」证据必须落在课例头后 WINDOW_C 字符内。
+ *    依据：misc__1（指南注解己巳日丑将辰时）的三传「亥卯未」取自 14874 字符外的讲解段
+ *    （指南注解行 422「三传亥卯未为之」）；misc__2/misc__4（同书）取自 6509/11247 字符外；
+ *    misc__11（秘本）/misc__2（银河櫂）取自 11732/1293 字符外他例。
+ * V5 已裁决条目登记表（逐例登记，非模式推断）
+ *    键 = id|src —— misc__N 按各书内部序号命名，跨书重复（misc__2/3/4/11 均重复），
+ *    必须带 src 才唯一；B 类证据另按「条目索引 + id」双键定位（同名条目会错配）。
+ *    同时断言课例签名（月将/日干支/占时）与登记一致，不一致立即抛错中止
+ *    （防止源文本变动导致 id 漂移后静默误路由）。每条写明 route
+ *    （rejected / kouJing / keep）、原因、依据裁决文件与出处行号。
+ *
+ * ⚠ 为何只校验不自动纠正：V2/V3/V4 都能指出「读法该往哪改」（改对后书＝引擎），
+ *   但纠正会产出 16 条未经逐例裁决的新锚点，且与用户「错的全部拿掉」的指令相反。
+ *   故本脚本一律**丢弃并登记**：移出的条目在 anchors_rejected.json（含原文三传对照）
+ *   与 anchors_kouJing.json 中可复核，待裁决后另批回归。
  * ============================================================================
  */
 'use strict';
@@ -47,6 +95,7 @@ const has = (f) => ARGV.includes(f);
 const argOf = (f) => { const i = ARGV.indexOf(f); return i >= 0 ? ARGV[i + 1] : null; };
 const srcFilter = argOf('--src');
 const VERBOSE = has('--verbose') || has('-v');
+const AUDIT = has('--audit');
 const WRITE = has('--write');
 
 /* ---------------------------------------------------------------- 引擎装载 */
@@ -96,6 +145,95 @@ function tgGan(dg, z) {
 }
 const WSC = '[\t \u3000]';      /* 原文使用的空白：制表 / 半角空格 / 全角空格 */
 
+/* ======================= 采集校验规则（见文件头 V1–V5 说明） ======================= */
+
+/* V1：五类特殊课各有专法，三传不成天盘链，免检（课体名亦可由课例头自证） */
+const SPECIAL_METHOD = { 伏吟: 1, 返吟: 1, 昴星: 1, 别责: 1, 八专: 1 };
+const SPECIAL_KEYWORD = /(伏吟|反吟|返吟|昴星|昂星|别责|八专|井栏射|虎视|冬蛇|自任|杜传|独足|掩目)/;
+const isSpecialKet = (c, line0) => !!SPECIAL_METHOD[c.sanchuan.method] || SPECIAL_KEYWORD.test(line0);
+/* 天盘链：tp[宫]=月将加占时后该宫上的天盘支；中传＝tp[初传]，末传＝tp[中传] */
+function chainOf(mj, hour) {
+  const off = ((ZHI.indexOf(mj) - ZHI.indexOf(hour)) + 12) % 12;
+  return (g) => ZHI[(ZHI.indexOf(g) + off) % 12];
+}
+/* V4：源C（其他古籍）三传证据必须落在课例头后此窗口内（字符数） */
+const WINDOW_C = 400;
+/* 六亲字（三传行首字）——用于 V2 槽位判定：槽外取到的「像支」的 token 常是六亲字或空亡字。
+ * 断案三传行的六亲作「父/兄/鬼/财/子/孙/官」（鬼亦有作「官」处），故一并纳入。 */
+const LIUQIN_CH = '父兄鬼财子孫孙官杀煞';
+
+/* V5：已裁决条目登记表。键 = id|src（misc__N 跨书重复，必须带 src）。
+ *   route: 'rejected' → 移入 anchors_rejected.json（不进主集）
+ *          'kouJing'  → 移入 anchors_kouJing.json（昼夜取贵口径差异）
+ *          'keep'     → 留在主集，附 adjudication/adjudicatedFrom
+ *   sig: 课例签名「月将/日干支/占时」——重跑时断言一致，防 id 漂移后误路由。
+ *   reason: 依据裁决原文逐条写明的理由（含原文三传对照、窜入出处文件+行号）。 */
+const ADJ_B = '_tests/_data/sanchuan_dizhi_adjudication.json';
+const ADJ_C = '_tests/_data/jiang_adjudication.json';
+const DA = '大六壬文档/古籍原文-易藏-术数/六壬断案-宋-邵彦和/六壬断案-宋-邵彦和.utf8.txt';
+const ZY = '大六壬文档/古籍原文-易藏-术数/六壬指南注解-明-陈公献/六壬指南注解-明-陈公献.txt';
+const MB = '大六壬文档/古籍原文-易藏-术数/六壬秘本-清-金正音/六壬秘本-清-金正音.txt';
+const YH = '大六壬文档/古籍原文-易藏-术数/六壬银河櫂--佚名/六壬银河櫂--佚名.txt';
+const KNOWN = [
+  /* ---- B 类：锚点抄录错（11）——书＝引擎，仅锚点 book.chuans 与原文课式块不符 ---- */
+  { id: 'duanan_007', adjIdx: 5, src: DA, sig: '辰/辛巳/亥', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「卯卯丑」，原文课式块（行 58–64）作「卯申丑」：中传三传行印作「空申」（申为空亡支故无遁干），采集在槽外取到四课格里的「卯」。书内天盘、四课、三传、天将四项互相咬合，书＝引擎（引擎 卯申丑）。' },
+  { id: 'duanan_010', adjIdx: 7, src: DA, sig: '丑/壬寅/申', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「子辰戌」，原文课式块（行 88–94）作「子巳戌」（中传「空巳」形近误记作辰）；书＝引擎（引擎 子巳戌）。' },
+  { id: 'duanan_046', adjIdx: 40, src: DA, sig: '亥/丙寅/申', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「申申寅」，原文课式块（行 477–483）作「申亥寅」（中传「空亥」误记作申）；书＝引擎三传地支（引擎 申亥寅）。' },
+  { id: 'duanan_068', adjIdx: 59, src: DA, sig: '卯/乙卯/辰', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「丑卯亥」，原文课式块（行 717–723）作「丑子亥」（中传「空子」误记作卯）；书＝引擎（引擎 丑子亥）。' },
+  { id: 'duanan_082', adjIdx: 72, src: DA, sig: '申/戊寅/辰', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「丑午子」，原文课式块（行 862–868）作「丑午酉」（末传「空酉」误记作子）；书＝引擎（引擎 丑午酉）。' },
+  { id: 'duanan_095', adjIdx: 83, src: DA, sig: '巳/壬辰/子', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「寅辰子」，原文课式块（行 996–1002）作「寅未子」（中传未→辰，形近）；书自身释文级三传亦自证，书＝引擎（引擎 寅未子）。' },
+  { id: 'duanan_107', adjIdx: 92, src: DA, sig: '子/甲午/卯', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「申子寅」，原文课式块（行 1112–1118）作「申巳寅」（中传巳→子）；书＝引擎（引擎 申巳寅）。' },
+  { id: 'duanan_178', adjIdx: 155, src: DA, sig: '酉/戊子/寅', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「子子寅」，原文课式块（行 1883–1889）作「子未寅」（中传「空未」误记作子）；书＝引擎三传地支（引擎 子未寅）。另：本课乘将部分另属昼夜取贵口径差异（书用戊日昼贵丑、规范用夜贵未），见 anchors_kouJing.json 说明。' },
+  { id: 'duanan_211', adjIdx: 187, src: DA, sig: '申/壬子/亥', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「午子子」，原文课式块（行 2306–2312）作「午卯子」（中传「空卯」误记作子）；书＝引擎（引擎 午卯子）。' },
+  { id: 'misc__2', adjIdx: 212, src: ZY, sig: '酉/壬申/亥', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「巳申寅」，原文课式块（行 1116–1122）三传行为「午 玄／辰 后／寅 蛇」即「午辰寅」，锚点整组不符；书＝引擎（引擎 午辰寅）。' },
+  { id: 'misc__4', adjIdx: 213, src: ZY, sig: '未/甲戌/亥', route: 'rejected', kind: '抄录错', adj: ADJ_B, reason: '锚点三传「戌酉申」，原文课式块（行 1780–1786）作「戌午寅」；书＝引擎三传地支（引擎 戌午寅）。另：本课乘将部分另属昼夜取贵口径差异（书用甲日昼贵子、规范用夜贵未）。' },
+  /* ---- B 类：他例窜入（3）——写明窜入出处文件 + 行号 ---- */
+  { id: 'duanan_159', adjIdx: 138, src: DA, sig: '申/癸巳/卯', route: 'rejected', kind: '他例窜入', adj: ADJ_B, reason: '锚点三传「丑寅卯」，原文课式块（行 1693–1699）作「午亥辰」，书＝引擎。锚点三传系他例窜入：取自同书第 1774 行另一壬日课断语「…三传丑寅卯…」，距本课例头 3981 字符（本课例段仅 553 字符），系旧读法把「三传XYZ」补充读法的窗口开成课例头后 4000 字符所致（本版已按 V3 收紧为课例段内）。' },
+  { id: 'duanan_160', adjIdx: 139, src: DA, sig: '寅/丙申/寅', route: 'rejected', kind: '他例窜入', adj: ADJ_B, reason: '锚点三传「丑寅卯」，原文课式块（行 1703–1709）作「巳申寅」，书＝引擎。锚点三传系他例窜入：取自同书第 1774 行另一壬日课断语「…三传丑寅卯…」，距本课例头 3428 字符（本课例段仅 660 字符），同 duanan_159，已按 V3 收紧。' },
+  { id: 'misc__3', adjIdx: 215, src: MB, sig: '子/丙寅/辰', route: 'rejected', kind: '他例窜入', adj: ADJ_B, reason: '锚点三传「辰巳午」，原文（行 1639–1643）只给发用「戌加寅为用」（中末相因即 戌/午/寅），书＝引擎（引擎 戌午寅）。锚点三传系他例窜入：取自同书第 1655 行「癸卯日…三传辰巳午」蒿矢例。' },
+  /* ---- B 类：原文段内无三传（3，含本轮新发现 1）---- */
+  { id: 'misc__11', adjIdx: 216, src: MB, sig: '午/癸亥/辰', route: 'rejected', kind: '原文段内无三传', adj: ADJ_B, reason: '原文段内无三传（行 2559–2565 只给天盘/天将的一句判语「太常乘丑加亥上」，可得天盘与将盘皆与引擎相符，但无三传可比）。锚点三传「辰申子」系他例窜入：取自同书第 3259 行「如庚辰日干上子，三传辰申子之例」庚辰日全脱例。' },
+  { id: 'misc__2', adjIdx: 218, src: YH, sig: '申/乙酉/子', route: 'rejected', kind: '原文段内无三传', adj: ADJ_B, reason: '原文段内无三传（行 353–354 为论人形貌的取象法，只举天盘「天上酉加丑」，与引擎天盘相符，但无三传可比）。锚点三传「酉未丑」系他例窜入：取自同书第 394 行「如丁酉日伏吟」例。' },
+  { id: 'misc__1', src: ZY, sig: '丑/己巳/辰', route: 'rejected', kind: '原文段内无三传', adj: ADJ_B, newFinding: true, reason: '【本轮新发现】原文段内无三传（行 25 只给发用一句「己巳日来…余以丑将加辰时，寅木自支上遥克发用乘朱雀」，无三传可比）。锚点三传「亥卯未」系他例窜入：取自同书第 422 行讲解段「三传亥卯未为之」，距本课例头 14874 字符（旧读法块尾由「下一课例头」定界，而本文件仅 6 个课例头，故块长达 48874 字符）。V1 天盘链与 V4 证据窗口均可检出本条。' },
+  /* ---- B 类：书侧错（2，自相矛盾/传刻倒置/标题与块互斥）---- */
+  { id: 'duanan_116', adjIdx: 101, src: DA, sig: '子/庚辰/寅', route: 'rejected', kind: '书版存疑', adj: ADJ_B, reason: '书版存疑（传刻首尾倒置）：书内三传行「寅辰午」（行 1219–1225）与其自身天盘链、自身释文（1226–1227）互相矛盾，整体为引擎「午辰寅」之倒序，乘将列亦整体错位一格。引擎与书自身自洽的那一面（天盘链、释文）相符。' },
+  { id: 'duanan_199', adjIdx: 175, src: DA, sig: '戌/辛卯/午', route: 'rejected', kind: '书版存疑', adj: ADJ_B, reason: '书版存疑（标题与课式块互斥）：课例头「戌将午时」（行 2137）与课式块（2137–2143，天盘/四课/三传/天将/课体/释文）互斥 —— 块整体自洽于位移 d=8（即「戌将寅时」或等价的一组月将加时）。按块实指之盘复算，引擎得「比用 未/卯/亥」，与书印刷三传逐位全同，即引擎与书自洽的那一面相符。' },
+  /* ---- C 类：三传乘将类·书版存疑（7，书内标注互斥/证据不足）---- */
+  { id: 'duanan_021', src: DA, sig: '午/辛卯/辰', route: 'rejected', kind: '书版存疑', adj: ADJ_C, reason: '书版存疑（行 211）：八标注与四课天将与引擎逐宫全同，唯书内三传行末传标「陈」与其自身天将盘（酉宫＝龙）矛盾；锚点乘将字段「天后/螣蛇/勾陈」系随书三传行的抄录异文。引擎与书自身天将盘相符。' },
+  { id: 'duanan_081', src: DA, sig: '子/戊寅/午', route: 'rejected', kind: '书版存疑', adj: ADJ_C, reason: '书版存疑（行 852）：课式标注三套互斥 —— 八标注缺贵人宫无法定盘，三传「申乘蛇」与八标注「申虎」恰好互换，四课天将另成一套，不具备判定书口径的证据力（本课为反吟课，标注最易残损）。' },
+  { id: 'duanan_091', src: DA, sig: '卯/丁未/寅', route: 'rejected', kind: '书版存疑', adj: ADJ_C, reason: '书版存疑（行 955）：八标注与三传天将均与引擎全同，唯书内四课天将标注「蛇 贵 蛇 贵」与其自身天将盘（申宫＝贵、酉宫＝后）矛盾；锚点乘将字段本身与引擎无差异，本条属书内自相矛盾。' },
+  { id: 'duanan_130', src: DA, sig: '辰/庚寅/丑', route: 'rejected', kind: '书版存疑', adj: ADJ_C, reason: '书版存疑（行 1372）：八标注与四课天将与引擎逐宫全同，唯书内三传行中传标「丁亥 六」与其自身天将盘（亥宫＝虎）矛盾；同书另一处同课（行 1714）同位置作「陈」，亦不等于盘面「虎」→ 传刻异文。' },
+  { id: 'duanan_138', src: DA, sig: '辰/丙戌/寅', route: 'rejected', kind: '书版存疑', adj: ADJ_C, reason: '书版存疑（行 1446）：八标注按惯用盘仅 2/8 吻合，八标注／四课／三传三套标注互斥，无法唯一确定书上昼夜口径。' },
+  { id: 'duanan_148', src: DA, sig: '卯/丙辰/子', route: 'rejected', kind: '书版存疑', adj: ADJ_C, reason: '书版存疑（行 1582）：课本原句末尾即传本编者自注「用旦贵何也？」（自质疑其用昼贵），且八标注按「申宫贵人逆布」仅 2/8 吻合，与四课、三传互斥。' },
+  { id: 'duanan_193', src: DA, sig: '子/庚午/酉', route: 'rejected', kind: '书版存疑', adj: ADJ_C, reason: '书版存疑·证据不足（行 2054）：书内三套标注互斥（八标注按「戌宫贵人顺布」仅 2/8 吻合），取贵来源不明，无法唯一判定书上口径；引擎按规范卯酉分界＋贵人落宫定顺逆逐条相符。待更多传本。' },
+  /* ---- C 类：本轮新发现（2，含对 C 类既有裁决的更正）---- */
+  { id: 'duanan_115', src: DA, sig: '未/壬戌/巳', route: 'rejected', kind: '书版存疑', adj: ADJ_C, reason: '【本轮新发现，更正 C 类裁决】C 类把本课列为「书、锚点、引擎三者一致」的对照基准例，但重跑引擎复核后不成立：八标注（行 1207–1213）逐宫与引擎全同，初传子乘虎、中传寅乘玄亦相符，唯末传书三传行作「鬼 丙辰 蛇」，而按书自身天将盘，天盘辰落寅宫＝天后（引擎实得「辰乘天后」）。C 类裁决所记「引擎三传乘将＝辰乘蛇」系把「辰宫＝螣蛇」误读为「辰乘螣蛇」。故本条属「书内三传行标记与自身天将盘矛盾」，与 duanan_021/130 同类。' },
+  { id: 'duanan_132', src: DA, sig: '酉/己未/亥', route: 'rejected', kind: '书版存疑', adj: ADJ_B, newFinding: true, reason: '【本轮新发现，同 duanan_199 型】课例头「己未日酉将亥时」（行 1392）与课式块互斥：块之天盘（行 1394–1397 网格逐宫）、四课（酉/己、亥/酉、酉/未、亥/酉）、三传（八专独足 酉酉酉）、三传乘将（酉乘六合）、释文（「六合为舡」）五项一致地指向位移 +2（＝「酉将未时」或等价的一组月将加时），而标题所指位移为 −2；引擎按标题复算得「卯巳巳」，本条 3 传地支与乘将均不符，属传刻月将/占时之误。' },
+  /* ---- 昼夜取贵口径差异（4）→ anchors_kouJing.json ---- */
+  { id: 'duanan_038', src: DA, sig: '子/己巳/酉', route: 'kouJing', kind: '昼夜取贵口径差异', adj: ADJ_C, kj: { book: '书用己日昼贵子（贵人落酉宫、逆布）', norm: '规范：占时酉属夜 → 己日夜贵＝申（落巳宫、逆布）', selfConsistent: '书内天将盘＋四课自洽于「昼贵子落酉宫逆布」（课1 戌乘朱、课2 丑乘后、课3 申乘陈、课4 亥乘蛇逐课相符）；但书内三传行天将另成一套，两套互斥' }, reason: '书用己日昼贵子（贵人落酉宫、逆布）；规范卯酉分界判酉时为夜 → 用夜贵申（落巳宫、逆布）。书内天将盘＋四课自洽于「昼贵子落酉宫逆布」，但书内三传行天将另成一套，两套互斥。书方证据另见同书 001）韩太守占祈雪（同为己日酉时，书用夜贵申，邵先生原话「况申为夜贵，正是权柄」）与本课自相抵牾。' },
+  { id: 'duanan_065', src: DA, sig: '卯/戊午/寅', route: 'kouJing', kind: '昼夜取贵口径差异', adj: ADJ_C, kj: { book: '书用戊日昼贵丑（贵人落子宫、顺布）', norm: '规范：占时寅属夜 → 戊日夜贵＝未（落午宫、逆布）', selfConsistent: '书内四课天将（龙空空虎）＋三传天将（寅乘蛇、午乘龙）可由「昼贵丑落子宫顺布」完整复现，书确作昼占；仅天将盘八标注残损（缺贵宫、不能生成完整将序）' }, reason: '书用戊日昼贵丑（贵人落子宫、顺布）；规范判寅时为夜 → 用夜贵未（落午宫、逆布）。书内四课天将＋三传天将可由「昼贵丑落子宫顺布」完整复现（书确作昼占），仅天将盘八标注残损。' },
+  { id: 'duanan_113', src: DA, sig: '亥/壬午/酉', route: 'kouJing', kind: '昼夜取贵口径差异', adj: ADJ_C, kj: { book: '书用壬日昼贵巳（贵人落卯宫，书实按逆布）', norm: '规范：占时酉属夜 → 壬日夜贵＝卯（落丑宫、顺布）', selfConsistent: '书天将盘八标注自身 8/8 自洽（卯宫贵人逆布得 卯贵 辰蛇 巳朱 午六 未陈 申龙 酉空 戌虎 亥常 子玄 丑阴 寅后，与八标注逐字相符）；唯卯属顺行区却按逆布，与规范「顺逆由贵人落宫分野定」不符，属书例自身问题' }, reason: '书用壬日昼贵巳（贵人落卯宫，书实按逆布）；规范判酉时为夜 → 用夜贵卯（落丑宫、顺布）。书天将盘八标注自身 8/8 自洽，唯卯属顺行区却按逆布，属书例自身问题。' },
+  { id: 'duanan_173', src: DA, sig: '丑/己丑/辰', route: 'kouJing', kind: '昼夜取贵口径差异', adj: ADJ_C, kj: { book: '书用己日夜贵申（贵人落亥宫，书实按逆布）', norm: '规范：占时辰属昼 → 己日昼贵＝子（落卯宫、顺布）', selfConsistent: '书天将盘八标注自身 8/8 自洽（亥宫贵人逆布与八标注逐字相符）；唯亥属顺行区却按逆布，与规范不符，属书例自身问题' }, reason: '书用己日夜贵申（贵人落亥宫，书实按逆布）；规范判辰时为昼 → 用昼贵子（落卯宫、顺布）。书天将盘八标注自身 8/8 自洽，唯亥属顺行区却按逆布，属书例自身问题。' },
+  /* ---- 引擎侧待修证据（2）→ 必须留在主集 ---- */
+  { id: 'duanan_180', adjIdx: 157, src: DA, sig: '亥/己卯/未', route: 'keep', adjudication: 'engine_pending', adj: ADJ_B, reason: '涉害取用口径：书自身完全自洽且取「未」（临仲），引擎按深浅优先取「亥」；《六壬指南》涉害原文与多处传本课例站书侧 → 引擎待修，本条是待修项证据，必须留在主集。' },
+  { id: 'duanan_181', adjIdx: 158, src: DA, sig: '戌/甲辰/寅', route: 'keep', adjudication: 'engine_pending', adj: ADJ_B, reason: '涉害取用口径：书取「戌」（临孟，与书自标课体「炎上」相符），引擎按深浅取「子」（润下）；同上，本条是待修项证据，必须留在主集。' },
+  /* ---- 零差异对照例（6）→ 留在主集，标注裁决出处 ---- */
+  { id: 'duanan_212', adjIdx: 188, src: DA, sig: '酉/辛未/寅', route: 'keep', adjudication: 'no_diff_control', adj: ADJ_B, reason: '三传地支、乘将、宗门书＝锚点＝引擎（本批净对照组）。' },
+  { id: 'misc__3', src: '大六壬文档/古籍原文-易藏-术数/六壬一字诀玉连环-宋-徐汶滨/六壬一字诀玉连环-宋-徐汶滨.txt', sig: '午/辛酉/申', route: 'keep', adjudication: 'no_diff_control', adj: ADJ_B, reason: '书以文字明记三传「午辰寅」，锚点、引擎三方一致。' },
+  { id: 'misc__4', src: '大六壬文档/古籍原文-易藏-术数/六壬一字诀玉连环-宋-徐汶滨/六壬一字诀玉连环-宋-徐汶滨.txt', sig: '申/丙子/酉', route: 'keep', adjudication: 'no_diff_control', adj: ADJ_B, reason: '书以文字明记三传「戌申午」＋「天魁临亥为用」，锚点、引擎三方一致。' },
+  { id: 'misc__11', src: '大六壬文档/古籍原文-易藏-术数/六壬一字诀玉连环-宋-徐汶滨/六壬一字诀玉连环-宋-徐汶滨.txt', sig: '巳/己丑/辰', route: 'keep', adjudication: 'no_diff_control', adj: ADJ_B, reason: '三传「寅卯辰」书＝锚点＝引擎，无差异。' },
+  { id: 'misc__3', src: '大六壬文档/古籍原文-易藏-术数/六壬灵觉经--佚名/六壬灵觉经--佚名.txt', sig: '子/壬辰/辰', route: 'keep', adjudication: 'no_diff_control', adj: ADJ_B, reason: '书以起例文字逐步自证三传「子申辰」（「重审只取一下贼」「贵人安于天盘同位之宫」「中末相因」三项规范的最强书证之一），与引擎逐位全同。' },
+  { id: 'misc__4', src: '大六壬文档/古籍原文-易藏-术数/六壬银河櫂--佚名/六壬银河櫂--佚名.txt', sig: '亥/甲子/丑', route: 'keep', adjudication: 'no_diff_control', adj: ADJ_B, reason: '书以文字明记三传「戌申午」并自证「天乙逆行」，与引擎逐位全同。' }
+];
+const KNOWN_BY_KEY = new Map();
+for (const r of KNOWN) {
+  const k = r.id + '|' + r.src;
+  if (KNOWN_BY_KEY.has(k)) throw new Error('V5 登记表键重复：' + k);
+  KNOWN_BY_KEY.set(k, r);
+}
+/* 重跑时的路由计数（供报告打印） */
+const routeStat = { rejected: 0, kouJing: 0, keep: 0, miss: 0 };
+
 /* -------------------------------------- token 切分（规避上文提到的 V8 回溯缺陷） */
 const isWS = (ch) => ch === ' ' || ch === '\t' || ch === '\u3000';
 function splitTokens(line) {
@@ -136,6 +274,135 @@ const rel = (p) => path.relative(ROOT, p).split(path.sep).join('/');
 const anchors = [];
 const rejected = [];
 const drop = (src, why, excerpt) => rejected.push({ src: src, why: why, excerpt: String(excerpt).slice(0, 180) });
+
+/* ------------------------------ V5 裁决登记的路由与落盘 ------------------------------ */
+/* 两份裁决 JSON 作为**证据来源**读入（不写），用于把「原文三传／锚点三传／引擎三传／裁决」
+ * 原样带进 anchors_rejected.json，避免人工转抄出错。 */
+const ADJ_B_DATA = JSON.parse(fs.readFileSync(path.join(ROOT, ADJ_B), 'utf-8'));
+const ADJ_C_DATA = JSON.parse(fs.readFileSync(path.join(ROOT, ADJ_C), 'utf-8'));
+/* B 类按条目索引 + id 双键定位（misc__N 跨书重复，故必须带 index）；C 类按 id 唯一 */
+const ADJ_B_BY_INDEX = new Map();
+for (const r of ADJ_B_DATA['裁决记录']) ADJ_B_BY_INDEX.set(r.index + '|' + r.id, r);
+const ADJ_C_BY_ID = new Map();
+for (const r of ADJ_C_DATA['裁决记录']) ADJ_C_BY_ID.set(r.id, r);
+const sigOf = (mj, dg, dz, hour) => mj + '/' + dg + dz + '/' + hour;
+function knownOf(id, file, sig) {
+  const r = KNOWN_BY_KEY.get(id + '|' + file);
+  if (!r) return null;
+  if (r.sig !== sig) {
+    throw new Error('V5 课例签名不符（源文本可能已改动，拒绝静默误路由）：' + id + '|' + file + ' 登记=' + r.sig + ' 实得=' + sig);
+  }
+  return r;
+}
+/* 从登记条目取对应裁决证据（转抄零风险）。
+ * B 类必须用「条目索引 + id」双键定位：misc__N 在各书内重复（misc__2/3/4/11 各有 2–3 条
+ * 同名条目），只按 id 查会取到他书同名条目（本轮据此修正过一次错配）。 */
+function adjEvidence(rec, id) {
+  if (rec.adj === ADJ_B) {
+    const r = rec.adjIdx === undefined ? null : ADJ_B_BY_INDEX.get(rec.adjIdx + '|' + id);
+    if (!r) return null;
+    const orig = r['书上三传（原文）'];
+    return {
+      条目索引: r.index,
+      原文三传: Array.isArray(orig) ? orig.join('') : String(orig || ''),
+      锚点三传: Array.isArray(r['锚点记录三传']) ? r['锚点记录三传'].join('') : String(r['锚点记录三传'] || ''),
+      引擎三传: Array.isArray(r['引擎三传']) ? r['引擎三传'].join('') : String(r['引擎三传'] || ''),
+      裁决: r['裁决'], 依据: r['依据'] || ''
+    };
+  }
+  const r = ADJ_C_BY_ID.get(id);
+  if (!r) return null;
+  /* C 类裁决的「引擎排布」字段系上游人工转录，duanan_115 一条经复核有误（把「辰宫＝螣蛇」
+   * 读成「辰乘螣蛇」，引擎实际为「辰乘天后」），故键名一律加「上游裁决·」前缀，
+   * 视为上游主张而非复核结论；本轮复核结论见各条 rejectReason。 */
+  return {
+    上游裁决书三传天将: (r['书上排布'] && r['书上排布']['三传天将']) || '',
+    上游裁决引擎三传乘将: (r['引擎排布'] && r['引擎排布']['三传乘将']) || '',
+    上游裁决: r['裁决'], 依据: r['依据'] || ''
+  };
+}
+const adjudicatedRejected = [];
+const kouJingItems = [];
+const auditRows = [];
+/** 丢弃一个候选锚点：在 V5 登记表内 → 按登记原因写入 anchors_rejected（带裁决证据）；
+ *  否则按采集校验原因写入 rejected（保留旧的 {src,why,excerpt} 形状）。 */
+function dropCandidate(o) {
+  const rec = knownOf(o.id, o.file, o.sig);
+  const ci = (o.input && o.input.mj && isZhi(o.input.mj)) ? LiurenCore.buildChartAncient(o.input.mj, o.input.dg, o.input.dz, o.input.hour, '', '', '') : null;
+  const engine = { chuans: ci ? ci.sanchuan.chuans.map((x) => x.z) : null };
+  if (!rec) {
+    /* 采集期丢弃沿用原形状：excerpt 取课例头行（与清洗前的 84 条丢弃记录逐字节一致）；
+     * 裁决移出条目则用整段课例块摘录（便于复核原文三传）。 */
+    drop(o.file, o.structWhy, o.excerptHead || o.excerpt);
+    auditRows.push({ id: o.id, src: o.file, sig: o.sig, route: 'harvest-reject', why: o.structWhy });
+    return 'harvest';
+  }
+  if (rec.route !== 'rejected') throw new Error('V5 登记与校验冲突：' + o.id + '|' + o.file + ' 登记 route=' + rec.route + '，但被校验规则拦下：' + o.structWhy);
+  adjudicatedRejected.push({
+    id: o.id, src: o.file, excerpt: o.excerpt, input: o.input,
+    rejectKind: rec.kind, rejectReason: rec.reason, adjudicatedFrom: rec.adj,
+    ...(rec.newFinding ? { newFinding: true } : {}),
+    adjudicatedEvidence: adjEvidence(rec, o.id),
+    collectedBook: o.book, engineChuans: engine.chuans, structWhy: o.structWhy
+  });
+  routeStat.rejected++;
+  auditRows.push({ id: o.id, src: o.file, sig: o.sig, route: 'rejected(登记)', kind: rec.kind, why: o.structWhy });
+  return 'adjudicated';
+}
+/** 采集成功后的路由：按 V5 登记把锚点分流到 主集 / rejected / kouJing。 */
+function routeBuilt(a) {
+  const rec = knownOf(a.id, a.src, sigOf(a.input.mj, a.input.dg, a.input.dz, a.input.hour));
+  if (!rec) { routeStat.miss++; auditRows.push({ id: a.id, src: a.src, sig: sigOf(a.input.mj, a.input.dg, a.input.dz, a.input.hour), route: 'keep', why: '未登记（无裁决）' }); return true; }
+  if (rec.route === 'keep') {
+    a.adjudication = rec.adjudication;
+    a.adjudicatedFrom = rec.adj;
+    routeStat.keep++;
+    auditRows.push({ id: a.id, src: a.src, sig: sigOf(a.input.mj, a.input.dg, a.input.dz, a.input.hour), route: 'keep(' + rec.adjudication + ')', why: rec.reason });
+    return true;
+  }
+  if (rec.route === 'kouJing') {
+    kouJingItems.push(buildKouJing(a, rec));
+    routeStat.kouJing++;
+    auditRows.push({ id: a.id, src: a.src, sig: sigOf(a.input.mj, a.input.dg, a.input.dz, a.input.hour), route: 'kouJing', why: rec.reason });
+    return false;
+  }
+  /* route === 'rejected'：本锚点结构上通过校验，但裁决认定不可留（多为乘将类书版存疑） */
+  adjudicatedRejected.push({
+    id: a.id, src: a.src, excerpt: a.excerpt, input: a.input,
+    rejectKind: rec.kind, rejectReason: rec.reason, adjudicatedFrom: rec.adj,
+    ...(rec.newFinding ? { newFinding: true } : {}),
+    adjudicatedEvidence: adjEvidence(rec, a.id),
+    collectedBook: a.book, engineChuans: a._c.sanchuan.chuans.map((x) => x.z), structWhy: '结构校验通过（差异在乘将/书内标注），按裁决移出主集'
+  });
+  routeStat.rejected++;
+  auditRows.push({ id: a.id, src: a.src, sig: sigOf(a.input.mj, a.input.dg, a.input.dz, a.input.hour), route: 'rejected(登记)', kind: rec.kind, why: rec.reason });
+  return false;
+}
+/* 昼夜取贵口径差异册：写清 书用贵 / 规范用贵 / 书内是否自洽 / 为何不算引擎错。
+ * 书侧口径三项取自登记表 kj 字段（逐例裁决原文），规范侧由引擎实测值填。 */
+function buildKouJing(a, rec) {
+  const c = a._c;
+  const guiGong = LiurenCore.gongOf(c.tp, c.gui);
+  return {
+    id: a.id, src: a.src, excerpt: a.excerpt, input: a.input,
+    占时昼夜: (ZHI.indexOf(a.input.hour) >= 3 && ZHI.indexOf(a.input.hour) <= 8 ? '昼' : '夜')
+      + '（规范分界：卯时含至申时含为昼，酉时含至寅时含为夜）',
+    书用贵: rec.kj.book,
+    规范用贵: rec.kj.norm + '；引擎实测：贵人支 ' + c.gui + ' 落地盘 ' + guiGong + ' 宫、' + (c.shun ? '顺布' : '逆布')
+      + '（逐宫 ' + ZHI.split('').map((g) => g + (c.jiangMap[g] || '')).join(' ') + '）',
+    书内是否自洽: rec.kj.selfConsistent,
+    三传地支: '书 ' + a.book.chuans.join('') + ' ／ 引擎 ' + a.engine.chuans.join('')
+      + ' —— ' + (a.book.chuans.join('') === a.engine.chuans.join('') ? '逐位全同（本条差异只在三传乘将，故移出主集只影响「三传乘将」一项的分母）' : '不同'),
+    三传乘将: '书 ' + (a.book.chuanJiang || []).join('/') + ' ／ 引擎 ' + a.engine.chuanJiang.join('/'),
+    为何不算引擎错: '书例取贵自成一系（多数可由「取某贵支落某宫＋某向布将」一次生成，书内自洽），'
+      + '与规范「纯以占时定昼夜（卯酉分界，与日支无关）、顺逆由贵人落宫分野定」互斥。规范真源：'
+      + '大六壬文档/json/十二天神与贵人.json（昼夜贵人表/昼夜分界/布将规则）；'
+      + '大六壬文档/排盘/十二天神与昼贵夜贵说明.md 文末「口径纪律（2026-09-10 定，不设选项）」：'
+      + '本规则单值确定、排盘不提供昼夜开关，凡古籍书例与本规则不合者一律登记为书版存疑。'
+      + '故这不是引擎缺陷，不计入引擎命中率分母。逐例裁决见 ' + rec.adj + '。',
+    rejectReason: rec.reason, adjudicatedFrom: rec.adj, adjudicatedEvidence: adjEvidence(rec, a.id)
+  };
+}
 
 /* ============================ 源 A：六壬断案 ============================ */
 /* 每例开头课式块（原文实样，→ 表示制表符）：
@@ -190,7 +457,6 @@ function parseDuAn(text, file) {
      *      ⑤在左侧序列里从右往左找「合法干支」或「单个地支且紧邻左侧为六亲字」的写法；
      *      ⑥干支右侧的 token 即天将（可能是单字 token，也可能粘在干支上，如「卯后」）。
      * 说明：断案对旬空的三传写作「空申」「空卯」，「空」是书的断法标注，故剥掉。 --- */
-    const LUOQIN = /[父兄鬼财子孫孙]/;
     const BAD_POS = /^[初中末]$/;
     const norm = (L) => L.replace(/[（(][^）)]{0,8}[）)]/g, ' ');
     /** 剥掉三传的空亡标注：token 形如「空申」「空卯」时去掉「空」。
@@ -236,14 +502,26 @@ function parseDuAn(text, file) {
        * 两者互相独立（遁干是书自己排的），所以一致时可以确认「读到的支」和「书上的干支」都没读错；
        * 不一致时本锚点的三传乘将仍可用，但三传支要标记人工复核。 */
       const expectGan = tgGan(dg, gz[1]);
-      chuan.push({ gz: gz, jiang: jiang, pos: pos, synth: synth, gzAgree: synth ? true : (gz[0] === expectGan), raw: L.trim() });
+      /* V2 槽位判定：三传行尾部版式为「六亲｜干支｜天将｜位置字」，故干支位必是位置字左 2 格。
+       * 槽外取支的实例：duanan_007 中传真值在位置字左 2 格（三传行印作「空申」，空亡支无遁干），
+       * 旧读法却取到左边第 4 格四课格里的「卯」；duanan_082 末传同理取到六亲字「子」。
+       * （六亲位在断案里或作「父/兄/鬼/财/子/孙/官」，或径用天干，故只用槽位偏移判定，
+       *   不把六亲位的字面列入判据 —— duanan_096 的六亲位即作「癸」。） */
+      chuan.push({
+        gz: gz, jiang: jiang, pos: pos, synth: synth, gzAgree: synth ? true : (gz[0] === expectGan),
+        gi: gi, pi: pi, slotOk: gi === pi - 2, pickedLiuQin: LIUQIN_CH.indexOf(T[gi]) >= 0,
+        raw: L.trim()
+      });
     }
     /* --- 三传补充读出：串文里写明的「三传子未寅，将六、阴、龙」「三传申子辰也」 ---
      * 只接受「三传」标签紧接三支连写（甚至夹一个「也」）这一种写法，且三者互不相同；
-     * 若紧跟在后面的「将X、Y、Z」也能读出三个天将，一并采下。 --- */
+     * 若紧跟在后面的「将X、Y、Z」也能读出三个天将，一并采下。
+     * V3：窗口＝**本课例段**（课例头 → 下一课例头），不再取课例头后 4000 字符 ——
+     * 断案课例段通常 600–1200 字符，4000 字符的窗口会越到后面别的课例去
+     * （duanan_159/160 的三传「丑寅卯」即取自 3400–4000 字符外的另一壬日课断语，行 1774）。 --- */
     let chuanText = null;
     {
-      const mm = text.slice(H.i, Math.min(text.length, H.i + 4000))
+      const mm = block
         .match(new RegExp('三传\\s*[\'\u2018\u300c]?([' + ZHI + '])\\s*([子丑寅卯辰巳午未申酉戌亥])\\s*([子丑寅卯辰巳午未申酉戌亥])[\'\u2019\u300d]?\\s*(也)?\\s*(?:[，,]\\s*将\\s*([^\u3002\\n]{1,20}))?'));
       if (mm && new Set([mm[1], mm[2], mm[3]]).size === 3) {
         chuanText = { z: [mm[1], mm[2], mm[3]] };
@@ -261,8 +539,24 @@ function parseDuAn(text, file) {
     const why = [];
     let good = chuan.filter((x) => !x.bad);
     for (const x of chuan) if (x.bad) why.push(x.bad);
+    /* V2：三传行印了初/中/末，却在干支位（位置字左 2 格）读不出支 —— 旧读法只能到槽外
+     * （六亲位本身 / 四课格 / 天地盘外圈）捞一个「像支」的 token，版式不符。
+     * 此类一律丢弃，且**不退化**到串文补充读法（否则会把断语里他课的三传当成本课三传）。 */
+    const slotBad = good.filter((x) => !x.slotOk);
+    const excerptV2 = block.slice(0, 300).replace(/\r?\n/g, '⏎');
+    if (slotBad.length) {
+      const whyV2 = 'V2 三传行未落在「六亲｜干支｜天将｜位置字」槽（干支位＝位置字左 2 格，实读偏移 '
+        + slotBad.map((x) => (x.gi - (x.pi - 2))).join('/') + ' 格，疑取到六亲字/空亡字/槽外 token）：'
+        + slotBad.map((x) => x.raw + '（读到' + x.gz[1] + (x.pickedLiuQin ? '，该 token 本身是六亲字' : '') + '）').join(' ｜ ');
+      dropCandidate({
+        id: 'duanan_' + String(k + 1).padStart(3, '0'), file: file, sig: sigOf(mj, dg, dz, hour), excerpt: excerptV2,
+        input: { mj: mj, dg: dg, dz: dz, hour: hour },
+        book: { chuans: good.map((x) => x.gz[1]) }, structWhy: whyV2
+      });
+      continue;
+    }
     if (good.length !== 3) {
-      /* 方阵三传行读不全时，退回到串文明写的「三传XYZ」 */
+      /* 方阵三传行读不全时，退回到串文明写的「三传XYZ」（V3：仅限本课例段内） */
       if (chuanText) {
         good = chuanText.z.map((z, i) => ({ gz: z, zhi: z, jiang: chuanText.j ? chuanText.j[i] : null, pos: '初中末'[i], fromText: true }));
         why.length = 0;
@@ -276,7 +570,15 @@ function parseDuAn(text, file) {
       if (good.some((x) => x.synth) && good.some((x) => x.synth && !gzValid(x.gz[0], x.gz[1]))) why.push('补出的遁干不合甲子');
     }
     const excerpt = block.slice(0, 300).replace(/\r?\n/g, '⏎');
-    if (why.length) { drop(file, why.join('；'), excerpt); continue; }
+    if (why.length) {
+      dropCandidate({
+        id: 'duanan_' + String(k + 1).padStart(3, '0'), file: file, sig: sigOf(mj, dg, dz, hour), excerpt: excerpt,
+        input: { mj: mj, dg: dg, dz: dz, hour: hour },
+        book: good && good.length === 3 ? { chuans: good.map((x) => (x.fromText ? x.zhi : x.gz[1])) } : null,
+        structWhy: why.join('；')
+      });
+      continue;
+    }
 
     const c = LiurenCore.buildChartAncient(mj, dg, dz, hour, '', '', '');
     const book = {
@@ -300,6 +602,25 @@ function parseDuAn(text, file) {
       claims.push({ zhi: mm[1], jiang: mm[2] });
     }
     if (claims.length) book.jiangClaims = claims;
+
+    /* V1：三传天盘链（正课自洽闸门）——非伏吟/返吟/昴星/别责/八专诸课，
+     * 要求 中传＝tp[初传]、末传＝tp[中传]（《六壬指南》第 23 行「相因」）。 */
+    {
+      const chain = chainOf(mj, hour);
+      const bad = [];
+      if (!isSpecialKet(c, line0)) {
+        if (chain(book.chuans[0]) !== book.chuans[1]) bad.push('中传书' + book.chuans[1] + '/链上应' + chain(book.chuans[0]));
+        if (chain(book.chuans[1]) !== book.chuans[2]) bad.push('末传书' + book.chuans[2] + '/链上应' + chain(book.chuans[1]));
+      }
+      if (bad.length) {
+        dropCandidate({
+          id: 'duanan_' + String(k + 1).padStart(3, '0'), file: file, sig: sigOf(mj, dg, dz, hour), excerpt: excerpt,
+          input: { mj: mj, dg: dg, dz: dz, hour: hour }, book: book,
+          structWhy: 'V1 三传与天盘链不符（正课 ' + c.sanchuan.method + '）：' + bad.join('；')
+        });
+        continue;
+      }
+    }
 
     nTried++;
     anchors.push({
@@ -363,11 +684,17 @@ function parseZhongHuang(text, file) {
       }
     }
     if (process.env.HARVEST_DEBUG) console.error('[zh] hd=' + H.dg + ' rowA=' + (typeof rowADbg !== 'undefined' ? rowADbg : '?') + ' up=' + JSON.stringify(up) + ' down=' + JSON.stringify(down));
-    if (!up) { drop(file, '未找到四课 markdown 表' + (mjStated ? '' : '（本课只给月份，需靠四课反推月将）'), line0); continue; }
+    const zhid = 'zhonghuang_' + path.basename(file, '.md').replace(/[^\w]/g, '') + '_' + (k + 1);
+    const zhExcerpt = block.slice(0, 300).replace(/\r?\n/g, '⏎');
+    const zhDrop = (why) => dropCandidate({
+      id: zhid, file: file, sig: sigOf(mjStated || '', H.dg, H.dz, H.hour), excerpt: zhExcerpt, excerptHead: line0,
+      input: { mj: mjStated || null, dg: H.dg, dz: H.dz, hour: H.hour }, book: null, structWhy: why
+    });
+    if (!up) { zhDrop('未找到四课 markdown 表' + (mjStated ? '' : '（本课只给月份，需靠四课反推月将）')); continue; }
     nForme++;
     /* 下神行必须含日干（课1下神），且四组位移必须一致 —— 一起作为「版式读对」的判据 */
     if (!down.includes(H.dg)) {
-      drop(file, '四课下神行未出现日干 ' + H.dg + '（疑版式读错）：上' + up.join('') + ' 下' + down.join(''), line0);
+      zhDrop('四课下神行未出现日干 ' + H.dg + '（疑版式读错）：上' + up.join('') + ' 下' + down.join(''));
       continue;
     }
     /* ---- 月将定值 ----
@@ -389,13 +716,13 @@ function parseZhongHuang(text, file) {
       if (!okShift) {
         if (process.env.HARVEST_DEBUG) console.error('[zh-shift] dg=' + H.dg + ' up=' + JSON.stringify(up) + ' down=' + JSON.stringify(down) +
           ' diffs=' + JSON.stringify([0, 1, 2, 3].map((i) => (((ZHI.indexOf(up[i]) - ZHI.indexOf(down[i])) + 12) % 12))));
-        drop(file, '书上四课四组位移不一致（疑版式读错）：上' + up.join('') + ' 下' + down.join(''), line0);
+        zhDrop('书上四课四组位移不一致（疑版式读错）：上' + up.join('') + ' 下' + down.join(''));
         continue;
       }
       const cand = ZHI[(ZHI.indexOf(H.hour) + shift) % 12];      /* 月将 = 占时 + 位移 */
       if (!mjStated) { mj = cand; mjHow = '由书上四课位移反推'; }
       else if (cand !== mj) {
-        drop(file, '原文明写月将 ' + mj + '，但与书上四课位移推得的 ' + cand + ' 不一致（书内矛盾）', line0);
+        zhDrop('原文明写月将 ' + mj + '，但与书上四课位移推得的 ' + cand + ' 不一致（书内矛盾）');
         continue;
       }
       if (mjFromMonth) monthAgree = (mjFromMonth === mj);
@@ -432,13 +759,30 @@ function parseZhongHuang(text, file) {
       for (const mm of seg.matchAll(new RegExp('(初|中|末)[传傳]\\s*([子丑寅卯辰巳午未申酉戌亥])', 'g'))) if (!got[mm[1]]) got[mm[1]] = mm[2];
       if (got.初 && got.中 && got.末) chuans = [got.初, got.中, got.末];
     }
-    if (!chuans) { drop(file, '未找到三传', line0); continue; }
+    if (!chuans) { zhDrop('未找到三传'); continue; }
     const c = LiurenCore.buildChartAncient(mj, H.dg, H.dz, H.hour, '', '', '');
+    /* V1：三传天盘链（正课自洽闸门，与源A同规则） */
+    {
+      const chain = chainOf(mj, H.hour);
+      const bad = [];
+      if (!isSpecialKet(c, line0)) {
+        if (chain(chuans[0]) !== chuans[1]) bad.push('中传书' + chuans[1] + '/链上应' + chain(chuans[0]));
+        if (chain(chuans[1]) !== chuans[2]) bad.push('末传书' + chuans[2] + '/链上应' + chain(chuans[1]));
+      }
+      if (bad.length) {
+        dropCandidate({
+          id: zhid, file: file, sig: sigOf(mj, H.dg, H.dz, H.hour), excerpt: block.slice(0, 300).replace(/\r?\n/g, '⏎'),
+          input: { mj: mj, dg: H.dg, dz: H.dz, hour: H.hour }, book: { chuans: chuans },
+          structWhy: 'V1 三传与天盘链不符（正课 ' + c.sanchuan.method + '）：' + bad.join('；')
+        });
+        continue;
+      }
+    }
     nTried++;
     const book = { chuans: chuans, kegs: [up[0] + '/' + down[0], up[1] + '/' + down[1], up[2] + '/' + down[2], up[3] + '/' + down[3]] };
     if (chuanJiang) book.chuanJiang = chuanJiang;
     anchors.push({
-      id: 'zhonghuang_' + path.basename(file, '.md').replace(/[^\w]/g, '') + '_' + (k + 1),
+      id: zhid,
       src: file,
       excerpt: block.slice(0, 300).replace(/\r?\n/g, '⏎'),
       input: { mj: mj, dg: H.dg, dz: H.dz, hour: H.hour },
@@ -470,19 +814,29 @@ function parseGeneric(text, file) {
     const line0 = block.split(/\r?\n/, 1)[0];
     nHead++;
     const mj = JIANG_NAME[H.mjTok] || H.mjTok;
-    if (!isZhi(mj)) { drop(file, '月将无法定支', line0); continue; }
+    const mid = 'misc_' + path.basename(file, '.txt').replace(/[^\w]/g, '').slice(0, 14) + '_' + (k + 1);
+    const mexcerpt = block.slice(0, 260).replace(/\r?\n/g, '⏎');
+    const mDrop = (why) => dropCandidate({
+      id: mid, file: file, sig: sigOf(mj, H.dg, H.dz, H.hour), excerpt: mexcerpt, excerptHead: line0,
+      input: { mj: mj, dg: H.dg, dz: H.dz, hour: H.hour }, book: null, structWhy: why
+    });
+    if (!isZhi(mj)) { mDrop('月将无法定支'); continue; }
 
     /* 明文三传的三种写法（在本课例段落内查找，但必须是**显式标注**的三传，
      * 不接受「初传X」这种只提到一传的句子，避免把散文里的片段当成三传）：
      *   ①「…，三传申子辰也…」                （支连写）
      *   ②「三传子未寅，将六、阴、龙」          （支连写 + 乘将）
-     *   ③「初传胜光，将得白虎；中传大吉，将得朱雀；末传传送，将得玄武」 */
+     *   ③「初传胜光，将得白虎；中传大吉，将得朱雀；末传传送，将得玄武」
+     * V4：证据必须落在**课例头后 WINDOW_C 字符内** —— 本类书的「课例段」常由「下一课例头」
+     * 定界，而讲解性书籍（如《六壬指南注解》）整本只有几个课例头，段长可达数万字符，
+     * 于是讲解段里的「三传亥卯未为之」会被当成课例三传（misc__1，距课例头 14874 字符）。 */
+    const win = block.slice(0, WINDOW_C);
     const got = {};
-    for (const mm of block.matchAll(new RegExp('(初|中|末)[传傳]\\s*[\'\u2018\u300c]?([' + ZHI + '])[\'\u2019\u300d]?[^。；;]{0,14}?(贵人|螣蛇|腾蛇|朱雀|六合|勾陈|青龙|天空|白虎|太常|玄武|太阴|天后)', 'g'))) {
+    for (const mm of win.matchAll(new RegExp('(初|中|末)[传傳]\\s*[\'\u2018\u300c]?([' + ZHI + '])[\'\u2019\u300d]?[^。；;]{0,14}?(贵人|螣蛇|腾蛇|朱雀|六合|勾陈|青龙|天空|白虎|太常|玄武|太阴|天后)', 'g'))) {
       if (!got[mm[1]]) got[mm[1]] = { z: mm[2], j: mm[3] === '腾蛇' ? '螣蛇' : mm[3] };
     }
     if (!(got.初 && got.中 && got.末)) {
-      const mm = block.match(new RegExp('三传\\s*[\'\u2018\u300c]?([' + ZHI + '])\\s*([' + ZHI + '])\\s*([' + ZHI + '])[\'\u2019\u300d]?\\s*(?:也)?\\s*(?:[，,]\\s*将\\s*([^\u3002；;]{1,20}))?'));
+      const mm = win.match(new RegExp('三传\\s*[\'\u2018\u300c]?([' + ZHI + '])\\s*([' + ZHI + '])\\s*([' + ZHI + '])[\'\u2019\u300d]?\\s*(?:也)?\\s*(?:[，,]\\s*将\\s*([^\u3002；;]{1,20}))?'));
       if (mm && new Set([mm[1], mm[2], mm[3]]).size === 3) {
         got.初 = { z: mm[1], j: '' }; got.中 = { z: mm[2], j: '' }; got.末 = { z: mm[3], j: '' };
         if (mm[4]) {
@@ -492,10 +846,29 @@ function parseGeneric(text, file) {
         }
       }
     }
-    if (!(got.初 && got.中 && got.末)) { drop(file, '原文未给出完整（显式标注的）三传', line0); continue; }
+    if (!(got.初 && got.中 && got.末)) {
+      /* V4 诊断：把窗口放宽到整段看能否读到三传，并区分三种成因 ——
+       * ①证据在段内但越出窗口（讲解段/他例窜入，本规则的打击对象）；
+       * ②段内「三传XYZ」写法不合闸门（三支须互不相同，如「三传申寅申」）；
+       * ③原文确实没给完整三传。 */
+      const wide = block.match(new RegExp('三传\\s*[\'\u2018\u300c]?([' + ZHI + '])\\s*([' + ZHI + '])\\s*([' + ZHI + '])[\'\u2019\u300d]?'));
+      const w2 = block.match(new RegExp('(初|中|末)[传傳]\\s*[\'\u2018\u300c]?([' + ZHI + '])'));
+      let whyDrop;
+      if (wide && wide.index >= WINDOW_C) {
+        whyDrop = 'V4 三传证据越出课例头后 ' + WINDOW_C + ' 字符窗口（疑讲解段/他例窜入）：段内「三传' + wide.slice(1, 4).join('') + '」出现在第 ' + wide.index + ' 字符';
+      } else if (wide) {
+        whyDrop = '原文「三传' + wide.slice(1, 4).join('') + '」不合三传闸门（须紧接显式「三传」二字且三支互不相同），不采';
+      } else if (w2 && w2.index >= WINDOW_C) {
+        whyDrop = 'V4 三传证据越出课例头后 ' + WINDOW_C + ' 字符窗口（段内仅见「' + w2[1] + '传' + w2[2] + '」在第 ' + w2.index + ' 字符）';
+      } else {
+        whyDrop = '原文未给出完整（显式标注的）三传';
+      }
+      mDrop(whyDrop);
+      continue;
+    }
     let jiangs = ['初', '中', '末'].map((p) => got[p].j);
     let nJ = jiangs.filter(Boolean).length;
-    if (nJ !== 0 && nJ !== 3) { drop(file, '三传乘将残缺 ' + nJ + '/3', line0); continue; }
+    if (nJ !== 0 && nJ !== 3) { mDrop('三传乘将残缺 ' + nJ + '/3'); continue; }
     /* --- 书上自洽闸门（防止把散文里「三合局」「四课…三传…」之类的字样当成三传）---
      * 原文若同时给了三传乘将，则三传支与乘将必须彼此自洽：
      * 从「月将 + 占时」可得天地盘偏移，三传支是天盘支，其地盘宫 = 天盘支 − 偏移；
@@ -515,19 +888,35 @@ function parseGeneric(text, file) {
       }
       consistent = (okA === 3 || okB === 3);
       if (!consistent) {
-        drop(file, '三传与乘将不自洽（疑误采散文）：书三传' + ['初', '中', '末'].map((p) => got[p].z).join('') + '，书将' + jiangs.join('/'), line0);
+        mDrop('三传与乘将不自洽（疑误采散文）：书三传' + ['初', '中', '末'].map((p) => got[p].z).join('') + '，书将' + jiangs.join('/'));
+        continue;
+      }
+    }
+    const c = LiurenCore.buildChartAncient(mj, H.dg, H.dz, H.hour, '', '', '');
+    const book = { chuans: [got.初.z, got.中.z, got.末.z] };
+    if (nJ === 3) book.chuanJiang = jiangs;
+    /* V1：三传天盘链（正课自洽闸门，与源A/源B同规则） */
+    {
+      const chain = chainOf(mj, H.hour);
+      const bad = [];
+      if (!isSpecialKet(c, line0)) {
+        if (chain(book.chuans[0]) !== book.chuans[1]) bad.push('中传书' + book.chuans[1] + '/链上应' + chain(book.chuans[0]));
+        if (chain(book.chuans[1]) !== book.chuans[2]) bad.push('末传书' + book.chuans[2] + '/链上应' + chain(book.chuans[1]));
+      }
+      if (bad.length) {
+        dropCandidate({
+          id: mid, file: file, sig: sigOf(mj, H.dg, H.dz, H.hour), excerpt: mexcerpt,
+          input: { mj: mj, dg: H.dg, dz: H.dz, hour: H.hour }, book: book,
+          structWhy: 'V1 三传与天盘链不符（正课 ' + c.sanchuan.method + '）：' + bad.join('；')
+        });
         continue;
       }
     }
     nForme++; nTried++;
-
-    const c = LiurenCore.buildChartAncient(mj, H.dg, H.dz, H.hour, '', '', '');
-    const book = { chuans: [got.初.z, got.中.z, got.末.z] };
-    if (nJ === 3) book.chuanJiang = jiangs;
     anchors.push({
-      id: 'misc_' + path.basename(file, '.txt').replace(/[^\w]/g, '').slice(0, 14) + '_' + (k + 1),
+      id: mid,
       src: file,
-      excerpt: block.slice(0, 260).replace(/\r?\n/g, '⏎'),
+      excerpt: mexcerpt,
       input: { mj: mj, dg: H.dg, dz: H.dz, hour: H.hour },
       book: book,
       _c: c
@@ -584,6 +973,7 @@ const cmp = {
   plate: { n: 0, ok: 0, cells: 0, cellOk: 0 }, jiangClaims: { n: 0, ok: 0 }
 };
 const fails = [];
+const kept = [];
 for (const a of anchors) {
   const c = a._c;
   const engKegs = c.kegs.map((k) => k.x + '/' + k.s);
@@ -599,8 +989,12 @@ for (const a of anchors) {
     ok: true
   };
   const F = [];
+  /* 先按 V5 登记路由：只有**留在主集**的锚点才计入命中率分母
+   * （移出的 28 + 口径差异 4 例不再参与统计，这正是清洗的目的）。 */
+  a.engine = engine;
+  const inMain = routeBuilt(a);
 
-  if (a.book.kegs) {
+  if (inMain && a.book.kegs) {
     const bk = a.book.kegs, bkUp = bk.map((s) => s.split('/')[0]), bkDn = bk.map((s) => s.split('/')[1]);
     const enUp = c.kegs.map((k) => k.x), enDn = c.kegs.map((k) => k.s);
     const upBad = [], dnBad = [];
@@ -614,22 +1008,22 @@ for (const a of anchors) {
     cmp.kegsAll.n++; if (!upBad.length && !dnBad.length) cmp.kegsAll.ok++;
     if (upBad.length || dnBad.length) F.push({ item: '四课', why: upBad.concat(dnBad).join('；') });
   }
-  if (a.book.chuans) {
+  if (inMain && a.book.chuans) {
     cmp.chuan.n++;
     if (a.book.chuans.join('') === engChuans.join('')) cmp.chuan.ok++;
     else F.push({ item: '三传', why: '书' + a.book.chuans.join('') + '/引擎' + engChuans.join('') });
   }
-  if (a.book.chuanGz) {
+  if (inMain && a.book.chuanGz) {
     cmp.chuanGz.n++;
     if (a.book.chuanGz.join('/') === engine.chuanGz.join('/')) cmp.chuanGz.ok++;
     else F.push({ item: '三传遁干', why: '书' + a.book.chuanGz.join('/') + '/引擎' + engine.chuanGz.join('/') });
   }
-  if (a.book.chuanJiang) {
+  if (inMain && a.book.chuanJiang) {
     cmp.chuanJiang.n++;
     if (a.book.chuanJiang.join('/') === engine.chuanJiang.join('/')) cmp.chuanJiang.ok++;
     else F.push({ item: '三传乘将', why: '书' + a.book.chuanJiang.join('/') + '/引擎' + engine.chuanJiang.join('/') });
   }
-  if (a.book.plate) {
+  if (inMain && a.book.plate) {
     cmp.plate.n++;
     const bad = [];
     for (let i = 0; i < 12; i++) {
@@ -639,7 +1033,7 @@ for (const a of anchors) {
     }
     if (!bad.length) cmp.plate.ok++; else F.push({ item: '天地盘', why: bad.join('；') });
   }
-  if (a.book.jiangClaims) {
+  if (inMain && a.book.jiangClaims) {
     for (const cl of a.book.jiangClaims) {
       cmp.jiangClaims.n++;
       const en = jiangAtZhi(c, cl.zhi);
@@ -648,9 +1042,11 @@ for (const a of anchors) {
     }
   }
 
-  a.engine = engine;
+  if (inMain) {
+    if (F.length) fails.push({ id: a.id, src: a.src, excerpt: a.excerpt, input: a.input, book: a.book, engine: engine, fails: F });
+    kept.push(a);
+  }
   delete a._c;
-  if (F.length) fails.push({ id: a.id, src: a.src, excerpt: a.excerpt, input: a.input, book: a.book, engine: engine, fails: F });
 }
 
 /* ------------------------------------------------------------------ 输 出 */
@@ -660,7 +1056,13 @@ const row = (name, o, extra) => '  ' + pad(name, 21) + pad(o.ok + '/' + o.n, 10)
 const L = [];
 L.push('大六壬传本课例锚点采集与引擎比对');
 L.push('='.repeat(78));
-L.push('读出课例头 ' + stats.headsTotal + ' 例 → 纳入锚点 ' + anchors.length + ' 例，丢弃 ' + rejected.length + ' 例');
+L.push('读出课例头 ' + stats.headsTotal + ' 例 → 采集成形 ' + anchors.length + ' 例，采集期丢弃 ' + rejected.length + ' 例');
+L.push('采集校验（V1 天盘链 / V2 版式槽 / V3 串文窗口 / V4 源C证据窗口）拦下 ' + rejected.length + ' 例');
+L.push('裁决登记（V5）路由：移出主集 ' + routeStat.rejected + ' 例（→ anchors_rejected.json）、'
+  + '口径差异 ' + routeStat.kouJing + ' 例（→ anchors_kouJing.json）、标注保留 ' + routeStat.keep + ' 例；'
+  + '其余 ' + routeStat.miss + ' 例无裁决、原样留在主集');
+L.push('★ 主锚点集 ' + kept.length + ' 例（清洗前 220 例；本条采集成形 ' + anchors.length + ' 例，'
+  + '其中校验期拦下并登记 ' + (anchors.length - kept.length - routeStat.kouJing) + ' 例）');
 L.push('');
 L.push('按源统计（课例头 = 原文出现「日干支 + 占时 + 月将」的位置数）：');
 for (const s of stats.sources) {
@@ -669,7 +1071,7 @@ for (const s of stats.sources) {
   L.push('        课例头 ' + s.nHead + '  课式成形 ' + s.nForme + '  入锚点 ' + s.nTried);
 }
 L.push('');
-L.push('比对结果（命中/可比）：');
+L.push('清洗后分项命中率（命中/可比）：');
 L.push('  项目                      命中/可比    命中率');
 L.push(row('四课 课2/3/4 上神', cmp.kegsUp));
 L.push(row('四课 课2/3/4 下神', cmp.kegsDown));
@@ -680,8 +1082,17 @@ L.push(row('三传 乘将', cmp.chuanJiang));
 L.push(row('天地盘 整盘', cmp.plate, '  逐宫 ' + cmp.plate.cellOk + '/' + cmp.plate.cells));
 L.push(row('原文乘将断言 X上乘Y', cmp.jiangClaims));
 L.push('');
-L.push('不命中课例 ' + fails.length + ' 例（共 ' + anchors.length + ' 例）');
+L.push('不命中课例 ' + fails.length + ' 例（共 ' + kept.length + ' 例）');
+if (fails.length) L.push('  ' + fails.map((f) => f.id).join('、'));
 L.push('');
+if (AUDIT) {
+  L.push('---- 采集校验逐条判定（--audit）----');
+  for (const r of auditRows) {
+    L.push('  [' + r.id + '] ' + String(r.src || '').split('/').pop().replace(/\.(utf8\.)?txt$|\.md$/, '')
+      + ' ' + r.sig + '  ' + r.route + (r.kind ? '／' + r.kind : '') + '  ' + (r.why || '').slice(0, 150));
+  }
+  L.push('');
+}
 if (VERBOSE) {
   L.push('---- 不命中明细（书 vs 引擎）----');
   if (!fails.length) L.push('  （无）');
@@ -708,11 +1119,33 @@ if (WRITE) {
   const outDir = path.join(ROOT, '_tests', '_data');
   fs.mkdirSync(outDir, { recursive: true });
   const outFile = path.join(outDir, 'anchors_corpus.json');
-  const data = anchors.map((a) => ({ id: a.id, src: a.src, excerpt: a.excerpt, input: a.input, book: a.book, engine: a.engine }));
+  const data = kept.map((a) => {
+    const o = { id: a.id, src: a.src, excerpt: a.excerpt, input: a.input, book: a.book, engine: a.engine };
+    if (a.adjudication) { o.adjudication = a.adjudication; o.adjudicatedFrom = a.adjudicatedFrom; }
+    return o;
+  });
   fs.writeFileSync(outFile, JSON.stringify(data, null, 1), 'utf-8');
-  console.log('\n已写出 ' + rel(outFile) + '（' + data.length + ' 条）');
+  console.log('\n已写出 ' + rel(outFile) + '（' + data.length + ' 条主锚点）');
   const rejFile = path.join(outDir, 'anchors_rejected.json');
-  fs.writeFileSync(rejFile, JSON.stringify(rejected, null, 1), 'utf-8');
-  console.log('已写出 ' + rel(rejFile) + '（' + rejected.length + ' 条丢弃记录）');
+  fs.writeFileSync(rejFile, JSON.stringify(rejected.concat(adjudicatedRejected), null, 1), 'utf-8');
+  console.log('已写出 ' + rel(rejFile) + '（采集期丢弃 ' + rejected.length + ' 条 + 裁决移出 ' + adjudicatedRejected.length + ' 条）');
+  const kjFile = path.join(outDir, 'anchors_kouJing.json');
+  const kj = {
+    元数据: {
+      名称: '昼夜取贵口径差异册（书例按另一套昼夜取贵，与规范卯酉分界互斥）',
+      生成日期: new Date().toISOString().slice(0, 10),
+      条数: kouJingItems.length,
+      为何单列: '这类条目「书内自洽 + 与规范口径互斥」，既不是采集错（不能进 anchors_rejected 污染原因分类），'
+        + '也不是引擎错（不计入引擎命中率分母），故单列一册。',
+      规范真源: '大六壬文档/json/十二天神与贵人.json（昼夜贵人表、昼夜分界、定顺逆）'
+        + '；大六壬文档/排盘/十二天神与昼贵夜贵说明.md 文末「口径纪律（2026-09-10 定，不设选项）」',
+      裁决依据: ADJ_C,
+      上游说明: '本册条目同时出现在 anchors_corpus.json 的清洗前版本中（三传地支全部与引擎相符，'
+        + '仅三传乘将因昼夜取贵不同而整盘错位），故移出主集只影响「三传乘将」一项的分母。'
+    },
+    条目: kouJingItems
+  };
+  fs.writeFileSync(kjFile, JSON.stringify(kj, null, 1), 'utf-8');
+  console.log('已写出 ' + rel(kjFile) + '（' + kouJingItems.length + ' 条昼夜取贵口径差异）');
 }
 process.exit(0);
