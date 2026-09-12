@@ -451,6 +451,13 @@ python _tools/verify_free_edition.py   # 硬断言：收费数据不得在 + 免
 ### 包内实证（.app → .hap → rawfile）
 
 ```powershell
+python _tools/verify_app_pkg.py        # 【上传包级硬断言】默认校验 release_pkg 里那个免费包
+#   16 项：包结构 / 包内 versionName·versionCode（对主版 app.json5 真源）/ bundleName /
+#   buildMode=release / requestPermissions 为空 / 收费块数据 ABSENT / 关键数据在位 /
+#   rawfile 与主版源码树逐文件对齐 / 免费版入口开关已关；任一条不符 exit 1
+python _tools/verify_app_pkg.py --selftest   # 校验器的负向自检：篡改包必须被判 FAIL
+#   （放回 case_gallery.json → 必须报「免费包不含收费块数据」；剔掉 cal_2000.json → 必须报对齐失败。
+#    注意篡改副本的**文件名要保留 free 字样**：校验器按名判免费/主版，否则会「因为错的原因」通过）
 python _tools/_inspect_app_pkg.py APP\release_pkg\LiurenFocusDiviner-free-release-signed.app
 # 列出 rawfile/ancient、rule、cal 全部条目；免费包内若命中收费块数据则 exit 2
 python _tools/_diff_app_pkg.py <旧 .app> <新 .app>
