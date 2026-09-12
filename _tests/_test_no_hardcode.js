@@ -278,9 +278,22 @@ const A2_PATTERNS = [
   { name: 'Date.now', re: /\bDate\s*\.\s*now\b/g },
   { name: 'new Date(', re: /\bnew\s+Date\s*\(/g }
 ];
+/* 组件化后（§13）模块化的例外口径：
+   - .ts：只允许 `import type {...} from '<相对路径>types'`（类型擦除，无运行时依赖）；
+     任何**值 import** 仍然违规。
+   - .ets：允许模块 import（ArkTS 唯一模块机制）；它仍受 require/fs/process/Date 约束。 */
+const A2_TYPE_ONLY_IMPORT = /^import\s+type\s+\{[\s\S]*?\}\s+from\s+['"][^'"]*types['"];?/m;
+function a2AllowedImport(rel, code, m) {
+  if (rel.endsWith('.ets')) return true;
+  if (!rel.endsWith('.ts')) return false;
+  const stmt = /import[\s\S]*?;/.exec(code.slice(m.index));
+  return !!stmt && A2_TYPE_ONLY_IMPORT.test(stmt[0].replace(/\s+/g, ' ').replace(/, /g, ','));
+}
 /* Date 白名单：若引擎确需用 Date 做历法换算，在此登记 {file, reason}；
    当前为空（引擎三端均不使用 Date，历法数据一律由宿主经 init/buildChart 注入）。 */
 const A2_DATE_WHITELIST = [];
+/* 允许的模块 import（.ts 仅限 import type ... from '.../types'；.ets 允许模块 import） */
+const A2_IMPORT_OK = [];
 
 for (const rel of ENGINE_FILES) {
   const st = stripped(rel);
@@ -289,6 +302,7 @@ for (const rel of ENGINE_FILES) {
     let m;
     while ((m = p.re.exec(st.code)) !== null) {
       if (whitelisted('A2', rel, p.name)) continue;
+      if (p.name === 'import ' && a2AllowedImport(rel, st.code, m)) { A2_IMPORT_OK.push(rel); continue; }
       fail('A2', rel, lineOf(st.offs, m.index), '代码中出现环境依赖「' + p.name + '」',
         JSON.stringify(st.code.slice(Math.max(0, m.index - 40), m.index + 40).trim()));
     }
@@ -305,7 +319,8 @@ for (const rel of ENGINE_FILES) {
     }
   }
 }
-console.log('  ✓ 四份引擎文件（.ts/.js/主 .ets/免费 .ets）均无 require/import/fs/process/Date.now/new Date/Date');
+console.log('  ✓ 引擎' + ENGINE_FILES.length + ' 份文件均无 require/fs/process/Date.now/new Date/Date'
+    + (A2_IMPORT_OK.length ? '；模块 import ' + A2_IMPORT_OK.length + ' 处（.ts 仅 import type，编译擦除；.ets 为 ArkTS 模块机制）' : '；无 import'));
 
 /* ============================================================================
  * 引擎装载（A3 用；两份独立实例以查跨实例状态）
@@ -651,10 +666,18 @@ if (a5Missing.length === 0) {
 head('A6', '三端同构抽查：resolveSanchuan / buildJiang / xunDun 归一化后逐行相同（按三端代码库整体取函数体）');
 
 /* 函数体可在**该端的任一模文件**里（组件化后实现按模块分散）；
-   故先在该端代码库内整体定位 `static <name>(`，再取配平花括号区间。 */
+   故先在该端代码库内整体定位 `static <name>(`，再取配平花括号区间。
+   **门面文件**（core/liuren/facade.ts、model/LiurenCore.ets）只做一行转发，不算实现：
+   先扫非门面文件，找不到才回落到门面（并在 verbose 下说明），保证比对的是真实现。 */
+const FACADE_FILES = new Set(['core/liuren/facade.ts', 'LiurenCore.ets']);
+function isFacadeFile(rel) {
+  const base = rel.split('/').pop();
+  return FACADE_FILES.has(rel) || FACADE_FILES.has(base);
+}
 function grabStaticMethodInTree(tree, name) {
   const re = new RegExp('static\\s+' + name + '\\s*\\(');
-  for (const rel of tree) {
+  const ordered = tree.filter((r) => r && !isFacadeFile(r)).concat(tree.filter((r) => r && isFacadeFile(r)));
+  for (const rel of ordered) {
     if (!rel) continue;
     const src = readText(rel);
     const m = re.exec(src);
@@ -664,7 +687,13 @@ function grabStaticMethodInTree(tree, name) {
     let depth = 0;
     for (let k = j; k < src.length; k++) {
       if (src[k] === '{') depth++;
-      else if (src[k] === '}') { depth--; if (depth === 0) return src.slice(m.index, k + 1); }
+      else if (src[k] === '}') {
+        depth--;
+        if (depth === 0) {
+          if (VERBOSE) console.log('    · ' + name + ' 取自 ' + rel + (isFacadeFile(rel) ? '（门面兜底）' : ''));
+          return src.slice(m.index, k + 1);
+        }
+      }
     }
   }
   return null;

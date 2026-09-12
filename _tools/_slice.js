@@ -125,54 +125,39 @@ const SIKE_CALL = '    const kegs: Keg[] = LrSike.sikeOf(tp, dg, dz);';
 const SIKE_CALL_R = '    const kegs: Keg[] = LrSike.sikeOf(tp, r.dg, r.dz);';
 
 /* ============================ 引用归属改写表 ============================ */
-function rewriteCommon(code, B) {
-  const b = B || 'LrBase';
-  const MAP = [
-    ['LiurenCore\\.GAN\\b', b + '.GAN'],
-    ['LiurenCore\\.ZHI\\b', b + '.ZHI'],
-    ['LiurenCore\\.WXG\\b', b + '.WXG'],
-    ['LiurenCore\\.WX\\b', b + '.WX'],
-    ['LiurenCore\\.KE\\b', b + '.KE'],
-    ['LiurenCore\\.JI_GONG\\b', b + '.JI_GONG'],
-    ['LiurenCore\\.YANG_ZHI\\b', b + '.YANG_ZHI'],
-    ['LiurenCore\\.G_YANG\\b', b + '.G_YANG'],
-    ['LiurenCore\\.SHENG\\(', b + '.SHENG('],
-    ['LiurenCore\\.gongOf\\(', b + '.gongOf('],
-    ['LiurenCore\\.wxOf\\(', b + '.wxOf('],
-    ['LiurenCore\\.ke\\(', b + '.ke('],
-    ['LiurenCore\\.wutun\\(', 'LrDungan.wutun('],
-    ['LiurenCore\\.hourGan\\(', 'LrDungan.hourGan('],
-    ['LiurenCore\\.dunMap\\(', 'LrDungan.dunMap('],
-    ['LiurenCore\\.xunDun\\(', 'LrDungan.xunDun('],
-    ['LiurenCore\\.buildJiang\\(', 'LrJiang.buildJiang('],
-    ['LiurenCore\\.yuejiangForMonth\\(', 'LrTiandipan.yuejiangForMonth('],
-    ['LiurenCore\\.validYuejiangForMonth\\(', 'LrTiandipan.validYuejiangForMonth('],
-    ['LiurenCore\\.validGanZhi\\(', 'LrSanchuan.validGanZhi('],
-    ['LiurenCore\\.wangT\\(', 'LrDx.wangT('],
-    ['LiurenCore\\.yearZhiOf\\(', 'LrDx.yearZhiOf('],
-    ['LiurenCore\\.EMPTY_NODE\\b', 'LrDx.EMPTY_NODE'],
-    ['LiurenCore\\.XUN_OF\\b', 'LrXunkong.XUN_OF'],
-    ['LiurenCore\\.XUN_KONG\\b', 'LrShensha.XUN_KONG'],
-    ['LiurenCore\\.QIJI_GONG\\b', 'LrDx.QIJI_GONG'],
-    ['LiurenCore\\.ZHI_GONG\\b', 'LrDx.ZHI_GONG'],
-    ['LiurenCore\\.YUE_LING\\b', 'LrDx.YUE_LING'],
-    ['LiurenCore\\.MA_ZHI\\b', 'LrSanchuan.MA_ZHI'],
-    ['LiurenCore\\.XING_MAP\\b', 'LrSanchuan.XING_MAP'],
-    ['LiurenCore\\.HE_GAN\\b', 'LrSanchuan.HE_GAN'],
-    ['LiurenCore\\.QIAN_SANHE\\b', 'LrSanchuan.QIAN_SANHE'],
-    ['LiurenCore\\.MAOXING_ANCHOR\\b', 'LrSanchuan.MAOXING_ANCHOR'],
-    ['LiurenCore\\.BA_ZHUAN_STEP\\b', 'LrSanchuan.BA_ZHUAN_STEP'],
-    ['LiurenCore\\.JINGLAN_SHE\\b', 'LrSanchuan.JINGLAN_SHE'],
-    ['LiurenCore\\.ZI_XING\\b', 'LrSanchuan.ZI_XING'],
-    ['LiurenCore\\.JIANG_ORDER\\b', 'LrJiang.JIANG_ORDER'],
-    ['LiurenCore\\.JIANG_DAY_HOURS\\b', 'LrJiang.JIANG_DAY_HOURS'],
-    ['LiurenCore\\.JIANG_SHUN_GONGS\\b', 'LrJiang.JIANG_SHUN_GONGS'],
-    ['LiurenCore\\.JIANG_JX\\b', 'LrJiang.JIANG_JX'],
-    ['LiurenCore\\.GUIREN\\b', 'LrBase.GUIREN'],
-    ['LiurenCore\\.XN_SCORE_DEFAULT\\b', 'LrDx.XN_SCORE_DEFAULT']
-  ];
+/* 归属改写：字面替换 `LiurenCore.N`，且其后一字符不得是标识符字符（防 WX 误伤 WXG）；
+   名字按长度降序，避免长名被短名前缀吃掉。表与 .ets 侧一致。 */
+function rewriteCommon(code) {
+  const OWNER = {
+    'GAN': 'LrBase', 'ZHI': 'LrBase', 'JI_GONG': 'LrBase', 'WX': 'LrBase', 'WXG': 'LrBase',
+    'KE': 'LrBase', 'GUIREN': 'LrBase', 'YANG_ZHI': 'LrBase', 'G_YANG': 'LrBase',
+    'SHENG': 'LrBase', 'gongOf': 'LrBase', 'wxOf': 'LrBase', 'ke': 'LrBase',
+    'wutun': 'LrDungan', 'hourGan': 'LrDungan', 'xunDun': 'LrDungan', 'dunMap': 'LrDungan',
+    'JIANG_ORDER': 'LrJiang', 'JIANG_DAY_HOURS': 'LrJiang', 'JIANG_SHUN_GONGS': 'LrJiang',
+    'BENSHEN': 'LrJiang', 'JIANG_JX': 'LrJiang', 'JIANG_WARN': 'LrJiang', 'buildJiang': 'LrJiang',
+    'MAOXING_ANCHOR': 'LrSanchuan', 'BA_ZHUAN_STEP': 'LrSanchuan', 'JINGLAN_SHE': 'LrSanchuan',
+    'ZI_XING': 'LrSanchuan', 'MA_ZHI': 'LrSanchuan', 'XING_MAP': 'LrSanchuan', 'HE_GAN': 'LrSanchuan',
+    'QIAN_SANHE': 'LrSanchuan', 'validGanZhi': 'LrSanchuan',
+    'yuejiangForMonth': 'LrTiandipan', 'validYuejiangForMonth': 'LrTiandipan', 'findDayRec': 'LrTiandipan',
+    'XUN_KONG': 'LrShensha', 'XUN_OF': 'LrXunkong',
+    'EMPTY_NODE': 'LrDx', 'XN_SCORE_DEFAULT': 'LrDx', 'YUE_LING': 'LrDx', 'QIJI_GONG': 'LrDx',
+    'ZHI_GONG': 'LrDx', 'wangT': 'LrDx', 'yearZhiOf': 'LrDx', 'withDx': 'LrDx', 'findZhiOfGong': 'LrDx'
+  };
+  const names = Object.keys(OWNER).sort((x, y) => y.length - x.length);
   let out = code;
-  for (const [re, rep] of MAP) out = out.replace(new RegExp(re, 'g'), rep);
+  for (const name of names) {
+    const from = 'LiurenCore.' + name;
+    let idx = out.indexOf(from);
+    while (idx >= 0) {
+      const after = out.charAt(idx + from.length);
+      if (after === '' || !/[A-Za-z0-9_$]/.test(after)) {
+        out = out.slice(0, idx) + OWNER[name] + '.' + name + out.slice(idx + from.length);
+        idx = out.indexOf(from, idx + OWNER[name].length + 1 + name.length);
+      } else {
+        idx = out.indexOf(from, idx + 1);
+      }
+    }
+  }
   return out;
 }
 

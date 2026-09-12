@@ -1,0 +1,197 @@
+/* ============================================================================
+ * _core_api.js —— 把「组件化后新增的只读接口」补回 core 侧（幂等）
+ *   - core/liuren/types.ts：RuleHealthItem / PalaceRole / PalaceLookup
+ *   - core/liuren/pan/dx.ts：LrDx.ruleHealth / missingRules / palaceLookup
+ *   （与 .ets 侧 palaceLookup 同源；ruleHealth/missingRules 暂只在 .ts 提供，见 Agent.md §14）
+ * 用法：node _tools/_core_api.js
+ * ==========================================================================*/
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const ROOT = path.join(__dirname, '..');
+
+const TYPES = [
+  '',
+  '/* 规则表健康项（引擎侧自述：缺表 / 表在但无条目 / 正常）—— §14 纪律用 */',
+  'interface RuleHealthItem {',
+  '  key: string;',
+  '  label: string;',
+  '  loaded: boolean;',
+  '  entries: number;',
+  '  note: string;',
+  '}',
+  '',
+  '/* 该支在本课的角色（点宫速查卡用） */',
+  'interface PalaceRole {',
+  '  asGong: string;',
+  '  inChuan: string;',
+  '  isYongShen: boolean;',
+  '  isRiGanGong: boolean;',
+  '  isRiZhi: boolean;',
+  '  isYueJiang: boolean;',
+  '  isGuiRen: boolean;',
+  '  text: string;',
+  '}',
+  '',
+  '/* 点宫速查卡（只读）—— 点天地盘任一宫 → 该支的盘面全貌 */',
+  'interface PalaceLookup {',
+  '  gong: string;',
+  '  tianZhi: string;',
+  '  wuXing: string;',
+  '  yinYang: string;',
+  '  liuQin: string;',
+  '  relToRiGan: string;',
+  '  relToYongShen: string;',
+  '  qiJi: string;',
+  '  kong: boolean;',
+  '  shensha: string[];',
+  '  jiang: string;',
+  '  dun: string;',
+  '  dunRi: string;',
+  '  dunShi: string;',
+  '  role: PalaceRole;',
+  '}',
+  ''
+].join('\n');
+
+const DX = [
+  '',
+  '  /* ==================== 规则健康自述（§14 纪律：缺表照旧出盘，但必须查得出来） ====================',
+  '     读的就是引擎真正使用的路径，不做任何兜底；缺表 → loaded=false 且 note 说明；',
+  '     表在但无条目 → loaded=true / entries=0（「本来就该空」）。',
+  '     宿主 UI 依此显示「规则数据：已加载 N/N 表 ✓」并展开缺表清单。',
+  '     注：ArkTS 侧暂不提供本方法（其「按表名取字典」写法触发 arkts-no-props-by-index），',
+  '         ArkTS 侧的自检改由 DataLoader 逐表状态承担 —— 见 Agent.md §14。 */',
+  '  static ruleHealth(): RuleHealthItem[] {',
+  '    const out: RuleHealthItem[] = [];',
+  '    const push = (key: string, label: string, v: Object | undefined, note: string): void => {',
+  '      let entries = 0;',
+  '      let loaded = false;',
+  '      if (v != null) {',
+  '        if (Array.isArray(v)) { entries = v.length; loaded = true; }',
+  '        else { entries = Object.keys(v).length; loaded = true; }',
+  '      }',
+  '      out.push({ key: key, label: label, loaded: loaded, entries: entries, note: loaded ? "" : note });',
+  '    };',
+  '    const top = LiurenCore.rules.duxiang;',
+  '    const wsSec = top["旺衰休囚死"];',
+  '    push("duxiang.旺衰休囚死.旺衰", "旺衰休囚死（旺衰表）", wsSec ? wsSec["旺衰"] : undefined,',
+  '      "旺衰表未加载：旺衰栏不可用（盘仍可照旧排出）");',
+  '    push("duxiang.十二宫气机点", "十二宫气机点", top["十二宫气机点"], "十二宫气机点表未加载：气机点栏不可用");',
+  '    push("duxiang.空亡规则", "空亡规则", top["空亡规则"], "空亡规则表未加载：空亡规则出处不可用");',
+  '    push("duxiang.助日规则", "助日规则", top["助日规则"], "助日规则表未加载：助日说明不可用");',
+  '    push("duxiang.基础关系", "基础关系（六冲/六合/六害/三刑）", top["基础关系"], "基础关系表未加载：盘态关系栏不可用");',
+  '    push("shensha.神煞", "神煞起法", LiurenCore.rules.shensha["神煞"],',
+  '      "神煞规则表未加载：神煞栏不可用（不是「本课无神煞」）");',
+  '    push("bifa.一百法", "毕法一百法规则表", LiurenCore.rules.bifa["一百法"],',
+  '      "毕法规则表未加载：该栏不可用（不是本课未命中任何格局）");',
+  '    const xn: XingNianScoreRule | undefined = LiurenCore.rules.xingnian;',
+  '    const xnOk = !!xn && xn.kong !== undefined && Array.isArray(xn.bands) && xn.bands.length > 0;',
+  '    push("xingnian", "行年打分表", xnOk ? xn : undefined,',
+  '      "行年打分表未加载：行年栏不可用（不得静默消失）");',
+  '    return out;',
+  '  }',
+  '',
+  '  /* 只列未加载项（UI 的缺表清单 / 顶部一次性提示 / 日志用） */',
+  '  static missingRules(): RuleHealthItem[] {',
+  '    return LrDx.ruleHealth().filter((x: RuleHealthItem) => !x.loaded);',
+  '  }',
+  '',
+  '  /* ==================== 点宫速查卡（只读接口，§14.4） ====================',
+  '     入参：chart、地盘宫（若传天盘支则先反查其地盘宫）、当前用神支（可空）。',
+  '     纯读盘 + 查表，不改盘、不写状态。 */',
+  '  static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup {',
+  '    const G = LrBase.ZHI;',
+  '    let gong: string = gongOrZhi;',
+  '    if (G.indexOf(gong) < 0) { gong = ""; }',
+  '    if (c.tp[gong] === undefined) { gong = LrBase.gongOf(c.tp, gongOrZhi); }',
+  '    const tianZhi: string = c.tp[gong] || gong;',
+  '    const nd: NodeState = c.dx.nodes[tianZhi] || c.dx.nodes[gong] || LrDx.EMPTY_NODE;',
+  '    const wx: string = LrBase.WX[tianZhi] || "";',
+  '    const dwx: string = LrBase.WXG[c.r.dg] || "";',
+  '    let liuQin: string = "";',
+  '    let relGan: string = "";',
+  '    if (wx !== "" && dwx !== "") {',
+  '      if (wx === dwx) { liuQin = "比肩"; relGan = "比和"; }',
+  '      else if (LrBase.KE[dwx] === wx) { liuQin = "妻财"; relGan = "干克"; }',
+  '      else if (LrBase.KE[wx] === dwx) { liuQin = "官鬼"; relGan = "克干"; }',
+  '      else if (LrBase.SHENG(dwx) === wx) { liuQin = "子孙"; relGan = "干生"; }',
+  '      else { liuQin = "父母"; relGan = "生干"; }',
+  '    }',
+  '    let relYs: string = "未选用神";',
+  '    if (yongShenZhi !== "" && G.indexOf(yongShenZhi) >= 0) {',
+  '      const wy: string = LrBase.WX[yongShenZhi] || "";',
+  '      if (wx !== "" && wy !== "") {',
+  '        if (wx === wy) { relYs = "比和"; }',
+  '        else if (LrBase.SHENG(wx) === wy) { relYs = "生用神"; }',
+  '        else if (LrBase.KE[wx] === wy) { relYs = "克用神"; }',
+  '        else if (LrBase.SHENG(wy) === wx) { relYs = "用神生"; }',
+  '        else { relYs = "用神克"; }',
+  '      }',
+  '    }',
+  '    const chuZhi: string[] = c.sanchuan.chuans.map((x: Chuan) => x.z);',
+  '    const chuIdx: number = chuZhi.indexOf(tianZhi);',
+  '    let inChuan: string = "未入传";',
+  '    if (chuIdx === 0) { inChuan = "初传"; } else if (chuIdx === 1) { inChuan = "中传"; } else if (chuIdx === 2) { inChuan = "末传"; }',
+  '    const ji: string = LrBase.JI_GONG[c.r.dg] || "";',
+  '    const yjGong: string = LrBase.gongOf(c.tp, c.yj.zhi);',
+  '    const guiGong: string = LrBase.gongOf(c.jiangMap, "贵人");',
+  '    const isYs: boolean = yongShenZhi !== "" && yongShenZhi === tianZhi;',
+  '    const parts: string[] = [];',
+  '    parts.push("地盘" + gong + "宫");',
+  '    if (gong === ji) { parts.push("日干寄宫"); }',
+  '    if (tianZhi === c.r.dz) { parts.push("临日支"); }',
+  '    parts.push(inChuan);',
+  '    if (isYs) { parts.push("当前用神"); }',
+  '    if (gong === yjGong) { parts.push("月将宫"); }',
+  '    if (gong === guiGong) { parts.push("贵人宫"); }',
+  '    const role: PalaceRole = {',
+  '      asGong: gong,',
+  '      inChuan: inChuan,',
+  '      isYongShen: isYs,',
+  '      isRiGanGong: gong === ji,',
+  '      isRiZhi: tianZhi === c.r.dz,',
+  '      isYueJiang: gong === yjGong,',
+  '      isGuiRen: gong === guiGong,',
+  '      text: parts.join(" · ")',
+  '    };',
+  '    const out: PalaceLookup = {',
+  '      gong: gong,',
+  '      tianZhi: tianZhi,',
+  '      wuXing: wx,',
+  '      yinYang: LrBase.YANG_ZHI[tianZhi] ? "阳" : "阴",',
+  '      liuQin: liuQin,',
+  '      relToRiGan: relGan,',
+  '      relToYongShen: relYs,',
+  '      qiJi: (LrDx.QIJI_GONG[c.r.dg] || {})[tianZhi] || "",',
+  '      kong: nd.kong,',
+  '      shensha: c.dx.shensha.byZhi[tianZhi] || [],',
+  '      jiang: c.jiangMap[gong] || "",',
+  '      dun: c.dunXun[tianZhi] || "",',
+  '      dunRi: c.dun[gong] || "",',
+  '      dunShi: LrDungan.dunMap(c.hourGan)[gong] || "",',
+  '      role: role',
+  '    };',
+  '    return out;',
+  '  }',
+  ''
+].join('\n');
+
+/* types.ts */
+{
+  const p = path.join(ROOT, 'core', 'liuren', 'types.ts');
+  let t = fs.readFileSync(p, 'utf-8');
+  if (t.indexOf('interface RuleHealthItem') >= 0) console.log('  · types.ts 已含新接口');
+  else { fs.writeFileSync(p, t.replace(/\n*$/, '\n') + TYPES, 'utf-8'); console.log('  ✓ types.ts 追加 3 个新接口'); }
+}
+/* dx.ts */
+{
+  const p = path.join(ROOT, 'core', 'liuren', 'pan', 'dx.ts');
+  let t = fs.readFileSync(p, 'utf-8');
+  if (t.indexOf('static ruleHealth(') >= 0) console.log('  · dx.ts 已含 ruleHealth');
+  else {
+    const i = t.lastIndexOf('\n}');
+    fs.writeFileSync(p, t.slice(0, i) + '\n' + DX + t.slice(i), 'utf-8');
+    console.log('  ✓ dx.ts 追加 ruleHealth / missingRules / palaceLookup');
+  }
+}

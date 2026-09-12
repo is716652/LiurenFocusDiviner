@@ -244,13 +244,13 @@ interface JiChuSection {
   "三刑"?: Record<string, string[]>;
 }
 interface DuxiangRulesRaw {
-  "旺衰休囚死"?: WangShuaiSection;
-  "基础关系"?: JiChuSection;
   /* 以下三张表由 DataLoader 读入 rules.duxiang；引擎侧目前只在自检里读其存在性
      （§14.4：三张「加载但引擎未读」的规则表，归入点宫速查卡作规则出处）。 */
   "十二宫气机点"?: Object;
   "空亡规则"?: Object;
   "助日规则"?: Object;
+  "旺衰休囚死"?: WangShuaiSection;
+  "基础关系"?: JiChuSection;
 }
 interface ShenshaRuleRaw {
   "基准"?: string;
@@ -298,43 +298,42 @@ interface SheHaiItem {
   gong: string;       /* 该上神所临地盘宫（复等判孟/仲、见机/察微所据） */
 }
 
-/* 规则表健康项（引擎侧自述：缺表/表在但无条目/正常）——
-   对应 §14 纪律：缺表照旧出盘，但必须能被查询出来（不得静默空白）。 */
+/* 规则表健康项（引擎侧自述：缺表 / 表在但无条目 / 正常）—— §14 纪律用 */
 interface RuleHealthItem {
-  key: string;        /* 规则包内的键路径，如 duxiang.旺衰休囚死.旺衰 */
-  label: string;      /* 人读名（栏位/表名） */
-  loaded: boolean;    /* 键存在且形态正确 */
-  entries: number;    /* 条目数（0 且 loaded=true 表示表在但无条目） */
-  note: string;       /* 未加载原因 / 空表说明（loaded=false 时必非空） */
+  key: string;
+  label: string;
+  loaded: boolean;
+  entries: number;
+  note: string;
 }
 
-/* 该支在本课的角色（点宫速查卡用；可多角色并用「+」连接） */
+/* 该支在本课的角色（点宫速查卡用） */
 interface PalaceRole {
-  asGong: string;             /* 地盘宫位本身 */
-  inChuan: string;            /* 初传 / 中传 / 末传 / 未入传 */
-  isYongShen: boolean;        /* 是否为当前用神支 */
-  isRiGanGong: boolean;       /* 是否日干寄宫 */
-  isRiZhi: boolean;           /* 是否临日支 */
-  isYueJiang: boolean;        /* 是否月将所在宫 */
-  isGuiRen: boolean;          /* 是否贵人所在宫 */
-  text: string;               /* 一句话角色描述 */
+  asGong: string;
+  inChuan: string;
+  isYongShen: boolean;
+  isRiGanGong: boolean;
+  isRiZhi: boolean;
+  isYueJiang: boolean;
+  isGuiRen: boolean;
+  text: string;
 }
 
 /* 点宫速查卡（只读）—— 点天地盘任一宫 → 该支的盘面全貌 */
 interface PalaceLookup {
-  gong: string;             /* 地盘宫位（及该宫所临天盘支） */
-  tianZhi: string;          /* 该宫所临天盘支 */
-  wuXing: string;           /* 该支五行 */
-  yinYang: string;          /* 阴 / 阳 */
-  liuQin: string;           /* 与日干六亲（比肩/妻财/官鬼/子孙/父母） */
-  relToRiGan: string;       /* 该支与日干关系（生干/克干/干生/干克/比和） */
-  relToYongShen: string;    /* 与用神的关系（生用神/克用神/用神生/用神克/比和/未选用神） */
-  qiJi: string;             /* 气机点（十二宫气机点；空=该支该干无气机点） */
-  kong: boolean;            /* 是否空亡 */
-  shensha: string[];        /* 所带神煞名 */
-  jiang: string;            /* 所乘天将 */
-  dun: string;              /* 旬遁干（空=旬空支，本旬无干） */
-  dunRi: string;            /* 日干遁干（中黄·体层） */
-  dunShi: string;           /* 时干遁干（中黄·用层） */
-  role: PalaceRole;         /* 该支在本课的角色 */
+  gong: string;
+  tianZhi: string;
+  wuXing: string;
+  yinYang: string;
+  liuQin: string;
+  relToRiGan: string;
+  relToYongShen: string;
+  qiJi: string;
+  kong: boolean;
+  shensha: string[];
+  jiang: string;
+  dun: string;
+  dunRi: string;
+  dunShi: string;
+  role: PalaceRole;
 }

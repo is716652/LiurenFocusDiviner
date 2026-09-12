@@ -499,12 +499,34 @@ const SHENSHA_NAMES = (() => {
 function isLegendOrPlaceholder(lineText) {
   return /\/\/|\/\*|\*\/|placeholder|Placeholder|@BuilderParam|hint:|提示：|图例|说明：|文案/.test(lineText);
 }
+/* 块注释区间（1 基行号区间）：字符级扫描，字符串字面量内的 /* 不计 */
+function blockCommentLines(src) {
+  const out = [];
+  let inBlock = false, quote = '', start = 0, ln = 1;
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (c === '\n') ln++;
+    if (inBlock) {
+      if (c === '*' && src[i + 1] === '/') { out.push([start, ln]); inBlock = false; i++; }
+      continue;
+    }
+    if (quote !== '') { if (c === '\\') { i++; if (src[i] === '\n') ln++; continue; } if (c === quote) quote = ''; continue; }
+    if (c === '"' || c === "'" || c === '`') { quote = c; continue; }
+    if (c === '/' && src[i + 1] === '/') { let j = src.indexOf('\n', i); if (j < 0) j = src.length; i = j - 1; continue; }
+    if (c === '/' && src[i + 1] === '*') { inBlock = true; start = ln; i++; continue; }
+  }
+  if (inBlock) out.push([start, ln]);
+  return out;
+}
+function inLines(ranges, n) { return ranges.some((r) => n >= r[0] && n <= r[1]); }
+
 const A3_HITS = [];
 for (const rel of ETS_FILES.concat(ETS_FREE)) {
   const st = strip(rel);
   const code = st.code;
   const lines = st.raw.split('\n');
   const ranges = dataLiteralRanges(code);
+  const cmt = blockCommentLines(st.raw);
   let off = 0;
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i];
@@ -512,6 +534,8 @@ for (const rel of ETS_FILES.concat(ETS_FREE)) {
     off += raw.length + 1;
     const body = raw.replace(/\/\/.*$/, '').replace(/\r$/, '');
     if (!body.trim()) continue;
+    if (inLines(cmt, i + 1)) continue;                     /* 块注释内的行：不是代码 */
+    if (/^\s*\/\//.test(raw)) continue;                    /* 行注释：不是代码 */
     if (isLegendOrPlaceholder(raw) && !/return\s|=>|\bif\b|\?/.test(body)) continue;
     const check = (names, kind, min) => {
       const hits = [];

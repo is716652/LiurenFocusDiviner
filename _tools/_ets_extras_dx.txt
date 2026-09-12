@@ -1,0 +1,90 @@
+
+  /* ==================== 组件化后新增的只读接口（§14 纪律 + §14.4 点宫速查卡） ====================
+     与 core/liuren/pan/dx.ts 同源、逐字同构（.ts 侧由 _tools/build_core.js 一并编译）。
+     （ruleHealth / missingRules 暂只在 .ts 侧提供：其「按表名取字典」写法触发 ArkTS 的
+       arkts-no-props-by-index，ArkTS 侧的自检改由 DataLoader 逐表状态承担 —— 见 Agent.md §14）
+     palaceLookup：点天地盘任一宫 → 该支盘面全貌（只读，不改盘）。 */
+    static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup {
+      const G = LrBase.ZHI;
+      let gong: string = gongOrZhi;
+      if (G.indexOf(gong) < 0) { gong = ""; }
+      if (c.tp[gong] === undefined) { gong = LrBase.gongOf(c.tp, gongOrZhi); }
+      const tianZhi: string = c.tp[gong] || gong;
+      const nd: NodeState = c.dx.nodes[tianZhi] || c.dx.nodes[gong] || LrDx.EMPTY_NODE;
+      const wx: string = LrBase.WX[tianZhi] || "";
+      const dwx: string = LrBase.WXG[c.r.dg] || "";
+      const yangZhi: Record<string, number> = { "子": 1, "寅": 1, "辰": 1, "午": 1, "申": 1, "戌": 1 };
+      /* 与日干：六亲 + 生克（同一套五行口径，与 yongshen 的 liuqinOf 一致） */
+      let liuQin: string = "";
+      if (wx !== "" && dwx !== "") {
+        if (wx === dwx) { liuQin = "比肩"; }
+        else if (LrBase.KE[dwx] === wx) { liuQin = "妻财"; }
+        else if (LrBase.KE[wx] === dwx) { liuQin = "官鬼"; }
+        else if (LrBase.SHENG(dwx) === wx) { liuQin = "子孙"; }
+        else { liuQin = "父母"; }
+      }
+      let relGan: string = "";
+      if (wx !== "" && dwx !== "") {
+        if (wx === dwx) { relGan = "比和"; }
+        else if (LrBase.SHENG(wx) === dwx) { relGan = "生干"; }
+        else if (LrBase.KE[wx] === dwx) { relGan = "克干"; }
+        else if (LrBase.SHENG(dwx) === wx) { relGan = "干生"; }
+        else { relGan = "干克"; }
+      }
+      /* 与用神：同为五行生克（未选用神时显式说明，不留白） */
+      let relYs: string = "未选用神";
+      if (yongShenZhi !== "" && G.indexOf(yongShenZhi) >= 0) {
+        const wy: string = LrBase.WX[yongShenZhi] || "";
+        if (wx !== "" && wy !== "") {
+          if (wx === wy) { relYs = "比和"; }
+          else if (LrBase.SHENG(wx) === wy) { relYs = "生用神"; }
+          else if (LrBase.KE[wx] === wy) { relYs = "克用神"; }
+          else if (LrBase.SHENG(wy) === wx) { relYs = "用神生"; }
+          else { relYs = "用神克"; }
+        }
+      }
+      /* 该支在本课的角色 */
+      const chuanZhi: string[] = c.sanchuan.chuans.map((x: Chuan) => x.z);
+      const chuIdx: number = chuanZhi.indexOf(tianZhi);
+      const inChuan: string = chuIdx >= 0 ? ["初传", "中传", "末传"][chuIdx] : "未入传";
+      const ji: string = LrBase.JI_GONG[c.r.dg] || "";
+      const yjGong: string = LrBase.gongOf(c.tp, c.yj.zhi);
+      const guiGong: string = LrBase.gongOf(c.jiangMap, "贵人");
+      const isYs: boolean = yongShenZhi !== "" && yongShenZhi === tianZhi;
+      const parts: string[] = [];
+      parts.push("地盘" + gong + "宫");
+      if (gong === ji) { parts.push("日干寄宫"); }
+      if (tianZhi === c.r.dz) { parts.push("临日支"); }
+      parts.push(inChuan);
+      if (isYs) { parts.push("当前用神"); }
+      if (gong === yjGong) { parts.push("月将宫"); }
+      if (gong === guiGong) { parts.push("贵人宫"); }
+      const role: PalaceRole = {
+        asGong: gong,
+        inChuan: inChuan,
+        isYongShen: isYs,
+        isRiGanGong: gong === ji,
+        isRiZhi: tianZhi === c.r.dz,
+        isYueJiang: gong === yjGong,
+        isGuiRen: gong === guiGong,
+        text: parts.join(" · ")
+      };
+      const out: PalaceLookup = {
+        gong: gong,
+        tianZhi: tianZhi,
+        wuXing: wx,
+        yinYang: yangZhi[tianZhi] ? "阳" : "阴",
+        liuQin: liuQin,
+        relToRiGan: relGan,
+        relToYongShen: relYs,
+        qiJi: (LrDx.QIJI_GONG[c.r.dg] || {})[tianZhi] || "",
+        kong: nd.kong,
+        shensha: c.dx.shensha.byZhi[tianZhi] || [],
+        jiang: c.jiangMap[gong] || "",
+        dun: c.dunXun[tianZhi] || "",
+        dunRi: c.dun[gong] || "",
+        dunShi: LrDungan.dunMap(c.hourGan)[gong] || "",
+        role: role
+      };
+      return out;
+    }

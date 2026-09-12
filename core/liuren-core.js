@@ -1216,10 +1216,12 @@ class LrDx {
         };
         return out;
     }
-    /* ==================== 规则表健康自述（§14 纪律：缺表照旧出盘，但必须查得出来） ====================
-       读的就是引擎真正使用的路径（与各 compute* 里的读法一致），不做任何兜底；
-       缺表 → loaded=false 且 note 说明；表在但无条目 → loaded=true / entries=0（「本来就该空」）。
-       宿主 UI 依此显示「规则数据：已加载 N/N 表 ✓」并展开缺表清单。 */
+    /* ==================== 规则健康自述（§14 纪律：缺表照旧出盘，但必须查得出来） ====================
+       读的就是引擎真正使用的路径，不做任何兜底；缺表 → loaded=false 且 note 说明；
+       表在但无条目 → loaded=true / entries=0（「本来就该空」）。
+       宿主 UI 依此显示「规则数据：已加载 N/N 表 ✓」并展开缺表清单。
+       注：ArkTS 侧暂不提供本方法（其「按表名取字典」写法触发 arkts-no-props-by-index），
+           ArkTS 侧的自检改由 DataLoader 逐表状态承担 —— 见 Agent.md §14。 */
     static ruleHealth() {
         const out = [];
         const push = (key, label, v, note) => {
@@ -1231,27 +1233,24 @@ class LrDx {
                     loaded = true;
                 }
                 else {
-                    const ks = Object.keys(v);
-                    entries = ks.length;
+                    entries = Object.keys(v).length;
                     loaded = true;
                 }
             }
             out.push({ key: key, label: label, loaded: loaded, entries: entries, note: loaded ? "" : note });
         };
-        const top = LiurenCore.rules.duxiang || {};
+        const top = LiurenCore.rules.duxiang;
         const wsSec = top["旺衰休囚死"];
-        push("duxiang.旺衰休囚死.旺衰", "旺衰休囚死（旺衰表）", wsSec ? wsSec["旺衰"] : null, "旺衰休囚死.json 顶层键「旺衰」未加载：旺衰栏不可用（盘仍可照旧排出）");
-        push("duxiang.十二宫气机点", "十二宫气机点", top["十二宫气机点"], "十二宫气机点.json 未加载：气机点栏不可用");
-        push("duxiang.空亡规则", "空亡规则", top["空亡规则"], "空亡规则.json 未加载：空亡规则出处不可用");
-        push("duxiang.助日规则", "助日规则", top["助日规则"], "助日规则.json 未加载：助日说明不可用");
-        push("duxiang.基础关系", "基础关系（六冲/六合/六害/三刑）", top["基础关系"], "基础关系.json 未加载：盘态关系栏不可用");
-        const ss = LiurenCore.rules.shensha || {};
-        push("shensha.神煞", "神煞起法", ss["神煞"], "神煞起法.json 顶层键「神煞」未加载：神煞栏不可用（不是「本课无神煞」）");
-        const bf = LiurenCore.rules.bifa || {};
-        push("bifa.一百法", "毕法赋一百法", bf["一百法"], "毕法赋一百法.json 顶层键「一百法」未加载：毕法栏不可用（不是「本课未命中」）");
+        push("duxiang.旺衰休囚死.旺衰", "旺衰休囚死（旺衰表）", wsSec ? wsSec["旺衰"] : undefined, "旺衰表未加载：旺衰栏不可用（盘仍可照旧排出）");
+        push("duxiang.十二宫气机点", "十二宫气机点", top["十二宫气机点"], "十二宫气机点表未加载：气机点栏不可用");
+        push("duxiang.空亡规则", "空亡规则", top["空亡规则"], "空亡规则表未加载：空亡规则出处不可用");
+        push("duxiang.助日规则", "助日规则", top["助日规则"], "助日规则表未加载：助日说明不可用");
+        push("duxiang.基础关系", "基础关系（六冲/六合/六害/三刑）", top["基础关系"], "基础关系表未加载：盘态关系栏不可用");
+        push("shensha.神煞", "神煞起法", LiurenCore.rules.shensha["神煞"], "神煞规则表未加载：神煞栏不可用（不是「本课无神煞」）");
+        push("bifa.一百法", "毕法一百法规则表", LiurenCore.rules.bifa["一百法"], "毕法规则表未加载：该栏不可用（不是本课未命中任何格局）");
         const xn = LiurenCore.rules.xingnian;
         const xnOk = !!xn && xn.kong !== undefined && Array.isArray(xn.bands) && xn.bands.length > 0;
-        push("xingnian", "行年打分表", xnOk ? xn : null, "行年打分.json 键缺失（kong/bands 等）：行年栏不可用（会抛错，宿主不得静默吞掉）");
+        push("xingnian", "行年打分表", xnOk ? xn : undefined, "行年打分表未加载：行年栏不可用（不得静默消失）");
         return out;
     }
     /* 只列未加载项（UI 的缺表清单 / 顶部一次性提示 / 日志用） */
@@ -1260,8 +1259,7 @@ class LrDx {
     }
     /* ==================== 点宫速查卡（只读接口，§14.4） ====================
        入参：chart、地盘宫（若传天盘支则先反查其地盘宫）、当前用神支（可空）。
-       纯读盘 + 查表，不改盘、不写状态；气机点取 QIJI_GONG（日干十二宫），
-       与 computeDuxiang 里 nodes[].qiJi 同源，保证速查卡与盘面一致。 */
+       纯读盘 + 查表，不改盘、不写状态。 */
     static palaceLookup(c, gongOrZhi, yongShenZhi) {
         const G = LrBase.ZHI;
         let gong = gongOrZhi;
@@ -1275,45 +1273,30 @@ class LrDx {
         const nd = c.dx.nodes[tianZhi] || c.dx.nodes[gong] || LrDx.EMPTY_NODE;
         const wx = LrBase.WX[tianZhi] || "";
         const dwx = LrBase.WXG[c.r.dg] || "";
-        const yangZhi = { "子": 1, "寅": 1, "辰": 1, "午": 1, "申": 1, "戌": 1 };
-        /* 与日干：六亲 + 生克（同一套五行口径，与 yongshen 的 liuqinOf 一致） */
         let liuQin = "";
-        if (wx !== "" && dwx !== "") {
-            if (wx === dwx) {
-                liuQin = "比肩";
-            }
-            else if (LrBase.KE[dwx] === wx) {
-                liuQin = "妻财";
-            }
-            else if (LrBase.KE[wx] === dwx) {
-                liuQin = "官鬼";
-            }
-            else if (LrBase.SHENG(dwx) === wx) {
-                liuQin = "子孙";
-            }
-            else {
-                liuQin = "父母";
-            }
-        }
         let relGan = "";
         if (wx !== "" && dwx !== "") {
             if (wx === dwx) {
+                liuQin = "比肩";
                 relGan = "比和";
             }
-            else if (LrBase.SHENG(wx) === dwx) {
-                relGan = "生干";
+            else if (LrBase.KE[dwx] === wx) {
+                liuQin = "妻财";
+                relGan = "干克";
             }
             else if (LrBase.KE[wx] === dwx) {
+                liuQin = "官鬼";
                 relGan = "克干";
             }
             else if (LrBase.SHENG(dwx) === wx) {
+                liuQin = "子孙";
                 relGan = "干生";
             }
             else {
-                relGan = "干克";
+                liuQin = "父母";
+                relGan = "生干";
             }
         }
-        /* 与用神：同为五行生克（未选用神时显式说明，不留白） */
         let relYs = "未选用神";
         if (yongShenZhi !== "" && G.indexOf(yongShenZhi) >= 0) {
             const wy = LrBase.WX[yongShenZhi] || "";
@@ -1335,10 +1318,18 @@ class LrDx {
                 }
             }
         }
-        /* 该支在本课的角色 */
-        const chuanZhi = c.sanchuan.chuans.map((x) => x.z);
-        const chuIdx = chuanZhi.indexOf(tianZhi);
-        const inChuan = chuIdx >= 0 ? ["初传", "中传", "末传"][chuIdx] : "未入传";
+        const chuZhi = c.sanchuan.chuans.map((x) => x.z);
+        const chuIdx = chuZhi.indexOf(tianZhi);
+        let inChuan = "未入传";
+        if (chuIdx === 0) {
+            inChuan = "初传";
+        }
+        else if (chuIdx === 1) {
+            inChuan = "中传";
+        }
+        else if (chuIdx === 2) {
+            inChuan = "末传";
+        }
         const ji = LrBase.JI_GONG[c.r.dg] || "";
         const yjGong = LrBase.gongOf(c.tp, c.yj.zhi);
         const guiGong = LrBase.gongOf(c.jiangMap, "贵人");
@@ -1375,7 +1366,7 @@ class LrDx {
             gong: gong,
             tianZhi: tianZhi,
             wuXing: wx,
-            yinYang: yangZhi[tianZhi] ? "阳" : "阴",
+            yinYang: LrBase.YANG_ZHI[tianZhi] ? "阳" : "阴",
             liuQin: liuQin,
             relToRiGan: relGan,
             relToYongShen: relYs,
@@ -2507,6 +2498,7 @@ YongShenCore.zhanShi = {};
  * 宿主注入规则数据：LiurenCore.init({ duxiang, shensha, bifa, xingnian })
  * ==========================================================================*/
 /* 门面对象：把各模块 class 暴露到同一命名空间 */
+/* 门面真源：本文件是 core/liuren/** 与门面的装配输入之一（见 _tools/build_core.js） */
 class LiurenCore {
     /* ---------------- 规则数据（宿主 init 注入） ---------------- */
     static init(rules) { LiurenCore.rules = rules; }

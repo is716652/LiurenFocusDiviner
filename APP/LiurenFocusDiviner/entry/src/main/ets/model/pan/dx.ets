@@ -2,10 +2,21 @@
  * pan/dx —— 盘态（旺衰 / 气机点 / 关系 / 助日 / 年命 / 行年）
  * ----------------------------------------------------------------------------
  * 不变量：旺衰休囚死规则；只读宿主注入的规则表。
- * 由单体核心按 Agent.md §13 模块边界**逐字搬移**（纯结构拆分，行为不变）。
+ * 由单体 LiurenCore.ets 按 Agent.md §13 模块边界**逐字搬移**（纯结构拆分，行为不变）。
+ * ArkTS：原生 import/export；跨模块引用经门面 LiurenCore（与 .ts 侧同口径）。
+ * 重新生成：node _tools/_ets_build.js（勿手改本文件）
  * ==========================================================================*/
 
-class LrDx {
+import type {
+  DayRec, Chuan, NodeState, Relation, YueJiangStateDx, GuirenStateDx, XingNianResult, NianmingAdvice, Duxiang, ChartCore, Chart, JiChuSection, XingNianScoreRule, PalaceRole, PalaceLookup
+} from './types';
+import { LiurenCore } from '../LiurenCore';
+import { LrBase } from './liuren-const';
+import { LrDungan } from './dungan';
+import { LrJiang } from './jiang';
+import { LrShensha } from './shensha';
+
+export class LrDx {
   /* 行年吉凶打分默认表（宿主 init 注入 行年打分.json 覆盖） */
   static readonly XN_SCORE_DEFAULT: XingNianScoreRule = {
     liuQin: { "官鬼": -2, "妻财": 2, "子孙": 2, "父母": 1, "兄弟": 0 },
@@ -72,9 +83,6 @@ class LrDx {
     return m;
   })();
 
-
-  /* 地支十二宫（按地支五行统一长生，水土同宫；六壬盘面常用）：
-     木(寅卯)长生亥 · 火(巳午)长生寅 · 金(申酉)长生巳 · 水土(子丑辰未戌亥)长生申 */
   static readonly ZHI_GONG: Record<string, Record<string, string>> = (() => {
     const gongs: string[] = ["长生", "沐浴", "冠带", "临官", "帝旺", "衰", "病", "死", "墓", "绝", "胎", "养"];
     const changSheng: Record<string, string> = { "木": "亥", "火": "寅", "金": "巳", "水": "申", "土": "申" };
@@ -93,16 +101,14 @@ class LrDx {
 
   static EMPTY_NODE: NodeState = { wangShuai: "", qiJi: "", kong: false };
 
-  /* ---------------- 基础五行/关系工具 ---------------- */
-
   /* ---------------- 盘态计算 ---------------- */
-  /* 旺衰表（读 rules.duxiang["旺衰休囚死"].旺衰） */
+  /* 旺衰表（读 rules.duxiang.旺衰休囚死.旺衰） */
   static wangT(): Record<string, Record<string, string>> {
-    const top = LiurenCore.rules.duxiang["旺衰休囚死"];
+    const top = LiurenCore.rules.duxiang.旺衰休囚死;
     if (!top) {
       return {};
     }
-    const t = top["旺衰"];
+    const t = top.旺衰;
     if (!t) {
       return {};
     }
@@ -121,18 +127,35 @@ class LrDx {
     return "";
   }
 
+  /* 十二宫气机点反查：某宫名对应之支（如长生/墓） */
+  static findZhiOfGong(qj: Record<string, string>, gong: string): string {
+    const keys: string[] = [];
+    const all = Object.keys(qj);
+    for (let i = 0; i < all.length; i++) {
+      keys.push(all[i]);
+    }
+    for (let i = 0; i < keys.length; i++) {
+      if (qj[keys[i]] === gong) {
+        return keys[i];
+      }
+    }
+    return "";
+  }
 
+  /* 盘态主计算：旬空/旺衰/气机点/冲合刑害/月将·贵人助日 + 本课毕法格局 */
   static computeDuxiang(c: ChartCore): Duxiang {
-    const gx = LiurenCore.rules.duxiang["基础关系"] || {};
+    const gx: JiChuSection = LiurenCore.rules.duxiang.基础关系 || {};
     const r = c.r;
-    const kx = LrShensha.XUN_KONG[r.dg + r.dz] || [];
+    const kx: string[] = LrShensha.XUN_KONG[r.dg + r.dz] || [];
     const yz = r.mz;
-    const dwW = (LrDx.wangT()[r.dg] || {})[yz] || "";
-    const qj = LrDx.QIJI_GONG[r.dg] || {};
+    const wangTSub: Record<string, string> = LrDx.wangT()[r.dg] || {};
+    const dwW: string = wangTSub[yz] || "";
+    const qj: Record<string, string> = LrDx.QIJI_GONG[r.dg] || {};
+    const yueLingZ: Record<string, string> = LrDx.YUE_LING[yz] || {};
     const nodes: Record<string, NodeState> = {};
     LrBase.ZHI.forEach((z: string) => {
       nodes[z] = {
-        wangShuai: (LrDx.YUE_LING[yz] || {})[LrBase.WX[z]] || "",
+        wangShuai: yueLingZ[LrBase.WX[z]] || "",
         qiJi: qj[z] || "",
         kong: kx.includes(z)
       };
@@ -173,13 +196,17 @@ class LrDx {
       gr.wangShuai === "旺" || gr.wangShuai === "相") &&
       !(gr.keGan || gr.kong || gr.wangShuai === "死" || gr.wangShuai === "囚");
     /* 关系：12支 冲/合/害/刑 */
+    const chongMap: Record<string, string> = gx.六冲 || {};
+    const heMap: Record<string, string> = gx.六合 || {};
+    const haiMap: Record<string, string> = gx.六害 || {};
+    const xingMap: Record<string, string[]> = gx.三刑 || {};
     const relations: Record<string, Relation> = {};
     LrBase.ZHI.forEach((z: string) => {
       relations[z] = {
-        chong: (gx["六冲"] || {})[z] || null,
-        he: (gx["六合"] || {})[z] || null,
-        hai: (gx["六害"] || {})[z] || null,
-        xing: (gx["三刑"] || {})[z] || []
+        chong: chongMap[z] || null,
+        he: heMap[z] || null,
+        hai: haiMap[z] || null,
+        xing: xingMap[z] || []
       };
     });
     const dx: Duxiang = {
@@ -218,7 +245,7 @@ class LrDx {
     return copy;
   }
 
-
+  /* 年命适配建议（含与用神互动断）：年命地支 → 上神+六亲+空亡/旺衰 + 生克用神 + 建议 */
   static nianmingAdvice(c: Chart, nianZhi: string, yongShenZhi: string): NianmingAdvice {
     const shang = c.tp[nianZhi] || nianZhi;
     const w = LrBase.WX[shang];
@@ -238,7 +265,6 @@ class LrDx {
     const nd: NodeState = c.dx.nodes[shang] || LrDx.EMPTY_NODE;
     const kong = nd.kong;
     const ws = nd.wangShuai || "";
-    /* 年命上神与用神互动：生克关系 */
     let rel = "";
     let interact = "";
     if (yongShenZhi !== "") {
@@ -262,7 +288,6 @@ class LrDx {
         }
       }
     }
-    /* 基础建议 */
     let advice = "";
     if (kong) {
       advice = "古籍云：年命上神逢空，主事象易落空，缓急之机可参出空。";
@@ -302,12 +327,6 @@ class LrDx {
     return out;
   }
 
-  /* ---------------- 行年（小运） ----------------
-     birthYear 出生年（如 1990）、currentYear 今年（盘之太岁年）、gender 男/女、yongShenZhi 用神支（可选）
-     本命支公式：(year-4)%12（1984 甲子=0 子）
-     顺逆：阳干（甲丙戊庚壬）男顺女逆；阴干（乙丁己辛癸）男逆女顺
-     流年细化：行年上神与用神互动（生克）+ 与太岁关系（值/冲/合/生/克）+ 乘将吉凶 */
-
   static xingNian(c: Chart, birthYear: number, currentYear: number, gender: string, yongShenZhi: string): XingNianResult {
     const G = LrBase.GAN;
     const Z = LrBase.ZHI;
@@ -315,13 +334,12 @@ class LrDx {
     const benMingZhi = Z[((birthYear - 4) % 12 + 12) % 12];
     const yangGan = !!LrBase.G_YANG[gan];
     const isMale = gender === "男";
-    const shun = yangGan ? isMale : !isMale;   /* 阳男顺/阴女顺；阳女逆/阴男逆 */
-    const sui = currentYear - birthYear + 1;    /* 虚岁 */
+    const shun = yangGan ? isMale : !isMale;
+    const sui = currentYear - birthYear + 1;
     const startIdx = Z.indexOf(benMingZhi);
     const step = (shun ? 1 : -1);
     const xingIdx = ((startIdx + step * (sui - 1)) % 12 + 12) % 12;
     const xingNianZhi = Z[xingIdx];
-    /* 行年上神 */
     const shang = c.tp[xingNianZhi] || xingNianZhi;
     const w = LrBase.WX[shang];
     const dw = LrBase.WXG[c.r.dg];
@@ -363,12 +381,11 @@ class LrDx {
         }
       }
     }
-    /* ---- ② 与太岁关系（流年吉凶） ----
-       太岁支 = 今年地支（currentYear 取支）；冲/合查基础关系表，五行生克判吉凶 */
+    /* ---- ② 与太岁关系（流年吉凶） ---- */
     const taiSuiZhi = Z[((currentYear - 4) % 12 + 12) % 12];
-    const gx = (LiurenCore.rules.duxiang["基础关系"] || {}) as JiChuSection;
-    const chongMap: Record<string, string> = gx["六冲"] || {};
-    const heMap: Record<string, string> = gx["六合"] || {};
+    const gx: JiChuSection = LiurenCore.rules.duxiang.基础关系 || {};
+    const chongMap: Record<string, string> = gx.六冲 || {};
+    const heMap: Record<string, string> = gx.六合 || {};
     let tsRel = "";
     let tsNote = "";
     if (shang === taiSuiZhi) {
@@ -492,123 +509,94 @@ class LrDx {
     return out;
   }
 
-  /* ==================== 规则健康自述（§14 纪律：缺表照旧出盘，但必须查得出来） ====================
-     读的就是引擎真正使用的路径，不做任何兜底；缺表 → loaded=false 且 note 说明；
-     表在但无条目 → loaded=true / entries=0（「本来就该空」）。
-     宿主 UI 依此显示「规则数据：已加载 N/N 表 ✓」并展开缺表清单。
-     注：ArkTS 侧暂不提供本方法（其「按表名取字典」写法触发 arkts-no-props-by-index），
-         ArkTS 侧的自检改由 DataLoader 逐表状态承担 —— 见 Agent.md §14。 */
-  static ruleHealth(): RuleHealthItem[] {
-    const out: RuleHealthItem[] = [];
-    const push = (key: string, label: string, v: Object | undefined, note: string): void => {
-      let entries = 0;
-      let loaded = false;
-      if (v != null) {
-        if (Array.isArray(v)) { entries = v.length; loaded = true; }
-        else { entries = Object.keys(v).length; loaded = true; }
+
+  /* ==================== 组件化后新增的只读接口（§14 纪律 + §14.4 点宫速查卡） ====================
+     与 core/liuren/pan/dx.ts 同源、逐字同构（.ts 侧由 _tools/build_core.js 一并编译）。
+     （ruleHealth / missingRules 暂只在 .ts 侧提供：其「按表名取字典」写法触发 ArkTS 的
+       arkts-no-props-by-index，ArkTS 侧的自检改由 DataLoader 逐表状态承担 —— 见 Agent.md §14）
+     palaceLookup：点天地盘任一宫 → 该支盘面全貌（只读，不改盘）。 */
+    static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup {
+      const G = LrBase.ZHI;
+      let gong: string = gongOrZhi;
+      if (G.indexOf(gong) < 0) { gong = ""; }
+      if (c.tp[gong] === undefined) { gong = LrBase.gongOf(c.tp, gongOrZhi); }
+      const tianZhi: string = c.tp[gong] || gong;
+      const nd: NodeState = c.dx.nodes[tianZhi] || c.dx.nodes[gong] || LrDx.EMPTY_NODE;
+      const wx: string = LrBase.WX[tianZhi] || "";
+      const dwx: string = LrBase.WXG[c.r.dg] || "";
+      const yangZhi: Record<string, number> = { "子": 1, "寅": 1, "辰": 1, "午": 1, "申": 1, "戌": 1 };
+      /* 与日干：六亲 + 生克（同一套五行口径，与 yongshen 的 liuqinOf 一致） */
+      let liuQin: string = "";
+      if (wx !== "" && dwx !== "") {
+        if (wx === dwx) { liuQin = "比肩"; }
+        else if (LrBase.KE[dwx] === wx) { liuQin = "妻财"; }
+        else if (LrBase.KE[wx] === dwx) { liuQin = "官鬼"; }
+        else if (LrBase.SHENG(dwx) === wx) { liuQin = "子孙"; }
+        else { liuQin = "父母"; }
       }
-      out.push({ key: key, label: label, loaded: loaded, entries: entries, note: loaded ? "" : note });
-    };
-    const top = LiurenCore.rules.duxiang;
-    const wsSec = top["旺衰休囚死"];
-    push("duxiang.旺衰休囚死.旺衰", "旺衰休囚死（旺衰表）", wsSec ? wsSec["旺衰"] : undefined,
-      "旺衰表未加载：旺衰栏不可用（盘仍可照旧排出）");
-    push("duxiang.十二宫气机点", "十二宫气机点", top["十二宫气机点"], "十二宫气机点表未加载：气机点栏不可用");
-    push("duxiang.空亡规则", "空亡规则", top["空亡规则"], "空亡规则表未加载：空亡规则出处不可用");
-    push("duxiang.助日规则", "助日规则", top["助日规则"], "助日规则表未加载：助日说明不可用");
-    push("duxiang.基础关系", "基础关系（六冲/六合/六害/三刑）", top["基础关系"], "基础关系表未加载：盘态关系栏不可用");
-    push("shensha.神煞", "神煞起法", LiurenCore.rules.shensha["神煞"],
-      "神煞规则表未加载：神煞栏不可用（不是「本课无神煞」）");
-    push("bifa.一百法", "毕法一百法规则表", LiurenCore.rules.bifa["一百法"],
-      "毕法规则表未加载：该栏不可用（不是本课未命中任何格局）");
-    const xn: XingNianScoreRule | undefined = LiurenCore.rules.xingnian;
-    const xnOk = !!xn && xn.kong !== undefined && Array.isArray(xn.bands) && xn.bands.length > 0;
-    push("xingnian", "行年打分表", xnOk ? xn : undefined,
-      "行年打分表未加载：行年栏不可用（不得静默消失）");
-    return out;
-  }
-
-  /* 只列未加载项（UI 的缺表清单 / 顶部一次性提示 / 日志用） */
-  static missingRules(): RuleHealthItem[] {
-    return LrDx.ruleHealth().filter((x: RuleHealthItem) => !x.loaded);
-  }
-
-  /* ==================== 点宫速查卡（只读接口，§14.4） ====================
-     入参：chart、地盘宫（若传天盘支则先反查其地盘宫）、当前用神支（可空）。
-     纯读盘 + 查表，不改盘、不写状态。 */
-  static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup {
-    const G = LrBase.ZHI;
-    let gong: string = gongOrZhi;
-    if (G.indexOf(gong) < 0) { gong = ""; }
-    if (c.tp[gong] === undefined) { gong = LrBase.gongOf(c.tp, gongOrZhi); }
-    const tianZhi: string = c.tp[gong] || gong;
-    const nd: NodeState = c.dx.nodes[tianZhi] || c.dx.nodes[gong] || LrDx.EMPTY_NODE;
-    const wx: string = LrBase.WX[tianZhi] || "";
-    const dwx: string = LrBase.WXG[c.r.dg] || "";
-    let liuQin: string = "";
-    let relGan: string = "";
-    if (wx !== "" && dwx !== "") {
-      if (wx === dwx) { liuQin = "比肩"; relGan = "比和"; }
-      else if (LrBase.KE[dwx] === wx) { liuQin = "妻财"; relGan = "干克"; }
-      else if (LrBase.KE[wx] === dwx) { liuQin = "官鬼"; relGan = "克干"; }
-      else if (LrBase.SHENG(dwx) === wx) { liuQin = "子孙"; relGan = "干生"; }
-      else { liuQin = "父母"; relGan = "生干"; }
-    }
-    let relYs: string = "未选用神";
-    if (yongShenZhi !== "" && G.indexOf(yongShenZhi) >= 0) {
-      const wy: string = LrBase.WX[yongShenZhi] || "";
-      if (wx !== "" && wy !== "") {
-        if (wx === wy) { relYs = "比和"; }
-        else if (LrBase.SHENG(wx) === wy) { relYs = "生用神"; }
-        else if (LrBase.KE[wx] === wy) { relYs = "克用神"; }
-        else if (LrBase.SHENG(wy) === wx) { relYs = "用神生"; }
-        else { relYs = "用神克"; }
+      let relGan: string = "";
+      if (wx !== "" && dwx !== "") {
+        if (wx === dwx) { relGan = "比和"; }
+        else if (LrBase.SHENG(wx) === dwx) { relGan = "生干"; }
+        else if (LrBase.KE[wx] === dwx) { relGan = "克干"; }
+        else if (LrBase.SHENG(dwx) === wx) { relGan = "干生"; }
+        else { relGan = "干克"; }
       }
+      /* 与用神：同为五行生克（未选用神时显式说明，不留白） */
+      let relYs: string = "未选用神";
+      if (yongShenZhi !== "" && G.indexOf(yongShenZhi) >= 0) {
+        const wy: string = LrBase.WX[yongShenZhi] || "";
+        if (wx !== "" && wy !== "") {
+          if (wx === wy) { relYs = "比和"; }
+          else if (LrBase.SHENG(wx) === wy) { relYs = "生用神"; }
+          else if (LrBase.KE[wx] === wy) { relYs = "克用神"; }
+          else if (LrBase.SHENG(wy) === wx) { relYs = "用神生"; }
+          else { relYs = "用神克"; }
+        }
+      }
+      /* 该支在本课的角色 */
+      const chuanZhi: string[] = c.sanchuan.chuans.map((x: Chuan) => x.z);
+      const chuIdx: number = chuanZhi.indexOf(tianZhi);
+      const inChuan: string = chuIdx >= 0 ? ["初传", "中传", "末传"][chuIdx] : "未入传";
+      const ji: string = LrBase.JI_GONG[c.r.dg] || "";
+      const yjGong: string = LrBase.gongOf(c.tp, c.yj.zhi);
+      const guiGong: string = LrBase.gongOf(c.jiangMap, "贵人");
+      const isYs: boolean = yongShenZhi !== "" && yongShenZhi === tianZhi;
+      const parts: string[] = [];
+      parts.push("地盘" + gong + "宫");
+      if (gong === ji) { parts.push("日干寄宫"); }
+      if (tianZhi === c.r.dz) { parts.push("临日支"); }
+      parts.push(inChuan);
+      if (isYs) { parts.push("当前用神"); }
+      if (gong === yjGong) { parts.push("月将宫"); }
+      if (gong === guiGong) { parts.push("贵人宫"); }
+      const role: PalaceRole = {
+        asGong: gong,
+        inChuan: inChuan,
+        isYongShen: isYs,
+        isRiGanGong: gong === ji,
+        isRiZhi: tianZhi === c.r.dz,
+        isYueJiang: gong === yjGong,
+        isGuiRen: gong === guiGong,
+        text: parts.join(" · ")
+      };
+      const out: PalaceLookup = {
+        gong: gong,
+        tianZhi: tianZhi,
+        wuXing: wx,
+        yinYang: yangZhi[tianZhi] ? "阳" : "阴",
+        liuQin: liuQin,
+        relToRiGan: relGan,
+        relToYongShen: relYs,
+        qiJi: (LrDx.QIJI_GONG[c.r.dg] || {})[tianZhi] || "",
+        kong: nd.kong,
+        shensha: c.dx.shensha.byZhi[tianZhi] || [],
+        jiang: c.jiangMap[gong] || "",
+        dun: c.dunXun[tianZhi] || "",
+        dunRi: c.dun[gong] || "",
+        dunShi: LrDungan.dunMap(c.hourGan)[gong] || "",
+        role: role
+      };
+      return out;
     }
-    const chuZhi: string[] = c.sanchuan.chuans.map((x: Chuan) => x.z);
-    const chuIdx: number = chuZhi.indexOf(tianZhi);
-    let inChuan: string = "未入传";
-    if (chuIdx === 0) { inChuan = "初传"; } else if (chuIdx === 1) { inChuan = "中传"; } else if (chuIdx === 2) { inChuan = "末传"; }
-    const ji: string = LrBase.JI_GONG[c.r.dg] || "";
-    const yjGong: string = LrBase.gongOf(c.tp, c.yj.zhi);
-    const guiGong: string = LrBase.gongOf(c.jiangMap, "贵人");
-    const isYs: boolean = yongShenZhi !== "" && yongShenZhi === tianZhi;
-    const parts: string[] = [];
-    parts.push("地盘" + gong + "宫");
-    if (gong === ji) { parts.push("日干寄宫"); }
-    if (tianZhi === c.r.dz) { parts.push("临日支"); }
-    parts.push(inChuan);
-    if (isYs) { parts.push("当前用神"); }
-    if (gong === yjGong) { parts.push("月将宫"); }
-    if (gong === guiGong) { parts.push("贵人宫"); }
-    const role: PalaceRole = {
-      asGong: gong,
-      inChuan: inChuan,
-      isYongShen: isYs,
-      isRiGanGong: gong === ji,
-      isRiZhi: tianZhi === c.r.dz,
-      isYueJiang: gong === yjGong,
-      isGuiRen: gong === guiGong,
-      text: parts.join(" · ")
-    };
-    const out: PalaceLookup = {
-      gong: gong,
-      tianZhi: tianZhi,
-      wuXing: wx,
-      yinYang: LrBase.YANG_ZHI[tianZhi] ? "阳" : "阴",
-      liuQin: liuQin,
-      relToRiGan: relGan,
-      relToYongShen: relYs,
-      qiJi: (LrDx.QIJI_GONG[c.r.dg] || {})[tianZhi] || "",
-      kong: nd.kong,
-      shensha: c.dx.shensha.byZhi[tianZhi] || [],
-      jiang: c.jiangMap[gong] || "",
-      dun: c.dunXun[tianZhi] || "",
-      dunRi: c.dun[gong] || "",
-      dunShi: LrDungan.dunMap(c.hourGan)[gong] || "",
-      role: role
-    };
-    return out;
-  }
-
 }

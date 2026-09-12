@@ -1,10 +1,10 @@
-/* 临时：核对拆分后引擎的对外 API 与拆分前（HEAD 版产物）是否完全一致 */
+/* 临时：核对拆分后引擎的对外 API 与拆分前（tag v1.0.4-pre-componentize 的产物）是否完全一致 */
 'use strict';
 const fs = require('fs');
 const vm = require('vm');
 const { execFileSync } = require('child_process');
 
-const oldSrc = execFileSync('git', ['show', 'HEAD:core/liuren-core.js'], { cwd: __dirname + '/..', maxBuffer: 64 * 1024 * 1024 }).toString('utf-8');
+const oldSrc = execFileSync('git', ['show', 'v1.0.4-pre-componentize:core/liuren-core.js'], { cwd: __dirname + '/..', maxBuffer: 64 * 1024 * 1024 }).toString('utf-8');
 const newSrc = fs.readFileSync(__dirname + '/../core/liuren-core.js', 'utf-8');
 
 function load(src, tag) {
