@@ -514,6 +514,15 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
    - 处理：等待几秒 → 重新 read → 再 edit。
    - 不要并行改同一个文件。
 
+1.5 **UI 的 `.ets` 行尾本来就混着 LF / CRLF（2026-09-12 踩过）**
+   - 现象：`components/**`、`model/pan/**`、`pay/**`、`pages/Legal/**` 里不少文件是 LF，
+     而 `pages/Index.ets` 等是 CRLF；`git status` 却干净（索引里就是 LF）。
+   - 别做的事：**不要**为了"统一行尾"把整目录转成 CRLF —— 会一次性制造几十个纯空白改动，
+     把真正的修改淹掉（实测 35 个文件）。按文件现状保留即可，是纯空白差异、不影响编译与产物行为。
+   - 附带现象：`git add/commit` 有时会触碰工作区文件（mtime 变新），导致下次 hvigor 判定需重编译。
+     这属正常，**提交含 UI 的文件后要重跑一次构建再打包**，否则包会比源码旧。
+   - 用 `write`/脚本整文件重写某个 `.ets` 时，请保持该文件原有行尾（读进来什么样、写回去什么样）。
+
 2. **真源漂移（2026-09-10 踩过；2026-09-12 按组件化更新）**
    - 只改 `core/liuren-core.js` 而没改真源（或反之），会让真源与产物不一致；
    - 只改 `core/liuren/**` 而忘了 `node _tools/build_core.js`，测试跑的仍是**旧产物**
