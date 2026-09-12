@@ -38,7 +38,7 @@ export struct PageHeader {
         })
         Blank()
         if (this.showBack) {
-          Text(this.backText)
+          Text(this.backText) /* layout-ok: 返回按钮文案，取值来自固定几处，长度有界 */
             .fontSize(12)
             .fontColor('#C4B183')
             .padding({ left: 12, right: 12, top: 4, bottom: 4 })

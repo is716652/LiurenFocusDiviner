@@ -298,7 +298,7 @@ struct Home {
           .fontWeight(FontWeight.Medium)
           .fontColor('#F0E6C8')
         Blank()
-        Text(this.dateStr())
+        Text(this.dateStr()) /* layout-ok: 日期串固定长度，长度有界 */
           .fontSize(12)
           .fontColor('#C4A25C')
       }

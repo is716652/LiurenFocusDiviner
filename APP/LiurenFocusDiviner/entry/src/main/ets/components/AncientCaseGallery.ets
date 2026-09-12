@@ -603,7 +603,7 @@ export struct AncientCaseGallery {
               .fontSize(12)
               .fontColor('#2F4A5F')
             Blank()
-            Text('旬空 ' + (this.chart as Chart).dx.xunkong.join('') + ' · 日干' + (this.chart as Chart).dx.dayWangShuai)
+            Text('旬空 ' + (this.chart as Chart).dx.xunkong.join('') + ' · 日干' + (this.chart as Chart).dx.dayWangShuai) /* layout-ok: 旬空最多 2 支 + 日干旺衰 2 字，长度有界 */
               .fontSize(10)
               .fontColor('#6B5F45')
           }
@@ -679,6 +679,7 @@ export struct AncientCaseGallery {
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
                 .fontColor('#2B241B')
+                .layoutWeight(1)
               Blank()
               Text('九宗门')
                 .fontSize(9)

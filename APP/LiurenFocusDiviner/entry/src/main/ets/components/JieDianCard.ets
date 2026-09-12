@@ -24,6 +24,8 @@ export struct JieDianCard {
           .fontSize(12)
           .fontWeight(FontWeight.Medium)
           .fontColor('#F0D98C')
+          .layoutWeight(1)
+          .textAlign(TextAlign.End)
       }
       .width('100%')
 

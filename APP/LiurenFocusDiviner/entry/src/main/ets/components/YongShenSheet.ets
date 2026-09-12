@@ -344,6 +344,8 @@ export struct YongShenSheet {
                 Text(this.yongShen !== '' ? '当前用神 ' + this.yongShen + ' 宫' : '左右滑看 三传/盘/四课')
                   .fontSize(10)
                   .fontColor('#C4A25C')
+                  .layoutWeight(1)
+                  .textAlign(TextAlign.End)
               }
               .width('100%')
               Swiper() {

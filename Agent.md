@@ -420,6 +420,30 @@ node _tests/_test_component_audit.js            # 逐项跑 A1–A4 + B1–B4；
 node _tests/_test_component_audit.js --verbose  # 额外逐处打印注释出处/软项清单
 ```
 
+### UI 排版门禁：Row + Blank 里的长文本必须有宽度约束（2026-09-12 新增）
+
+由来：用户报「排盘 → 毕法格局 → 展开」后**文字溢出右边界、且不左对齐**。根因是
+`components/InfoRow.ets` 旧写法 `Row() { Text(label)  Blank()  Text(value).textAlign(End) }` ——
+`value` 既无 `width` 也无 `layoutWeight`，长文案（毕法展开的五层：定性/定象/定时/定策/定级）
+顶出父容器右边界；`textAlign(End)` 又让它不左对齐。短值（「旬空/无」）看不出来，
+所以只在长文案处暴露。
+
+```powershell
+node _tests/_test_ui_layout.js   # 扫 UI 目录（主版 + 免费版），违规即 exit 1
+```
+
+判据（三条同时成立才报，避免噪声）：① 该 `Text` 与 `Blank()` 处在**同一 Row 的直接子节点**层
+（嵌套的 Column/Row/Flex/Stack/Grid 里不算 —— 那不是兄弟关系；花括号只在**括号深度 0** 时才算块级，
+`Row({ space: 8 }) {` 的参数花括号曾被误当块级，闹出过漏报与误报）；
+② 属性链里没有 `width` / `layoutWeight` / `constraintSize` / `maxLines` / `flexShrink`；
+③ 参数**不是纯字符串字面量**（长度不可控）。
+
+修法：① 数据驱动的值加 `.layoutWeight(1)`（若它是 Blank 之后的末位元素，另加 `.textAlign(TextAlign.End)`
+以保持贴右）；② **长段落**改用 `InfoRow({ ..., stack: true })`（标签在上、值在下、左对齐），
+容器 Column 显式 `.alignItems(HorizontalAlign.Start)` —— ArkUI 的 Column 默认居中，
+靠默认值就会出现「看着没左对齐」；③ 长度确实有界的（如「地支+时」「收起/展开」「日期串」）
+在该行写块注释标记 `layout-ok: 理由`（理由必填），门禁放行并计入豁免计数供人工过目。
+
 产物：`_tests/_data/component_audit.json`（逐项结论 + 证据 + 违规位置；含 B4 实验前后 JSON 哈希）。
 辅助模块：`_tests/_engine_probe.js`（运行期探针：维度敏感性 / 规则影响面 / 神煞·天将全枚举 / B4 基线比对），
 它不是门禁，只被上面的脚本 require。

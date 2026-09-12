@@ -1118,6 +1118,7 @@ struct Index {
             .fontSize(14)
             .fontWeight(FontWeight.Medium)
             .fontColor('#F0E6C8')
+            .layoutWeight(1)
           Blank()
           Text('九宗门')
             .fontSize(10)
@@ -1154,6 +1155,7 @@ struct Index {
               .fontSize(14)
               .fontWeight(FontWeight.Medium)
               .fontColor('#F0E6C8')
+              .layoutWeight(1)
             Blank()
             Text('九宗门课体 · 通用课义')
               .fontSize(10)
@@ -1329,6 +1331,7 @@ struct Index {
               Text(g.label)
                 .fontSize(11)
                 .fontColor('#A8986E')
+                .layoutWeight(1)
               Blank()
               if (g.names.length === 0) {
                 Text('无')
@@ -1443,9 +1446,10 @@ struct Index {
                 .fontSize(14)
                 .fontWeight(FontWeight.Medium)
                 .fontColor('#F0D98C')
+                .layoutWeight(1)
               TagBadge({ text: '第' + hit.序 + '法', tone: 'cinnabar' })
               Blank()
-              Text(this.expandedBifa === hit.序 ? '收起' : '展开')
+              Text(this.expandedBifa === hit.序 ? '收起' : '展开') /* layout-ok: 仅「收起/展开」两值，长度有界 */
                 .fontSize(11)
                 .fontColor('#C4A25C')
             }
@@ -1457,13 +1461,14 @@ struct Index {
               .width('100%')
             if (this.expandedBifa === hit.序) {
               Column({ space: 2 }) {
-                InfoRow({ label: '定性', value: this.layerOf(hit.序, '定性') })
-                InfoRow({ label: '定象', value: this.layerOf(hit.序, '定象') })
-                InfoRow({ label: '定时', value: this.layerOf(hit.序, '定时') })
-                InfoRow({ label: '定策', value: this.layerOf(hit.序, '定策') })
-                InfoRow({ label: '定级', value: this.layerOf(hit.序, '定级') })
+                InfoRow({ label: '定性', value: this.layerOf(hit.序, '定性'), stack: true })
+                InfoRow({ label: '定象', value: this.layerOf(hit.序, '定象'), stack: true })
+                InfoRow({ label: '定时', value: this.layerOf(hit.序, '定时'), stack: true })
+                InfoRow({ label: '定策', value: this.layerOf(hit.序, '定策'), stack: true })
+                InfoRow({ label: '定级', value: this.layerOf(hit.序, '定级'), stack: true })
               }
               .width('100%')
+              .alignItems(HorizontalAlign.Start)
               .padding({ top: 4, left: 2, right: 2 })
               .border({ width: { top: 1 }, color: 'rgba(233,200,120,0.15)' })
             }

@@ -81,7 +81,7 @@ export struct CaseBoard {
             .padding({ left: 6, right: 6, top: 1, bottom: 1 })
             .margin({ left: 6 })
         }
-        Text(r.hourZhi + '时')
+        Text(r.hourZhi + '时') /* layout-ok: 地支 + 「时」最长 2 字，长度有界 */
           .fontSize(11)
           .fontColor('#1A1410')
           .backgroundColor('#E9C878')
