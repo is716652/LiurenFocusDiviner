@@ -51,7 +51,7 @@ export struct PalaceCard {
             Row({ space: 6 }) {
               Text('原文')
                 .fontSize(9)
-                .fontColor('#8A7B5C')
+                .fontColor('#B8A97F')
                 .backgroundColor('rgba(233,200,120,0.10)')
                 .borderRadius(6)
                 .padding({ left: 5, right: 5, top: 1, bottom: 1 })
