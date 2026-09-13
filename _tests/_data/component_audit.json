@@ -1,9 +1,9 @@
 {
- "生成时间": "2026-09-13T05:39:10.005Z",
+ "生成时间": "2026-09-13T05:43:44.148Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
-  ".ets（主版）": 53,
-  ".ets（免费版）": 53,
+  ".ets（主版）": 56,
+  ".ets（免费版）": 56,
   "core（真源 .ts）": 16,
   "core（产物 .js）": 1,
   "core 合计": 17,
@@ -277,7 +277,7 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 1711,
+     "line": 1777,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "ight(18)\r\n                .width('100%')\r\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\r\n      "
@@ -368,7 +368,7 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 1711,
+     "line": 1777,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "ight(18)\r\n                .width('100%')\r\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\r\n      "
@@ -422,19 +422,19 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
-     "line": 337,
+     "line": 355,
      "lit": "管辂",
      "text": "/* ---------------- 抓用神数据（占事体系 / 管辂类神 / 类象库 / 管辂象意） ---------------- */"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
-     "line": 356,
+     "line": 374,
      "lit": "管辂",
      "text": "/* 管辂类神取用（总纲 / 身命类神 / 家宅类神 …） */"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
-     "line": 380,
+     "line": 398,
      "lit": "管辂",
      "text": "/* 管辂象意（歌诀象意库，按门类：杂占总诀/杂占/求财/谋事/胎产/婚姻/杂占二） */"
     },
@@ -542,7 +542,7 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 272,
+     "line": 283,
      "lit": "管辂",
      "text": "/* 类象库/管辂象意缺失：节点卡与选句兜底为空 */"
     },
@@ -590,19 +590,19 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
-     "line": 337,
+     "line": 355,
      "lit": "管辂",
      "text": "/* ---------------- 抓用神数据（占事体系 / 管辂类神 / 类象库 / 管辂象意） ---------------- */"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
-     "line": 356,
+     "line": 374,
      "lit": "管辂",
      "text": "/* 管辂类神取用（总纲 / 身命类神 / 家宅类神 …） */"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
-     "line": 380,
+     "line": 398,
      "lit": "管辂",
      "text": "/* 管辂象意（歌诀象意库，按门类：杂占总诀/杂占/求财/谋事/胎产/婚姻/杂占二） */"
     },
@@ -710,7 +710,7 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 272,
+     "line": 283,
      "lit": "管辂",
      "text": "/* 类象库/管辂象意缺失：节点卡与选句兜底为空 */"
     },
@@ -723,7 +723,7 @@
    ]
   },
   "A2静态": {
-   "条件数": 3798,
+   "条件数": 3958,
    "可疑": []
   },
   "A2运行期": {
@@ -980,7 +980,7 @@
    "缺月键": []
   },
   "B2": {
-   "总数": 260,
+   "总数": 298,
    "危险": [
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/YongShenCore.ets",
@@ -1292,6 +1292,116 @@
     }
    ],
    "待人工确认": [
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+     "line": 282,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "const rsQiji = (qjParsed['十二宫'] || {}) as Record<string, Record<string,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+     "line": 283,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "| {}) as Record<string, Record<string, string>>; const rsKongOps = (kxParsed['三种操作'] || {}) as Record<string, Record<string,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+     "line": 284,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "| {}) as Record<string, Record<string, string>>; const rsKongSu = (kxParsed['气机宫速用'] || {}) as Record<string, Record<string,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+     "line": 285,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "|| {}) as Record<string, Record<string, string>>; const rsYueJiang = (zrParsed['月将'] || {}) as Record<string, Object>; c",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+     "line": 291,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "ongSu, rsKouJue, rsQijiKj, rsHeKj); ReadXiangData.fillBasics( (wsParsed['旺衰'] || {}) as Record<string, Record<string,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+     "line": 292,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "(wsParsed['旺衰'] || {}) as Record<string, Record<string, string>>, (jcParsed['六冲'] || {}) as Record<string, string>,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+     "line": 293,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "string>>, (jcParsed['六冲'] || {}) as Record<string, string>, (jcParsed['六合'] || {}) as Record<string, string>,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+     "line": 294,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "string>, (jcParsed['六合'] || {}) as Record<string, string>, (jcParsed['六害'] || {}) as Record<string, string>,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+     "line": 295,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "string>, (jcParsed['六害'] || {}) as Record<string, string>, (jcParsed['三刑'] || {}) as Record<string, string[]>);",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/ReadXiang.ets",
+     "line": 123,
+     "fallback": "|| []",
+     "kind": "待人工确认",
+     "ctx": "l.push('害 ' + haiZhi); } const xingArr: string[] = ReadXiangData.xing[pl.tianZhi] || []; if (xingArr.length > 0) {",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/ReadXiang.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/ReadXiang.ets"
+     ]
+    },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/YongShenCore.ets",
      "line": 144,
@@ -1609,6 +1719,116 @@
      "同构重复": [
       "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/shensha.ets",
       "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/shensha.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
+     "line": 282,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "const rsQiji = (qjParsed['十二宫'] || {}) as Record<string, Record<string,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
+     "line": 283,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "| {}) as Record<string, Record<string, string>>; const rsKongOps = (kxParsed['三种操作'] || {}) as Record<string, Record<string,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
+     "line": 284,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "| {}) as Record<string, Record<string, string>>; const rsKongSu = (kxParsed['气机宫速用'] || {}) as Record<string, Record<string,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
+     "line": 285,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "|| {}) as Record<string, Record<string, string>>; const rsYueJiang = (zrParsed['月将'] || {}) as Record<string, Object>; c",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
+     "line": 291,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "ongSu, rsKouJue, rsQijiKj, rsHeKj); ReadXiangData.fillBasics( (wsParsed['旺衰'] || {}) as Record<string, Record<string,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
+     "line": 292,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "(wsParsed['旺衰'] || {}) as Record<string, Record<string, string>>, (jcParsed['六冲'] || {}) as Record<string, string>,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
+     "line": 293,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "string>>, (jcParsed['六冲'] || {}) as Record<string, string>, (jcParsed['六合'] || {}) as Record<string, string>,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
+     "line": 294,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "string>, (jcParsed['六合'] || {}) as Record<string, string>, (jcParsed['六害'] || {}) as Record<string, string>,",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
+     "line": 295,
+     "fallback": "|| {}",
+     "kind": "待人工确认",
+     "ctx": "string>, (jcParsed['六害'] || {}) as Record<string, string>, (jcParsed['三刑'] || {}) as Record<string, string[]>);",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets"
+     ]
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/ReadXiang.ets",
+     "line": 123,
+     "fallback": "|| []",
+     "kind": "待人工确认",
+     "ctx": "l.push('害 ' + haiZhi); } const xingArr: string[] = ReadXiangData.xing[pl.tianZhi] || []; if (xingArr.length > 0) {",
+     "同构重复": [
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/ReadXiang.ets",
+      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/ReadXiang.ets"
      ]
     },
     {

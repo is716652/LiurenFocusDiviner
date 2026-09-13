@@ -28,6 +28,10 @@ import { DataLoader } from '../model/DataLoader';
 import { RuleHealth } from '../model/RuleHealth';
 import { EmptyKind, SlotId } from '../model/ReasonText';
 import { SlotEmpty } from '../components/SlotEmpty';
+import { PalaceCard } from '../components/PalaceCard';
+import { ReadXiang } from '../model/ReadXiang';
+import type { ReadXiangRow } from '../model/ReadXiang';
+import { ReadXiangData } from '../model/ReadXiangData';
 import type { AncientBook } from '../model/DataLoader';
 import { CaseStore } from '../model/CaseStore';
 import type { CaseRec } from '../model/CaseStore';
@@ -108,6 +112,13 @@ struct Index {
   @State private xingnian: XingNianResult | null = null;
   /* 行年状态（§14.7 第 3 条）：'' / ok / unset / missing —— 行年不得静默消失 */
   @State private xingnianKind: string = '';
+  /* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片；与既有「外应取用」并行，不改变原行为 */
+  @State private cardRows: ReadXiangRow[] = [];
+  @State private cardTitle: string = '';
+  @State private cardOpen: boolean = false;
+  /* 盘态栏「为什么助」展开 */
+  @State private zhuriOpen: boolean = false;
+  @State private zhuriLines: string[] = [];
   /* 缺表一次性顶部提示（每次启动只提示一次） */
   @State private showRuleTip: boolean = false;
   /* 年份就地编辑（点击数字切换为输入框，回车/失焦确认） */
@@ -400,6 +411,25 @@ struct Index {
       this.xingnian = null;
       this.xingnianKind = EmptyKind.MISSING;
       RuleHealth.fail('xingnian', '行年打分表内容不完整，行年无法推算');
+    }
+  }
+
+  /* 打开某支的宫情速查卡（§14.4）：引擎出数（palaceLookup）、ReadXiang 装配、卡片呈现 */
+  private openPalaceCard(z: string): void {
+    const c = this.chart;
+    if (!c) {
+      return;
+    }
+    this.cardRows = ReadXiang.card(c, z, this.yongShen);
+    this.cardTitle = '宫情 · ' + z;
+    this.cardOpen = true;
+  }
+
+  /* 助日「为什么助」：由已算的助日标记 + 表内口诀逐条说明 */
+  private toggleZhuri(): void {
+    this.zhuriOpen = !this.zhuriOpen;
+    if (this.zhuriOpen && this.chart) {
+      this.zhuriLines = ReadXiang.zhuriWhy(this.cur());
     }
   }
 
@@ -1037,8 +1067,20 @@ struct Index {
               } else {
                 this.pickCustomZhi(z, layer);
               }
+              /* 同一次点击顺带开宫情速查卡（不改变上面的取用行为） */
+              this.openPalaceCard(z);
             }
           })
+          if (this.cardOpen && this.cardRows.length > 0) {
+            PalaceCard({
+              title: this.cardTitle,
+              rows: this.cardRows,
+              onClose: () => {
+                this.cardOpen = false;
+              }
+            })
+              .margin({ top: 8 })
+          }
           if (this.zhonghuangMode === '中黄') {
             Row({ space: 12 }) {
               Row({ space: 3 }) {
@@ -1245,6 +1287,30 @@ struct Index {
         InfoRow({ label: '月将', value: this.yjText(), tone: 'plain' })
         InfoRow({ label: '月将助日', value: this.cur().dx.yuejiang.zhu ? '助' : '不助', tone: this.cur().dx.yuejiang.zhu ? 'gold' : 'plain' })
         InfoRow({ label: '贵人助日', value: this.cur().dx.guiren.zhu ? '助' : '不助', tone: this.cur().dx.guiren.zhu ? 'gold' : 'plain' })
+        Text(this.zhuriOpen ? '收起助日缘由 ▴' : '为什么？· 看助日缘由 ▾')
+          .fontSize(10)
+          .fontColor('#C4A25C')
+          .width('100%')
+          .padding({ top: 2, bottom: 2 })
+          .onClick(() => {
+            this.toggleZhuri();
+          })
+        if (this.zhuriOpen) {
+          ForEach(this.zhuriLines, (t: string) => {
+            Text(t)
+              .fontSize(11)
+              .lineHeight(17)
+              .fontColor('#C4B183')
+              .width('100%')
+          }, (t: string) => 'zr' + t)
+          if (ReadXiangData.zhuriKouJue !== '') {
+            Text('原文口诀：' + ReadXiangData.zhuriKouJue)
+              .fontSize(10)
+              .lineHeight(16)
+              .fontColor('#B8A97F')
+              .width('100%')
+          }
+        }
       }
       .width('100%')
       .padding(12)

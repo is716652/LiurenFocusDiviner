@@ -25,6 +25,7 @@ import type {
   YueJiangSeg
 } from './LiurenCore';
 import { RuleHealth } from './RuleHealth';
+import { ReadXiangData } from './ReadXiangData';
 
 /* 组装后的 duxiang 扩展形态（在 DuxiangRulesRaw 基础上附带三个气机规则段，供读象扩展用） */
 interface DuxiangRulesExt extends DuxiangRulesRaw {
@@ -275,6 +276,23 @@ export class DataLoader {
     DataLoader.report('qijidian', DataLoader.countKeys(qjParsed), [], qjParsed);
     DataLoader.report('kongwang', DataLoader.countKeys(kxParsed), [], kxParsed);
     DataLoader.report('zhuri', DataLoader.countKeys(zrParsed), [], zrParsed);
+
+    /* 读象数据摊平（§14.4 点宫速查卡）：ArkTS 禁止对未声明/嵌套值下标，故在**读取阶段**一次摊平，
+       之后的 UI 只碰 Record<string, Record<string, string>>（ArkTS 允许 Record 下标）。 */
+    const rsQiji = (qjParsed['十二宫'] || {}) as Record<string, Record<string, string>>;
+    const rsKongOps = (kxParsed['三种操作'] || {}) as Record<string, Record<string, string>>;
+    const rsKongSu = (kxParsed['气机宫速用'] || {}) as Record<string, Record<string, string>>;
+    const rsYueJiang = (zrParsed['月将'] || {}) as Record<string, Object>;
+    const rsKouJue = rsYueJiang['口诀'] !== undefined ? (rsYueJiang['口诀'] as string) : '';
+    const rsQijiKj = qjParsed['一句背'] !== undefined ? (qjParsed['一句背'] as string) : '';
+    const rsHeKj = qjParsed['合宫一句背'] !== undefined ? (qjParsed['合宫一句背'] as string) : '';
+    ReadXiangData.fill(rsQiji, rsKongOps, rsKongSu, rsKouJue, rsQijiKj, rsHeKj);
+    ReadXiangData.fillBasics(
+      (wsParsed['旺衰'] || {}) as Record<string, Record<string, string>>,
+      (jcParsed['六冲'] || {}) as Record<string, string>,
+      (jcParsed['六合'] || {}) as Record<string, string>,
+      (jcParsed['六害'] || {}) as Record<string, string>,
+      (jcParsed['三刑'] || {}) as Record<string, string[]>);
     const shensha: ShenshaRulesRaw = {
       "神煞": ssParsed["神煞"] as Record<string, ShenshaRuleRaw>
     };
