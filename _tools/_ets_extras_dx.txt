@@ -81,3 +81,210 @@
       };
       return out;
     }
+    static qijiReading(c: Chart, tianZhi: string): Record<string, string> {
+      const out: Record<string, string> = {};
+      out.gong = ""; out.side = ""; out.oneLine = ""; out.chongGong = ""; out.heLine = "";
+      out.benGongLiuHe = ""; out.sanHeJu = ""; out.yanChang = "";
+      out.kongState = ""; out.kongNote = ""; out.kongEffect = ""; out.text = ""; out.note = "";
+      const qj = LrDx.QIJI_GONG[c.r.dg] || {};
+      const gong: string = qj[tianZhi] || "";
+      if (gong === "") {
+        out.note = "该支不在日干气机十二宫之内（气机表未覆盖）";
+        return out;
+      }
+      out.gong = gong;
+      const gi: number = LrBase.GAN.indexOf(c.r.dg);
+      const yangGan: boolean = gi >= 0 && gi % 2 === 0;   /* 甲丙戊庚壬为阳 */
+      out.side = yangGan ? "阳干顺" : "阴干逆";
+      const qjTop = LiurenCore.rules.duxiang.十二宫气机点;
+      const rows = qjTop === undefined ? {} as Record<string, Record<string, string>>
+        : qjTop["十二宫"] as Record<string, Record<string, string>>;
+      const row: Record<string, string> | undefined = rows[gong];
+      if (row === undefined) {
+        out.note = "气机点表未加载：该宫象义不可用（盘仍照旧排出）";
+      } else {
+        out.oneLine = yangGan ? (row["阳干顺"] || "") : (row["阴干逆"] || "");
+        out.chongGong = row["冲宫"] || "";
+        out.heLine = yangGan ? (row["合阳"] || "") : (row["合阴"] || "");
+        out.benGongLiuHe = row["本宫六合"] || "";
+        out.sanHeJu = row["三合局"] || "";
+        out.yanChang = row["延长带象义"] || "";
+      }
+      /* 空亡三态：同宫空亡 / 冲空 可由盘上算出；填实依赖流年流月流日，盘上不预判 → 只作条件说明 */
+      const nd: NodeState = c.dx.nodes[tianZhi] || LrDx.EMPTY_NODE;
+      const gx: JiChuSection = LiurenCore.rules.duxiang["基础关系"] || {};
+      const chongMap: Record<string, string> = gx["六冲"] || {};
+      const chongZhi: string = chongMap[tianZhi] || "";
+      const chongNd: NodeState = chongZhi === "" ? LrDx.EMPTY_NODE : (c.dx.nodes[chongZhi] || LrDx.EMPTY_NODE);
+      let kongState: string = "";
+      if (nd.kong) {
+        kongState = "同宫空亡";
+      } else if (chongZhi !== "" && chongNd.kong) {
+        kongState = "冲空";
+      }
+      out.kongState = kongState;
+      const kxTop = LiurenCore.rules.duxiang.空亡规则;
+      const ops = kxTop === undefined ? {} as Record<string, Record<string, string>>
+        : kxTop["三种操作"] as Record<string, Record<string, string>>;
+      const su = kxTop === undefined ? {} as Record<string, Record<string, string>>
+        : kxTop["气机宫速用"] as Record<string, Record<string, string>>;
+      const suRow: Record<string, string> | undefined = su[gong];
+      if (kongState === "同宫空亡") {
+        const op = ops["同宫空亡"] || {};
+        out.kongEffect = op["对气机影响"] || "";
+        out.kongNote = suRow ? (suRow["同宫空亡"] || "") : (op["现场一句"] || "");
+      } else if (kongState === "冲空") {
+        const op = ops["冲空亡"] || {};
+        out.kongEffect = op["对气机影响"] || "";
+        out.kongNote = suRow ? (suRow["冲空"] || "") : (op["现场一句"] || "");
+      } else {
+        out.kongNote = "该气机点未见空亡（填实需俟流年/流月/流日补足该支，盘上不预判）";
+      }
+      /* 我方盘面陈述：只讲关系，不讲结局 */
+      const parts: string[] = [];
+      parts.push(out.gong + "宫（" + out.side + "）");
+      if (out.benGongLiuHe !== "") { parts.push("本宫六合 " + out.benGongLiuHe); }
+      if (out.sanHeJu !== "") { parts.push("三合局 " + out.sanHeJu); }
+      parts.push(nd.kong ? "该支旬空" : "该支不空");
+      if (chongZhi !== "") { parts.push("冲支 " + chongZhi + (chongNd.kong ? "（亦空）" : "")); }
+      if (kongState !== "") { parts.push("空亡态 " + kongState); }
+      out.text = parts.join(" · ");
+      return out;
+    }
+    static zhuriWhy(c: Chart): Record<string, string> {
+      const out: Record<string, string> = {};
+      out.yueJiang = ""; out.guiRen = ""; out.kouJue = ""; out.text = ""; out.note = "";
+      const zrTop = LiurenCore.rules.duxiang.助日规则;
+      if (zrTop === undefined || Object.keys(zrTop).length === 0) {
+        out.note = "助日规则表未加载：助日缘由不可用（盘仍照旧排出）";
+        return out;
+      }
+      const yjTbl = zrTop["月将"] as Record<string, Object>;
+      const grTbl = zrTop["贵人"] as Record<string, Object>;
+      const ys: YueJiangStateDx = c.dx.yuejiang;
+      const yjHit: string[] = [];
+      if (ys.linGan) { yjHit.push("临日干上神"); }
+      if (ys.shengGan) { yjHit.push("生扶日干"); }
+      if (ys.faYong) { yjHit.push("发用入三传"); }
+      if (ys.wangShuai === "旺" || ys.wangShuai === "相") { yjHit.push("乘" + ys.wangShuai + "气"); }
+      const yjBad: string[] = [];
+      if (ys.keGan) { yjBad.push("克日干"); }
+      if (ys.kong) { yjBad.push("旬空"); }
+      out.yueJiang = "月将" + ys.zhi + "（" + ys.gong + "宫）："
+        + (yjHit.length > 0 ? "中 " + yjHit.join("、") : "未中助日条件")
+        + (yjBad.length > 0 ? "；见 " + yjBad.join("、") : "")
+        + " → " + (ys.zhu ? "助日" : "不助日");
+      const gr: GuirenStateDx = c.dx.guiren;
+      const grHit: string[] = [];
+      if (gr.linGan) { grHit.push("临日干上神"); }
+      if (gr.shengGan) { grHit.push("生扶日干"); }
+      if (gr.faYong) { grHit.push("发用入三传"); }
+      if (gr.wangShuai === "旺" || gr.wangShuai === "相") { grHit.push("乘" + gr.wangShuai + "气"); }
+      const grBad: string[] = [];
+      if (gr.keGan) { grBad.push("克日干"); }
+      if (gr.kong) { grBad.push("旬空"); }
+      if (gr.wangShuai === "死" || gr.wangShuai === "囚") { grBad.push("乘" + gr.wangShuai + "气"); }
+      out.guiRen = "贵人临" + gr.zhi + "宫："
+        + (grHit.length > 0 ? "中 " + grHit.join("、") : "未中助日条件")
+        + (grBad.length > 0 ? "；见 " + grBad.join("、") : "")
+        + " → " + (gr.zhu ? "助日" : "不助日");
+      const kj = yjTbl["口诀"] as string | undefined;
+      if (kj !== undefined && kj !== "") {
+        out.kouJue = kj;
+      }
+      out.text = out.yueJiang + " ｜ " + out.guiRen;
+      return out;
+    }
+    static readXiangCard(c: Chart, gongOrZhi: string, yongShenZhi: string): Record<string, string>[] {
+      const rows: Record<string, string>[] = [];
+      const pl: PalaceLookup = LrDx.palaceLookup(c, gongOrZhi, yongShenZhi);
+      if (pl.gong === "") {
+        rows.push(LrDx.cardRow("地盘宫", "该值不是合法地支，无法查宫", "", "warn"));
+        return rows;
+      }
+      /* 此宫：盘上事实（宫 · 天盘支 · 五行阴阳 · 角色） */
+      rows.push(LrDx.cardRow("此宫",
+        "地盘" + pl.gong + "宫 · 天盘" + pl.tianZhi + "（" + pl.wuXing + pl.yinYang + "）· " + pl.role.text,
+        "", "gold"));
+      /* 远景：旺衰背景（读 wangT()，缺表则说明未加载） */
+      const wsAll: Record<string, Record<string, string>> = LrDx.wangT();
+      const wsRow: Record<string, string> | undefined = wsAll[c.r.dg];
+      const ws: string = wsRow === undefined ? "" : (wsRow[pl.tianZhi] || "");
+      rows.push(LrDx.cardRow("远景",
+        ws === "" ? "旺衰表未加载：该支旺衰不可用（盘仍照旧排出）" : ("日干" + c.r.dg + "在此支为「" + ws + "」"),
+        "", ws === "" ? "warn" : "plain"));
+      /* 中景：冲 / 合 / 害 / 刑 / 空（读基础关系表，Declaration 见 types.ts） */
+      /* 冲/合/害/刑直接用引擎**已算好**的 c.dx.relations（Record<string, Relation>）：
+         取法是「Record 下标 + 字段访问」，ArkTS 完全允许；不再去下标 JiChuSection
+         （那会被 arkts-no-props-by-index 拒绝 —— 本轮实测，见 Agent.md §9 配方）。 */
+      const rel0 = c.dx.relations[pl.tianZhi];
+      const rel: string[] = [];
+      const chongZhi: string = rel0 === undefined || rel0.chong === null ? "" : rel0.chong;
+      if (chongZhi !== "") {
+        const cnd: NodeState = c.dx.nodes[chongZhi] || LrDx.EMPTY_NODE;
+        rel.push("冲 " + chongZhi + (cnd.kong ? "（该支空）" : ""));
+      }
+      const heZhi: string = rel0 === undefined || rel0.he === null ? "" : rel0.he;
+      if (heZhi !== "") { rel.push("六合 " + heZhi); }
+      const haiZhi: string = rel0 === undefined || rel0.hai === null ? "" : rel0.hai;
+      if (haiZhi !== "") { rel.push("害 " + haiZhi); }
+      const xingArr: string[] = rel0 === undefined ? [] : rel0.xing;
+      if (xingArr.length > 0) { rel.push("刑 " + xingArr.join("、")); }
+      rel.push(pl.kong ? "旬空" : "不空");
+      rows.push(LrDx.cardRow("中景", rel.join(" · "), "", pl.kong ? "warn" : "plain"));
+      /* 近景：与日干 / 用神 / 乘将 / 遁干 */
+      const near: string[] = [];
+      near.push("与日干" + pl.relToRiGan + "（" + pl.liuQin + "）");
+      if (pl.relToYongShen !== "") { near.push("与用神" + pl.relToYongShen); }
+      if (pl.jiang !== "") { near.push("乘" + pl.jiang); }
+      if (pl.dun !== "") { near.push("旬遁" + pl.dun); }
+      if (pl.dunRi !== "") { near.push("日遁" + pl.dunRi); }
+      rows.push(LrDx.cardRow("近景", near.join(" · "), "", "plain"));
+      if (pl.shensha.length > 0) {
+        rows.push(LrDx.cardRow("神煞", pl.shensha.join("、"), "", "plain"));
+      }
+      /* 气机点：宫位 × 表内象义 / 冲宫 / 合宫 / 三合 × 空亡三态，原文单独成行 */
+      const qr: Record<string, string> = LrDx.qijiReading(c, pl.tianZhi);
+      if (qr.gong !== "") {
+        const own: string[] = [];
+        own.push("气机宫位「" + qr.gong + "」（" + qr.side + "）");
+        if (qr.chongGong !== "") { own.push("冲宫 " + qr.chongGong); }
+        if (qr.benGongLiuHe !== "") { own.push("本宫六合 " + qr.benGongLiuHe); }
+        if (qr.sanHeJu !== "") { own.push("三合局 " + qr.sanHeJu); }
+        if (qr.kongState !== "") {
+          own.push("空亡态 " + qr.kongState + (qr.kongEffect !== "" ? "：" + qr.kongEffect : ""));
+        } else {
+          own.push("未见空亡（填实需俟流年/流月/流日补足该支，盘上不预判）");
+        }
+        /* 缺表/未覆盖：宫位名虽可由定法算出，但象义不可用 —— 必须写在行内，不得静默（§14.2）。
+           （自检断言 R7 抓出：原判据只看 gong 非空，于是缺表时该行既无象义也无说明。） */
+        if (qr.note !== "") {
+          own.push(qr.note);
+        }
+        rows.push(LrDx.cardRow("气机点", own.join(" · "), "", qr.note !== "" ? "warn" : "gold"));
+        const src: string[] = [];
+        if (qr.oneLine !== "") { src.push(qr.oneLine); }
+        if (qr.heLine !== "") { src.push(qr.heLine); }
+        if (qr.yanChang !== "") { src.push(qr.yanChang); }
+        if (qr.kongNote !== "") { src.push(qr.kongNote); }
+        if (src.length > 0) {
+          rows.push(LrDx.cardRow("原文", "", src.join(" ｜ "), "plain"));
+        }
+      } else {
+        rows.push(LrDx.cardRow("气机点",
+          qr.note !== "" ? qr.note : "该支不在日干气机十二宫之内", "", qr.note !== "" ? "warn" : "plain"));
+      }
+      /* 收梢：一句盘面陈述（与 qijiReading 的 text 同格式，便于两端口径核对） */
+      if (qr.text !== "") {
+        rows.push(LrDx.cardRow("此宫一句", qr.text, "", "plain"));
+      }
+      return rows;
+    }
+    static cardRow(label: string, text: string, source: string, tone: string): Record<string, string> {
+      const r: Record<string, string> = {};
+      r["label"] = label;
+      r["text"] = text;
+      r["source"] = source;
+      r["tone"] = tone;
+      return r;
+    }

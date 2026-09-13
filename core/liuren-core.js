@@ -1414,7 +1414,7 @@ class LrDx {
         const gi = LrBase.GAN.indexOf(c.r.dg);
         const yangGan = gi >= 0 && gi % 2 === 0; /* 甲丙戊庚壬为阳 */
         out.side = yangGan ? "阳干顺" : "阴干逆";
-        const qjTop = LiurenCore.rules.duxiang["十二宫气机点"];
+        const qjTop = LiurenCore.rules.duxiang.十二宫气机点;
         const rows = qjTop === undefined ? {}
             : qjTop["十二宫"];
         const row = rows[gong];
@@ -1443,7 +1443,7 @@ class LrDx {
             kongState = "冲空";
         }
         out.kongState = kongState;
-        const kxTop = LiurenCore.rules.duxiang["空亡规则"];
+        const kxTop = LiurenCore.rules.duxiang.空亡规则;
         const ops = kxTop === undefined ? {}
             : kxTop["三种操作"];
         const su = kxTop === undefined ? {}
@@ -1489,7 +1489,7 @@ class LrDx {
         out.kouJue = "";
         out.text = "";
         out.note = "";
-        const zrTop = LiurenCore.rules.duxiang["助日规则"];
+        const zrTop = LiurenCore.rules.duxiang.助日规则;
         if (zrTop === undefined || Object.keys(zrTop).length === 0) {
             out.note = "助日规则表未加载：助日缘由不可用（盘仍照旧排出）";
             return out;

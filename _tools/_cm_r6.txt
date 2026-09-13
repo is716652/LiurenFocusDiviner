@@ -1,0 +1,18 @@
+refactor(core): 三处 rules.duxiang 读取改为点访问（接口用点、Record 用括号）——为 ArkTS 镜像铺路
+
+本轮排查结论（ArkTS 的 arkts-no-props-by-index 到底禁什么）：
+- 生成的 .ets 里**从来不用方括号**读 rules.duxiang：它写的是 `LiurenCore.rules.duxiang.旺衰休囚死`、
+  `LiurenCore.rules.duxiang.基础关系`（点访问，中文键在 TS 里是合法标识符）——都编译通过；
+- 而组件化后新增的接口走「extras 片段原样追加」，**不过限定符改写**，于是我之前在真源里写的
+  方括号 `rules.duxiang["十二宫气机点"]` 直接撞上禁令。
+- 判据：**接口类型用点访问；Record 类型才用方括号**（Record 的下标是被允许的，例如 c.tp[gong]、c.dx.relations[z]）。
+
+本次改动：core/liuren/pan/dx.ts 三处 `rules.duxiang["…"]` → `.十二宫气机点` / `.空亡规则` / `.助日规则`，
+使 .ts 与 .ets 文本一致（也便于将来的三端同构抽查）。行为不变。
+
+ArkTS 镜像仍未通过（已再次回退到已知可编译状态，两侧 HAP BUILD SUCCESSFUL）：
+- 仍剩 1 处 arkts-no-props-by-index（dx.ets:627 附近，疑为 `Record | undefined` 先 `|| {}` 再下标所致）；
+- 并暴露出 `_ets_split.js` 里存在**第二处**门面转发生成点 —— 同一批转发被生成两遍，报
+  "Duplicate function implementation"（LiurenCore.ets:135-136）。下一轮先定位那个第二生成点，再重做镜像。
+
+回归：32/32 测试全绿；行为快照 185981 条逐条一致；主版与免费版 HAP 均 BUILD SUCCESSFUL。

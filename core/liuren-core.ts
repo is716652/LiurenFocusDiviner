@@ -1823,7 +1823,7 @@ class LrDx {
     const gi: number = LrBase.GAN.indexOf(c.r.dg);
     const yangGan: boolean = gi >= 0 && gi % 2 === 0;   /* 甲丙戊庚壬为阳 */
     out.side = yangGan ? "阳干顺" : "阴干逆";
-    const qjTop = LiurenCore.rules.duxiang["十二宫气机点"];
+    const qjTop = LiurenCore.rules.duxiang.十二宫气机点;
     const rows = qjTop === undefined ? {} as Record<string, Record<string, string>>
       : qjTop["十二宫"] as Record<string, Record<string, string>>;
     const row: Record<string, string> | undefined = rows[gong];
@@ -1850,7 +1850,7 @@ class LrDx {
       kongState = "冲空";
     }
     out.kongState = kongState;
-    const kxTop = LiurenCore.rules.duxiang["空亡规则"];
+    const kxTop = LiurenCore.rules.duxiang.空亡规则;
     const ops = kxTop === undefined ? {} as Record<string, Record<string, string>>
       : kxTop["三种操作"] as Record<string, Record<string, string>>;
     const su = kxTop === undefined ? {} as Record<string, Record<string, string>>
@@ -1883,7 +1883,7 @@ class LrDx {
   static zhuriWhy(c: Chart): Record<string, string> {
     const out: Record<string, string> = {};
     out.yueJiang = ""; out.guiRen = ""; out.kouJue = ""; out.text = ""; out.note = "";
-    const zrTop = LiurenCore.rules.duxiang["助日规则"];
+    const zrTop = LiurenCore.rules.duxiang.助日规则;
     if (zrTop === undefined || Object.keys(zrTop).length === 0) {
       out.note = "助日规则表未加载：助日缘由不可用（盘仍照旧排出）";
       return out;
