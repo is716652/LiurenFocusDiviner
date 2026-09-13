@@ -1076,7 +1076,7 @@ class LrDx {
         /* ---- ② 与太岁关系（流年吉凶） ----
            太岁支 = 今年地支（currentYear 取支）；冲/合查基础关系表，五行生克判吉凶 */
         const taiSuiZhi = Z[((currentYear - 4) % 12 + 12) % 12];
-        const gx = (LiurenCore.rules.duxiang["基础关系"] || {});
+        const gx = LiurenCore.rules.duxiang["基础关系"] || {};
         const chongMap = gx["六冲"] || {};
         const heMap = gx["六合"] || {};
         let tsRel = "";
@@ -1379,6 +1379,181 @@ class LrDx {
             dunShi: LrDungan.dunMap(c.hourGan)[gong] || "",
             role: role
         };
+        return out;
+    }
+    /* ==================== 读象读数（§14.4 点宫速查卡） ====================
+       把三张「已加载但没人读」的表接上盘：
+         · 十二宫气机点：宫位 → 阳干/阴干一句象义、冲宫、合宫、本宫六合、三合局、延长带
+         · 空亡规则：该气机点的空亡三态（同宫空亡 / 冲空 / 填实[条件]）
+         · 助日规则：月将 / 贵人 为何助（命中与违碍逐条列出）
+       纪律：① 只陈述**盘上关系**（宫位/冲/合/三合/空），不下现实结论；
+            ② 口诀与传本条目按【原文】原样给出，不与我们的陈述混写；
+            ③ 缺表如实标注，不造值（§14.2）。纯读盘 + 查表，不改盘、不写状态。 */
+    static qijiReading(c, tianZhi) {
+        const out = {};
+        out.gong = "";
+        out.side = "";
+        out.oneLine = "";
+        out.chongGong = "";
+        out.heLine = "";
+        out.benGongLiuHe = "";
+        out.sanHeJu = "";
+        out.yanChang = "";
+        out.kongState = "";
+        out.kongNote = "";
+        out.kongEffect = "";
+        out.text = "";
+        out.note = "";
+        const qj = LrDx.QIJI_GONG[c.r.dg] || {};
+        const gong = qj[tianZhi] || "";
+        if (gong === "") {
+            out.note = "该支不在日干气机十二宫之内（气机表未覆盖）";
+            return out;
+        }
+        out.gong = gong;
+        const gi = LrBase.GAN.indexOf(c.r.dg);
+        const yangGan = gi >= 0 && gi % 2 === 0; /* 甲丙戊庚壬为阳 */
+        out.side = yangGan ? "阳干顺" : "阴干逆";
+        const qjTop = LiurenCore.rules.duxiang["十二宫气机点"];
+        const rows = qjTop === undefined ? {}
+            : qjTop["十二宫"];
+        const row = rows[gong];
+        if (row === undefined) {
+            out.note = "气机点表未加载：该宫象义不可用（盘仍照旧排出）";
+        }
+        else {
+            out.oneLine = yangGan ? (row["阳干顺"] || "") : (row["阴干逆"] || "");
+            out.chongGong = row["冲宫"] || "";
+            out.heLine = yangGan ? (row["合阳"] || "") : (row["合阴"] || "");
+            out.benGongLiuHe = row["本宫六合"] || "";
+            out.sanHeJu = row["三合局"] || "";
+            out.yanChang = row["延长带象义"] || "";
+        }
+        /* 空亡三态：同宫空亡 / 冲空 可由盘上算出；填实依赖流年流月流日，盘上不预判 → 只作条件说明 */
+        const nd = c.dx.nodes[tianZhi] || LrDx.EMPTY_NODE;
+        const gx = LiurenCore.rules.duxiang["基础关系"] || {};
+        const chongMap = gx["六冲"] || {};
+        const chongZhi = chongMap[tianZhi] || "";
+        const chongNd = chongZhi === "" ? LrDx.EMPTY_NODE : (c.dx.nodes[chongZhi] || LrDx.EMPTY_NODE);
+        let kongState = "";
+        if (nd.kong) {
+            kongState = "同宫空亡";
+        }
+        else if (chongZhi !== "" && chongNd.kong) {
+            kongState = "冲空";
+        }
+        out.kongState = kongState;
+        const kxTop = LiurenCore.rules.duxiang["空亡规则"];
+        const ops = kxTop === undefined ? {}
+            : kxTop["三种操作"];
+        const su = kxTop === undefined ? {}
+            : kxTop["气机宫速用"];
+        const suRow = su[gong];
+        if (kongState === "同宫空亡") {
+            const op = ops["同宫空亡"] || {};
+            out.kongEffect = op["对气机影响"] || "";
+            out.kongNote = suRow ? (suRow["同宫空亡"] || "") : (op["现场一句"] || "");
+        }
+        else if (kongState === "冲空") {
+            const op = ops["冲空亡"] || {};
+            out.kongEffect = op["对气机影响"] || "";
+            out.kongNote = suRow ? (suRow["冲空"] || "") : (op["现场一句"] || "");
+        }
+        else {
+            out.kongNote = "该气机点未见空亡（填实需俟流年/流月/流日补足该支，盘上不预判）";
+        }
+        /* 我方盘面陈述：只讲关系，不讲结局 */
+        const parts = [];
+        parts.push(out.gong + "宫（" + out.side + "）");
+        if (out.benGongLiuHe !== "") {
+            parts.push("本宫六合 " + out.benGongLiuHe);
+        }
+        if (out.sanHeJu !== "") {
+            parts.push("三合局 " + out.sanHeJu);
+        }
+        parts.push(nd.kong ? "该支旬空" : "该支不空");
+        if (chongZhi !== "") {
+            parts.push("冲支 " + chongZhi + (chongNd.kong ? "（亦空）" : ""));
+        }
+        if (kongState !== "") {
+            parts.push("空亡态 " + kongState);
+        }
+        out.text = parts.join(" · ");
+        return out;
+    }
+    /* 助日缘由（读 助日规则 表）：月将 / 贵人 逐条列出「命中什么、违碍什么」，并附原文口诀 */
+    static zhuriWhy(c) {
+        const out = {};
+        out.yueJiang = "";
+        out.guiRen = "";
+        out.kouJue = "";
+        out.text = "";
+        out.note = "";
+        const zrTop = LiurenCore.rules.duxiang["助日规则"];
+        if (zrTop === undefined || Object.keys(zrTop).length === 0) {
+            out.note = "助日规则表未加载：助日缘由不可用（盘仍照旧排出）";
+            return out;
+        }
+        const yjTbl = zrTop["月将"];
+        const grTbl = zrTop["贵人"];
+        const ys = c.dx.yuejiang;
+        const yjHit = [];
+        if (ys.linGan) {
+            yjHit.push("临日干上神");
+        }
+        if (ys.shengGan) {
+            yjHit.push("生扶日干");
+        }
+        if (ys.faYong) {
+            yjHit.push("发用入三传");
+        }
+        if (ys.wangShuai === "旺" || ys.wangShuai === "相") {
+            yjHit.push("乘" + ys.wangShuai + "气");
+        }
+        const yjBad = [];
+        if (ys.keGan) {
+            yjBad.push("克日干");
+        }
+        if (ys.kong) {
+            yjBad.push("旬空");
+        }
+        out.yueJiang = "月将" + ys.zhi + "（" + ys.gong + "宫）："
+            + (yjHit.length > 0 ? "中 " + yjHit.join("、") : "未中助日条件")
+            + (yjBad.length > 0 ? "；见 " + yjBad.join("、") : "")
+            + " → " + (ys.zhu ? "助日" : "不助日");
+        const gr = c.dx.guiren;
+        const grHit = [];
+        if (gr.linGan) {
+            grHit.push("临日干上神");
+        }
+        if (gr.shengGan) {
+            grHit.push("生扶日干");
+        }
+        if (gr.faYong) {
+            grHit.push("发用入三传");
+        }
+        if (gr.wangShuai === "旺" || gr.wangShuai === "相") {
+            grHit.push("乘" + gr.wangShuai + "气");
+        }
+        const grBad = [];
+        if (gr.keGan) {
+            grBad.push("克日干");
+        }
+        if (gr.kong) {
+            grBad.push("旬空");
+        }
+        if (gr.wangShuai === "死" || gr.wangShuai === "囚") {
+            grBad.push("乘" + gr.wangShuai + "气");
+        }
+        out.guiRen = "贵人临" + gr.zhi + "宫："
+            + (grHit.length > 0 ? "中 " + grHit.join("、") : "未中助日条件")
+            + (grBad.length > 0 ? "；见 " + grBad.join("、") : "")
+            + " → " + (gr.zhu ? "助日" : "不助日");
+        const kj = yjTbl["口诀"];
+        if (kj !== undefined && kj !== "") {
+            out.kouJue = kj;
+        }
+        out.text = out.yueJiang + " ｜ " + out.guiRen;
         return out;
     }
 }
@@ -2550,6 +2725,8 @@ class LiurenCore {
     static withDx(c, dx) { return LrDx.withDx(c, dx); }
     /* ---------------- 点宫速查：只读接口（实现：pan/dx） ---------------- */
     static palaceLookup(c, gongOrZhi, yongShenZhi) { return LrDx.palaceLookup(c, gongOrZhi, yongShenZhi); }
+    static qijiReading(c, tianZhi) { return LrDx.qijiReading(c, tianZhi); }
+    static zhuriWhy(c) { return LrDx.zhuriWhy(c); }
 }
 /* ---------------- 常量表（实现已搬入各模块；此处按原样再暴露一份，对外 API 不变） ----------------
    值与原实现同一引用：改规则请到归属模块改，门面只绑定。 */

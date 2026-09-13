@@ -143,4 +143,6 @@ class LiurenCore {
   static withDx(c: ChartCore, dx: Duxiang): Chart { return LrDx.withDx(c, dx); }
   /* ---------------- 点宫速查：只读接口（实现：pan/dx） ---------------- */
   static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup { return LrDx.palaceLookup(c, gongOrZhi, yongShenZhi); }
+  static qijiReading(c: Chart, tianZhi: string): Record<string, string> { return LrDx.qijiReading(c, tianZhi); }
+  static zhuriWhy(c: Chart): Record<string, string> { return LrDx.zhuriWhy(c); }
 }
