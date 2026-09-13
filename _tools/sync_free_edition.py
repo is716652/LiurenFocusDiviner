@@ -167,6 +167,17 @@ def is_ignored(rel):
     return False
 
 
+def _temp_root():
+    """干跑用的临时根目录：**优先仓库内**（受限沙箱常禁止写系统临时目录，会假报「不同步」），
+    仓库内不可写时再回退系统临时目录。返回值只影响临时目录位置，不影响判定规则。"""
+    cand = os.path.join(ROOT, '.tmp')
+    try:
+        os.makedirs(cand, exist_ok=True)
+        return cand
+    except OSError:
+        return tempfile.gettempdir()
+
+
 def _scan(base):
     """扫描「同步面」：按同步自己的排除规则剪枝（构建产物/IDE 状态不参与比对），
     并容忍扫描期间被并发删除的文件（hvigor/Nutstore 会动 build 下的东西）。
@@ -192,7 +203,7 @@ def diff_against(dst=None):
     dst = dst or DST
     if not os.path.isdir(dst):
         return ['免费版目录不存在: ' + dst]
-    tmp = tempfile.mkdtemp(prefix='free_check_')
+    tmp = tempfile.mkdtemp(prefix='free_check_', dir=_temp_root())
     try:
         # 干跑只用于判定：抑制同步过程自身的日志，避免污染判定方的输出
         with contextlib.redirect_stdout(io.StringIO()):

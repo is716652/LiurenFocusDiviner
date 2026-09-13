@@ -1,8 +1,8 @@
 # Agent.md —— LargeLiuRen Design 项目交接与实施手册
 
 > 写给后续 AI / 开发者：先读这份，再动代码。  
-> 最近更新：2026-09-12（引擎组件化落地，§9/§10/§13/§14 已按新口径订正）  
-> 本文档更新前 main HEAD：`621e2be feat(gallery): 中黄五变经 5 案补全 reasoning 证据链`
+> 最近更新：2026-09-13（引擎组件化 → 读数装配收口「引擎出数 / App 出呈现」→ 真机反馈修复 → 发布链路加固）  
+> 本文档更新前 main HEAD：`cddd1e0 工程链路加固：免费版同步的单一真源 + 打包门禁前置`
 
 ---
 
@@ -154,10 +154,19 @@
 
 - 远程：`git@github.com:is716652/LiurenFocusDiviner.git`
 - 分支：`main`
-- 本文档更新前 HEAD：`621e2be`
+- 本文档更新前 HEAD：`cddd1e0`
 
-最近关键提交线：
+最近关键提交线（新在上）：
 
+- `cddd1e0` 发布链路加固：免费版同步单一真源（`sync_free_edition.py --check`）+ 打包门禁前置与覆盖前自动归档
+- `a7fe9e9` 真机反馈修复：宫情卡 `ForEach` 键改内容派生（换宫不刷新）+ 点盘不再自动弹抓用神
+- `865be4f` 读数装配收口：引擎单一真源，App 只呈现（删 App 侧 `ReadXiang.ets`/`ReadXiangData.ets` 与摊平层）
+- `3df187c` / `22869a5` 速查卡行装配收回引擎（`readXiangCard` + R7/R8 断言）与「接口用点、Record 用括号」修形
+- `a9d4acd` 点宫速查卡（远景→中景→近景→气机点→收梢）+ 助日「为什么助」ArkTS 侧走通
+- `984dd58` / `6cb895e` 读象读数接线（气机点×qiJi / 空亡三态 / 助日缘由）+ 产物按流水线归一
+- `1810c2f` / `e8de5ab` 合规措辞门禁（C1 八字语汇 / C2 算命占卜类词 / C3 出处纪律）与三处整改
+- `24dda56` / `40b6629` web 原型十二宫定位修复 + 速查卡「原文」对比度达标（配色门禁所抓）
+- `8fa7cde` 读象数据覆盖度与内容鉴定报告（11 份文档 × 14 张表）
 - `621e2be` 中黄五变经 5 案补全 reasoning 证据链
 - `eafc71e` 案例按来源日课分组并支持占类筛选
 - `734aba1` 壬占汇选戊辰日入库（安全 tag 前）
@@ -502,6 +511,7 @@ python _tools/sync_free_edition.py --check   # 【只判定】同一套规则干
                                        #   缺 / 多 / 内容不同 都报；**不写工作区**；无白名单（规则即真源）
 python _tools/verify_free_edition.py   # 硬断言：收费数据不得在 + 免费数据必须全 + rawfile 与主版逐文件比对
                                        #   + 【源码/配置树 = 主版 + 差异规则】（判定复用 sync，不另写清单）
+```
 
 ### 免费版同步纪律（2026-09-13，一次静默漂移换来的）
 
@@ -513,7 +523,6 @@ python _tools/verify_free_edition.py   # 硬断言：收费数据不得在 + 免
 2. **差异规则只住 `sync_free_edition.py` 一处。** 判定方（verify / 打包脚本）只**调用**
    `sync_free_edition.diff_against()` 或 `--check`，**不得另写白名单/允许差异清单** ——
    那会变成第二处规则真源，规则一改判定就漂移。
-```
 
 ### 包内实证（.app → .hap → rawfile）
 
@@ -588,24 +597,24 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
    - `ForEach` 回调最好显式写类型。
    - 中文 key 可点访问，但接口要先定义。
 
-3. **核心字段名**
+4. **核心字段名**
    - JS 核心里是 `c.kegs`，不是 `c.sike`。
    - 三传项是 `{ z, gz }`，天将要经 `jiangMap[gongOf(tp,z)]` 反查。
 
-4. **案例 input 字段**
+5. **案例 input 字段**
    - 必须是 `mj/dg/dz/hour`，月份用 `monthZhi`；可选年干支用 `yearGan/yearZhi`。
    - 不要写成 `yueJiang/dayGan/dayZhi/mz/yg/yz`。
 
-5. **免费版**
+6. **免费版**
    - 免费版是生成产物，任何改动必须先改主版，再跑 sync/verify。
    - 免费版当前不是“隐藏中黄”，而是“全功能开放无锁，只隐藏案例鉴赏入口”。
 
-6. **构建命令**
+7. **构建命令**
    - 项目内没有本地 `hvigorw.bat`，必须用全路径：`D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat`。
    - hvigor 打了 WARN 时进程可能仍返回非 0，但会打印 `BUILD SUCCESSFUL`；
      判断构建是否真的成功，看产物时间戳（`entry/build/default/outputs/default/entry-default-signed.hap`）。
 
-7. **应用市场对比度自检（1.0.2 被卡在这里）**
+8. **应用市场对比度自检（1.0.2 被卡在这里）**
    - 要求：图标/标题文字 > 3:1，正文文字 > 4.5:1，且**系统浅色模式下同样量测**。
    - 深色主题最容易踩线的是「弱化文字」那一档（`#5A4F3D` 实测 1.82:1 =
      毕法赋卡下合规提示）；次要文字 `#8A7B5C`(4.02)、`#6B5F45`(2.64) 也不达标。
@@ -613,7 +622,7 @@ D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode
      改配色**不能全库替换色值**，务必按容器分别处理。
    - 改完必跑：`node _tools/contrast_audit.js`，要求 0 处低于 4.5:1。
 
-8. **页签导航（1.0.3 审核反馈）**
+9. **页签导航（1.0.3 审核反馈）**
    - 页签不要写「进入用 pushUrl、回排盘用 back()」：反复切换会把页面栈堆起来，回不到排盘页。
    - 统一走 `model/NavUtil.ets` 的 `goTab / goTabWith`（栈里有就 `back(index)`，没有才 `pushUrl`）。
    - `back({ url })` 不是可靠写法：栈里没有该页时**不响应**（等于没点）；
@@ -950,7 +959,8 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 - 行为快照 `node _tools/_core_snapshot.js`：**185981 条规范化输出逐条一致** ✓（总哈希
   `f2a02d139a053ff7c820d8483eb2de923fc6e5159053c6987ac2eff8ed273aa1` 未变）；
 - 对外 API `node _tools/_api_parity.js`：与 tag `v1.0.4-pre-componentize` 产物比对 **0 缺失**（只增不改：新增 `buildSiKe`/`ruleHealth`/`missingRules`/`palaceLookup` + 16 项模块类暴露；常量 31 项全一致）✓；
-- **25 个测试全绿**；`node _tools/build_core.js --check` 报「与真源一致 ✓」；
+- **34 个测试全绿**（`_tests/_test_*.js`；含 `_test_readxiang_single_source.js` 单一真源门禁与
+  `_test_ui_foreach_key.js` ForEach 键门禁）；`node _tools/build_core.js --check` 报「与真源一致 ✓」；
 - 两侧 HAP **BUILD SUCCESSFUL**（主版 + 免费版）。
 
 **真源基线 tag**：`v1.0.4-pre-componentize`（两侧切片脚本都从它取单体基线）。

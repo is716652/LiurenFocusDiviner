@@ -46,26 +46,46 @@ function prepare() {
     const base = path.basename(rel).replace(/\.ets$/, '.ts');
     fs.writeFileSync(path.join(TMP, base), src);
   }
-  const tsc = path.join(ROOT, 'node_modules', '.bin', 'tsc');
-  const cmd = fs.existsSync(tsc) ? tsc : 'npx';
-  const args = fs.existsSync(tsc)
-    ? ['--target', 'ES2017', '--module', 'commonjs', '--skipLibCheck', '--outDir', 'out',
-      'RuleHealth.ts', 'ReasonText.ts']
-    : ['tsc', '--target', 'ES2017', '--module', 'commonjs', '--skipLibCheck', '--outDir', 'out',
-      'RuleHealth.ts', 'ReasonText.ts'];
-  execFileSync(cmd, args, { cwd: TMP, stdio: 'pipe', shell: process.platform === 'win32' });
+  /* 调用 tsc 有三条路，优先「无 shell」的那条（2026-09-13 加固）：
+     1) process.execPath + typescript/bin/tsc —— 不经过 .bin 垫片，也不需要 cmd/shell
+        （受限沙箱/无 shell 环境下更稳；实测本机可用：node typescript/bin/tsc --version → 7.0.2）
+     2) node_modules/.bin/tsc（经 shell；Windows 上会走 .cmd 垫片）
+     3) npx tsc
+     注意：不要用 require.resolve('typescript/bin/tsc') 取路径 —— TS 7 的 package.json exports
+     未导出该子路径，会直接抛 ERR_PACKAGE_PATH_NOT_EXPORTED。 */
+  const FLAGS = ['--target', 'ES2017', '--module', 'commonjs', '--skipLibCheck', '--outDir', 'out',
+    'RuleHealth.ts', 'ReasonText.ts'];
+  const tsEntry = path.join(ROOT, 'node_modules', 'typescript', 'bin', 'tsc');
+  const binShim = path.join(ROOT, 'node_modules', '.bin', 'tsc');
+  let cmd, args;
+  if (fs.existsSync(tsEntry)) { cmd = process.execPath; args = [tsEntry].concat(FLAGS); }
+  else if (fs.existsSync(binShim)) { cmd = binShim; args = FLAGS; }
+  else { cmd = 'npx'; args = ['tsc'].concat(FLAGS); }
+  execFileSync(cmd, args, {
+    cwd: TMP, stdio: 'pipe',
+    shell: (cmd === binShim) && process.platform === 'win32',
+  });
   return {
     health: require(path.join(TMP, 'out', 'RuleHealth.js')),
     reason: require(path.join(TMP, 'out', 'ReasonText.js')),
   };
 }
 
+/* 收尾函数必须在 prepare 之前定义：失败路径也要走它，否则临时目录会残留（2026-09-13 修） */
+const finish = (code, msg) => {
+  try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (e) { /* 忽略 */ }
+  console.log('');
+  console.log(msg);
+  process.exit(code);
+};
+
 let mod;
 try {
   mod = prepare();
 } catch (e) {
-  console.log('准备失败（tsc 编译 .ets→JS）：' + (e.stdout ? e.stdout.toString() : e.message));
-  process.exit(2);
+  finish(2, '准备失败（tsc 编译 .ets→JS）：' + (e.stdout ? e.stdout.toString() : e.message)
+    + '\n  （若在受限沙箱里跑：子进程/管道可能被拒，属环境限制而非工程问题；'
+    + '可先单独确认 node node_modules/typescript/bin/tsc --version 能否输出版本号）');
 }
 const { RuleHealth } = mod.health;
 const { ReasonText, EmptyKind, SlotId } = mod.reason;
@@ -165,14 +185,7 @@ const uiSrc = fs.readFileSync(path.join(ETS, 'pages', 'Index.ets'), 'utf-8');
 truthy(uiSrc.indexOf("RuleHealth.usable('bifa')") >= 0 && uiSrc.indexOf("RuleHealth.usable('shensha')") >= 0
   && uiSrc.indexOf("RuleHealth.usable('xingnian')") >= 0, 'Index 用 usable 判定毕法/神煞/行年栏目可用性');
 
-/* ---------------- 收尾 ---------------- */
-/* 无论成败都要删临时目录：失败路径若直接 process.exit(1) 跳过清理，会留下 _tmp_rulehealth 垃圾 */
-const finish = (code, msg) => {
-  try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (e) { /* 忽略 */ }
-  console.log('');
-  console.log(msg);
-  process.exit(code);
-};
+/* ---------------- 收尾（finish 已在上方定义，两条路径共用，均清理临时目录） ---------------- */
 if (FAIL > 0) {
   finish(1, '数据健康运行期断言：不通过 ✗（' + FAIL + ' 项）');
 }
