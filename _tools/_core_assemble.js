@@ -83,6 +83,15 @@ const ROOT = path.join(__dirname, '..');
     else t = t.replace(/\n\}[ \t]*$/, '\n\n' + ADD + '}\n');
   }
 
+  /* 读象速查卡行装配转发（幂等，独立守卫）—— 与上面两块分开守卫的原因见下：老守卫按"facade 里没有
+     ruleHealth"判断，早已为假，新增接口若挂进那块会被静默跳过（本项目踩过）。 */
+  if (t.indexOf('static readXiangCard(') < 0) {
+    const A3 = '  static zhuriWhy(c: Chart): Record<string, string> { return LrDx.zhuriWhy(c); }';
+    const ADD3 = '  static readXiangCard(c: Chart, gongOrZhi: string, yongShenZhi: string): Record<string, string>[] { return LrDx.readXiangCard(c, gongOrZhi, yongShenZhi); }';
+    if (t.indexOf(A3) >= 0) t = t.replace(A3, A3 + '\n' + ADD3);
+    else t = t.replace(/\n\}[ \t]*$/, '\n\n' + ADD3 + '\n}\n');
+  }
+
   /* 读象读数转发（幂等，独立守卫）：气机点 / 空亡三态 / 助日缘由（实现：pan/dx）
      注：上一块的守卫是「facade 里没有 ruleHealth」，而 facade 早已含 ruleHealth，
      故新增接口必须另立守卫 —— 否则补丁被静默跳过（本项目踩过）。 */

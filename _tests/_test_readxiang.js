@@ -154,6 +154,74 @@ head('[R6] 点宫速查（palaceLookup）不回归');
   truthy(typeof p.role.text === 'string' && p.role.text.length > 0, '角色说明仍在：' + p.role.text);
 }
 
+/* ---------------- R7 速查卡行装配（readXiangCard） ---------------- */
+head('[R7] 速查卡行装配：行序契约 / 气机点与空亡态 / 原文独立成行 / 缺表不静默 / 我方陈述合规');
+{
+  CORE.init(ruleBundle());
+  const c7 = CORE.buildChartAncient('亥', '甲', '子', '午');   /* 甲子日：亥为旬空；甲长生在亥 */
+  /* 注意：palaceLookup/readXiangCard 的入参是**地盘宫**，其气机取自「该宫的天盘支」，
+     故不能拿"亥"当宫来期望"长生" —— 这里按 API 反查：找气机为长生的那个宫。 */
+  const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+  const gongOf = (cc, want) => {
+    const hit = ZHI.filter((g) => CORE.palaceLookup(cc, g, '').qiJi === want);
+    return hit.length > 0 ? hit[0] : '';
+  };
+  const gongChangSheng = gongOf(c7, '长生');
+  truthy(gongChangSheng !== '', '示例盘中存在气机为「长生」的宫：' + gongChangSheng);
+  const rows = CORE.readXiangCard(c7, gongChangSheng, '');
+  const labels = rows.map((r) => r['label']);
+  eq(labels[0], '此宫', '首行为「此宫」');
+  truthy(labels.indexOf('远景') === 1, '第二行为「远景」（旺衰背景）：' + labels.join('/'));
+  truthy(labels.indexOf('中景') > labels.indexOf('远景'), '「中景」在远景之后');
+  truthy(labels.indexOf('近景') > labels.indexOf('中景'), '「近景」在中景之后');
+  truthy(labels.indexOf('气机点') > labels.indexOf('近景'), '「气机点」在近景之后');
+  truthy(labels[labels.length - 1] === '此宫一句', '末行为「此宫一句」：' + labels[labels.length - 1]);
+  const qj = rows.filter((r) => r['label'] === '气机点')[0];
+  has(qj['text'], '长生', '气机点行给出宫位名');
+  has(qj['text'], qj['text'].indexOf('空亡态') >= 0 ? '空亡态' : '未见空亡', '气机点行给出空亡状态说明');
+  const src = rows.filter((r) => r['label'] === '原文')[0];
+  truthy(src !== undefined && src['source'] !== '', '原文单独成行且有内容：' + (src ? src['source'].slice(0, 40) : '（缺失）'));
+  const gist = rows.filter((r) => r['label'] === '此宫一句')[0];
+  const tianZhiAtGong = CORE.palaceLookup(c7, gongChangSheng, '').tianZhi;
+  eq(gist['text'], CORE.qijiReading(c7, tianZhiAtGong)['text'], '末行与 qijiReading(同支).text 逐字一致（同口径）');
+  /* 合规：我方陈述（text 字段）不得含现实结论词 */
+  const BANNED2 = /富贵|升迁|发财|破财|官司|疾病|生死|必|大吉|大凶/;
+  let dirty = '';
+  rows.forEach((r) => { if (r['text'] !== '' && BANNED2.test(r['text'])) { dirty = r['label'] + ' → ' + r['text']; } });
+  if (dirty === '') { ok('各行 text（我方陈述）未见现实结论词'); } else { bad('出现现实结论词：' + dirty); }
+  truthy(rows.every((r) => typeof r['tone'] === 'string' && r['tone'] !== ''), '每行都带 tone（UI 用色）');
+  /* 缺表：气机点行必须说「未加载」，不静默、不造值 */
+  CORE.init({ duxiang: {}, shensha: { '神煞': {} }, bifa: { '一百法': [] } });
+  const c8 = CORE.buildChartAncient('亥', '甲', '子', '午');
+  const g8 = gongOf(c8, '长生');
+  const rows2 = CORE.readXiangCard(c8, g8 === '' ? '子' : g8, '');
+  const qj2 = rows2.filter((r) => r['label'] === '气机点')[0];
+  has(qj2['text'] + qj2['tone'], '未加载', '缺表时气机点行明说未加载：' + qj2['text'].slice(0, 40));
+  const ws2 = rows2.filter((r) => r['label'] === '远景')[0];
+  has(ws2['text'], '未加载', '缺表时远景行明说未加载');
+  CORE.init(ruleBundle());
+  /* 负向：改表 → 卡片输出随之改变（证明真读表） */
+  const b2 = ruleBundle();
+  b2.duxiang['十二宫气机点']['十二宫']['长生']['阳干顺'] = '【哨兵卡】表被改过';
+  CORE.init(b2);
+  const c9 = CORE.buildChartAncient('亥', '甲', '子', '午');
+  const g9 = gongOf(c9, '长生');
+  const src2 = CORE.readXiangCard(c9, g9, '').filter((r) => r['label'] === '原文')[0];
+  has(src2['source'], '【哨兵卡】', '改表后卡片原文行随之改变（真读表）');
+  CORE.init(ruleBundle());
+}
+
+/* ---------------- R8 非法入参不崩、给原因 ─--------------- */
+head('[R8] 非法入参：给一行原因，不抛错');
+{
+  CORE.init(ruleBundle());
+  const c10 = CORE.buildChartAncient('亥', '甲', '子', '午');
+  const rows = CORE.readXiangCard(c10, 'X', '');
+  eq(rows.length, 1, '非法支只返回一行');
+  truthy(rows[0]['tone'] === 'warn', '该行标警示色');
+  truthy(rows[0]['text'].indexOf('不是合法地支') >= 0, '该行说明原因：' + rows[0]['text']);
+}
+
 console.log('');
 if (FAIL > 0) {
   console.log('读象读数断言：不通过 ✗（' + FAIL + ' 项）');

@@ -1925,6 +1925,115 @@ class LrDx {
     return out;
   }
 
+
+  /* ==================== 读象速查卡：行装配（§14.4） ====================
+     返回 Array<Record<string, string>>，每行四个字段：
+       label  行首小标题（此宫 / 远景 / 中景 / 近景 / 神煞 / 气机点 / 此宫一句）
+       text   我方盘面陈述（**只讲盘上关系**，不给现实结论）
+       source 原文引用（空串 = 无；非空由 UI 加「原文」标注）
+       tone   plain | gold | warn
+     分工：本方法只做**行装配**（选哪些行、什么顺序、文案怎么拼）；数据全部来自同文件的
+     palaceLookup（盘上事实）/ qijiReading（气机点 × 空亡三态）/ zhuriWhy（助日缘由），
+     这三者已各自读表并各自在缺表时给出「未加载」说明（§14.2 不造值）。
+     ArkTS 安全：全程只用 Record 下标（禁用 Object 下标与 union 强转 —— 见 Agent.md §9 配方）。 */
+  static readXiangCard(c: Chart, gongOrZhi: string, yongShenZhi: string): Record<string, string>[] {
+    const rows: Record<string, string>[] = [];
+    const pl: PalaceLookup = LrDx.palaceLookup(c, gongOrZhi, yongShenZhi);
+    if (pl.gong === "") {
+      rows.push(LrDx.cardRow("地盘宫", "该值不是合法地支，无法查宫", "", "warn"));
+      return rows;
+    }
+    /* 此宫：盘上事实（宫 · 天盘支 · 五行阴阳 · 角色） */
+    rows.push(LrDx.cardRow("此宫",
+      "地盘" + pl.gong + "宫 · 天盘" + pl.tianZhi + "（" + pl.wuXing + pl.yinYang + "）· " + pl.role.text,
+      "", "gold"));
+    /* 远景：旺衰背景（读 wangT()，缺表则说明未加载） */
+    const wsAll: Record<string, Record<string, string>> = LrDx.wangT();
+    const wsRow: Record<string, string> | undefined = wsAll[c.r.dg];
+    const ws: string = wsRow === undefined ? "" : (wsRow[pl.tianZhi] || "");
+    rows.push(LrDx.cardRow("远景",
+      ws === "" ? "旺衰表未加载：该支旺衰不可用（盘仍照旧排出）" : ("日干" + c.r.dg + "在此支为「" + ws + "」"),
+      "", ws === "" ? "warn" : "plain"));
+    /* 中景：冲 / 合 / 害 / 刑 / 空（读基础关系表，Declaration 见 types.ts） */
+    /* 冲/合/害/刑直接用引擎**已算好**的 c.dx.relations（Record<string, Relation>）：
+       取法是「Record 下标 + 字段访问」，ArkTS 完全允许；不再去下标 JiChuSection
+       （那会被 arkts-no-props-by-index 拒绝 —— 本轮实测，见 Agent.md §9 配方）。 */
+    const rel0 = c.dx.relations[pl.tianZhi];
+    const rel: string[] = [];
+    const chongZhi: string = rel0 === undefined || rel0.chong === null ? "" : rel0.chong;
+    if (chongZhi !== "") {
+      const cnd: NodeState = c.dx.nodes[chongZhi] || LrDx.EMPTY_NODE;
+      rel.push("冲 " + chongZhi + (cnd.kong ? "（该支空）" : ""));
+    }
+    const heZhi: string = rel0 === undefined || rel0.he === null ? "" : rel0.he;
+    if (heZhi !== "") { rel.push("六合 " + heZhi); }
+    const haiZhi: string = rel0 === undefined || rel0.hai === null ? "" : rel0.hai;
+    if (haiZhi !== "") { rel.push("害 " + haiZhi); }
+    const xingArr: string[] = rel0 === undefined ? [] : rel0.xing;
+    if (xingArr.length > 0) { rel.push("刑 " + xingArr.join("、")); }
+    rel.push(pl.kong ? "旬空" : "不空");
+    rows.push(LrDx.cardRow("中景", rel.join(" · "), "", pl.kong ? "warn" : "plain"));
+    /* 近景：与日干 / 用神 / 乘将 / 遁干 */
+    const near: string[] = [];
+    near.push("与日干" + pl.relToRiGan + "（" + pl.liuQin + "）");
+    if (pl.relToYongShen !== "") { near.push("与用神" + pl.relToYongShen); }
+    if (pl.jiang !== "") { near.push("乘" + pl.jiang); }
+    if (pl.dun !== "") { near.push("旬遁" + pl.dun); }
+    if (pl.dunRi !== "") { near.push("日遁" + pl.dunRi); }
+    rows.push(LrDx.cardRow("近景", near.join(" · "), "", "plain"));
+    if (pl.shensha.length > 0) {
+      rows.push(LrDx.cardRow("神煞", pl.shensha.join("、"), "", "plain"));
+    }
+    /* 气机点：宫位 × 表内象义 / 冲宫 / 合宫 / 三合 × 空亡三态，原文单独成行 */
+    const qr: Record<string, string> = LrDx.qijiReading(c, pl.tianZhi);
+    if (qr.gong !== "") {
+      const own: string[] = [];
+      own.push("气机宫位「" + qr.gong + "」（" + qr.side + "）");
+      if (qr.chongGong !== "") { own.push("冲宫 " + qr.chongGong); }
+      if (qr.benGongLiuHe !== "") { own.push("本宫六合 " + qr.benGongLiuHe); }
+      if (qr.sanHeJu !== "") { own.push("三合局 " + qr.sanHeJu); }
+      if (qr.kongState !== "") {
+        own.push("空亡态 " + qr.kongState + (qr.kongEffect !== "" ? "：" + qr.kongEffect : ""));
+      } else {
+        own.push("未见空亡（填实需俟流年/流月/流日补足该支，盘上不预判）");
+      }
+      /* 缺表/未覆盖：宫位名虽可由定法算出，但象义不可用 —— 必须写在行内，不得静默（§14.2）。
+         （自检断言 R7 抓出：原判据只看 gong 非空，于是缺表时该行既无象义也无说明。） */
+      if (qr.note !== "") {
+        own.push(qr.note);
+      }
+      rows.push(LrDx.cardRow("气机点", own.join(" · "), "", qr.note !== "" ? "warn" : "gold"));
+      const src: string[] = [];
+      if (qr.oneLine !== "") { src.push(qr.oneLine); }
+      if (qr.heLine !== "") { src.push(qr.heLine); }
+      if (qr.yanChang !== "") { src.push(qr.yanChang); }
+      if (qr.kongNote !== "") { src.push(qr.kongNote); }
+      if (src.length > 0) {
+        rows.push(LrDx.cardRow("原文", "", src.join(" ｜ "), "plain"));
+      }
+    } else {
+      rows.push(LrDx.cardRow("气机点",
+        qr.note !== "" ? qr.note : "该支不在日干气机十二宫之内", "", qr.note !== "" ? "warn" : "plain"));
+    }
+    /* 收梢：一句盘面陈述（与 qijiReading 的 text 同格式，便于两端口径核对） */
+    if (qr.text !== "") {
+      rows.push(LrDx.cardRow("此宫一句", qr.text, "", "plain"));
+    }
+    return rows;
+  }
+
+  /* 速查卡一行的构造（ArkTS 安全：Record 字面键赋值，不做下标遍历）
+     注：原为 private，因需经生成链镜像到 .ets（抽取按 `static NAME(` 匹配）而提升为 public ——
+     与 §13 那批可见性放宽同性质，非逻辑改动。 */
+  static cardRow(label: string, text: string, source: string, tone: string): Record<string, string> {
+    const r: Record<string, string> = {};
+    r["label"] = label;
+    r["text"] = text;
+    r["source"] = source;
+    r["tone"] = tone;
+    return r;
+  }
+
 }
 
 /* ============================================================================
@@ -3166,4 +3275,5 @@ class LiurenCore {
   static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup { return LrDx.palaceLookup(c, gongOrZhi, yongShenZhi); }
   static qijiReading(c: Chart, tianZhi: string): Record<string, string> { return LrDx.qijiReading(c, tianZhi); }
   static zhuriWhy(c: Chart): Record<string, string> { return LrDx.zhuriWhy(c); }
+  static readXiangCard(c: Chart, gongOrZhi: string, yongShenZhi: string): Record<string, string>[] { return LrDx.readXiangCard(c, gongOrZhi, yongShenZhi); }
 }
