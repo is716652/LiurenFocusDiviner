@@ -246,9 +246,14 @@ interface JiChuSection {
 interface DuxiangRulesRaw {
   /* 以下三张表由 DataLoader 读入 rules.duxiang；引擎侧目前只在自检里读其存在性
      （§14.4：三张「加载但引擎未读」的规则表，归入点宫速查卡作规则出处）。 */
-  "十二宫气机点"?: Object;
-  "空亡规则"?: Object;
-  "助日规则"?: Object;
+  "十二宫气机点"?: Record<string, Object>;
+  "空亡规则"?: Record<string, Object>;
+  "助日规则"?: Record<string, Object>;
+
+
+
+
+
   "旺衰休囚死"?: WangShuaiSection;
   "基础关系"?: JiChuSection;
 }

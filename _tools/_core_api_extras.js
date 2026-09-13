@@ -192,6 +192,20 @@ const DX = [
   else {
     const i = t.lastIndexOf('\n}');
     fs.writeFileSync(p, t.slice(0, i) + '\n' + DX + t.slice(i), 'utf-8');
-    console.log('  ✓ dx.ts 追加 ruleHealth / missingRules / palaceLookup');
+    /* 读象读数（气机点 / 空亡三态 / 助日缘由）：作为"基线之后的追加接口"幂等注入 */
+{
+  const FRAG = path.join(__dirname, '_core_extras_dx_readxiang.txt');
+  const frag = fs.readFileSync(FRAG, 'utf-8').replace(/\r\n/g, '\n').replace(/\n+$/, '\n');
+  if (body.indexOf('static qijiReading(') < 0) {
+    const tail = body.lastIndexOf('\n}');
+    if (tail < 0) { console.log('!! dx.ts 类尾未找到'); process.exit(1); }
+    body = body.slice(0, tail) + '\n' + frag + body.slice(tail);
+    fs.writeFileSync(p, body, 'utf-8');
+    console.log('  ✓ dx.ts 追加 qijiReading / zhuriWhy（读象读数）');
+  } else {
+    console.log('  · dx.ts 已含 qijiReading（跳过）');
+  }
+}
+console.log('  ✓ dx.ts 追加 ruleHealth / missingRules / palaceLookup');
   }
 }

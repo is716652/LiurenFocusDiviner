@@ -388,6 +388,9 @@ for (const f of walk(MODEL)) {
   const imported = new Set();
   for (const m of code.matchAll(/import\s*(?:type\s*)?\{([^}]*)\}\s*from\s*'([^']+)'/g)) {
     for (const x of m[1].split(',')) { const y = x.trim(); if (y) imported.add(y); }
+    /* HarmonyOS 的 kit / ohos 模块（@kit.* / @ohos.*）是宿主模块、不是相对路径，不参与路径存在性检查。
+       2026-09-12 补：RuleHealth.ets 用了 @kit.PerformanceAnalysisKit，本检查原先只认相对路径 → 流水线失败。 */
+    if (m[2].charAt(0) === '@') { continue; }
     const relTarget = m[2].endsWith('.ets') ? m[2] : m[2] + '.ets';
     if (!fs.existsSync(path.resolve(path.dirname(f), relTarget))) problems.push('import 路径不存在：' + m[2]);
   }

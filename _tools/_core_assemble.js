@@ -83,6 +83,19 @@ const ROOT = path.join(__dirname, '..');
     else t = t.replace(/\n\}[ \t]*$/, '\n\n' + ADD + '}\n');
   }
 
+  /* 读象读数转发（幂等，独立守卫）：气机点 / 空亡三态 / 助日缘由（实现：pan/dx）
+     注：上一块的守卫是「facade 里没有 ruleHealth」，而 facade 早已含 ruleHealth，
+     故新增接口必须另立守卫 —— 否则补丁被静默跳过（本项目踩过）。 */
+  if (t.indexOf('static qijiReading(') < 0) {
+    const A2 = '  static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup { return LrDx.palaceLookup(c, gongOrZhi, yongShenZhi); }';
+    const ADD2 = [
+      '  static qijiReading(c: Chart, tianZhi: string): Record<string, string> { return LrDx.qijiReading(c, tianZhi); }',
+      '  static zhuriWhy(c: Chart): Record<string, string> { return LrDx.zhuriWhy(c); }'
+    ].join('\n');
+    if (t.indexOf(A2) >= 0) t = t.replace(A2, A2 + '\n' + ADD2);
+    else t = t.replace(/\n\}[ \t]*$/, '\n\n' + ADD2 + '\n}\n');
+  }
+
   /* 原内部方法转发（幂等）：拆分前 JS 运行时可见，保持对外 API 一字不变 */
   if (t.indexOf('static withDx(') < 0) {
     const A = '  /* ---------------- 缺表自述 / 点宫速查：只读接口（实现：pan/dx） ---------------- */';
@@ -128,19 +141,47 @@ const ROOT = path.join(__dirname, '..');
 {
   const p = path.join(ROOT, 'core', 'liuren', 'types.ts');
   let t = fs.readFileSync(p, 'utf-8');
-  if (t.indexOf('"十二宫气机点"?: Object;') >= 0) console.log('  · DuxiangRulesRaw 已补过');
+  /* 幂等升级：早期版本把三张表声明成 Object（不可下标，ArkTS 会以 arkts-no-props-by-index 拒绝），
+     现改为 Record<string, Object>；若文件里已是旧版则就地替换，若是新版则跳过，两者都不会重复声明。 */
+  const OLD3 = ['  "十二宫气机点"?: Object;', '  "空亡规则"?: Object;', '  "助日规则"?: Object;'];
+  const NEW3 = ['  "十二宫气机点"?: Record<string, Object>;', '  "空亡规则"?: Record<string, Object>;', '  "助日规则"?: Record<string, Object>;'];
+  if (OLD3.every((x, i) => t.indexOf(x) >= 0)) {
+    for (let i = 0; i < OLD3.length; i++) t = t.split(OLD3[i]).join(NEW3[i]);
+    fs.writeFileSync(p, t, 'utf-8');
+    console.log('  ✓ DuxiangRulesRaw 三键声明升级为 Record');
+  } else if (t.indexOf('"十二宫气机点"?: Record<string, Object>;') >= 0) console.log('  · DuxiangRulesRaw 已补过（Record 版）');
   else {
     const A = 'interface DuxiangRulesRaw {';
     const ADD = [
       '  /* 以下三张表由 DataLoader 读入 rules.duxiang；引擎侧目前只在自检里读其存在性',
       '     （§14.4：三张「加载但引擎未读」的规则表，归入点宫速查卡作规则出处）。 */',
-      '  "十二宫气机点"?: Object;',
-      '  "空亡规则"?: Object;',
-      '  "助日规则"?: Object;'
+      '  "十二宫气机点"?: Record<string, Object>;',
+      '  "空亡规则"?: Record<string, Object>;',
+      '  "助日规则"?: Record<string, Object>;'
     ].join('\n');
     t = t.replace(A, A + '\n' + ADD);
     fs.writeFileSync(p, t, 'utf-8');
     console.log('  ✓ DuxiangRulesRaw 补 3 个可选键');
+  }
+  /* 去重（幂等）：三键与说明注释只保留一份 —— 曾因多次注入出现重复声明（TS2300）。 */
+  {
+    const keys = ['  "十二宫气机点"?: Record<string, Object>;', '  "空亡规则"?: Record<string, Object>;',
+      '  "助日规则"?: Record<string, Object>;',
+      '  /* 以下三张表由 DataLoader 读入 rules.duxiang；引擎侧目前只在自检里读其存在性',
+      '     （§14.4：三张「加载但引擎未读」的规则表，归入点宫速查卡作规则出处）。 */'];
+    let u = fs.readFileSync(p, 'utf-8');
+    let fixed = 0;
+    for (const k of keys) {
+      const parts = u.split(k);
+      if (parts.length > 2) {
+        u = parts[0] + k + parts.slice(1).join('');
+        fixed += parts.length - 2;
+      }
+    }
+    if (fixed > 0) {
+      fs.writeFileSync(p, u, 'utf-8');
+      console.log('  ✓ DuxiangRulesRaw 声明去重（删掉 ' + fixed + ' 行重复）');
+    }
   }
 }
 console.log('core 侧收尾完成。');
