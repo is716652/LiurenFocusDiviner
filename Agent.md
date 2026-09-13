@@ -503,6 +503,67 @@ node _tests/_test_rule_health.js    # 把 RuleHealth.ets / ReasonText.ets 用 ts
 
 临时目录 `_tests/_tmp_rulehealth/` 每次运行重建、结束时删除（不进仓库）。
 
+### 校验的唯一入口（`node _tools/check_all.js`）
+
+**不要凭记忆挑门禁跑。** 门禁会变多、名字会忘 —— 唯一入口负责发现与调度，并实测耗时：
+
+```powershell
+node _tools/check_all.js            # 全量：41 项，实测 ≈ 364 s（6 分钟）—— 出包/收口前跑
+node _tools/check_all.js --fast     # 快档：37 项，实测 7.0 s —— 改完随手跑（跳过 4 项慢档）
+node _tools/check_all.js --list     # 打印清单（含慢档标记）
+node _tools/check_all.js --only readxiang   # 只跑名字含 readxiang 的项
+python _tools/sign_release.py free  # 出包（内部已含前置门禁 + 出包后校验，见下）
+```
+
+实测耗时分布（2026-09-13）：
+
+| 组 | 项数 | 实测 | 说明 |
+|:--|:--:|:--|:--|
+| 快档合计 | 37 | **7.0 s** | 绝大多数单项 < 200 ms；最慢的快档是 `_test_bifa_keti` 1.7 s |
+| 慢档：`gate_mutation_check.js` | 1 | **303 s** | 逐个变异后**重跑对应门禁**，固有 N× 成本；出包前跑即可 |
+| 慢档：`_test_component_audit.js` | 1 | 41.5 s | 内含 500 组随机扰动 + 挖键实验 |
+| 慢档：`_core_snapshot.js` | 1 | 10.6 s | 185,981 条行为快照逐条比对 |
+| 慢档：`_test_core_regress.js` | 1 | 1.4 s | 回归矩阵 |
+| **全量** | **41** | **≈ 364 s** | 三个大户占 355 s —— 门禁多不是问题，重活才是 |
+
+**去重纪律**：同一条判定只跑一次 —— `verify_free_edition.py` 内部已复用 `sync_free_edition.diff_against()`，
+故入口里不再单列 `sync --check`（要单跑手敲即可）。
+
+### 门禁索引（按保护面，改动后按行跑快档）
+
+| 保护面 | 门禁 | 何时必跑 |
+|:--|:--|:--|
+| 引擎行为回归 | `_test_core_smoke` `_test_core_regress` `_test_sanchuan_spec` `_test_jiangpan*` `_test_dungan` `_test_keti` `_test_zhonghuang*` `_test_xingnian` `_test_nianming2` `_test_selectDuyu` `_test_palace` | 改 `core/liuren/**` 后 |
+| 防写死 / 三端同构 | `_test_no_hardcode`（A1–A6，A6 = 三端逐行同构）`_test_component_audit`（UI 层 + JSON 契约 + 行为一致性） | 改引擎或 UI 后 |
+| 合规措辞 | `_test_compliance_wording`（C1 八字语汇 / C2 算命占卜类词 / C3 出处纪律） | 改规则表文案后 |
+| UI 呈现 | `_test_ui_layout`（排版）`_test_ui_empty_state`（E1–E8 空态说话）`_test_ui_foreach_key`（列表键须内容派生） | 改 `.ets` 页面/组件后 |
+| 读数单一真源 | `_test_readxiang`（R1–R8 行为）`_test_readxiang_single_source`（S1–S3 结构） | 改读象/速查卡后 |
+| 数据健康 | `_test_rule_health`（运行期断言 + 缺表不静默） | 改 DataLoader/RuleHealth 后 |
+| 文档结构 | `_test_docs_structure`（围栏 / 编号 / 登记 HEAD 存在性） | 改 `.md` 后 |
+| 免费版与包 | `verify_free_edition.py`（数据 + 源码树一致性）`verify_app_pkg.py`（包内 16 项） | 出包前（`sign_release.py` 已自动调用） |
+| 产物一致性 | `build_core.js --check` `_api_parity.js` `_core_snapshot.js` | 改真源后 |
+| 门禁自身有效性 | `gate_mutation_check.js`（11 条：正例能拦、反例不冤枉） | 出包前 |
+
+**门禁与真源的关系（松耦合）**：门禁一律是**外部观测者**，不写进 `core/liuren/**` —— 否则改真源时
+可能顺手把门禁一起改掉。但它们**只读真源**，且判定依据尽量单一来源：
+`verify_free_edition.py` 向 `sync_free_edition.py` 取差异规则、ArkTS 各门禁读 `core/liuren/**` 与生成物、
+`_test_ui_foreach_key` 扫全部 `.ets`（不写死文件名）。
+
+**新增门禁的三条纪律**：① 快档里必须 < 1 s，否则登记为慢档；② 必须自带变异证明（改坏要被它拦住）；
+③ 放在 `_tests/_test_*.js`（入口自动纳入）或登记进 `check_all.js` 的工具清单。
+
+### 文档地图（谁对什么权威）
+
+| 文档 | 权威范围 | 维护方式 |
+|:--|:--|:--|
+| **本文（Agent.md）** | **操作权威**：纪律、真源边界、构建/校验/出包流程、门禁索引、常见坑 | 收口时**就地订正**，并推进头部「最近更新 / 更新前 main HEAD」（`_test_docs_structure` 会校验存在性并打印落后提交数） |
+| `鸿蒙规范文档/商店页文案与截图清单.md` | **发布记录**：每一刀的用户可见变化、包指纹、归档链 | 只追加、不改旧口径（历史留痕） |
+| `大六壬文档/读象规则/读象数据覆盖度与内容鉴定报告.md` | **数据鉴定**：11 份文档 × 14 张表的覆盖度与合规扫描 | 数据变更时更新 |
+| `大六壬文档/**`、`鸿蒙规范文档/ArkTS开发规范指南.md` | **参考/历史**：传本、规范摘录 | 不当作操作依据；门禁里的同类结构问题只 WARN |
+
+> 给后续 AI / 开发者：**先读本文档即可开工** —— 要跑什么、多久、规则住在哪、产物怎么出，都在这里；
+> 其他文档是证据与留痕，不是入口。
+
 ### 免费版同步与校验
 
 ```powershell
