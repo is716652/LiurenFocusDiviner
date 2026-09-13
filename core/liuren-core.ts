@@ -1823,10 +1823,15 @@ class LrDx {
     const gi: number = LrBase.GAN.indexOf(c.r.dg);
     const yangGan: boolean = gi >= 0 && gi % 2 === 0;   /* 甲丙戊庚壬为阳 */
     out.side = yangGan ? "阳干顺" : "阴干逆";
+    /* 表读取一律「先判空、再取」：不用「三元 + as」的合并写法 —— 那种写法在 ArkTS 侧
+       报 arkts-no-props-by-index（本方法体要逐字镜像到 pan/dx.ets）。形状与 wangT() 同构。 */
     const qjTop = LiurenCore.rules.duxiang.十二宫气机点;
-    const rows = qjTop === undefined ? {} as Record<string, Record<string, string>>
-      : qjTop["十二宫"] as Record<string, Record<string, string>>;
-    const row: Record<string, string> | undefined = rows[gong];
+    let row: Record<string, string> | undefined = undefined;
+    if (qjTop !== undefined) {
+      const rows: Record<string, Record<string, string>> =
+        qjTop["十二宫"] as Record<string, Record<string, string>>;
+      row = rows[gong];
+    }
     if (row === undefined) {
       out.note = "气机点表未加载：该宫象义不可用（盘仍照旧排出）";
     } else {
@@ -1839,8 +1844,9 @@ class LrDx {
     }
     /* 空亡三态：同宫空亡 / 冲空 可由盘上算出；填实依赖流年流月流日，盘上不预判 → 只作条件说明 */
     const nd: NodeState = c.dx.nodes[tianZhi] || LrDx.EMPTY_NODE;
-    const gx: JiChuSection = LiurenCore.rules.duxiang["基础关系"] || {};
-    const chongMap: Record<string, string> = gx["六冲"] || {};
+    /* 点访问：本方法体要逐字镜像到 pan/dx.ets，而片段不做 ["k"]→.k 改写（§14 纪律） */
+    const gx: JiChuSection = LiurenCore.rules.duxiang.基础关系 || {};
+    const chongMap: Record<string, string> = gx.六冲 || {};
     const chongZhi: string = chongMap[tianZhi] || "";
     const chongNd: NodeState = chongZhi === "" ? LrDx.EMPTY_NODE : (c.dx.nodes[chongZhi] || LrDx.EMPTY_NODE);
     let kongState: string = "";
@@ -1851,10 +1857,12 @@ class LrDx {
     }
     out.kongState = kongState;
     const kxTop = LiurenCore.rules.duxiang.空亡规则;
-    const ops = kxTop === undefined ? {} as Record<string, Record<string, string>>
-      : kxTop["三种操作"] as Record<string, Record<string, string>>;
-    const su = kxTop === undefined ? {} as Record<string, Record<string, string>>
-      : kxTop["气机宫速用"] as Record<string, Record<string, string>>;
+    let ops: Record<string, Record<string, string>> = {};
+    let su: Record<string, Record<string, string>> = {};
+    if (kxTop !== undefined) {
+      ops = kxTop["三种操作"] as Record<string, Record<string, string>>;
+      su = kxTop["气机宫速用"] as Record<string, Record<string, string>>;
+    }
     const suRow: Record<string, string> | undefined = su[gong];
     if (kongState === "同宫空亡") {
       const op = ops["同宫空亡"] || {};
@@ -1889,7 +1897,6 @@ class LrDx {
       return out;
     }
     const yjTbl = zrTop["月将"] as Record<string, Object>;
-    const grTbl = zrTop["贵人"] as Record<string, Object>;
     const ys: YueJiangStateDx = c.dx.yuejiang;
     const yjHit: string[] = [];
     if (ys.linGan) { yjHit.push("临日干上神"); }

@@ -20,14 +20,20 @@
 - 已上架商店素材先不动；新截图只作下一版备用，不重新提交。
 - 主线最近在做：中黄天地盘 UX v1（常遁/中黄、双干同宫、身/变/传、点宫宫情）。
 
-发布包位置（2026-09-10 更新）：
+发布包位置（2026-09-13 更新）：
 
 - **在架版（1.0.1 / 1000001）**：已归档为 `APP/release_pkg/LiurenFocusDiviner-free-release-signed-1.0.1-onshelf-20260826.app`
   （与原 `…-free-release-signed.app` 字节一致，构建于 2026-08-26 20:47，约对应 `46a5ea9`/`84b755e` 时点）。
   商店在架版**没有中黄、没有案例鉴赏**，且含本轮修正前的天将/昴星/遁干问题。
-- **待提审版（1.0.2 / 1000002）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`（1,565,831 字节，2026-09-10 构建，
-  `verify-app` 签名校验通过；包内 versionName=1.0.2、versionCode=1000002、requestPermissions=0）。
-  相对 1.0.1 的增量：十二天将顺逆修正、柔日昴星取用修正、三传/盘面天干改旬遁（空亡可见）、中黄 UX v1、状态栏/导航适配、合规断语降级。
+- **待提审版（1.0.4 / 1000004）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
+  （**1,559,429 字节**，2026-09-13 16:06 构建，SHA256 `78EEF0EF7E79891F8640C264B03C1A9388DCCD13710FAB5C88700836450502FC`，
+  `verify-app success`；包内 versionName=1.0.4、versionCode=1000004、requestPermissions=0，
+  `python _tools/verify_app_pkg.py` 16 项全过、`--selftest` 负向全拦）。
+  相对上一刀（1.0.4 第三轮，1,559,657 字节 / SHA256 `2D98057B…98751`，已归档）的增量：
+  **读数装配收口到引擎单一真源**（App 侧 `ReadXiang.ets`/`ReadXiangData.ets` 与 DataLoader 摊平层删除）、
+  点宫速查卡与助日缘由改吃 `LiurenCore.readXiangCard`/`zhuriWhy`、新增单一真源门禁。
+- 归档命名沿用 `…-1.0.4-YYYYMMDD-HHMM.app`；上一刀归档为
+  `…-1.0.4-20260913-1405.app`（与替换前 generic 名逐字节一致后保留）。
 - 提审与否待真机验证后决定；**未动商店素材、未上传管理台**。
 - 案例鉴赏在两版免费包中都隐藏（`FeatureFlags.SHOW_ANCIENT_CASE_GALLERY=false`）；案例库 45 案与证据链升级只影响主版。
 
@@ -1087,21 +1093,38 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
 - **引擎（core/liuren/pan/dx.ts）**：`qijiReading(c, 天盘支)` 出"宫位名（已算 qiJi）× 表内象义 × 冲宫/合宫/三合/延长带、
   空亡三态（同宫空亡/冲空 由旬空与六冲算出；填实只作条件说明）、冲支"；`zhuriWhy(c)` 出月将/贵人的逐条缘由。
   两者经门面转发（对外 API 只增不改），Node/Web 端直接用。
-- **App（model/ReadXiang.ets + ReadXiangData.ets）**：ArkTS 禁止嵌套下标（`arkts-no-props-by-index`），
-  故在 **DataLoader 读取阶段一次摊平**成 `Record<string, Record<string, string>>`，之后 UI 只碰摊平表；
-  卡片顺序照《以炁为基点读象》的三层景（远景旺衰 → 中景冲合刑害空 → 近景三宫+乘将 → 气机点 → 收梢一句）。
+- **App（components/PalaceCard.ets + pages/Index.ets）**：**只呈现引擎给的行**。App 侧原有一份重复装配
+  （`model/ReadXiang.ets` + `model/ReadXiangData.ets` + DataLoader 里的摊平层）已于 2026-09-13 **删除** ——
+  同一份判断在两侧各写一套，任一端改了另一端不动就是静默漂移。
+  - `Index.openPalaceCard()` → `LiurenCore.readXiangCard(c, z, yongShen)`（行 = `Record<string, string>`，
+    四字段 `label`/`text`/`source`/`tone`，顺序照《以炁为基点读象》的三层景）；
+    `Index.toggleZhuri()` → `LiurenCore.zhuriWhy(c)`，取 `yueJiang`/`guiRen`/`note`/`kouJue` 排成行。
+  - `PalaceCard` 只排版：小标题 + 正文 + 可选「原文」行（tone 三色）。引擎缺表时把说明放在 `note`，
+    App **必须显示**（warn 色调）—— 静默留白等于骗人（§14.1）。
+  - ArkTS 形状纪律：**接口字段用点访问，`Record` 才可下标**。extras 片段是逐字追加、**不做** `X["k"] → X.k`
+    改写（只有切片路径会改写），所以真源里一律写点访问（`LiurenCore.rules.duxiang.基础关系`、`gx.六冲`）。
 
 **门禁**（改这两处后都要跑）：
 
 ```powershell
-node _tests/_test_readxiang.js          # 表被读的负向验证（改表即改输出）＋ 空亡三态 ＋ 缺表不静默 ＋ 我方陈述合规
-node _tests/_test_compliance_wording.js # C1 八字专有语汇 / C2 算命占卜类词 / C3 出处纪律（白名单须写理由）
+node _tests/_test_readxiang.js                # 表被读的负向验证（改表即改输出）＋ 空亡三态 ＋ 缺表不静默 ＋ 我方陈述合规
+node _tests/_test_readxiang_single_source.js  # 单一真源：S1 无重复实现 / S2 三端齐备且门面无重复转发 / S3 消费契约
+node _tests/_test_compliance_wording.js       # C1 八字专有语汇 / C2 算命占卜类词 / C3 出处纪律（白名单须写理由）
 ```
 
-**两条纪律（都踩过）**：
+**三条纪律（都踩过）**：
 
 1. **不得往随包规则表注入"消费方不认识的键"**——为记录出处把 `元数据.来源` 写进 `占事体系/类象库/行年打分` 后，
    行为快照出现 1 个分区不一致（顶层键会被读象/词云遍历）→ 出处一律登记在表外
    `_tests/_data/compliance_provenance.json`。
 2. **禁词表要先验证本项目的既有用法**——`比肩` 在本项目是**六亲名**（引擎 `liuQin`），门禁首次运行误杀过它；
    `食神`（管辂体系神煞名）、`正财/偏财`（占事体系财之来源）属歧义词，只计数不判否。
+
+3. **ArkTS 生成物有两个坑（本轮实测，都已加守门）**：
+   - `_ets_split.js` 的 `FORWARD` 里一行转发被**整行复制**（`palaceLookup` 出现两次）→ 门面生成两个同名方法
+     → ArkTS 报 `Duplicate function implementation`。阴险之处：树里旧的生成物仍是单条，**故障要等下次重新生成才爆**。
+     现在生成脚本自带「转发去重」断言（同一签名出现两次即抛错，已用变异测试证明会红），门禁 S2 再兜一层。
+   - `pan/types.ets` 的 interface 是从**基线 tag `v1.0.4-pre-componentize` 的 `.ets`** 切出来的（不是从真源 types.ts 切），
+     早于读象三表 → 新增的规则表键必须**注入切片体**（`_ets_split.js` 中对 `DuxiangRulesRaw` 的注入）。
+     不注入的后果：引擎读 `rules.duxiang.十二宫气机点` 报 `Property '十二宫气机点' does not exist on type 'DuxiangRulesRaw'`，
+     并连带三条 `arkts-no-any-unknown`（属性不存在 → 该表达式退化为 any）。

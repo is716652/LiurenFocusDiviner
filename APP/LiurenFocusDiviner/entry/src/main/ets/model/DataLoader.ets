@@ -25,14 +25,6 @@ import type {
   YueJiangSeg
 } from './LiurenCore';
 import { RuleHealth } from './RuleHealth';
-import { ReadXiangData } from './ReadXiangData';
-
-/* 组装后的 duxiang 扩展形态（在 DuxiangRulesRaw 基础上附带三个气机规则段，供读象扩展用） */
-interface DuxiangRulesExt extends DuxiangRulesRaw {
-  "十二宫气机点"?: Object;
-  "空亡规则"?: Object;
-  "助日规则"?: Object;
-}
 
 /* 古籍研习：一篇经文 */
 export interface AncientChapter {
@@ -261,7 +253,9 @@ export class DataLoader {
       "六害": jcParsed["六害"] as Record<string, string>,
       "三刑": jcParsed["三刑"] as Record<string, string[]>
     };
-    const duxiang: DuxiangRulesExt = {
+    /* 三张读象表（十二宫气机点 / 空亡规则 / 助日规则）已由真源 DuxiangRulesRaw 声明，
+       引擎侧 qijiReading / zhuriWhy 直接读它们 —— 此处只负责读入，不再摊平。 */
+    const duxiang: DuxiangRulesRaw = {
       "旺衰休囚死": wsSection,
       "十二宫气机点": qjParsed,
       "空亡规则": kxParsed,
@@ -277,22 +271,8 @@ export class DataLoader {
     DataLoader.report('kongwang', DataLoader.countKeys(kxParsed), [], kxParsed);
     DataLoader.report('zhuri', DataLoader.countKeys(zrParsed), [], zrParsed);
 
-    /* 读象数据摊平（§14.4 点宫速查卡）：ArkTS 禁止对未声明/嵌套值下标，故在**读取阶段**一次摊平，
-       之后的 UI 只碰 Record<string, Record<string, string>>（ArkTS 允许 Record 下标）。 */
-    const rsQiji = (qjParsed['十二宫'] || {}) as Record<string, Record<string, string>>;
-    const rsKongOps = (kxParsed['三种操作'] || {}) as Record<string, Record<string, string>>;
-    const rsKongSu = (kxParsed['气机宫速用'] || {}) as Record<string, Record<string, string>>;
-    const rsYueJiang = (zrParsed['月将'] || {}) as Record<string, Object>;
-    const rsKouJue = rsYueJiang['口诀'] !== undefined ? (rsYueJiang['口诀'] as string) : '';
-    const rsQijiKj = qjParsed['一句背'] !== undefined ? (qjParsed['一句背'] as string) : '';
-    const rsHeKj = qjParsed['合宫一句背'] !== undefined ? (qjParsed['合宫一句背'] as string) : '';
-    ReadXiangData.fill(rsQiji, rsKongOps, rsKongSu, rsKouJue, rsQijiKj, rsHeKj);
-    ReadXiangData.fillBasics(
-      (wsParsed['旺衰'] || {}) as Record<string, Record<string, string>>,
-      (jcParsed['六冲'] || {}) as Record<string, string>,
-      (jcParsed['六合'] || {}) as Record<string, string>,
-      (jcParsed['六害'] || {}) as Record<string, string>,
-      (jcParsed['三刑'] || {}) as Record<string, string[]>);
+    /* 读象数据的摊平层已取消（§14.4）：装配搬进引擎 core/liuren/pan/dx.ts，
+       两端口径只剩一处实现 —— 见 Agent.md §9「读象读数：引擎出数 / App 出呈现」。 */
     const shensha: ShenshaRulesRaw = {
       "神煞": ssParsed["神煞"] as Record<string, ShenshaRuleRaw>
     };

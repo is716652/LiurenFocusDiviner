@@ -29,9 +29,6 @@ import { RuleHealth } from '../model/RuleHealth';
 import { EmptyKind, SlotId } from '../model/ReasonText';
 import { SlotEmpty } from '../components/SlotEmpty';
 import { PalaceCard } from '../components/PalaceCard';
-import { ReadXiang } from '../model/ReadXiang';
-import type { ReadXiangRow } from '../model/ReadXiang';
-import { ReadXiangData } from '../model/ReadXiangData';
 import type { AncientBook } from '../model/DataLoader';
 import { CaseStore } from '../model/CaseStore';
 import type { CaseRec } from '../model/CaseStore';
@@ -113,7 +110,8 @@ struct Index {
   /* 行年状态（§14.7 第 3 条）：'' / ok / unset / missing —— 行年不得静默消失 */
   @State private xingnianKind: string = '';
   /* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片；与既有「外应取用」并行，不改变原行为 */
-  @State private cardRows: ReadXiangRow[] = [];
+  @State private cardRows: Record<string, string>[] = [];
+  @State private zhuriKouJue: string = '';
   @State private cardTitle: string = '';
   @State private cardOpen: boolean = false;
   /* 盘态栏「为什么助」展开 */
@@ -414,22 +412,38 @@ struct Index {
     }
   }
 
-  /* 打开某支的宫情速查卡（§14.4）：引擎出数（palaceLookup）、ReadXiang 装配、卡片呈现 */
+  /* 打开某支的宫情速查卡（§14.4）：引擎出数并装配（LiurenCore.readXiangCard）、卡片呈现 */
   private openPalaceCard(z: string): void {
     const c = this.chart;
     if (!c) {
       return;
     }
-    this.cardRows = ReadXiang.card(c, z, this.yongShen);
+    this.cardRows = LiurenCore.readXiangCard(c, z, this.yongShen);
     this.cardTitle = '宫情 · ' + z;
     this.cardOpen = true;
   }
 
-  /* 助日「为什么助」：由已算的助日标记 + 表内口诀逐条说明 */
+  /* 助日「为什么助」：引擎出数（LiurenCore.zhuriWhy），此处只把字段排成行 */
   private toggleZhuri(): void {
     this.zhuriOpen = !this.zhuriOpen;
     if (this.zhuriOpen && this.chart) {
-      this.zhuriLines = ReadXiang.zhuriWhy(this.cur());
+      const zw: Record<string, string> = LiurenCore.zhuriWhy(this.cur());
+      const yj: string = zw['yueJiang'] !== undefined ? zw['yueJiang'] : '';
+      const gr: string = zw['guiRen'] !== undefined ? zw['guiRen'] : '';
+      const nt: string = zw['note'] !== undefined ? zw['note'] : '';
+      const lines: string[] = [];
+      if (yj !== '') {
+        lines.push(yj);
+      }
+      if (gr !== '') {
+        lines.push(gr);
+      }
+      /* 缺表说明必须显示：静默留白等于骗人（§14.1） */
+      if (nt !== '') {
+        lines.push(nt);
+      }
+      this.zhuriLines = lines;
+      this.zhuriKouJue = zw['kouJue'] !== undefined ? zw['kouJue'] : '';
     }
   }
 
@@ -1303,8 +1317,8 @@ struct Index {
               .fontColor('#C4B183')
               .width('100%')
           }, (t: string) => 'zr' + t)
-          if (ReadXiangData.zhuriKouJue !== '') {
-            Text('原文口诀：' + ReadXiangData.zhuriKouJue)
+          if (this.zhuriKouJue !== '') {
+            Text('原文口诀：' + this.zhuriKouJue)
               .fontSize(10)
               .lineHeight(16)
               .fontColor('#B8A97F')

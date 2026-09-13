@@ -36,6 +36,10 @@ const HEAD = [
 const out = [
   HEAD,
   '  ' + grab('palaceLookup', src).replace(/\n/g, '\n  ').trimEnd(),
+  '  ' + grab('qijiReading', src).replace(/\n/g, '\n  ').trimEnd(),
+  '  ' + grab('zhuriWhy', src).replace(/\n/g, '\n  ').trimEnd(),
+  '  ' + grab('readXiangCard', src).replace(/\n/g, '\n  ').trimEnd(),
+  '  ' + grab('cardRow', src).replace(/\n/g, '\n  ').trimEnd(),
   ''
 ].join('\n');
 

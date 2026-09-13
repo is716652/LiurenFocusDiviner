@@ -133,6 +133,10 @@ export class LiurenCore {
   static nianmingAdvice(c: Chart, nianZhi: string, yongShenZhi: string): NianmingAdvice { return LrDx.nianmingAdvice(c, nianZhi, yongShenZhi); }
   static xingNian(c: Chart, birthYear: number, currentYear: number, gender: string, yongShenZhi: string): XingNianResult { return LrDx.xingNian(c, birthYear, currentYear, gender, yongShenZhi); }
   static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup { return LrDx.palaceLookup(c, gongOrZhi, yongShenZhi); }
+  static qijiReading(c: Chart, tianZhi: string): Record<string, string> { return LrDx.qijiReading(c, tianZhi); }
+  static zhuriWhy(c: Chart): Record<string, string> { return LrDx.zhuriWhy(c); }
+  static readXiangCard(c: Chart, gongOrZhi: string, yongShenZhi: string): Record<string, string>[] { return LrDx.readXiangCard(c, gongOrZhi, yongShenZhi); }
+  static cardRow(label: string, text: string, source: string, tone: string): Record<string, string> { return LrDx.cardRow(label, text, source, tone); }
 
   /* ---------------- 转发到 LrBifa ---------------- */
   static bifaForChuans(c: Chart, chu: Chuan[]): BifaHit[] { return LrBifa.bifaForChuans(c, chu); }

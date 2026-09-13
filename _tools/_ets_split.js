@@ -229,7 +229,17 @@ function writeFile(rel, text) {
   return text.split('\n').length - 1;
 }
 {
-  const body = SEG_TYPES.split('\n').map((l) => (l.indexOf('interface ') === 0 ? 'export ' + l : l)).join('\n');
+  let body = SEG_TYPES.split('\n').map((l) => (l.indexOf('interface ') === 0 ? 'export ' + l : l)).join('\n');
+  /* 读象三表（十二宫气机点 / 空亡规则 / 助日规则）：ArkTS 侧类型从基线 tag
+     v1.0.4-pre-componentize 的 .ets 切出，早于这三张表 —— 不补声明，引擎侧的
+     rules.duxiang.十二宫气机点 就会报「Property does not exist」并连带 any/unknown。
+     与真源 core/liuren/types.ts 同口径；锚点必须唯一命中，否则失败（宁可失败，
+     也不要静默生成缺键的类型）。 */
+  const DXR = 'export interface DuxiangRulesRaw {';
+  if (body.split(DXR).length - 1 !== 1) throw new Error('types.ets：DuxiangRulesRaw 锚点未唯一命中，无法补读象三表声明');
+  body = body.replace(DXR, DXR + '\n  "十二宫气机点"?: Record<string, Object>;'
+    + '\n  "空亡规则"?: Record<string, Object>;'
+    + '\n  "助日规则"?: Record<string, Object>;');
   const ADD = ['', '/* 规则表健康项（引擎侧自述：缺表 / 表在但无条目 / 正常）—— §14 纪律用 */',
     'export interface RuleHealthItem {', '  key: string;', '  label: string;', '  loaded: boolean;',
     '  entries: number;', '  note: string;', '}', '', '/* 该支在本课的角色（点宫速查卡用） */',
@@ -283,7 +293,10 @@ const FORWARD = {
     'static nianmingAdvice(c: Chart, nianZhi: string, yongShenZhi: string): NianmingAdvice { return LrDx.nianmingAdvice(c, nianZhi, yongShenZhi); }',
     'static xingNian(c: Chart, birthYear: number, currentYear: number, gender: string, yongShenZhi: string): XingNianResult { return LrDx.xingNian(c, birthYear, currentYear, gender, yongShenZhi); }',
     'static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup { return LrDx.palaceLookup(c, gongOrZhi, yongShenZhi); }',
-    'static palaceLookup(c: Chart, gongOrZhi: string, yongShenZhi: string): PalaceLookup { return LrDx.palaceLookup(c, gongOrZhi, yongShenZhi); }'],
+    'static qijiReading(c: Chart, tianZhi: string): Record<string, string> { return LrDx.qijiReading(c, tianZhi); }',
+    'static zhuriWhy(c: Chart): Record<string, string> { return LrDx.zhuriWhy(c); }',
+    'static readXiangCard(c: Chart, gongOrZhi: string, yongShenZhi: string): Record<string, string>[] { return LrDx.readXiangCard(c, gongOrZhi, yongShenZhi); }',
+    'static cardRow(label: string, text: string, source: string, tone: string): Record<string, string> { return LrDx.cardRow(label, text, source, tone); }'],
   LrBifa: ['static bifaForChuans(c: Chart, chu: Chuan[]): BifaHit[] { return LrBifa.bifaForChuans(c, chu); }',
     'static renderBifaForChuans(c: ChartCore, dx: Duxiang, chu: Chuan[], aff: string): BifaDetail[] { return LrBifa.renderBifaForChuans(c, dx, chu, aff); }',
     'static renderBifa(c: ChartCore, dx: Duxiang, aff: string): BifaDetail[] { return LrBifa.renderBifa(c, dx, aff); }',
@@ -327,6 +340,19 @@ const FORWARD = {
     cl.push('');
     cl.push('  /* ---------------- 转发到 ' + c + ' ---------------- */');
     for (const l of FORWARD[c]) cl.push('  ' + l);
+  }
+  /* 转发去重自检（2026-09-13 加）：同一签名的转发只允许出现一次。
+     FORWARD.LrDx 里 palaceLookup 曾被整行复制成两条，脚本自身看不出问题，而树里旧的生成物
+     仍是单条 —— 故障要等下次重新生成才爆（ArkTS「Duplicate function implementation」）。
+     放在这里让脚本在源头失败，而不是让带病的门面进入构建。 */
+  const seenFwd = new Map();
+  for (let i = 0; i < cl.length; i++) {
+    const m = cl[i].match(/^\s*static\s+([A-Za-z_][\w]*)\s*\(/);
+    if (!m) continue;
+    if (seenFwd.has(m[1])) {
+      throw new Error('门面转发重复：' + m[1] + ' 出现在第 ' + seenFwd.get(m[1]) + ' 行与第 ' + (i + 1) + ' 行');
+    }
+    seenFwd.set(m[1], i + 1);
   }
   cl.push('}');
   const HEAD = ['/* ============================================================================',

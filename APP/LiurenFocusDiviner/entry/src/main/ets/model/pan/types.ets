@@ -299,6 +299,9 @@ export interface JiChuSection {
 }
 
 export interface DuxiangRulesRaw {
+  "十二宫气机点"?: Record<string, Object>;
+  "空亡规则"?: Record<string, Object>;
+  "助日规则"?: Record<string, Object>;
   "旺衰休囚死"?: WangShuaiSection;
   "基础关系"?: JiChuSection;
 }
