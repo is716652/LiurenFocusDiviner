@@ -109,6 +109,10 @@ for (const k of ['label', 'text', 'source', 'tone']) {
   ok(new RegExp("r\\['" + k + "'\\]").test(card), 'S3 卡片组件未读取引擎字段', k);
 }
 ok(/旺衰休囚死|基础关系|十二宫气机点/.test(dl), 'S3 DataLoader 未读入读象所需的规则表');
+/* 行渲染的 ForEach 键必须内容派生：换宫位时行标签集与顺序恒定，只含 label+索引的键会让
+   ArkUI 复用旧子组件 → 标题在变、正文停在上一个宫位（2026-09-13 真机缺陷，已修）。 */
+ok(/=>[^;]*'pc'[^;]*r\['label'\][^;]*r\['text'\]/.test(card),
+  'S3 卡片 ForEach 键未含内容（换宫位会沿用上一宫正文）', "key = 'pc'+i+…");
 
 /* ---------------- 结果 ---------------- */
 if (bad.length === 0) {

@@ -443,7 +443,7 @@ export struct AncientStudy {
         }
         .width('100%')
         .justifyContent(FlexAlign.Center)
-      }, (line: string, li: number) => 'dline' + li)
+      }, (line: string, li: number) => 'dline' + li + '|' + line)
     }
     .width('100%')
     .padding(10)
@@ -475,7 +475,7 @@ export struct AncientStudy {
         }
         .width('100%')
         .justifyContent(FlexAlign.Center)
-      }, (line: string, li: number) => 'rl' + li)
+      }, (line: string, li: number) => 'rl' + li + '|' + line)
     }
     .width('100%')
     .padding(10)
@@ -568,7 +568,7 @@ export struct AncientStudy {
           .fontColor('#8A9BA8')
           .lineHeight(17)
           .width('100%')
-      }, (line: string, li: number) => 'code' + li)
+      }, (line: string, li: number) => 'code' + li + '|' + line)
     }
     .width('100%')
     .padding(10)
@@ -589,7 +589,7 @@ export struct AncientStudy {
           .fontWeight(li === 0 ? FontWeight.Bold : FontWeight.Normal)
           .lineHeight(19)
           .width('100%')
-      }, (line: string, li: number) => 'tab' + li)
+      }, (line: string, li: number) => 'tab' + li + '|' + line)
     }
     .width('100%')
     .padding(10)
@@ -694,7 +694,7 @@ export struct AncientStudy {
                 .width('100%')
                 .margin({ top: 10 })
             }
-          }, (p: string, pi: number) => 'p' + this.curIdx + '-' + pi)
+          }, (p: string, pi: number) => 'p' + this.curIdx + '-' + pi + '|' + p)
         }
         .width('100%')
         .padding({ left: 18, right: 18, bottom: 72 })

@@ -26,14 +26,15 @@
   （与原 `…-free-release-signed.app` 字节一致，构建于 2026-08-26 20:47，约对应 `46a5ea9`/`84b755e` 时点）。
   商店在架版**没有中黄、没有案例鉴赏**，且含本轮修正前的天将/昴星/遁干问题。
 - **待提审版（1.0.4 / 1000004）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
-  （**1,559,429 字节**，2026-09-13 16:06 构建，SHA256 `78EEF0EF7E79891F8640C264B03C1A9388DCCD13710FAB5C88700836450502FC`，
+  （**1,559,518 字节**，2026-09-13 16:38 构建，SHA256 `B6C89DB1B4EA1A5B522B96B0361AC6596260DBA5959A2B04FE1E5CF6DE0B9FB7`，
   `verify-app success`；包内 versionName=1.0.4、versionCode=1000004、requestPermissions=0，
   `python _tools/verify_app_pkg.py` 16 项全过、`--selftest` 负向全拦）。
-  相对上一刀（1.0.4 第三轮，1,559,657 字节 / SHA256 `2D98057B…98751`，已归档）的增量：
-  **读数装配收口到引擎单一真源**（App 侧 `ReadXiang.ets`/`ReadXiangData.ets` 与 DataLoader 摊平层删除）、
-  点宫速查卡与助日缘由改吃 `LiurenCore.readXiangCard`/`zhuriWhy`、新增单一真源门禁。
-- 归档命名沿用 `…-1.0.4-YYYYMMDD-HHMM.app`；上一刀归档为
-  `…-1.0.4-20260913-1405.app`（与替换前 generic 名逐字节一致后保留）。
+  相对上一刀（16:06，1,559,429 字节 / SHA256 `78EEF0EF…502FC`，已归档）的增量：
+  **真机反馈修复** —— 点宫速查卡换宫位时正文不刷新（ForEach 键复用旧子组件）、点盘同时弹出「抓用神」
+  半模态盖住卡片（改为点盘只开卡片，用神照旧切换）、古籍研习五处同类键一并清、新增全 App 键门禁。
+- 本版本历次切刀归档（命名 `…-1.0.4-YYYYMMDD-HHMM.app`，均与替换前 generic 名逐字节一致后保留）：
+  `…-20260913-1357.app`（1,559,616）→ `…-20260913-1405.app`（1,559,657 / `2D98057B…98751`）→
+  `…-20260913-1606.app`（1,559,429 / `78EEF0EF…502FC`）。
 - 提审与否待真机验证后决定；**未动商店素材、未上传管理台**。
 - 案例鉴赏在两版免费包中都隐藏（`FeatureFlags.SHOW_ANCIENT_CASE_GALLERY=false`）；案例库 45 案与证据链升级只影响主版。
 
@@ -1099,6 +1100,10 @@ SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均�
   - `Index.openPalaceCard()` → `LiurenCore.readXiangCard(c, z, yongShen)`（行 = `Record<string, string>`，
     四字段 `label`/`text`/`source`/`tone`，顺序照《以炁为基点读象》的三层景）；
     `Index.toggleZhuri()` → `LiurenCore.zhuriWhy(c)`，取 `yueJiang`/`guiRen`/`note`/`kouJue` 排成行。
+  - **点盘交互（2026-09-13 用户决定 A）**：点天地盘宫位 = 取用神（照旧）+ 开宫情卡，**不再自动弹出**
+    「抓用神」半模态（半模态会盖住卡片）。要看用神缘由点「抓用神 · 读象」按钮；页面既有
+    「⚡ 外应取用：×」提示行承担告知。实现：`pickCustomZhi(zhi, layer, openSheet)` —— 点盘传 `false`，
+    抓用神面板内的迷你盘传 `true`（面板本已打开，不可自己关掉）。
   - `PalaceCard` 只排版：小标题 + 正文 + 可选「原文」行（tone 三色）。引擎缺表时把说明放在 `note`，
     App **必须显示**（warn 色调）—— 静默留白等于骗人（§14.1）。
   - ArkTS 形状纪律：**接口字段用点访问，`Record` 才可下标**。extras 片段是逐字追加、**不做** `X["k"] → X.k`
@@ -1128,3 +1133,11 @@ node _tests/_test_compliance_wording.js       # C1 八字专有语汇 / C2 算�
      早于读象三表 → 新增的规则表键必须**注入切片体**（`_ets_split.js` 中对 `DuxiangRulesRaw` 的注入）。
      不注入的后果：引擎读 `rules.duxiang.十二宫气机点` 报 `Property '十二宫气机点' does not exist on type 'DuxiangRulesRaw'`，
      并连带三条 `arkts-no-any-unknown`（属性不存在 → 该表达式退化为 any）。
+
+4. **UI 列表的 ForEach 键必须内容派生（2026-09-13 真机缺陷）**：点宫速查卡的键原为
+   `'pc' + i + r['label']`，而同一卡片在不同宫位下**行标签集与顺序恒定** → ArkUI 判定为同一批子组件，
+   **复用且不更新其内容**。真机现象极具辨识度：卡片标题（`@Prop title`）在变、**正文却停在上一个宫位**，
+   收起卡片再点才对。修法：键 = 索引 + 内容（`'pc' + i + '|' + label + '|' + text + '|' + source + '|' + tone`）——
+   索引在前保证键唯一，内容在后保证内容变化必然重建。古籍研习另五处同类键（`'dline' + li` 等）一并清掉。
+   门禁：`_tests/_test_ui_foreach_key.js`（扫两侧 App 全部 `.ets`，判定每个键生成器是否引用条目自身；
+   已做变异测试证明会红）。**键里只有索引/字面量 = 迟早静默显示旧内容**。

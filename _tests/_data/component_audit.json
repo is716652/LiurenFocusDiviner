@@ -1,5 +1,5 @@
 {
- "生成时间": "2026-09-13T08:07:08.878Z",
+ "生成时间": "2026-09-13T08:44:23.261Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 54,
@@ -12,7 +12,7 @@
  "结论": {
   "B4耦合判定": "脆链接（fragile）：改 JSON 键会**静默改变排盘结果**而无人察觉——4/5 个实验里引擎不报错但输出变了",
   "A组件写死": {
-   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 12 处、注释出处 56 处、_tools 脚本字面量 24 处，均只计数不计失败）",
+   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 12 处、注释出处 60 处、_tools 脚本字面量 24 处，均只计数不计失败）",
    "A2按课特判": "0 处（静态）",
    "A2维度敏感性": "日干 500/500，日支 231/231，月将 500/500，占时 500/500",
    "A3盘面事实硬编码": "0 处",
@@ -279,7 +279,7 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 1791,
+     "line": 1793,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "ight(18)\r\n                .width('100%')\r\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\r\n      "
@@ -370,7 +370,7 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 1791,
+     "line": 1793,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "ight(18)\r\n                .width('100%')\r\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\r\n      "
@@ -384,7 +384,7 @@
     }
    ],
    "数据路径引用计数": 12,
-   "注释计数": 56,
+   "注释计数": 60,
    "注释明细": [
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/DuyuCard.ets",
@@ -421,6 +421,12 @@
      "line": 1,
      "lit": "2026-09-12",
      "text": "/** * InfoRow —— 一行信息（盘态/神煞明细用） * tone: 'gold' | 'cinnabar' | 'plain' * stack: false（默认）= "
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/PalaceCard.ets",
+     "line": 34,
+     "lit": "2026-09-13",
+     "text": "/* 键必须内容派生：换宫位时行标签集与顺序恒定（此宫/远景/中景/近景/气机点/原文/此宫一句）， 若键只含 label+索引，ArkUI 会判定为同一批子组件而复用旧内容 ——"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
@@ -544,7 +550,13 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 281,
+     "line": 112,
+     "lit": "2026-09-13",
+     "text": "/* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片。同一次点击仍照旧取用神，但**不再自动弹出** 「抓用神」半模态（2026-09-13 用户决定 A：半模态会盖住卡片）。"
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
+     "line": 282,
      "lit": "管辂",
      "text": "/* 类象库/管辂象意缺失：节点卡与选句兜底为空 */"
     },
@@ -589,6 +601,12 @@
      "line": 1,
      "lit": "2026-09-12",
      "text": "/** * InfoRow —— 一行信息（盘态/神煞明细用） * tone: 'gold' | 'cinnabar' | 'plain' * stack: false（默认）= "
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/PalaceCard.ets",
+     "line": 34,
+     "lit": "2026-09-13",
+     "text": "/* 键必须内容派生：换宫位时行标签集与顺序恒定（此宫/远景/中景/近景/气机点/原文/此宫一句）， 若键只含 label+索引，ArkUI 会判定为同一批子组件而复用旧内容 ——"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
@@ -712,7 +730,13 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 281,
+     "line": 112,
+     "lit": "2026-09-13",
+     "text": "/* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片。同一次点击仍照旧取用神，但**不再自动弹出** 「抓用神」半模态（2026-09-13 用户决定 A：半模态会盖住卡片）。"
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
+     "line": 282,
      "lit": "管辂",
      "text": "/* 类象库/管辂象意缺失：节点卡与选句兜底为空 */"
     },
@@ -725,7 +749,7 @@
    ]
   },
   "A2静态": {
-   "条件数": 4091,
+   "条件数": 4093,
    "可疑": []
   },
   "A2运行期": {

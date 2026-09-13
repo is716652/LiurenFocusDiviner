@@ -31,6 +31,9 @@ export struct PalaceCard {
       }
       .width('100%')
 
+      /* 键必须内容派生：换宫位时行标签集与顺序恒定（此宫/远景/中景/近景/气机点/原文/此宫一句），
+         若键只含 label+索引，ArkUI 会判定为同一批子组件而复用旧内容 —— 真机现象是标题在变、
+         正文却停在上一个宫位。（2026-09-13 实测修复：见 Agent.md「读象读数」节） */
       ForEach(this.rows, (r: Record<string, string>) => {
         Column({ space: 2 }) {
           if (r['text'] !== '') {
@@ -67,7 +70,8 @@ export struct PalaceCard {
         }
         .width('100%')
         .alignItems(HorizontalAlign.Start)
-      }, (r: Record<string, string>, i: number) => 'pc' + i + r['label'])
+      }, (r: Record<string, string>, i: number) => 'pc' + i + '|' + r['label'] + '|' + r['text']
+        + '|' + r['source'] + '|' + r['tone'])
 
       Text('说明：本卡只陈述盘上关系（宫 · 冲合刑害 · 空亡 · 乘将 · 气机点），不作现实判断；「原文」行引自本项目的读象规则文档。')
         .fontSize(9)

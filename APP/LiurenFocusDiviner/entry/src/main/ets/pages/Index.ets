@@ -109,7 +109,8 @@ struct Index {
   @State private xingnian: XingNianResult | null = null;
   /* 行年状态（§14.7 第 3 条）：'' / ok / unset / missing —— 行年不得静默消失 */
   @State private xingnianKind: string = '';
-  /* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片；与既有「外应取用」并行，不改变原行为 */
+  /* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片。同一次点击仍照旧取用神，但**不再自动弹出**
+     「抓用神」半模态（2026-09-13 用户决定 A：半模态会盖住卡片）。要看用神缘由点「抓用神 · 读象」。 */
   @State private cardRows: Record<string, string>[] = [];
   @State private zhuriKouJue: string = '';
   @State private cardTitle: string = '';
@@ -1079,9 +1080,10 @@ struct Index {
               if (this.zhonghuangMode === '中黄' && this.zhonghuang) {
                 this.pickZhongGong(z, layer);
               } else {
-                this.pickCustomZhi(z, layer);
+                /* openSheet=false：点盘不再弹出抓用神半模态（否则会盖住下面刚开的宫情卡） */
+                this.pickCustomZhi(z, layer, false);
               }
-              /* 同一次点击顺带开宫情速查卡（不改变上面的取用行为） */
+              /* 同一次点击顺带开宫情速查卡（取用行为不变） */
               this.openPalaceCard(z);
             }
           })
@@ -1163,7 +1165,7 @@ struct Index {
           }
           Text(this.zhonghuangMode === '中黄' ?
             (this.zhongGong !== '' ? '中黄宫情：' + this.zhongGong + '宫 · 点盘换宫；切回旬遁恢复外应取用' : '中黄开：点盘看宫情 · 切回旬遁恢复外应取用') :
-            (this.customYS ? '⚡ 外应取用：' + this.yongShen + '（' + (this.customLayer === '天盘' ? '天盘加临之象' : '地盘本位之象') + '）· 点盘可换' :
+            (this.customYS ? '⚡ 外应取用：' + this.yongShen + '（' + (this.customLayer === '天盘' ? '天盘加临之象' : '地盘本位之象') + '）· 点盘可换 · 缘由见「抓用神 · 读象」' :
               '点盘任一支 = 外应取用（天盘优先）'))
             .fontSize(10)
             .fontColor(this.zhonghuangMode === '中黄' ? '#C4A25C' : (this.customYS ? '#F0D98C' : '#A8986E'))
@@ -2338,8 +2340,10 @@ struct Index {
     return '神煞：' + (names && names.length > 0 ? names.join('、') : '—') + '（古籍研习参考）';
   }
 
-  /* 外应取用：盘面点击任一支 → 自定义为用神（天盘支优先；动态三传/毕法/年命行年自动联动） */
-  private pickCustomZhi(zhi: string, layer: string): void {
+  /* 外应取用：盘面点击任一支 → 自定义为用神（天盘支优先；动态三传/毕法/年命行年自动联动）。
+     openSheet：是否顺带弹出「抓用神」半模态 —— 点盘传 false（半模态盖住宫情卡，见 §14.4），
+     抓用神面板内的迷你盘传 true（面板本已打开，不可自己关掉）。 */
+  private pickCustomZhi(zhi: string, layer: string, openSheet: boolean): void {
     this.yongShen = zhi;
     this.cands = [];
     this.customYS = true;
@@ -2354,8 +2358,10 @@ struct Index {
       }
       this.computeXingNian(c, this.birthYear, this.yongShen);
     }
-    /* 自动弹出抓用神，告知所选用神（迷你盘同步显示） */
-    this.showYongShen = true;
+    /* 只有在抓用神面板里点时才保持/打开它；点盘不再自动弹出（改用神缘由看页面提示行） */
+    if (openSheet) {
+      this.showYongShen = true;
+    }
   }
 
   /* 解锁毕法研习内容（带结果提示） */
@@ -2436,7 +2442,8 @@ struct Index {
           this.anchor = v;
         },
         onPickZhi: (z: string, layer: string) => {
-          this.pickCustomZhi(z, layer);
+          /* 面板内的迷你盘：本就在面板里，保持打开（openSheet=true） */
+          this.pickCustomZhi(z, layer, true);
         },
         onClose: () => {
           this.showYongShen = false;
