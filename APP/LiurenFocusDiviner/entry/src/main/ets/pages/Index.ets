@@ -1580,7 +1580,7 @@ struct Index {
                 .fontColor('#C4A25C')
             }
             .width('100%')
-            Text(hit.判)
+            Text('原文 · ' + hit.判)
               .fontSize(12)
               .fontColor('#B8A97F')
               .lineHeight(18)
