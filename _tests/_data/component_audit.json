@@ -1,5 +1,5 @@
 {
- "生成时间": "2026-09-13T05:47:21.218Z",
+ "生成时间": "2026-09-13T05:55:35.236Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 56,
@@ -2371,10 +2371,10 @@
     "rule/毕法赋一百法.json": "68e415a9d46847a6a95d89389fb3f6c7d87a1b869edb00477868d6f5c6d8f9ef",
     "rule/神煞起法.json": "716c209a837895445aeedac8fced750f6a0f6b8a390a0535ee5ea7dd80e9a50c",
     "rule/空亡规则.json": "3dcacf58d6d7bab08d2cd05ede80850087991077406d9ba296e45edcb50800cf",
-    "rule/管辂类神取用.json": "0567256496cd20127da6181f4c2217293abe88718b8cc04f95fd9d511e85e591",
+    "rule/管辂类神取用.json": "e5159fc19fcb659d0218e4419234b6398b881026027980209836e2ab60e82ad7",
     "rule/管辂象意.json": "1f2f86aff66cc13a7ad3e6114cbd5abb35a16e6a46153a2c9a90c600482077ad",
-    "rule/类象库.json": "cccef2c5ab04c7aa23445629e73943f22390c808fe3a7c20024fd5d85a10b99c",
-    "rule/行年打分.json": "f1ec067e246e66d137ba19e2e0461ac7636c34160c437e5faadef002e9194772",
+    "rule/类象库.json": "642b0318fa6878be23ac2086207f9a26f1903879fa760fcaebf3f88ee3af4bed",
+    "rule/行年打分.json": "eae65d76630430786bd16a2d2cf4d2051426ef99e64df9e254199cb4a5429228",
     "rule/课体课义.json": "9827901b4e709dcf76b35f2306cb7981eaea588d77182d041898b6d74e2f1fdc"
    }
   }
