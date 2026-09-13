@@ -26,15 +26,16 @@
   （与原 `…-free-release-signed.app` 字节一致，构建于 2026-08-26 20:47，约对应 `46a5ea9`/`84b755e` 时点）。
   商店在架版**没有中黄、没有案例鉴赏**，且含本轮修正前的天将/昴星/遁干问题。
 - **待提审版（1.0.4 / 1000004）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
-  （**1,559,518 字节**，2026-09-13 16:38 构建，SHA256 `B6C89DB1B4EA1A5B522B96B0361AC6596260DBA5959A2B04FE1E5CF6DE0B9FB7`，
+  （**1,559,532 字节**，2026-09-13 18:00 构建，SHA256 `26BC331775920FCC394ECA2722BED67538A3E4CD9C222E038C25ED11D30930E5`，
   `verify-app success`；包内 versionName=1.0.4、versionCode=1000004、requestPermissions=0，
   `python _tools/verify_app_pkg.py` 16 项全过、`--selftest` 负向全拦）。
-  相对上一刀（16:06，1,559,429 字节 / SHA256 `78EEF0EF…502FC`，已归档）的增量：
-  **真机反馈修复** —— 点宫速查卡换宫位时正文不刷新（ForEach 键复用旧子组件）、点盘同时弹出「抓用神」
-  半模态盖住卡片（改为点盘只开卡片，用神照旧切换）、古籍研习五处同类键一并清、新增全 App 键门禁。
-- 本版本历次切刀归档（命名 `…-1.0.4-YYYYMMDD-HHMM.app`，均与替换前 generic 名逐字节一致后保留）：
-  `…-20260913-1357.app`（1,559,616）→ `…-20260913-1405.app`（1,559,657 / `2D98057B…98751`）→
-  `…-20260913-1606.app`（1,559,429 / `78EEF0EF…502FC`）。
+  源码与 16:38 那一刀**完全相同**（其间只改了 `_tools/*.py`），故两刀内容一致 —— 实测同源码同工具链
+  **出包逐字节相同**（构建具确定性）。
+- 本版本历次切刀归档（命名 `…-1.0.4-YYYYMMDD-HHMM.app`）：
+  `…-1357.app`（1,559,616）→ `…-1405.app`（1,559,657 / `2D98057B…98751`）→
+  `…-1606.app`（1,559,429 / `78EEF0EF…502FC`）→ `…-1800.app`（1,559,532 / `26BC3317…930E5`）。
+  **例外（如实登记）**：16:38 那一刀（1,559,518 / `B6C89DB1…0B9FB7`）**未被归档** ——
+  当时归档靠手工、漏了，随即被下一次出包覆盖。已由本轮加的「覆盖前自动归档」堵住（见 §17）。
 - 提审与否待真机验证后决定；**未动商店素材、未上传管理台**。
 - 案例鉴赏在两版免费包中都隐藏（`FeatureFlags.SHOW_ANCIENT_CASE_GALLERY=false`）；案例库 45 案与证据链升级只影响主版。
 
@@ -496,8 +497,22 @@ node _tests/_test_rule_health.js    # 把 RuleHealth.ets / ReasonText.ets 用 ts
 ### 免费版同步与校验
 
 ```powershell
-python _tools/sync_free_edition.py     # 复制主版 → 免费版；剔除收费块数据（case_gallery/case_story）
-python _tools/verify_free_edition.py   # 硬断言：收费数据不得在 + 免费数据必须全 + 与主版逐文件比对
+python _tools/sync_free_edition.py     # 真同步：清空并重建免费版；剔除收费块数据（case_gallery/case_story）
+python _tools/sync_free_edition.py --check   # 【只判定】同一套规则干跑到临时目录，与现存免费版逐文件比对
+                                       #   缺 / 多 / 内容不同 都报；**不写工作区**；无白名单（规则即真源）
+python _tools/verify_free_edition.py   # 硬断言：收费数据不得在 + 免费数据必须全 + rawfile 与主版逐文件比对
+                                       #   + 【源码/配置树 = 主版 + 差异规则】（判定复用 sync，不另写清单）
+
+### 免费版同步纪律（2026-09-13，一次静默漂移换来的）
+
+`LiurenFocusDivinerFree` 是**生成物**：免费版 = 主版 + `sync_free_edition.py` 的差异规则。
+两条铁律：
+
+1. **改了主版源码，先跑 `node _tools/_ets_pipeline.js`（内含同步），再编免费版。**
+   实测教训：改完主版 `PalaceCard.ets` 直接编免费版，构建 1.9 秒就 SUCCESSFUL —— 编的是旧代码。
+2. **差异规则只住 `sync_free_edition.py` 一处。** 判定方（verify / 打包脚本）只**调用**
+   `sync_free_edition.diff_against()` 或 `--check`，**不得另写白名单/允许差异清单** ——
+   那会变成第二处规则真源，规则一改判定就漂移。
 ```
 
 ### 包内实证（.app → .hap → rawfile）
@@ -520,8 +535,14 @@ python _tools/_diff_app_pkg.py <旧 .app> <新 .app>
 
 ```powershell
 python _tools/sign_release.py free    # 免费版（上架用）= 默认；main = 主版
-# 产物：APP/release_pkg/LiurenFocusDiviner-free-release-signed.app（自动 verify-app 校验签名）
-# 注意：generic 名会被覆盖，归档旧包请先改名保留（如 …-1.0.1-onshelf-20260826.app）
+# 产物：APP/release_pkg/LiurenFocusDiviner-free-release-signed.app
+# 流程（2026-09-13 起）：前置门禁（free 目标跑 verify_free_edition）→ assembleApp →
+#   **覆盖前自动归档上一刀** → 复制到 release_pkg → verify-app 签名校验 → 出包后校验（verify_app_pkg）
+# 前置门禁不过即中止：**不构建、不出包**（实测 fail-fast）；打包脚本不承载差异规则、不做同步。
+# 归档命名沿用 …-<版本>-YYYYMMDD-HHMM.app（时间取旧包 mtime；同分钟反复切刀加序号，绝不覆盖已有归档）——
+#   手工归档会漏（本轮就漏过一刀），故交给脚本。
+# 路径不写死：仓库根由 __file__ 推导（LIUREN_ROOT 可覆盖）；工具链可用 LIUREN_TOOLCHAIN /
+#   LIUREN_HVIGOR / LIUREN_JAVA / LIUREN_SIGN_TOOL 覆盖；缺失时给清晰提示而不是让 hvigor 抛错。
 ```
 
 ### 构建

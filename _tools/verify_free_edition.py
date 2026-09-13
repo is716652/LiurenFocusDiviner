@@ -10,6 +10,7 @@
 """
 import io
 import os
+import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 MAIN = os.path.join(ROOT, 'APP', 'LiurenFocusDiviner')
@@ -17,11 +18,12 @@ FREE = os.path.join(ROOT, 'APP', 'LiurenFocusDivinerFree')
 RAWFILE = os.path.join(FREE, 'entry', 'src', 'main', 'resources', 'rawfile')
 MAIN_RAWFILE = os.path.join(MAIN, 'entry', 'src', 'main', 'resources', 'rawfile')
 
-# 收费块数据（案例鉴赏/剧情）：免费包不得携带
-PAID_RAWFILE = (
-    'ancient/case_gallery.json',
-    'ancient/case_story.json',
-)
+# 收费块数据（案例鉴赏/剧情）：免费包不得携带。
+# 规则只住 _tools/sync_free_edition.py（**单一真源**）—— 此处 import 复用，不另写清单，
+# 否则规则一改判定就漂移。
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sync_free_edition as _sync          # noqa: E402
+PAID_RAWFILE = _sync.PAID_RAWFILE
 
 # 免费版必须存在的免费功能数据（显式探针；目录另做逐文件比对）
 FREE_RAWFILE_FILES = (
@@ -128,6 +130,30 @@ def check_free_data_matches_main():
            % (removed_bytes, len(main_files), len(free_files)))
 
 
+def check_source_tree_in_sync():
+    """免费版**源码/配置树**必须等于「主版 + sync_free_edition 的差异规则」。
+
+    2026-09-13 补：此前只比对了 rawfile（数据侧），源码侧没有任何断言 —— 于是出现
+    「主版改了 .ets、免费版还是旧的，而免费版构建照样 SUCCESSFUL」的静默漂移
+    （实测：免费版构建 1.9 秒"成功"，编的其实是旧代码）。
+    判定依据来自生成规则本身（_sync.diff_against，干跑到临时目录后逐文件比对），
+    **不需要任何白名单**：以后新增收费块/新增排除项只改 sync 一处，本断言自动跟随。
+    """
+    try:
+        diffs = _sync.diff_against(FREE)
+    except Exception as e:                                     # 规则本身跑不通也要报出来
+        bad('无法按差异规则干跑比对: %s' % e)
+        return
+    if diffs:
+        bad('免费版与主版不同步（%d 处）—— 先跑 node _tools/_ets_pipeline.js' % len(diffs))
+        for d in diffs[:20]:
+            print('       ' + d)
+        if len(diffs) > 20:
+            print('       … 共 %d 处' % len(diffs))
+    else:
+        ok('源码/配置树 = 主版 + 差异规则（逐文件一致，无白名单）')
+
+
 if not os.path.isdir(FREE):
     bad('免费版目录不存在: ' + FREE)
     raise SystemExit(1)
@@ -159,6 +185,7 @@ else:
 check_paid_data_absent()
 check_free_data_present()
 check_free_data_matches_main()
+check_source_tree_in_sync()
 
 print('PASS' if fail == 0 else 'FAILED: %d' % fail)
 raise SystemExit(0 if fail == 0 else 1)
