@@ -547,6 +547,7 @@ python _tools/sign_release.py free  # 出包（内部已含前置门禁 + 出包
 | UI 呈现 | `_test_ui_layout`（排版）`_test_ui_empty_state`（E1–E8 空态说话）`_test_ui_foreach_key`（列表键须内容派生） | 改 `.ets` 页面/组件后 |
 | 读数单一真源 | `_test_readxiang`（R1–R8 行为）`_test_readxiang_single_source`（S1–S3 结构） | 改读象/速查卡后 |
 | 数据健康 | `_test_rule_health`（运行期断言 + 缺表不静默） | 改 DataLoader/RuleHealth 后 |
+| 案例剧情数据 | `_tests/_test_case_story.js`（结构与**锚点复算**）+ `_tools/case_story_audit.js`（**批量填充审计**：文案断言与复算不符 / 抄既有案 / 编造应验 / 占位符残留 / derived 越界） | 改剧情数据后 |
 | 文档结构 | `_test_docs_structure`（围栏 / 编号 / 登记 HEAD 存在性） | 改 `.md` 后 |
 | 免费版与包 | `verify_free_edition.py`（数据 + 源码树一致性）`verify_app_pkg.py`（包内 16 项） | 出包前（`sign_release.py` 已自动调用） |
 | 产物一致性 | `build_core.js --check` `_api_parity.js` `_core_snapshot.js` | 改真源后 |

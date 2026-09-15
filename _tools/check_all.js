@@ -39,6 +39,7 @@ function toolChecks() {
     { name: 'build_core.js --check', cmd: process.execPath, args: [path.join(ROOT, '_tools/build_core.js'), '--check'], slow: false },
     { name: '_api_parity.js（对外 API 只增不改）', cmd: process.execPath, args: [path.join(ROOT, '_tools/_api_parity.js')], slow: false },
     { name: 'verify_app_pkg.py（上传包级 16 项）', cmd: 'python', args: [path.join(ROOT, '_tools/verify_app_pkg.py')], slow: false },
+    { name: 'case_story_audit.js（案例剧情批量填充审计）', cmd: process.execPath, args: [path.join(ROOT, '_tools/case_story_audit.js')], slow: false },
     { name: '_core_snapshot.js（行为快照 185981 条）', cmd: process.execPath, args: [path.join(ROOT, '_tools/_core_snapshot.js')], slow: true },
     { name: 'gate_mutation_check.js（门禁有效性自检：逐个变异后重跑对应门禁，故最慢）', cmd: process.execPath, args: [path.join(ROOT, '_tools/gate_mutation_check.js')], slow: true },
   ];
