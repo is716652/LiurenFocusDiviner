@@ -84,6 +84,18 @@ console.log('  神煞(按支)  : ' + Object.keys(byZhi).filter((z) => (byZhi[z] 
 console.log('  助日        : 月将' + ((c.dx.yuejiang && c.dx.yuejiang.zhu) ? '助日' : '不助日')
   + '；贵人' + ((c.dx.guiren && c.dx.guiren.zhu) ? '助日' : '不助日'));
 console.log('');
+console.log('--- 锚点形状契约（以 _tests/_test_case_story.js 的 switch(an.kind) 为准）---');
+console.log('  method        {} 或 {ref:"<课体名>"}          —— 如 "涉害"/"比用"/"伏吟"/"元首"');
+console.log('  chuan         {pos:"初传|中传|末传", ref:"<该位之支>"}');
+console.log('  keg           {ref:"<干上神>/<日干>"}          —— 如 "子/甲"');
+console.log('  jiang         {ref:"<支>/<将>"}                —— 如 "戌/玄武"（不是 zhi+ref 两字段！）');
+console.log('  gong / zhi    {ref:"<地支>"}');
+console.log('  xunkong       {ref:"<空亡之支>"}');
+console.log('  dayWangShuai  {ref:"<本课日干旺衰值>"}          —— 如 "死"/"旺"（不是 "甲/申"）');
+console.log('  shensha       {ref:"<支>/<神煞名>"}              —— 如 "巳/驿马"');
+console.log('  hour          {ref:"<占时之支>"}');
+console.log('  shiGan/bianGan{ref:"<中黄遁干>"}');
+console.log('');
 console.log('--- 可直接填的骨架（占位符【待填】填完必须消失；endings 必须 4 档） ---');
 const topic0 = (item.topics || [])[0] || TOPICS[0];
 const sk = {};
@@ -108,14 +120,15 @@ sk[item.id] = {
         },
         {
           id: 'chu', label: '【待填·问句】初传主事之始：何支、乘何将？', small: '点初传',
-          anchors: [{ kind: 'chuan', pos: '初传' }],
+          anchors: [{ kind: 'chuan', pos: '初传', ref: chuans[0] }],
           hint: '【待填】可写：本课初传' + chuans[0] + '，乘' + (jiangAt(chuans[0]) || '?')
             + (kongZhi.indexOf(chuans[0]) >= 0 ? '，落旬空' : '') + '；神煞：'
             + ((byZhi[chuans[0]] || []).join('、') || '无')
         },
         {
           id: 'mo', label: '【待填·问句】末传主事之终：日干在此时令有力否？', small: '点末传与日干旺衰',
-          anchors: [{ kind: 'chuan', pos: '末传' }, { kind: 'dayWangShuai', ref: inp.dg + '/' + inp.monthZhi }],
+          anchors: [{ kind: 'chuan', pos: '末传', ref: chuans[2] },
+            { kind: 'dayWangShuai', ref: c.dx.dayWangShuai }],
           hint: '【待填】可写：末传' + chuans[2] + '，日干' + inp.dg + '在' + inp.monthZhi + '月为' + (ws[inp.monthZhi] || '?')
         }
       ],
@@ -138,7 +151,8 @@ sk[item.id] = {
       question: '【待填】若问……可取之象有哪些？',
       clues: [{
         id: '【待填】', label: '【待填·问句】', small: '【待填·点哪里】',
-        anchors: [{ kind: 'gong', ref: '【待填·支或宫】' }],
+        anchors: [{ kind: 'gong', ref: '【待填·支或宫】' },
+          { kind: 'shensha', ref: '【待填·支】/【待填·神煞名】' }],
         hint: '【待填】须给「古法/经文/类象/常取/多主/参看/取象」之一的规则归属；只列取象，不下结论'
       }],
       endings: [{ label: '【待填】', text: '【待填】' }, { label: '【待填】', text: '【待填】' },

@@ -45,7 +45,15 @@ const cases = JSON.parse(fs.readFileSync(path.join(RB, 'ancient', 'case_gallery.
 const byId = {};
 for (const c of cases) byId[c.id] = c;
 
-const SHEN_SHA_ALL = new Set(Object.keys(load('神煞起法.json')['神煞'] || {}));
+const SHEN_SHA_ALL = (() => {
+  const s = new Set();
+  for (const k of Object.keys(load('神煞起法.json')['神煞'] || {})) {
+    s.add(k);
+    const base = k.replace(/[（(].*?[）)]/g, '');
+    if (base && base !== k) s.add(base);
+  }
+  return s;
+})();
 const JIANG = '贵人|螣蛇|朱雀|六合|勾陈|青龙|天空|白虎|太常|玄武|太阴|天后';
 const ZHI = '子丑寅卯辰巳午未申酉戌亥';
 const POS = { 初: 0, 中: 1, 末: 2 };
@@ -138,6 +146,23 @@ for (const [caseId, story] of Object.entries(stories)) {
         if (name.length >= 2 && name.length <= 6 && SHEN_SHA_ALL.has(name) && !have.has(name)) {
           fail(tag, '神煞断言与复算不符', zhi + '带' + name + '（复算：' + zhi + '带 ' + (byZhi[zhi] || []).join('、') + '）');
         }
+      }
+    }
+    /* 煞在支：文本写「<煞名>在|居|临|落<支>」时，核对该支神煞表里是否真有该煞。
+       实测教训：第一批 6 案把别案的「天马在辰」抄进本案（本案天马在子）——
+       若锚点恰好写对，锚点校验就抓不到这种文案错误。
+       实现注意：煞名含括号（「桃花(咸池)」），故不拼大 alternation（会错位捕获组），
+       改为泛匹配后取「最长的、且在煞名表内的后缀」作为煞名。 */
+    for (const m of t.matchAll(new RegExp('([\u4e00-\u9fa5]{2,8})(?:在|居|临|落)([' + ZHI + '])', 'g'))) {
+      const rawName = m[1];
+      let name = '';
+      for (let len = Math.min(6, rawName.length); len >= 2; len--) {
+        if (SHEN_SHA_ALL.has(rawName.slice(rawName.length - len))) { name = rawName.slice(rawName.length - len); break; }
+      }
+      if (!name) continue;
+      if (!(byZhi[m[2]] || []).includes(name)) {
+        fail(tag, '神煞位置断言与复算不符', name + '在' + m[2] + '（复算：' + m[2] + '带 '
+          + ((byZhi[m[2]] || []).join('、') || '无') + '）');
       }
     }
     /* 支旬空：**紧邻**才算该支的断言。实测教训：句「日支卯上见申，而申落旬空」里主体是申
