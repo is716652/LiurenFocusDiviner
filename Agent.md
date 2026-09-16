@@ -22,7 +22,7 @@
 
 发布包位置（2026-09-15 更新）：
 
-- **在架版（1.0.3 / 1000003）**：2026-09-11（周五）紧急上架；提审包归档为
+- **历史在架版（1.0.3 / 1000003，2026-09-11 上架 → 2026-09-16 被 1.0.4 取代）**：提审包归档为
   `APP/release_pkg/archive/LiurenFocusDiviner-free-release-signed-1.0.3-20260910.app`
   （1,574,345 字节，SHA256 `3E55D6CA4A847DCB4F4F2D1E9117EEF8F635B85374E2DF73600FDA5D966B500E`）。
   在架版**已含**中黄天地盘 UX（1.0.2 起）、十二天将顺逆修正、柔日昴星修正、遁干改旬遁（空亡可见）；
@@ -30,11 +30,13 @@
 - **历史在架版（1.0.1 / 1000001，2026-08-26 上架 → 2026-09-11 被 1.0.3 取代）**：归档
   `…-1.0.1-onshelf-20260826.app`（1,481,472 字节）。该版**没有中黄、没有案例鉴赏**，
   且含天将/昴星/遁干修正前的错误口径（1.0.3 起已修正）。
-- **已提交待审（1.0.4 / 1000004；2026-09-15 提交）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
+- **在架版（1.0.4 / 1000004；2026-09-15 提交 → 2026-09-16 审核通过并上架）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
   （**1,559,532 字节**，2026-09-13 18:00 构建，SHA256 `26BC331775920FCC394ECA2722BED67538A3E4CD9C222E038C25ED11D30930E5`，
   `verify-app success`；包内 versionName=1.0.4、versionCode=1000004、requestPermissions=0，
-  `python _tools/verify_app_pkg.py` 16 项全过）。已提交 AppGallery 管理台，待审核；**商店素材与文案未动**。
+  `python _tools/verify_app_pkg.py` 16 项全过）。**2026-09-16 审核通过并上架**（取代 1.0.3）；**商店素材与文案未动**。
   提交时的源码状态锚点：tag `v1.0.4-submitted`（此后仅有文档与 `_tools` 变更，App 源码与该包一致）。
+  上架锚点：tag `v1.0.4-onshelf`；在架包归档
+  `APP/release_pkg/archive/LiurenFocusDiviner-free-release-signed-1.0.4-onshelf-20260916.app`（与 generic 名逐字节一致）。
   审核若出问题需快速修：以该 tag 为基准做最小改动，再走 `_ets_pipeline` → 两版构建 → `sign_release.py free`。
 - **1.0.4 相对在架 1.0.3 的增量**：三传（九宗门）按规范重写 + 涉害改「孟仲季优先」、页签导航修复
   （1.0.3 审核意见第 2 条）、免费包剔除收费块数据、毕法展开排版修复、空态与数据健康徽标/自检、
@@ -58,7 +60,7 @@
 
 2. **版本号（2026-09-10 起）**
    - 当前记录：`versionName=1.0.2` / `versionCode=1000002`（因算法修正升版，用户确认后执行）。
-   - 在架：`1.0.3` / `1000003`（2026-09-11 上架）；待提审：`1.0.4` / `1000004`。除发版外不要随手 bump；升版只在主版 `AppScope/app.json5` 改，免费版由 sync 脚本生成。
+   - 在架：`1.0.4` / `1000004`（2026-09-16 上架）；**下一版版号待定**（升级只在主版 `AppScope/app.json5` 改，免费版由 sync 生成）。除发版外不要随手 bump；升版只在主版 `AppScope/app.json5` 改，免费版由 sync 脚本生成。
 
 3. **免费版由脚本生成，不手改免费版当源头**
    - 主版源头：`APP/LiurenFocusDiviner`
