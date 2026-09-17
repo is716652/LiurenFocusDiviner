@@ -124,11 +124,23 @@ for (const [caseId, story] of Object.entries(stories)) {
   const roles = new Set();
   let caseFail0 = fails, caseWarn0 = warns;
 
+  /* 九宗门课体名（用于核对文案里的"本课为X课"是否与复算一致） */
+  const KETI = ['元首', '重审', '比用', '涉害', '遥克', '昴星', '别责', '八专', '伏吟', '返吟'];
+  const methodNow = c.sanchuan.method || '';
   /* 逐文本核对「文案里的盘面断言」 */
   const checkText = (tag, text) => {
     const t = String(text || '');
     if (!t) return;
     if (PLACEHOLDER.test(t) || STANDALONE_DOTS.test(t.trim())) fail(tag, '占位符/未填残留', t.slice(0, 40));
+    /* 课体名断言：同句出现「本课/此课」与某课体名 → 必须等于复算课体 */
+    for (const seg of t.split(/[。；！？\n]/)) {
+      if (!/本课|此课/.test(seg)) continue;
+      for (const k of KETI) {
+        if (seg.indexOf(k) >= 0 && k !== methodNow) {
+          fail(tag, '课体名与复算不符', seg.slice(0, 40) + '（复算课体：' + (methodNow || '?') + '）');
+        }
+      }
+    }
     /* 支乘将 / 将乘支 */
     for (const m of t.matchAll(new RegExp('([' + ZHI + '])乘(' + JIANG + ')', 'g'))) {
       const real = jiangAt(m[1]);
