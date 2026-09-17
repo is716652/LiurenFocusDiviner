@@ -1,0 +1,30 @@
+案例剧情第三批 6 案（占类再铺开）+ 统一「年干支」传参口径（修跨面不一致）
+
+子代理按已落档规则撰写，我独立复核（对比 HEAD / 复跑闸门 / 抽查文风）。
+
+新增 6 案（case_story.json 14 → 20；全部 renzhan_*/duanan_*，避开中黄）：
+- renzhan_jiazi_017_wang_jibing 王牧夫占疾病：疾病(4) + 应候(2)
+- renzhan_jiazi_002_xu_laiyi 徐次宾占来意（正月甲子日）：来意(5) + 行人(2)
+- renzhan_yichou_024_xu_laiyi 徐次宾占来意（六月乙丑日）：来意(5) + 亡盗(2)
+- renzhan_yichou_028_chen_shihuan 陈公献占仕宦：仕宦(4) + 补官(2)
+- renzhan_bingyin_044_xu_laiyi 徐次宾占来意（六月丙寅日）：来意(4) + 官讼(2)
+- duanan_140_liu_dian 刘五官占店：索债(4) + 复建(2)
+共 12 支线 / 38 线索；首次铺开 索债/应候/补官/复建/仕宦。
+UI/_data/case_story.js 已同步（20 stories / 40 asks）。
+
+我的独立复核：
+1. 对比 HEAD：既有 14 案逐字未变 ✓、顶层字段未变 ✓、只新增 6 案 ✓
+2. 权威校验器：锚点校验数 331 · ALL PASS (20 stories)
+3. 审计：FAIL 0 · WARN 78（绝大多数是既有案的覆盖度/短句等历史提示）
+4. 原型无头反验 ALL PASS；文档结构门禁 PASS
+5. 文风抽查（刘五官占店）：问句 → 单处可点位置 → 古法通则解释；异占只列取象、无结论
+
+本轮修掉一个**跨面不一致**（子代理发现的真问题）：
+case_gallery.json 部分案例把年干支写在 yg/yz，而校验器与三个剧情工具只读 yearGan/yearZhi
+→ 年干一空，年干系神煞（皇书等）不在"校验器眼里的盘"上；而 UI/壬案推演原型.html 读 inp.yearGan||inp.yg
+→ 两个面盘不一致，锚点可能一边过一边不过（正是用户此前那类"点得到却被判错"的温床）。
+修法：_tests/_test_case_story.js 与 _tools/case_story_{facts,scaffold,audit}.js 共 8 处统一为
+yearGan||yg、yearZhi||yz（与原型同口径）→ 复跑权威校验仍 ALL PASS (20 stories)、零回归。
+
+新增文档：大六壬文档/案例剧情/第三批6案-审阅清单.md（含 4 条存疑对读 + 「神煞一律照校验器传参取」的新教训）
+余下 25 案（含 5 个中黄案，另批核对中黄遁干/变干口径）。

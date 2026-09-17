@@ -32,7 +32,7 @@ console.log('  input   : ' + JSON.stringify(item.input));
 console.log('  summary : ' + JSON.stringify(item.summary).slice(0, 200));
 console.log('  original: ' + JSON.stringify(item.original));
 const inp = item.input;
-const c = LiurenCore.buildChartAncient(inp.mj, inp.dg, inp.dz, inp.hour, inp.yearGan || '', inp.yearZhi || '', inp.monthZhi || '');
+const c = LiurenCore.buildChartAncient(inp.mj, inp.dg, inp.dz, inp.hour, inp.yearGan || inp.yg || '', inp.yearZhi || inp.yz || '', inp.monthZhi || '');
 console.log('=== 引擎复算（与 _test_case_story.js 同一路径）');
 console.log('  课体 kegs  : ' + c.kegs.map((k) => k.x + '/' + k.s).join('  '));
 console.log('  三传       : ' + c.sanchuan.chuans.map((x, i) => ['初', '中', '末'][i] + '=' + x.z + (x.gz ? '(' + x.gz + ')' : '')).join('  '));

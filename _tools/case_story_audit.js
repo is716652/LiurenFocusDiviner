@@ -113,7 +113,7 @@ for (const [caseId, story] of Object.entries(stories)) {
   const item = byId[caseId];
   if (!item) { fail(caseId, '案例不存在于 case_gallery.json'); continue; }
   const inp = item.input || {};
-  const c = LiurenCore.buildChartAncient(inp.mj, inp.dg, inp.dz, inp.hour, inp.yearGan || '', inp.yearZhi || '', inp.monthZhi || '');
+  const c = LiurenCore.buildChartAncient(inp.mj, inp.dg, inp.dz, inp.hour, inp.yearGan || inp.yg || '', inp.yearZhi || inp.yz || '', inp.monthZhi || '');
   if (!c) { fail(caseId, '起盘失败'); continue; }
   const chuans = c.sanchuan.chuans.map((x) => x.z);
   const jiangAt = (z) => c.jiangMap[LiurenCore.gongOf(c.tp, z)] || '';

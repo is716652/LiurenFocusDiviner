@@ -60,7 +60,7 @@ if (arg === '--todo' || arg === '') {
 const item = byId[arg];
 if (!item) { console.log('未找到案例 ' + arg); process.exit(1); }
 const inp = item.input || {};
-const c = LiurenCore.buildChartAncient(inp.mj, inp.dg, inp.dz, inp.hour, inp.yearGan || '', inp.yearZhi || '', inp.monthZhi || '');
+const c = LiurenCore.buildChartAncient(inp.mj, inp.dg, inp.dz, inp.hour, inp.yearGan || inp.yg || '', inp.yearZhi || inp.yz || '', inp.monthZhi || '');
 if (!c) { console.log('起盘失败'); process.exit(1); }
 const chuans = c.sanchuan.chuans.map((x) => x.z);
 const jiangAt = (z) => c.jiangMap[LiurenCore.gongOf(c.tp, z)] || '';

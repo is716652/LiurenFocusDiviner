@@ -76,7 +76,7 @@ for (const [caseId, story] of Object.entries(storyDoc.stories || {})) {
   ok('asks 数量', asks.length);
 
   const inp = item.input;
-  const c = LiurenCore.buildChartAncient(inp.mj, inp.dg, inp.dz, inp.hour, inp.yearGan || '', inp.yearZhi || '', inp.monthZhi || '');
+  const c = LiurenCore.buildChartAncient(inp.mj, inp.dg, inp.dz, inp.hour, inp.yearGan || inp.yg || '', inp.yearZhi || inp.yz || '', inp.monthZhi || '');
   if (!c) { bad('起盘失败'); continue; }
   const chuans = c.sanchuan.chuans.map((x) => x.z);
   const kegs = c.kegs.map((k) => k.x + '/' + k.s);
