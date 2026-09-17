@@ -187,9 +187,35 @@ for (const [caseId, story] of Object.entries(stories)) {
       collect(hintIndex, cl.hint, atag);
       collect(labelIndex, cl.label, caseId);
       if (String(cl.hint || '').length < 20) warn(atag + '/' + cl.id, 'hint 过短（<20 字），疑似敷衍');
-      checkText(atag + '/' + cl.id, cl.hint);
-      if (a && a.role === 'derived' && !/古法|经文|类象|原文|课经|常取|多主|宜|参看|取象/.test(String(cl.hint || ''))) {
-        warn(atag + '/' + cl.id, 'derived 的 hint 未出现规则归属词（古法/经文/类象/…）');
+      /* small ↔ anchors 一致性（2026-09-16 实测踩坑，第二版）：
+         small 提到的可点位置**合起来必须覆盖该线索的全部锚点 kind**；覆盖不了 = 玩家照 small 点必然卡死。
+         位置→可达点位（照 UI/壬案推演原型.html 的 SURFACES 建模）：
+           课名→method；三传支行→chuan；三传天将行→jiang；四课→keg+chuan；四课天将行→jiang；
+           天地盘某格/盘上某支宫→gong+zhi+该支旬空+该支神煞；地盘格→gong+zhi+该宫神煞；
+           事实栏：旬空→xunkong、日干旺衰→dayWangShuai、时支→hour、贵人→gong。
+         small 里没有任何位置词 → 不判否（只提示无法判断）。 */
+      {
+        const SM = String(cl.small || '');
+        const ok = new Set();
+        const has = (w) => SM.indexOf(w) >= 0;
+        if (has('课名')) ok.add('method');
+        if (has('三传')) { ok.add('chuan'); if (has('天将') || has('乘将') || has('之将')) ok.add('jiang'); }
+        if (has('四课')) { ok.add('keg'); ok.add('chuan'); if (has('天将') || has('乘将') || has('之将')) ok.add('jiang'); }
+        if (has('天地盘') || has('盘上') || has('宫') || has('天支')) { ok.add('gong'); ok.add('zhi'); ok.add('shensha'); ok.add('xunkong'); }
+        if (has('地盘')) { ok.add('gong'); ok.add('zhi'); ok.add('shensha'); }
+        if (has('神煞')) ok.add('shensha');
+        if (has('旬空')) ok.add('xunkong');
+        if (has('旺衰')) ok.add('dayWangShuai');
+        if (has('时支')) ok.add('hour');
+        if (ok.size === 0) {
+          warn(atag + '/' + cl.id, 'small 未点明可点位置（无法判断可达性）', SM.slice(0, 40));
+        } else {
+          const missing = (cl.anchors || []).map((x) => x && x.kind).filter((k) => !ok.has(k));
+          if (missing.length) {
+            warn(atag + '/' + cl.id, '疑似 small 覆盖不到锚点（仅供参考；判据未建模所有可点位置，勿据此改数据）：缺 ' + [...new Set(missing)].join('/'),
+              'small=' + SM.slice(0, 40) + ' / anchors=' + JSON.stringify((cl.anchors || []).map((x) => x && x.kind)));
+          }
+        }
       }
       /* topic 与取象词（轻量） */
       if (a && a.role === 'derived' && TOPIC_HINT[a.topic] && !TOPIC_HINT[a.topic].test(String(cl.hint || ''))) {

@@ -148,8 +148,13 @@ window.CASE_STORY={
           {
             "id": "ma",
             "label": "占行人先看动象：马在何处？",
-            "small": "点三传或盘上带马之宫",
+            "small": "点三传的「初传」（驿马之支；亦可在盘上天支「巳」那格点「神煞」行）",
             "anchors": [
+              {
+                "kind": "chuan",
+                "pos": "初传",
+                "ref": "巳"
+              },
               {
                 "kind": "shensha",
                 "ref": "巳/驿马"
