@@ -54,7 +54,7 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 </div>
 <footer>LargeLiuRen-Design · UI prototype</footer>
 </div>
-<script src="_data/duxiang_rules.js"></script><script src="_data/duxiang_leixiang.js"></script><script src="_data/shensha_rules.js"></script><script src="_data/bifa.js"></script><script src="_data/bifa_coach.js"></script><script src="_data/xingnian_score.js"></script><script src="../core/liuren-core.js?v=20260915-batch1"></script><script src="_data/ancient_case_gallery.js?v=20260915-batch1"></script><script src="_data/case_story.js?v=20260915-batch1"></script>
+<script src="_data/duxiang_rules.js"></script><script src="_data/duxiang_leixiang.js"></script><script src="_data/shensha_rules.js"></script><script src="_data/bifa.js"></script><script src="_data/bifa_coach.js"></script><script src="_data/xingnian_score.js"></script><script src="../core/liuren-core.js?v=20260916-batch2"></script><script src="_data/ancient_case_gallery.js?v=20260916-batch2"></script><script src="_data/case_story.js?v=20260916-batch2"></script>
 <script>
 LiurenCore.init({duxiang:window.DUXIANG_RULES,shensha:window.SHENSHA_RULES,bifa:window.BIFA,xingnian:window.XN_SCORE});
 const CASES=window.ANCIENT_CASES||[];
@@ -108,9 +108,9 @@ const marks=keyMarks(cur),posName=['初传','中传','末传'],chuans=chart.sanc
 /* ① 先登记可点位（不依赖 DOM，便于自动化遍历） */
 const mIdx=surface('课名',[{kind:'method',ref:chart.sanchuan.method}]);
 const sChuan=[],sChuanJ=[],sKeg=[],sKegJ=[],sTian={},sDi={},sPanJ={};
-[0,1,2].forEach(i=>{const q=chuans[i];sChuan[i]=surface('三传'+posName[i],[{kind:'chuan',ref:q.z,pos:posName[i]}]);sChuanJ[i]=surface('三传'+posName[i]+'之将',[{kind:'jiang',ref:q.z+'/'+jiangOf(q.z)}]);});
-chart.kegs.forEach((k,i)=>{const key=k.x+'/'+k.s;sKeg[i]=surface('四课'+key,[{kind:'keg',ref:key},{kind:'chuan',ref:k.x}]);sKegJ[i]=surface('四课'+k.x+'之将',[{kind:'jiang',ref:k.x+'/'+jiangOf(k.x)}]);});
-LiurenCore.ZHI.forEach(z=>{const g=zhiOf(z),tc=[{kind:'gong',ref:z},{kind:'zhi',ref:z}];if(xk.indexOf(z)>=0)tc.push({kind:'xunkong',ref:z});sTian[z]=surface('天地盘'+z,tc.concat(ssList(z)));sDi[z]=surface('地盘'+g+'宫',[{kind:'gong',ref:g},{kind:'zhi',ref:g}].concat(ssList(g)));sPanJ[z]=surface('天地盘'+z+'之将',[{kind:'jiang',ref:z+'/'+(chart.jiangMap[g]||'')}]);});
+[0,1,2].forEach(i=>{const q=chuans[i];const u=[{kind:'chuan',ref:q.z,pos:posName[i]},{kind:'jiang',ref:q.z+'/'+jiangOf(q.z)}];sChuan[i]=surface('三传'+posName[i]+'（支或乘将皆可）',u);sChuanJ[i]=sChuan[i];});
+chart.kegs.forEach((k,i)=>{const key=k.x+'/'+k.s;const u=[{kind:'keg',ref:key},{kind:'chuan',ref:k.x},{kind:'jiang',ref:k.x+'/'+jiangOf(k.x)}];sKeg[i]=surface('四课'+key+'（任一皆可）',u);sKegJ[i]=sKeg[i];});
+LiurenCore.ZHI.forEach(z=>{const g=zhiOf(z),tc=[{kind:'gong',ref:z},{kind:'zhi',ref:z}];if(xk.indexOf(z)>=0)tc.push({kind:'xunkong',ref:z});const jz={kind:'jiang',ref:z+'/'+(chart.jiangMap[g]||'')};sTian[z]=surface('天地盘'+z+'整格（天支/乘将/神煞皆可）',tc.concat(ssList(z)).concat([jz]));sPanJ[z]=sTian[z];const dc=[{kind:'gong',ref:g},{kind:'zhi',ref:g}].concat(ssList(g)).concat([jz]);sDi[z]=surface('地盘'+g+'宫整格',dc);});
 /* ② 再渲染与挂事件 */
 $('methodBox').innerHTML=`<span class="method-chip" id="methodChip">课名 ${esc(chart.sanchuan.method)}</span><span class="muted" style="margin-left:8px;">点课名取证</span>`;$('methodChip').onclick=()=>tryDiscover(SURFACES[mIdx].cands,'课名');
 $('chuanBox').innerHTML=[2,1,0].map(i=>{const q=chuans[i],mk=marks[q.z]?`<span class="mark">${esc(marks[q.z])}</span>`:'';return `<div class="mini" data-i="${i}">${mk}<div class="t">${posName[i]}</div><div class="z" data-hit="zhi">${esc(q.gz)}</div><div class="j" data-hit="jiang">${esc(jiangOf(q.z))}</div></div>`;}).join('');
