@@ -18,36 +18,36 @@ export struct ChuanCard {
     Column({ space: 3 }) {
       Row() {
         Text((this.highlight ? '★ ' : '') + this.pos)
-          .fontSize(10)
-          .fontColor(this.highlight ? '#F0D98C' : '#A8986E')
+          .fontSize($r('app.float.font_caption_l'))
+          .fontColor(this.highlight ? '#F0D98C' : $r('app.color.ink_text_secondary'))
           .fontWeight(this.highlight ? FontWeight.Bold : FontWeight.Normal)
           .letterSpacing(1)
           .layoutWeight(1)
         if (this.mark !== '') {
           Text(this.mark)
-            .fontSize(9)
-            .fontColor('#F5EFE2')
-            .backgroundColor('#A63A2B')
+            .fontSize($r('app.float.font_caption_m'))
+            .fontColor($r('app.color.ink_text_bright'))
+            .backgroundColor($r('app.color.state_warn'))
             .borderRadius(7)
             .padding({ left: 5, right: 5, top: 1, bottom: 1 })
         }
       }
       .width('100%')
       Text(this.gz)
-        .fontSize(24)
+        .fontSize($r('app.float.fs_title'))
         .fontWeight(FontWeight.Bold)
         .fontColor(this.color)
       Text(this.jiang)
-        .fontSize(11)
-        .fontColor('#C4B183')
+        .fontSize($r('app.float.font_body_s'))
+        .fontColor($r('app.color.ink_text_muted'))
       Text(this.lq)
-        .fontSize(11)
-        .fontColor('#C4A25C')
+        .fontSize($r('app.float.font_body_s'))
+        .fontColor($r('app.color.brand_gold_deep'))
     }
     .width('100%')
     .padding({ top: 10, bottom: 10, left: 4, right: 4 })
     .borderRadius(12)
-    .backgroundColor(this.highlight ? 'rgba(240,217,140,0.16)' : '#211E18')
+    .backgroundColor(this.highlight ? 'rgba(240,217,140,0.16)' : $r('app.color.ink_surface'))
     .border({ width: this.highlight ? 1.5 : 1, color: this.highlight ? '#F0D98C' : 'rgba(233,200,120,0.18)' })
   }
 }

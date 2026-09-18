@@ -18,13 +18,13 @@ export struct PalaceCard {
     Column({ space: 6 }) {
       Row({ space: 8 }) {
         Text(this.title)
-          .fontSize(13)
+          .fontSize($r('app.float.fs_caption'))
           .fontWeight(FontWeight.Medium)
-          .fontColor('#F0E6C8')
+          .fontColor($r('app.color.ink_text'))
           .layoutWeight(1)
         Text('收起')
-          .fontSize(11)
-          .fontColor('#C4A25C')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.brand_gold_deep'))
           .onClick(() => {
             this.onClose();
           })
@@ -39,11 +39,11 @@ export struct PalaceCard {
           if (r['text'] !== '') {
             Row({ space: 6 }) {
               Text(r['label'])
-                .fontSize(10)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .flexShrink(0)
               Text(r['text'])
-                .fontSize(11)
+                .fontSize($r('app.float.font_body_s'))
                 .lineHeight(17)
                 .fontColor(this.toneOf(r['tone']))
                 .layoutWeight(1)
@@ -53,16 +53,16 @@ export struct PalaceCard {
           if (r['source'] !== '') {
             Row({ space: 6 }) {
               Text('原文')
-                .fontSize(9)
-                .fontColor('#B8A97F')
-                .backgroundColor('rgba(233,200,120,0.10)')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_source'))
+                .backgroundColor($r('app.color.pan_sel_bg'))
                 .borderRadius(6)
                 .padding({ left: 5, right: 5, top: 1, bottom: 1 })
                 .flexShrink(0)
               Text(r['source'])
-                .fontSize(10)
+                .fontSize($r('app.float.font_caption_l'))
                 .lineHeight(16)
-                .fontColor('#B8A97F')
+                .fontColor($r('app.color.ink_text_source'))
                 .layoutWeight(1)
             }
             .width('100%')
@@ -74,16 +74,16 @@ export struct PalaceCard {
         + '|' + r['source'] + '|' + r['tone'])
 
       Text('说明：本卡只陈述盘上关系（宫 · 冲合刑害 · 空亡 · 乘将 · 气机点），不作现实判断；「原文」行引自本项目的读象规则文档。')
-        .fontSize(9)
+        .fontSize($r('app.float.font_caption_m'))
         .lineHeight(14)
-        .fontColor('#A8986E')
+        .fontColor($r('app.color.ink_text_secondary'))
         .width('100%')
     }
     .width('100%')
     .alignItems(HorizontalAlign.Start)
     .padding(12)
     .borderRadius(12)
-    .backgroundColor('#1C1A16')
+    .backgroundColor($r('app.color.ink_card'))
     .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
   }
 

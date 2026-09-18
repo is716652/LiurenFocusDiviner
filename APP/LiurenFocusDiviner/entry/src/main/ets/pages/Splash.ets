@@ -77,12 +77,12 @@ struct Splash {
         Text('大六壬')
           .fontSize(48)
           .fontWeight(FontWeight.Bold)
-          .fontColor('#F0D98C')
+          .fontColor($r('app.color.brand_gold_bright'))
           .letterSpacing(14)
           .shadow({ radius: 24, color: 'rgba(233,200,120,0.45)', offsetY: 2 })
         Text('读象工作台 · 管辂一系')
-          .fontSize(14)
-          .fontColor('#C4B183')
+          .fontSize($r('app.float.font_subtitle_m'))
+          .fontColor($r('app.color.ink_text_muted'))
           .letterSpacing(6)
       }
       .translate({ y: -208 })
@@ -98,9 +98,9 @@ struct Splash {
       Button('进 入')
         .width(224)
         .height(54)
-        .fontSize(20)
+        .fontSize($r('app.float.font_title_m'))
         .fontWeight(FontWeight.Medium)
-        .fontColor('#1A1410')
+        .fontColor($r('app.color.ink_page'))
         .linearGradient({ angle: 90, colors: [['#F5D98E', 0.0], ['#D9A94E', 1.0]] })
         .borderRadius(27)
         .shadow({ radius: 22, color: 'rgba(233,200,120,0.40)', offsetY: 6 })
@@ -112,25 +112,25 @@ struct Splash {
       // 底部小字 + 合规链接
       Column({ space: 8 }) {
         Text('以炁为基 · 四课三传 · 神煞格局 · 读象研习')
-          .fontSize(12)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_body_m'))
+          .fontColor($r('app.color.ink_text_secondary'))
           .letterSpacing(2)
         /* 合规链接（暂不显示）：隐私政策 · 用户协议
            —— 华为已由平台托管隐私政策、用户协议非必填；代码与页面保留，开关 showLegalLinks 控制显示 */
         if (this.showLegalLinks) {
           Row({ space: 24 }) {
             Text('隐私政策')
-              .fontSize(12)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_text_secondary'))
               .onClick(() => {
                 this.getUIContext().getRouter().pushUrl({ url: 'pages/Legal/PrivacyPolicy' });
               })
             Text('|')
-              .fontSize(12)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_text_secondary'))
             Text('用户协议')
-              .fontSize(12)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_text_secondary'))
               .onClick(() => {
                 this.getUIContext().getRouter().pushUrl({ url: 'pages/Legal/UserAgreement' });
               })
@@ -141,7 +141,7 @@ struct Splash {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#14120F')
+    .backgroundColor($r('app.color.pan_core'))
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 

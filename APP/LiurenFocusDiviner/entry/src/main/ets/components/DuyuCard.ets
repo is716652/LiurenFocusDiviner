@@ -16,18 +16,18 @@ export struct DuyuCard {
         Column({ space: 4 }) {
           Row() {
             Text('古籍断法选句')
-              .fontSize(11)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_secondary'))
             Blank()
             Text('管辂神书 · 类神取用')
-              .fontSize(10)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_secondary'))
           }
           .width('100%')
           ForEach(this.duyu, (d: string) => {
             Text('· ' + d)
-              .fontSize(12)
-              .fontColor('#D8C9A3')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_text_body'))
               .lineHeight(18)
               .width('100%')
           }, (d: string) => d)
@@ -35,7 +35,7 @@ export struct DuyuCard {
         .width('100%')
         .padding(12)
         .borderRadius(12)
-        .backgroundColor('#211E18')
+        .backgroundColor($r('app.color.ink_surface'))
         .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
       }
 
@@ -43,8 +43,8 @@ export struct DuyuCard {
       if (this.pick && this.pick.items.length > 0) {
         Column({ space: 6 }) {
           Text(this.pick.shouGuang)
-            .fontSize(12)
-            .fontColor('#1A1410')
+            .fontSize($r('app.float.font_body_m'))
+            .fontColor($r('app.color.ink_page'))
             .backgroundColor('rgba(240,217,140,0.85)')
             .borderRadius(8)
             .padding({ left: 10, right: 10, top: 6, bottom: 6 })
@@ -52,25 +52,25 @@ export struct DuyuCard {
             .width('100%')
           Row() {
             Text('管辂象意选句')
-              .fontSize(11)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_secondary'))
             Blank()
             Text('据盘态信号取古籍句')
-              .fontSize(10)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_secondary'))
           }
           .width('100%')
           ForEach(this.pick.items, (it: DuyuItem) => {
             Column({ space: 3 }) {
               Row() {
                 Text('◎ ' + it.ge)
-                  .fontSize(12)
-                  .fontColor('#F0D98C')
+                  .fontSize($r('app.float.font_body_m'))
+                  .fontColor($r('app.color.brand_gold_bright'))
                   .lineHeight(17)
                   .layoutWeight(1)
                 if (it.ev.length > 0) {
                   Text('✓' + it.ev.join('·'))
-                    .fontSize(10)
+                    .fontSize($r('app.float.font_caption_l'))
                     .fontColor('#7FA69A')
                     .margin({ left: 6 })
                 }
@@ -78,8 +78,8 @@ export struct DuyuCard {
               .width('100%')
               .alignItems(VerticalAlign.Top)
               Text(it.yi)
-                .fontSize(11)
-                .fontColor('#B8A97F')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_source'))
                 .lineHeight(16)
                 .width('100%')
             }
@@ -89,7 +89,7 @@ export struct DuyuCard {
         .width('100%')
         .padding(12)
         .borderRadius(12)
-        .backgroundColor('#211E18')
+        .backgroundColor($r('app.color.ink_surface'))
         .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
       }
     }

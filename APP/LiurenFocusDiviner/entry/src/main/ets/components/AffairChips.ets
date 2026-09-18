@@ -16,12 +16,12 @@ export struct AffairChips {
     Column({ space: 8 }) {
       Row() {
         Text('所占之事')
-          .fontSize(11)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_text_secondary'))
         Blank()
         Text('点击选占事 → 自动抓类神')
-          .fontSize(10)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_caption_l'))
+          .fontColor($r('app.color.ink_text_secondary'))
       }
       .width('100%')
 
@@ -29,9 +29,9 @@ export struct AffairChips {
         Row({ space: 8 }) {
           ForEach(this.names, (n: string) => {
             Text(n)
-              .fontSize(13)
+              .fontSize($r('app.float.fs_caption'))
               .fontWeight(this.selected === n ? FontWeight.Medium : FontWeight.Normal)
-              .fontColor(this.selected === n ? '#1A1410' : '#C4B183')
+              .fontColor(this.selected === n ? '#1A1410' : $r('app.color.ink_text_muted'))
               .backgroundColor(this.selected === n ? '#F0D98C' : 'rgba(138,123,92,0.12)')
               .borderRadius(16)
               .padding({ left: 14, right: 14, top: 6, bottom: 6 })
@@ -51,22 +51,22 @@ export struct AffairChips {
         Column({ space: 4 }) {
           if (this.cfg.scene.length > 0) {
             Text('落象提示：' + this.cfg.scene.join(' · '))
-              .fontSize(11)
-              .fontColor('#C4A25C')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.brand_gold_deep'))
               .lineHeight(16)
               .width('100%')
           }
           if (this.cfg.info !== '') {
             Text(this.cfg.info)
-              .fontSize(11)
+              .fontSize($r('app.float.font_body_s'))
               .fontColor('#7FA69A')
               .lineHeight(16)
               .width('100%')
           }
           if (this.cfg.note !== '') {
             Text('取用：' + this.cfg.note)
-              .fontSize(11)
-              .fontColor('#B8A97F')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_source'))
               .lineHeight(16)
               .width('100%')
           }

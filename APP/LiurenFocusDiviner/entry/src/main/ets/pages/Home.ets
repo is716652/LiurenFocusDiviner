@@ -343,33 +343,33 @@ struct Home {
     Column({ space: 12 }) {
       Row() {
         Text('起课日期')
-          .fontSize(14)
+          .fontSize($r('app.float.font_subtitle_m'))
           .fontWeight(FontWeight.Medium)
-          .fontColor('#F0E6C8')
+          .fontColor($r('app.color.ink_text'))
         Blank()
         Text(this.dateStr()) /* layout-ok: 日期串固定长度，长度有界 */
-          .fontSize(12)
-          .fontColor('#C4A25C')
+          .fontSize($r('app.float.font_body_m'))
+          .fontColor($r('app.color.brand_gold_deep'))
       }
       Row({ space: 20 }) {
         Row({ space: 8 }) {
           Text('‹')
-            .fontSize(24)
-            .fontColor('#C4A25C')
+            .fontSize($r('app.float.fs_title'))
+            .fontColor($r('app.color.brand_gold_deep'))
             .onClick(() => {
               this.changeYear(-1);
             })
           Column({ space: 2 }) {
             Text('年 · 点击输入')
-              .fontSize(10)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_secondary'))
             if (this.yearEditing) {
               TextInput({ text: this.yearEditVal, placeholder: String(this.year) })
                 .type(InputType.Number)
                 .maxLength(4)
-                .fontSize(16)
-                .fontColor('#F0D98C')
-                .backgroundColor('#211E18')
+                .fontSize($r('app.float.fs_body'))
+                .fontColor($r('app.color.brand_gold_bright'))
+                .backgroundColor($r('app.color.ink_surface'))
                 .height(30)
                 .width(86)
                 .onChange((v: string) => {
@@ -383,9 +383,9 @@ struct Home {
                 })
             } else {
               Text(String(this.year))
-                .fontSize(16)
+                .fontSize($r('app.float.fs_body'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#F0D98C')
+                .fontColor($r('app.color.brand_gold_bright'))
                 .onClick(() => {
                   this.yearEditVal = String(this.year);
                   this.yearEditing = true;
@@ -393,41 +393,41 @@ struct Home {
             }
           }
           Text('›')
-            .fontSize(24)
-            .fontColor('#C4A25C')
+            .fontSize($r('app.float.fs_title'))
+            .fontColor($r('app.color.brand_gold_deep'))
             .onClick(() => {
               this.changeYear(1);
             })
         }
         Row({ space: 8 }) {
           Text('‹')
-            .fontSize(24)
-            .fontColor('#C4A25C')
+            .fontSize($r('app.float.fs_title'))
+            .fontColor($r('app.color.brand_gold_deep'))
             .onClick(() => {
               this.changeMonth(-1);
             })
           Column({ space: 2 }) {
             Text('月')
-              .fontSize(10)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_secondary'))
             Text(String(this.month))
-              .fontSize(16)
+              .fontSize($r('app.float.fs_body'))
               .fontWeight(FontWeight.Medium)
-              .fontColor('#F0D98C')
+              .fontColor($r('app.color.brand_gold_bright'))
           }
           Text('›')
-            .fontSize(24)
-            .fontColor('#C4A25C')
+            .fontSize($r('app.float.fs_title'))
+            .fontColor($r('app.color.brand_gold_deep'))
             .onClick(() => {
               this.changeMonth(1);
             })
         }
         Blank()
         Text('今日')
-          .fontSize(12)
-          .fontColor('#B8A97F')
+          .fontSize($r('app.float.font_body_m'))
+          .fontColor($r('app.color.ink_text_source'))
           .padding({ left: 12, right: 12, top: 5, bottom: 5 })
-          .backgroundColor('#211E18')
+          .backgroundColor($r('app.color.ink_surface'))
           .borderRadius(12)
           .onClick(() => {
             this.today();
@@ -438,8 +438,8 @@ struct Home {
         ForEach(WEEK_HEADS, (h: string, hi: number) => {
           GridItem() {
             Text(h)
-              .fontSize(11)
-              .fontColor(hi >= 5 ? '#C4A25C' : '#A8986E')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor(hi >= 5 ? '#C4A25C' : $r('app.color.ink_text_secondary'))
               .textAlign(TextAlign.Center)
               .width('100%')
           }
@@ -455,16 +455,16 @@ struct Home {
           GridItem() {
             Column({ space: 2 }) {
               Text(String(this.dayNum(r)))
-                .fontSize(14)
+                .fontSize($r('app.float.font_subtitle_m'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor(this.dayNum(r) === this.day ? '#1A1410' : '#F0E6C8')
+                .fontColor(this.dayNum(r) === this.day ? '#1A1410' : $r('app.color.ink_text'))
               Text(r.dg + r.dz)
-                .fontSize(9)
-                .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : '#A8986E')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : $r('app.color.ink_text_secondary'))
               if (r.st && r.st.length > 0) {
                 Text(r.st)
                   .fontSize(8)
-                  .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : '#C4A25C')
+                  .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : $r('app.color.brand_gold_deep'))
               } else {
                 Text(' ')
                   .fontSize(8)
@@ -474,7 +474,7 @@ struct Home {
             .height(56)
             .justifyContent(FlexAlign.Center)
             .borderRadius(8)
-            .backgroundColor(this.dayNum(r) === this.day ? '#E9C878' : '#211E18')
+            .backgroundColor(this.dayNum(r) === this.day ? '#E9C878' : $r('app.color.ink_surface'))
             .onClick(() => {
               this.day = this.dayNum(r);
             })
@@ -489,7 +489,7 @@ struct Home {
     .width('100%')
     .padding(16)
     .borderRadius(16)
-    .backgroundColor('#1C1A16')
+    .backgroundColor($r('app.color.ink_card'))
     .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
   }
 
@@ -498,20 +498,20 @@ struct Home {
     Column({ space: 10 }) {
       Row() {
         Text('占时时辰')
-          .fontSize(14)
+          .fontSize($r('app.float.font_subtitle_m'))
           .fontWeight(FontWeight.Medium)
-          .fontColor('#F0E6C8')
+          .fontColor($r('app.color.ink_text'))
         Blank()
         Text('子 23-01 · 午 11-13')
-          .fontSize(10)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_caption_l'))
+          .fontColor($r('app.color.ink_text_secondary'))
       }
       Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
         ForEach(HOURS, (z: string) => {
           Text(z)
-            .fontSize(13)
-            .fontColor(this.hourZhi === z ? '#1A1410' : '#C4B183')
-            .backgroundColor(this.hourZhi === z ? '#E9C878' : '#211E18')
+            .fontSize($r('app.float.fs_caption'))
+            .fontColor(this.hourZhi === z ? '#1A1410' : $r('app.color.ink_text_muted'))
+            .backgroundColor(this.hourZhi === z ? '#E9C878' : $r('app.color.ink_surface'))
             .borderRadius(16)
             .padding({ left: 12, right: 12, top: 6, bottom: 6 })
             .margin({ right: 8, bottom: 8 })
@@ -525,7 +525,7 @@ struct Home {
     .width('100%')
     .padding(16)
     .borderRadius(16)
-    .backgroundColor('#1C1A16')
+    .backgroundColor($r('app.color.ink_card'))
     .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
   }
 
@@ -535,11 +535,11 @@ struct Home {
     Row() {
       Column({ space: 6 }) {
         Text('排 盘')
-          .fontSize(24)
+          .fontSize($r('app.float.fs_title'))
           .fontWeight(FontWeight.Bold)
-          .fontColor('#1A1410')
+          .fontColor($r('app.color.ink_page'))
         Text('选好日期时辰 · 起课观盘')
-          .fontSize(13)
+          .fontSize($r('app.float.fs_caption'))
           .fontColor('rgba(26,20,16,0.72)')
       }
       .alignItems(HorizontalAlign.Start)
@@ -565,14 +565,14 @@ struct Home {
         .height(1)
       /* 品牌页头：竖排标题 + 副标语（独立 Text 避开 Row 布局问题；顶部留安全边距避让状态栏） */
       Text('六壬 · 起课台')
-        .fontSize(24)
+        .fontSize($r('app.float.fs_title'))
         .fontWeight(FontWeight.Bold)
-        .fontColor('#E9C878')
+        .fontColor($r('app.color.brand_gold'))
         .letterSpacing(3)
         .margin({ left: 20, top: 24 })
       Text('月将加时 · 四课三传 · 神煞格局 · 读象研习')
-        .fontSize(11)
-        .fontColor('#A8986E')
+        .fontSize($r('app.float.font_body_s'))
+        .fontColor($r('app.color.ink_text_secondary'))
         .letterSpacing(1)
         .margin({ left: 20, top: 4 })
       Divider()
@@ -594,8 +594,8 @@ struct Home {
           })
 
           Text(this.ready ? '选择日期时辰后，点「排盘」进入盘面' : '正在载入历法数据…')
-            .fontSize(11)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_body_s'))
+            .fontColor($r('app.color.ink_text_secondary'))
             .textAlign(TextAlign.Center)
             .width('100%')
 
@@ -614,31 +614,31 @@ struct Home {
             Row() {
               Text('✦')
                 .fontSize(26)
-                .fontColor('#5FA394')
+                .fontColor($r('app.color.brand_verdigris'))
                 .width(42)
                 .textAlign(TextAlign.Center)
               Column({ space: 3 }) {
                 Text('课 例 · 复盘')
-                  .fontSize(17)
+                  .fontSize($r('app.float.font_title_s'))
                   .fontWeight(FontWeight.Bold)
-                  .fontColor('#F0D98C')
+                  .fontColor($r('app.color.brand_gold_bright'))
                 Text('保存的排盘记录，点击一键恢复重排')
-                  .fontSize(10)
-                  .fontColor('#A8986E')
+                  .fontSize($r('app.float.font_caption_l'))
+                  .fontColor($r('app.color.ink_text_secondary'))
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
               Blank()
               Text('›')
                 .fontSize(22)
-                .fontColor('#A8986E')
+                .fontColor($r('app.color.ink_text_secondary'))
             }
             .width('100%')
           }
           .width('100%')
           .padding({ left: 16, right: 16, top: 16, bottom: 16 })
           .borderRadius(16)
-          .backgroundColor('#1C1A16')
+          .backgroundColor($r('app.color.ink_card'))
           .border({ width: 1, color: 'rgba(233,200,120,0.16)' })
           .onClick(() => {
             this.goCases();
@@ -649,31 +649,31 @@ struct Home {
             Row() {
               Text('❖')
                 .fontSize(26)
-                .fontColor('#7FA0B8')
+                .fontColor($r('app.color.brand_porcelain'))
                 .width(42)
                 .textAlign(TextAlign.Center)
               Column({ space: 3 }) {
                 Text('古 籍 · 研习')
-                  .fontSize(17)
+                  .fontSize($r('app.float.font_title_s'))
                   .fontWeight(FontWeight.Bold)
-                  .fontColor('#F0D98C')
+                  .fontColor($r('app.color.brand_gold_bright'))
                 Text('中黄五变经全文，目录与逐篇阅读')
-                  .fontSize(10)
-                  .fontColor('#A8986E')
+                  .fontSize($r('app.float.font_caption_l'))
+                  .fontColor($r('app.color.ink_text_secondary'))
               }
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
               Blank()
               Text('›')
                 .fontSize(22)
-                .fontColor('#A8986E')
+                .fontColor($r('app.color.ink_text_secondary'))
             }
             .width('100%')
           }
           .width('100%')
           .padding({ left: 16, right: 16, top: 16, bottom: 16 })
           .borderRadius(16)
-          .backgroundColor('#1C1A16')
+          .backgroundColor($r('app.color.ink_card'))
           .border({ width: 1, color: 'rgba(233,200,120,0.16)' })
           .onClick(() => {
             this.goAncient();
@@ -681,8 +681,8 @@ struct Home {
 
           /* 引导页入口（回看开屏/引导） */
           Text('· 查看引导页 ·')
-            .fontSize(11)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_body_s'))
+            .fontColor($r('app.color.ink_text_secondary'))
             .letterSpacing(1)
             .textAlign(TextAlign.Center)
             .width('100%')
@@ -701,7 +701,7 @@ struct Home {
       }
       .width('100%')
       .height('100%')
-      .backgroundColor('#14120F')
+      .backgroundColor($r('app.color.pan_core'))
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
 
       /* 数据自检面板（覆盖层）：缺表清单 + 逐表自检 + 导出诊断 */

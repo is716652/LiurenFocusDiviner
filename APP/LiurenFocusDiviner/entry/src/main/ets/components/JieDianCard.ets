@@ -17,13 +17,13 @@ export struct JieDianCard {
     Column({ space: 6 }) {
       Row() {
         Text('用神节点')
-          .fontSize(11)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_text_secondary'))
         Blank()
         Text(this.head)
-          .fontSize(12)
+          .fontSize($r('app.float.font_body_m'))
           .fontWeight(FontWeight.Medium)
-          .fontColor('#F0D98C')
+          .fontColor($r('app.color.brand_gold_bright'))
           .layoutWeight(1)
           .textAlign(TextAlign.End)
       }
@@ -32,9 +32,9 @@ export struct JieDianCard {
       Flex({ wrap: FlexWrap.Wrap }) {
         ForEach(this.words, (w: JieDianWord) => {
           Text(this.chipText(w))
-            .fontSize(11)
-            .fontColor(this.anchor === w.v ? '#1A1410' : '#C4B183')
-            .backgroundColor(this.anchor === w.v ? '#F0D98C' : 'rgba(233,200,120,0.10)')
+            .fontSize($r('app.float.font_body_s'))
+            .fontColor(this.anchor === w.v ? '#1A1410' : $r('app.color.ink_text_muted'))
+            .backgroundColor(this.anchor === w.v ? '#F0D98C' : $r('app.color.pan_sel_bg'))
             .border({ width: 1, color: this.anchor === w.v ? '#F0D98C' : 'rgba(233,200,120,0.30)' })
             .borderRadius(10)
             .padding({ left: 8, right: 8, top: 3, bottom: 3 })
@@ -50,15 +50,15 @@ export struct JieDianCard {
         Column({ space: 2 }) {
           if (this.boom.length > 0) {
             Text('起爆要素（古籍术语）：' + this.boom.join(' · '))
-              .fontSize(11)
-              .fontColor('#E8A483')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.state_warn_text'))
               .lineHeight(16)
               .width('100%')
           }
           if (this.shensha !== '') {
             Text('所带神煞：' + this.shensha)
-              .fontSize(11)
-              .fontColor('#B8A97F')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_source'))
               .lineHeight(16)
               .width('100%')
           }
@@ -71,7 +71,7 @@ export struct JieDianCard {
     .width('100%')
     .padding(12)
     .borderRadius(12)
-    .backgroundColor('#211E18')
+    .backgroundColor($r('app.color.ink_surface'))
     .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
   }
 

@@ -23,11 +23,11 @@ export struct CaseBoard {
           if (this.cases.length === 0) {
             Column({ space: 8 }) {
               Text('暂存课例')
-                .fontSize(14)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_subtitle_m'))
+                .fontColor($r('app.color.ink_text_secondary'))
               Text('排盘后点「保存课例」，盘面要点即存于此；点击可一键恢复重排')
-                .fontSize(11)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .textAlign(TextAlign.Center)
                 .lineHeight(17)
             }
@@ -38,8 +38,8 @@ export struct CaseBoard {
               this.caseCard(r)
             }, (r: CaseRec) => 'cs' + r.ts)
             Text('课例存于本机（最多 200 例），卸载应用后清除')
-              .fontSize(10)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_secondary'))
               .width('100%')
               .textAlign(TextAlign.Center)
               .padding({ top: 10, bottom: 72 })
@@ -57,7 +57,7 @@ export struct CaseBoard {
     .width('100%')
     .height('100%')
     .layoutWeight(1)
-    .backgroundColor('#14120F')
+    .backgroundColor($r('app.color.pan_core'))
   }
 
   @Builder
@@ -66,32 +66,32 @@ export struct CaseBoard {
       /* 首行：标题 + 来源徽标 + 删除 */
       Row() {
         Text(r.title !== '' ? r.title : r.date)
-          .fontSize(15)
+          .fontSize($r('app.float.splash_sub'))
           .fontWeight(FontWeight.Medium)
-          .fontColor('#F0D98C')
+          .fontColor($r('app.color.brand_gold_bright'))
           .layoutWeight(1)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
         if (r.title.indexOf('古籍') === 0) {
           Text('古籍')
-            .fontSize(9)
-            .fontColor('#1A1410')
-            .backgroundColor('#7FA0B8')
+            .fontSize($r('app.float.font_caption_m'))
+            .fontColor($r('app.color.ink_page'))
+            .backgroundColor($r('app.color.brand_porcelain'))
             .borderRadius(6)
             .padding({ left: 6, right: 6, top: 1, bottom: 1 })
             .margin({ left: 6 })
         }
         Text(r.hourZhi + '时') /* layout-ok: 地支 + 「时」最长 2 字，长度有界 */
-          .fontSize(11)
-          .fontColor('#1A1410')
-          .backgroundColor('#E9C878')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_page'))
+          .backgroundColor($r('app.color.brand_gold'))
           .borderRadius(8)
           .padding({ left: 8, right: 8, top: 2, bottom: 2 })
           .margin({ left: 8 })
         Blank()
         Text('✕')
-          .fontSize(13)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.fs_caption'))
+          .fontColor($r('app.color.ink_text_secondary'))
           .padding({ left: 8, right: 2, top: 4, bottom: 4 })
           .onClick(() => {
             this.onDelete(r.ts);
@@ -101,30 +101,30 @@ export struct CaseBoard {
 
       /* 日期（小字） */
       Text(r.date)
-        .fontSize(10)
-        .fontColor('#A8986E')
+        .fontSize($r('app.float.font_caption_l'))
+        .fontColor($r('app.color.ink_text_secondary'))
         .width('100%')
 
       /* 四柱 */
       Text(r.siZhu)
-        .fontSize(14)
+        .fontSize($r('app.float.font_subtitle_m'))
         .fontWeight(FontWeight.Medium)
-        .fontColor('#F0D98C')
+        .fontColor($r('app.color.brand_gold_bright'))
         .width('100%')
 
       /* 盘面要点：月将 / 课体 / 三传 */
       Row({ space: 8 }) {
         Text('月将 ' + r.yueJiang)
-          .fontSize(11)
-          .fontColor('#C4B183')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_text_muted'))
         Text(r.keti !== '' ? r.keti : '—')
-          .fontSize(11)
-          .fontColor('#C4B183')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_text_muted'))
           .layoutWeight(1)
           .maxLines(1)
         Text('三传 ' + r.chuans)
-          .fontSize(11)
-          .fontColor('#C4B183')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_text_muted'))
       }
       .width('100%')
 
@@ -132,8 +132,8 @@ export struct CaseBoard {
       if (r.yongShen !== '' || r.affairName !== '' || r.note !== '') {
         Text((r.yongShen !== '' ? '用神' + r.yongShen + ' · ' : '') +
           (r.affairName !== '' ? r.affairName + ' · ' : '') + r.note)
-          .fontSize(11)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_text_secondary'))
           .maxLines(2)
           .width('100%')
       }
@@ -141,7 +141,7 @@ export struct CaseBoard {
     .width('100%')
     .padding(12)
     .borderRadius(14)
-    .backgroundColor('#1C1A16')
+    .backgroundColor($r('app.color.ink_card'))
     .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
     .onClick(() => {
       this.onRestore(r);

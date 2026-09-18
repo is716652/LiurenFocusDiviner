@@ -17,15 +17,15 @@ export struct SlotEmpty {
   build() {
     Column({ space: 6 }) {
       Text(ReasonText.of(this.slot, this.kind).text)
-        .fontSize(11)
+        .fontSize($r('app.float.font_body_s'))
         .fontColor(this.toneColor())
         .lineHeight(16)
         .width('100%')
         .textAlign(TextAlign.Start)
       if (this.entryLabel() !== '') {
         Text(this.entryLabel() + ' ›')
-          .fontSize(11)
-          .fontColor('#C4A25C')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.brand_gold_deep'))
           .padding({ top: 1, bottom: 1 })
           .onClick(() => {
             this.onEntry();

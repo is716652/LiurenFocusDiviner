@@ -14,19 +14,19 @@ export struct YongShenPills {
     Column({ space: 6 }) {
       Row() {
         Text('类神候选')
-          .fontSize(11)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_text_secondary'))
         Blank()
         Text('金色=当前 · 朱砂=天将类神')
-          .fontSize(10)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_caption_l'))
+          .fontColor($r('app.color.ink_text_secondary'))
       }
       .width('100%')
 
       Flex({ wrap: FlexWrap.Wrap }) {
         ForEach(this.cands, (c: YongShenCand) => {
           Text(this.labelOf(c))
-            .fontSize(13)
+            .fontSize($r('app.float.fs_caption'))
             .fontWeight(this.selected === c.zhi ? FontWeight.Bold : FontWeight.Normal)
             .fontColor(this.fontColorOf(c))
             .backgroundColor(this.bgOf(c))

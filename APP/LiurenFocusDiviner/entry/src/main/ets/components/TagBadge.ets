@@ -9,7 +9,7 @@ export struct TagBadge {
 
   build() {
     Text(this.text)
-      .fontSize(11)
+      .fontSize($r('app.float.font_body_s'))
       .fontColor(this.txtColor())
       .backgroundColor(this.bgColor())
       .border({ width: 1, color: this.brdColor() })

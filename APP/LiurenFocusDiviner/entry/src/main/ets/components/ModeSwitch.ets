@@ -16,9 +16,9 @@ export struct ModeSwitch {
     Row({ space: 6 }) {
       ForEach(this.names, (n: string, i: number) => {
         Text(n)
-          .fontSize(11)
+          .fontSize($r('app.float.font_body_s'))
           .fontWeight(this.active === i ? FontWeight.Medium : FontWeight.Normal)
-          .fontColor(this.active === i ? '#1A1410' : '#C4B183')
+          .fontColor(this.active === i ? '#1A1410' : $r('app.color.ink_text_muted'))
           .backgroundColor(this.active === i ? '#E9C878' : 'rgba(138,123,92,0.14)')
           .borderRadius(11)
           .padding({ left: 11, right: 11, top: 4, bottom: 4 })

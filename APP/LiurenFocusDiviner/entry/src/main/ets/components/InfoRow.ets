@@ -24,12 +24,12 @@ export struct InfoRow {
     if (this.stack) {
       Column({ space: 2 }) {
         Text(this.label)
-          .fontSize(11)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_text_secondary'))
           .width('100%')
           .textAlign(TextAlign.Start)
         Text(this.value)
-          .fontSize(13)
+          .fontSize($r('app.float.fs_caption'))
           .fontWeight(FontWeight.Medium)
           .fontColor(this.valueColor())
           .lineHeight(19)
@@ -42,11 +42,11 @@ export struct InfoRow {
     } else {
       Row() {
         Text(this.label)
-          .fontSize(12)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_body_m'))
+          .fontColor($r('app.color.ink_text_secondary'))
           .flexShrink(0)
         Text(this.value)
-          .fontSize(13)
+          .fontSize($r('app.float.fs_caption'))
           .fontWeight(FontWeight.Medium)
           .fontColor(this.valueColor())
           .layoutWeight(1)

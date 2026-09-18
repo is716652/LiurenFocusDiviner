@@ -12,12 +12,12 @@ export struct DongtaiChuan {
     Column({ space: 6 }) {
       Row() {
         Text('动态三传')
-          .fontSize(11)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.ink_text_secondary'))
         Blank()
         Text('传来递生 · 随用神而变')
-          .fontSize(10)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_caption_l'))
+          .fontColor($r('app.color.ink_text_secondary'))
       }
       .width('100%')
 
@@ -25,7 +25,7 @@ export struct DongtaiChuan {
         Row({ space: 10 }) {
           Column() {
             Text(it.gz)
-              .fontSize(17)
+              .fontSize($r('app.float.font_title_s'))
               .fontWeight(FontWeight.Bold)
               .fontColor(this.gzColor(it.pos))
           }
@@ -34,11 +34,11 @@ export struct DongtaiChuan {
 
           Column({ space: 2 }) {
             Text(it.pos)
-              .fontSize(10)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_secondary'))
             Text(it.jiang !== '' ? it.jiang + ' · ' + it.lq : it.lq)
-              .fontSize(11)
-              .fontColor('#B8A97F')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_source'))
           }
           .layoutWeight(2)
           .alignItems(HorizontalAlign.End)
@@ -46,7 +46,7 @@ export struct DongtaiChuan {
         .width('100%')
         .padding({ left: 14, right: 14, top: 8, bottom: 8 })
         .borderRadius(12)
-        .backgroundColor('#211E18')
+        .backgroundColor($r('app.color.ink_surface'))
         .border({ width: 1, color: this.cardBrd(it.pos) })
       }, (it: DongtaiItem) => it.pos + '|' + it.gz + '|' + it.jiang + '|' + it.lq)
     }

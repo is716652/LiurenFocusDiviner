@@ -47,13 +47,13 @@ export struct RuleHealthPanel {
       /* 标题栏 */
       Row() {
         Text('数据自检')
-          .fontSize(16)
+          .fontSize($r('app.float.fs_body'))
           .fontWeight(FontWeight.Medium)
-          .fontColor('#F0E6C8')
+          .fontColor($r('app.color.ink_text'))
         Blank()
         Text('✕')
-          .fontSize(15)
-          .fontColor('#C4B183')
+          .fontSize($r('app.float.splash_sub'))
+          .fontColor($r('app.color.ink_text_muted'))
           .padding({ left: 10, right: 10, top: 2, bottom: 2 })
           .onClick(() => {
             this.onClose();
@@ -65,7 +65,7 @@ export struct RuleHealthPanel {
       Scroll() {
         Column({ space: 10 }) {
           Text(this.summary)
-            .fontSize(13)
+            .fontSize($r('app.float.fs_caption'))
             .fontColor(this.problems.length > 0 ? '#E8C46A' : '#8FA88C')
             .width('100%')
             .textAlign(TextAlign.Start)
@@ -73,20 +73,20 @@ export struct RuleHealthPanel {
           if (this.problems.length > 0) {
             Column({ space: 4 }) {
               Text('缺表 / 内容不完整（' + this.problems.length + ' 项）')
-                .fontSize(12)
-                .fontColor('#E8A483')
+                .fontSize($r('app.float.font_body_m'))
+                .fontColor($r('app.color.state_warn_text'))
                 .width('100%')
                 .textAlign(TextAlign.Start)
               ForEach(this.problems, (s: RuleTableStatus) => {
                 Column({ space: 2 }) {
                   Text('· ' + s.label + '：' + this.stateOf(s))
-                    .fontSize(12)
-                    .fontColor('#E8A483')
+                    .fontSize($r('app.float.font_body_m'))
+                    .fontColor($r('app.color.state_warn_text'))
                     .width('100%')
                     .textAlign(TextAlign.Start)
                   Text(s.failReason !== '' ? s.failReason : '未登记失败原因')
-                    .fontSize(10)
-                    .fontColor('#B8A97F')
+                    .fontSize($r('app.float.font_caption_l'))
+                    .fontColor($r('app.color.ink_text_source'))
                     .width('100%')
                     .textAlign(TextAlign.Start)
                 }
@@ -94,8 +94,8 @@ export struct RuleHealthPanel {
                 .alignItems(HorizontalAlign.Start)
               }, (s: RuleTableStatus) => 'p' + s.key)
               Text('说明：缺表不影响排盘（引擎以空规则兜底，盘照旧排出），相关栏目会标注「规则表未加载」。')
-                .fontSize(10)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .lineHeight(15)
                 .width('100%')
                 .textAlign(TextAlign.Start)
@@ -111,22 +111,22 @@ export struct RuleHealthPanel {
           /* 逐表自检 */
           Column({ space: 3 }) {
             Text('逐表自检（条目数 · 版本 · 登记时间）')
-              .fontSize(12)
-              .fontColor('#F0E6C8')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_text'))
               .width('100%')
               .textAlign(TextAlign.Start)
             ForEach(this.all, (s: RuleTableStatus) => {
               Row({ space: 6 }) {
                 Text(s.loaded ? (s.missingKeys.length > 0 ? '!' : '✓') : '✗')
-                  .fontSize(11)
+                  .fontSize($r('app.float.font_body_s'))
                   .fontColor(!s.loaded ? '#E8A483' : (s.missingKeys.length > 0 ? '#E8C46A' : '#8FA88C'))
                 Text(s.label)
-                  .fontSize(11)
-                  .fontColor('#C4B183')
+                  .fontSize($r('app.float.font_body_s'))
+                  .fontColor($r('app.color.ink_text_muted'))
                   .layoutWeight(1)
                 Text(this.detailOf(s))
-                  .fontSize(10)
-                  .fontColor('#A8986E')
+                  .fontSize($r('app.float.font_caption_l'))
+                  .fontColor($r('app.color.ink_text_secondary'))
               }
               .width('100%')
             }, (s: RuleTableStatus) => 'a' + s.key)
@@ -135,19 +135,19 @@ export struct RuleHealthPanel {
           .alignItems(HorizontalAlign.Start)
           .padding(10)
           .borderRadius(10)
-          .backgroundColor('#1C1A16')
+          .backgroundColor($r('app.color.ink_card'))
           .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
 
           /* 诊断文本预览（可长按选择复制，剪贴板失败时也能看） */
           Column({ space: 4 }) {
             Text('诊断文本（导出即复制此内容）')
-              .fontSize(12)
-              .fontColor('#F0E6C8')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_text'))
               .width('100%')
               .textAlign(TextAlign.Start)
             Text(this.diagnose)
-              .fontSize(10)
-              .fontColor('#B8A97F')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_source'))
               .lineHeight(15)
               .width('100%')
               .textAlign(TextAlign.Start)
@@ -157,12 +157,12 @@ export struct RuleHealthPanel {
           .alignItems(HorizontalAlign.Start)
           .padding(10)
           .borderRadius(10)
-          .backgroundColor('#1C1A16')
+          .backgroundColor($r('app.color.ink_card'))
           .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
 
           if (this.tip !== '') {
             Text(this.tip)
-              .fontSize(11)
+              .fontSize($r('app.float.font_body_s'))
               .fontColor('#8FA88C')
               .width('100%')
               .textAlign(TextAlign.Start)
@@ -177,22 +177,22 @@ export struct RuleHealthPanel {
       /* 操作栏 */
       Row({ space: 10 }) {
         Text('重新自检')
-          .fontSize(12)
-          .fontColor('#C4B183')
+          .fontSize($r('app.float.font_body_m'))
+          .fontColor($r('app.color.ink_text_muted'))
           .padding({ left: 14, right: 14, top: 8, bottom: 8 })
           .borderRadius(10)
-          .backgroundColor('#211E18')
+          .backgroundColor($r('app.color.ink_surface'))
           .border({ width: 1, color: 'rgba(233,200,120,0.20)' })
           .onClick(() => {
             this.onRecheck();
             this.refresh();
           })
         Text('导出诊断（复制）')
-          .fontSize(12)
-          .fontColor('#1A1410')
+          .fontSize($r('app.float.font_body_m'))
+          .fontColor($r('app.color.ink_page'))
           .padding({ left: 14, right: 14, top: 8, bottom: 8 })
           .borderRadius(10)
-          .backgroundColor('#E9C878')
+          .backgroundColor($r('app.color.brand_gold'))
           .onClick(() => {
             this.copyDiagnose();
           })

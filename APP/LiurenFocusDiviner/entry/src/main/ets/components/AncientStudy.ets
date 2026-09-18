@@ -257,11 +257,11 @@ export struct AncientStudy {
       /* 页头由页面层 PageHeader 提供；此处仅保留"‹ 目录"返回入口（阅读视图→目录） */
       if (this.curIdx >= 0) {
         Text('‹ 目录')
-          .fontSize(13)
-          .fontColor('#C4B183')
+          .fontSize($r('app.float.fs_caption'))
+          .fontColor($r('app.color.ink_text_muted'))
           .padding({ left: 12, right: 12, top: 4, bottom: 4 })
           .borderRadius(9)
-          .backgroundColor('#211E18')
+          .backgroundColor($r('app.color.ink_surface'))
           .onClick(() => {
             this.curIdx = -1;
           })
@@ -276,7 +276,7 @@ export struct AncientStudy {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#14120F')
+    .backgroundColor($r('app.color.pan_core'))
   }
 
   /* ---------------- 目录视图 ---------------- */
@@ -286,40 +286,40 @@ export struct AncientStudy {
       Column() {
         if (!this.book) {
           Text('正在载入古籍…')
-            .fontSize(12)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_body_m'))
+            .fontColor($r('app.color.ink_text_secondary'))
             .padding(24)
         } else {
           ForEach(this.listRows(), (c: AncientChapter, idx: number) => {
             if (this.showJuan(idx)) {
               Text(c.卷)
-                .fontSize(12)
+                .fontSize($r('app.float.font_body_m'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#C4A25C')
+                .fontColor($r('app.color.brand_gold_deep'))
                 .width('100%')
                 .padding({ top: 14, bottom: 6 })
             }
             Row({ space: 10 }) {
               Text(String(c.序).padStart(2, '0'))
-                .fontSize(12)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_body_m'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .width(24)
               Column({ space: 3 }) {
                 Text(c.篇名)
-                  .fontSize(15)
+                  .fontSize($r('app.float.splash_sub'))
                   .fontWeight(FontWeight.Medium)
-                  .fontColor('#F0E6C8')
+                  .fontColor($r('app.color.ink_text'))
                   .maxLines(1)
                 Text(c.导语)
-                  .fontSize(11)
-                  .fontColor('#A8986E')
+                  .fontSize($r('app.float.font_body_s'))
+                  .fontColor($r('app.color.ink_text_secondary'))
                   .maxLines(1)
               }
               .layoutWeight(1)
               .alignItems(HorizontalAlign.Start)
               Text('›')
-                .fontSize(16)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.fs_body'))
+                .fontColor($r('app.color.ink_text_secondary'))
             }
             .width('100%')
             .padding({ top: 8, bottom: 8 })
@@ -328,8 +328,8 @@ export struct AncientStudy {
             })
           }, (c: AncientChapter) => 'ch' + c.序)
           Text('内容据馆藏抄本整理，仅供传统文化研习参考')
-            .fontSize(10)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_caption_l'))
+            .fontColor($r('app.color.ink_text_secondary'))
             .width('100%')
             .textAlign(TextAlign.Center)
             .padding({ top: 20, bottom: 72 })
@@ -351,32 +351,32 @@ export struct AncientStudy {
   private kegBlock(p: string) {
     Column({ space: 6 }) {
       Text('四课')
-        .fontSize(12)
+        .fontSize($r('app.float.font_body_m'))
         .fontWeight(FontWeight.Bold)
-        .fontColor('#E9C878')
+        .fontColor($r('app.color.brand_gold'))
         .width('100%')
       Row({ space: 6 }) {
         ForEach(this.kegUpList(p), (u: string, ui: number) => {
           Column({ space: 2 }) {
             Text(u)
-              .fontSize(14)
+              .fontSize($r('app.float.font_subtitle_m'))
               .fontWeight(FontWeight.Bold)
-              .fontColor('#F0D98C')
+              .fontColor($r('app.color.brand_gold_bright'))
             Text(this.kegDown(p, ui))
-              .fontSize(13)
-              .fontColor('#C4B183')
+              .fontSize($r('app.float.fs_caption'))
+              .fontColor($r('app.color.ink_text_muted'))
           }
           .layoutWeight(1)
           .padding({ top: 8, bottom: 8 })
           .borderRadius(8)
-          .backgroundColor('#211E18')
+          .backgroundColor($r('app.color.ink_surface'))
           .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
         }, (u: string, ui: number) => 'ku' + ui + u)
       }
       .width('100%')
       Text('上神 / 下神（右起第一课）')
-        .fontSize(9)
-        .fontColor('#A8986E')
+        .fontSize($r('app.float.font_caption_m'))
+        .fontColor($r('app.color.ink_text_secondary'))
         .width('100%')
     }
     .width('100%')
@@ -394,19 +394,19 @@ export struct AncientStudy {
       ForEach(this.diskRows(p), (r: string, ri: number) => {
         Row() {
           Text(ri === 0 ? '三传' : '')
-            .fontSize(11)
+            .fontSize($r('app.float.font_body_s'))
             .fontWeight(FontWeight.Bold)
-            .fontColor('#E9C878')
+            .fontColor($r('app.color.brand_gold'))
             .width(36)
           Text(r)
-            .fontSize(14)
+            .fontSize($r('app.float.font_subtitle_m'))
             .fontWeight(FontWeight.Bold)
-            .fontColor('#F0D98C')
+            .fontColor($r('app.color.brand_gold_bright'))
             .layoutWeight(1)
           if (ri === 0 && this.diskRows(p).length > 1) {
             Text('初 · 中 · 末')
-              .fontSize(9)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_m'))
+              .fontColor($r('app.color.ink_text_secondary'))
           }
         }
         .width('100%')
@@ -426,17 +426,17 @@ export struct AncientStudy {
   private diskBlock(p: string) {
     Column({ space: 4 }) {
       Text('天地盘')
-        .fontSize(12)
+        .fontSize($r('app.float.font_body_m'))
         .fontWeight(FontWeight.Bold)
-        .fontColor('#E9C878')
+        .fontColor($r('app.color.brand_gold'))
         .width('100%')
       ForEach(this.diskLineList(p), (line: string, li: number) => {
         Row({ space: 4 }) {
           ForEach(this.splitZhi(line), (z: string, zi: number) => {
             Text(z)
-              .fontSize(15)
+              .fontSize($r('app.float.splash_sub'))
               .fontWeight(FontWeight.Bold)
-              .fontColor('#F0D98C')
+              .fontColor($r('app.color.brand_gold_bright'))
               .width(48)
               .textAlign(TextAlign.Center)
           }, (z: string, zi: number) => 'dl' + li + zi + z)
@@ -458,17 +458,17 @@ export struct AncientStudy {
   private ringBlock(p: string) {
     Column({ space: 4 }) {
       Text('十二支环列')
-        .fontSize(12)
+        .fontSize($r('app.float.font_body_m'))
         .fontWeight(FontWeight.Bold)
-        .fontColor('#E9C878')
+        .fontColor($r('app.color.brand_gold'))
         .width('100%')
       ForEach(this.lines(p), (line: string, li: number) => {
         Row({ space: 10 }) {
           ForEach(this.splitZhi(line), (z: string, zi: number) => {
             Text(z)
-              .fontSize(14)
+              .fontSize($r('app.float.font_subtitle_m'))
               .fontWeight(FontWeight.Medium)
-              .fontColor('#F0D98C')
+              .fontColor($r('app.color.brand_gold_bright'))
               .width(52)
               .textAlign(TextAlign.Center)
           }, (z: string, zi: number) => 'r' + li + zi + z)
@@ -564,7 +564,7 @@ export struct AncientStudy {
     Column({ space: 2 }) {
       ForEach(this.codeLines(p), (line: string, li: number) => {
         Text(line)
-          .fontSize(11)
+          .fontSize($r('app.float.font_body_s'))
           .fontColor('#8A9BA8')
           .lineHeight(17)
           .width('100%')
@@ -584,8 +584,8 @@ export struct AncientStudy {
     Column({ space: 3 }) {
       ForEach(this.lines(p), (line: string, li: number) => {
         Text(this.tableClean(line))
-          .fontSize(12)
-          .fontColor(li === 0 ? '#E9C878' : '#C4B183')
+          .fontSize($r('app.float.font_body_m'))
+          .fontColor(li === 0 ? '#E9C878' : $r('app.color.ink_text_muted'))
           .fontWeight(li === 0 ? FontWeight.Bold : FontWeight.Normal)
           .lineHeight(19)
           .width('100%')
@@ -613,16 +613,16 @@ export struct AncientStudy {
           /* 篇头 */
           Column({ space: 6 }) {
             Text(this.listRows()[this.curIdx].篇名)
-              .fontSize(20)
+              .fontSize($r('app.float.font_title_m'))
               .fontWeight(FontWeight.Bold)
-              .fontColor('#F0D98C')
+              .fontColor($r('app.color.brand_gold_bright'))
             Text(this.listRows()[this.curIdx].卷 + ' · ' + this.listRows()[this.curIdx].导语)
-              .fontSize(11)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_secondary'))
               .textAlign(TextAlign.Center)
             Text('文中【存疑】为整理者校勘标注 · 经文原文照录 · 仅供传统文化研习参考')
-              .fontSize(9)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_m'))
+              .fontColor($r('app.color.ink_text_secondary'))
               .textAlign(TextAlign.Center)
               .width('100%')
           }
@@ -635,9 +635,9 @@ export struct AncientStudy {
             if (this.isSectionMark(p)) {
               /* 盘式小节标记：四课/三传 → 金色小标题 */
               Text(this.cleanMark(p))
-                .fontSize(13)
+                .fontSize($r('app.float.fs_caption'))
                 .fontWeight(FontWeight.Bold)
-                .fontColor('#E9C878')
+                .fontColor($r('app.color.brand_gold'))
                 .letterSpacing(2)
                 .width('100%')
                 .textAlign(TextAlign.Center)
@@ -663,9 +663,9 @@ export struct AncientStudy {
             } else if (this.isSuspect(p)) {
               /* 【存疑】校勘标注：弱化样式（暗色小字 + 斜体 + 弱边框），与正文区分 */
               Text(this.cleanMd(p))
-                .fontSize(12)
+                .fontSize($r('app.float.font_body_m'))
                 .fontStyle(FontStyle.Italic)
-                .fontColor('#A8986E')
+                .fontColor($r('app.color.ink_text_secondary'))
                 .lineHeight(19)
                 .width('100%')
                 .padding({ left: 10, right: 8, top: 6, bottom: 6 })
@@ -676,8 +676,8 @@ export struct AncientStudy {
             } else if (this.isQuote(p)) {
               /* 引用块（原 > 前缀）：缩进 + 暗金 */
               Text(this.cleanQuote(p))
-                .fontSize(13)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.fs_caption'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .lineHeight(22)
                 .width('100%')
                 .padding({ left: 12, right: 8, top: 8, bottom: 8 })
@@ -688,7 +688,7 @@ export struct AncientStudy {
             } else {
               /* 正文段落（去 md 标记：- / # / **） */
               Text(this.cleanMd(p))
-                .fontSize(15)
+                .fontSize($r('app.float.splash_sub'))
                 .fontColor('#D8CBA8')
                 .lineHeight(26)
                 .width('100%')
@@ -708,9 +708,9 @@ export struct AncientStudy {
         Button(this.curIdx > 0 ? '上一篇' : '已是首篇')
           .layoutWeight(1)
           .height(38)
-          .fontSize(13)
-          .fontColor('#E9C878')
-          .backgroundColor('#211E18')
+          .fontSize($r('app.float.fs_caption'))
+          .fontColor($r('app.color.brand_gold'))
+          .backgroundColor($r('app.color.ink_surface'))
           .borderRadius(19)
           .enabled(this.curIdx > 0)
           .onClick(() => {
@@ -721,8 +721,8 @@ export struct AncientStudy {
         Button(this.curIdx < this.listRows().length - 1 ? '下一篇' : '已是末篇')
           .layoutWeight(1)
           .height(38)
-          .fontSize(13)
-          .fontColor('#1A1410')
+          .fontSize($r('app.float.fs_caption'))
+          .fontColor($r('app.color.ink_page'))
           .backgroundColor('#D9A94E')
           .borderRadius(19)
           .enabled(this.curIdx < this.listRows().length - 1)
@@ -734,7 +734,7 @@ export struct AncientStudy {
       }
       .width('100%')
       .padding({ left: 16, right: 16, top: 8, bottom: 72 })
-      .backgroundColor('#1C1A16')
+      .backgroundColor($r('app.color.ink_card'))
       .border({ width: { top: 1 }, color: 'rgba(233,200,120,0.15)' })
     }
     .width('100%')

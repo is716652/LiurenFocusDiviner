@@ -22,7 +22,7 @@ export struct PageHeader {
       Text(this.title)
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#E9C878')
+        .fontColor($r('app.color.brand_gold'))
         .letterSpacing(2)
         .width('100%')
         .textAlign(TextAlign.Start)
@@ -39,11 +39,11 @@ export struct PageHeader {
         Blank()
         if (this.showBack) {
           Text(this.backText) /* layout-ok: 返回按钮文案，取值来自固定几处，长度有界 */
-            .fontSize(12)
-            .fontColor('#C4B183')
+            .fontSize($r('app.float.font_body_m'))
+            .fontColor($r('app.color.ink_text_muted'))
             .padding({ left: 12, right: 12, top: 4, bottom: 4 })
             .borderRadius(9)
-            .backgroundColor('#211E18')
+            .backgroundColor($r('app.color.ink_surface'))
             .onClick(() => {
               this.onBack();
             })

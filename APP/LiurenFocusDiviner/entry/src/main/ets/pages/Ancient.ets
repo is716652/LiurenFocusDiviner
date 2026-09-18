@@ -90,9 +90,9 @@ struct Ancient {
       if (FeatureFlags.SHOW_ANCIENT_CASE_GALLERY) {
         Row({ space: 8 }) {
           Text('经文')
-            .fontSize(12)
-            .fontColor(this.tab === 'jing' ? '#1A1410' : '#C4B183')
-            .backgroundColor(this.tab === 'jing' ? '#E9C878' : '#211E18')
+            .fontSize($r('app.float.font_body_m'))
+            .fontColor(this.tab === 'jing' ? '#1A1410' : $r('app.color.ink_text_muted'))
+            .backgroundColor(this.tab === 'jing' ? '#E9C878' : $r('app.color.ink_surface'))
             .borderRadius(14)
             .padding({ left: 12, right: 12, top: 6, bottom: 6 })
             .onClick(() => {
@@ -100,9 +100,9 @@ struct Ancient {
               this.caseDetailOpen = false;
             })
           Text('案例鉴赏')
-            .fontSize(12)
-            .fontColor(this.tab === 'case' ? '#1A1410' : '#C4B183')
-            .backgroundColor(this.tab === 'case' ? '#E9C878' : '#211E18')
+            .fontSize($r('app.float.font_body_m'))
+            .fontColor(this.tab === 'case' ? '#1A1410' : $r('app.color.ink_text_muted'))
+            .backgroundColor(this.tab === 'case' ? '#E9C878' : $r('app.color.ink_surface'))
             .borderRadius(14)
             .padding({ left: 12, right: 12, top: 6, bottom: 6 })
             .onClick(() => {
@@ -131,7 +131,7 @@ struct Ancient {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#14120F')
+    .backgroundColor($r('app.color.pan_core'))
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 }

@@ -946,16 +946,16 @@ struct Index {
       .width('100%')
       .padding({ top: 12, bottom: 12, left: 6, right: 6 })
       .borderRadius(16)
-      .backgroundColor('#1C1A16')
+      .backgroundColor($r('app.color.ink_card'))
       .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
 
       /* 抓用神·读象 入口（半模态弹出） */
       Button('抓用神 · 读象')
         .width('100%')
         .height(42)
-        .fontSize(15)
+        .fontSize($r('app.float.splash_sub'))
         .fontWeight(FontWeight.Medium)
-        .fontColor('#1A1410')
+        .fontColor($r('app.color.ink_page'))
         .linearGradient({ angle: 90, colors: [['#F5D98E', 0.0], ['#D9A94E', 1.0]] })
         .borderRadius(21)
         .shadow({ radius: 14, color: 'rgba(233,200,120,0.30)', offsetY: 3 })
@@ -967,9 +967,9 @@ struct Index {
       Button('★ 保存课例')
         .width('100%')
         .height(36)
-        .fontSize(13)
-        .fontColor('#C4B183')
-        .backgroundColor('#211E18')
+        .fontSize($r('app.float.fs_caption'))
+        .fontColor($r('app.color.ink_text_muted'))
+        .backgroundColor($r('app.color.ink_surface'))
         .borderRadius(18)
         .border({ width: 1, color: 'rgba(233,200,120,0.25)' })
         .onClick(() => {
@@ -980,17 +980,17 @@ struct Index {
       Column({ space: 6 }) {
         Row() {
           Text('天地盘')
-            .fontSize(14)
+            .fontSize($r('app.float.font_subtitle_m'))
             .fontWeight(FontWeight.Medium)
-            .fontColor('#F0E6C8')
+            .fontColor($r('app.color.ink_text'))
           Blank()
           /* 遁干模式切换 + 辅助层开关（看盘免费；中黄断语块仍锁定） */
           if (PayConfig.paidVisible() && this.zhonghuang) {
             Row({ space: 4 }) {
               ForEach(['旬遁', '中黄'], (m: string) => {
                 Text(m)
-                  .fontSize(10)
-                  .fontColor(this.zhonghuangMode === m ? '#1A1410' : '#C4B183')
+                  .fontSize($r('app.float.font_caption_l'))
+                  .fontColor(this.zhonghuangMode === m ? '#1A1410' : $r('app.color.ink_text_muted'))
                   .backgroundColor(this.zhonghuangMode === m ? '#F0D98C' : 'rgba(138,123,92,0.12)')
                   .borderRadius(8)
                   .padding({ left: 8, right: 8, top: 2, bottom: 2 })
@@ -1007,24 +1007,24 @@ struct Index {
             /* 免费版：仅辅助层开关（无中黄） */
             Row({ space: 4 }) {
               Text('地盘干')
-                .fontSize(10)
-                .fontColor(this.showDunDi ? '#7FA69A' : '#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor(this.showDunDi ? '#7FA69A' : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
                   this.showDunDi = !this.showDunDi;
                 })
               Text('本位')
-                .fontSize(10)
-                .fontColor(this.showBenshen ? '#A8986E' : '#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor(this.showBenshen ? '#A8986E' : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
                   this.showBenshen = !this.showBenshen;
                 })
               Text('日遁')
-                .fontSize(10)
-                .fontColor(this.showRiDun ? '#8FA3A8' : '#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor(this.showRiDun ? '#8FA3A8' : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -1037,24 +1037,24 @@ struct Index {
           if (PayConfig.paidVisible() && this.zhonghuang) {
             Row({ space: 4 }) {
               Text('地盘干')
-                .fontSize(10)
-                .fontColor(this.showDunDi ? '#7FA69A' : '#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor(this.showDunDi ? '#7FA69A' : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
                   this.showDunDi = !this.showDunDi;
                 })
               Text('本位')
-                .fontSize(10)
-                .fontColor(this.showBenshen ? '#A8986E' : '#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor(this.showBenshen ? '#A8986E' : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
                   this.showBenshen = !this.showBenshen;
                 })
               Text('日遁')
-                .fontSize(10)
-                .fontColor(this.showRiDun ? '#8FA3A8' : '#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor(this.showRiDun ? '#8FA3A8' : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -1101,30 +1101,30 @@ struct Index {
             Row({ space: 12 }) {
               Row({ space: 3 }) {
                 Text('身')
-                  .fontSize(9)
+                  .fontSize($r('app.float.font_caption_m'))
                   .fontWeight(FontWeight.Bold)
                   .fontColor('#9FB6A8')
                 Text('日干寄宫')
                   .fontSize(8)
-                  .fontColor('#A8986E')
+                  .fontColor($r('app.color.ink_text_secondary'))
               }
               Row({ space: 3 }) {
                 Text('变')
-                  .fontSize(9)
+                  .fontSize($r('app.float.font_caption_m'))
                   .fontWeight(FontWeight.Bold)
-                  .fontColor('#F0D98C')
+                  .fontColor($r('app.color.brand_gold_bright'))
                 Text('变干宫')
                   .fontSize(8)
-                  .fontColor('#A8986E')
+                  .fontColor($r('app.color.ink_text_secondary'))
               }
               Row({ space: 3 }) {
                 Text('传')
-                  .fontSize(9)
+                  .fontSize($r('app.float.font_caption_m'))
                   .fontWeight(FontWeight.Bold)
                   .fontColor('#D98C5F')
                 Text('变干入传')
                   .fontSize(8)
-                  .fontColor('#A8986E')
+                  .fontColor($r('app.color.ink_text_secondary'))
               }
             }
             .width('100%')
@@ -1132,27 +1132,27 @@ struct Index {
             .margin({ top: 4 })
             Text('中圈＝时干遁（中黄·用，判断所用）｜切回旬遁＝传统层（空亡支无干）｜「日遁」辅助层可把日干遁(体)叠在盘上对照')
               .fontSize(8)
-              .fontColor('#A8986E')
+              .fontColor($r('app.color.ink_text_secondary'))
               .width('100%')
               .margin({ top: 2 })
           }
           if (this.zhonghuangMode === '中黄' && this.zhongGong !== '') {
             Column({ space: 2 }) {
               Text(this.zhGongLine1())
-                .fontSize(10)
-                .fontColor('#F0D98C')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.brand_gold_bright'))
                 .width('100%')
               Text(this.zhGongLine2())
-                .fontSize(9)
-                .fontColor('#C4B183')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_muted'))
                 .width('100%')
               Text(this.zhGongLine3())
-                .fontSize(9)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .width('100%')
               Text(this.zhGongLine4())
-                .fontSize(9)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .width('100%')
                 .lineHeight(13)
             }
@@ -1167,8 +1167,8 @@ struct Index {
             (this.zhongGong !== '' ? '中黄宫情：' + this.zhongGong + '宫 · 点盘换宫；切回旬遁恢复外应取用' : '中黄开：点盘看宫情 · 切回旬遁恢复外应取用') :
             (this.customYS ? '⚡ 外应取用：' + this.yongShen + '（' + (this.customLayer === '天盘' ? '天盘加临之象' : '地盘本位之象') + '）· 点盘可换 · 缘由见「抓用神 · 读象」' :
               '点盘任一支 = 外应取用（天盘优先）'))
-            .fontSize(10)
-            .fontColor(this.zhonghuangMode === '中黄' ? '#C4A25C' : (this.customYS ? '#F0D98C' : '#A8986E'))
+            .fontSize($r('app.float.font_caption_l'))
+            .fontColor(this.zhonghuangMode === '中黄' ? '#C4A25C' : (this.customYS ? '#F0D98C' : $r('app.color.ink_text_secondary')))
             .margin({ top: 4 })
             .width('100%')
             .textAlign(TextAlign.Center)
@@ -1179,20 +1179,20 @@ struct Index {
       .width('100%')
       .padding(12)
       .borderRadius(16)
-      .backgroundColor('#1C1A16')
+      .backgroundColor($r('app.color.ink_card'))
       .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
 
       /* 四课 */
       Column({ space: 8 }) {
         Row() {
           Text('四课')
-            .fontSize(14)
+            .fontSize($r('app.float.font_subtitle_m'))
             .fontWeight(FontWeight.Medium)
-            .fontColor('#F0E6C8')
+            .fontColor($r('app.color.ink_text'))
           Blank()
           Text('右起第一课 · 干上神')
-            .fontSize(10)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_caption_l'))
+            .fontColor($r('app.color.ink_text_secondary'))
         }
         .width('100%')
         Row({ space: 8 }) {
@@ -1215,21 +1215,21 @@ struct Index {
       .width('100%')
       .padding(12)
       .borderRadius(16)
-      .backgroundColor('#1C1A16')
+      .backgroundColor($r('app.color.ink_card'))
       .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
 
       /* 三传 */
       Column({ space: 8 }) {
         Row() {
           Text('三传 · ' + this.chuanTitle())
-            .fontSize(14)
+            .fontSize($r('app.float.font_subtitle_m'))
             .fontWeight(FontWeight.Medium)
-            .fontColor('#F0E6C8')
+            .fontColor($r('app.color.ink_text'))
             .layoutWeight(1)
           Blank()
           Text('九宗门')
-            .fontSize(10)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_caption_l'))
+            .fontColor($r('app.color.ink_text_secondary'))
         }
         .width('100%')
         Row({ space: 8 }) {
@@ -1251,7 +1251,7 @@ struct Index {
       .width('100%')
       .padding(12)
       .borderRadius(16)
-      .backgroundColor('#1C1A16')
+      .backgroundColor($r('app.color.ink_card'))
       .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
 
       /* 课体解读卡 */
@@ -1259,20 +1259,20 @@ struct Index {
         Column({ space: 6 }) {
           Row() {
             Text('课体 · ' + this.chuanTitle())
-              .fontSize(14)
+              .fontSize($r('app.float.font_subtitle_m'))
               .fontWeight(FontWeight.Medium)
-              .fontColor('#F0E6C8')
+              .fontColor($r('app.color.ink_text'))
               .layoutWeight(1)
             Blank()
             Text('九宗门课体 · 通用课义')
-              .fontSize(10)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_secondary'))
           }
           .width('100%')
           if (this.ketiTxt() !== '') {
             Text(this.ketiTxt())
-              .fontSize(12)
-              .fontColor('#C4B183')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_text_muted'))
               .lineHeight(18)
               .width('100%')
           }
@@ -1280,7 +1280,7 @@ struct Index {
         .width('100%')
         .padding(12)
         .borderRadius(16)
-        .backgroundColor('#1C1A16')
+        .backgroundColor($r('app.color.ink_card'))
         .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
       }
 
@@ -1288,13 +1288,13 @@ struct Index {
       Column({ space: 2 }) {
         Row() {
           Text('盘态')
-            .fontSize(14)
+            .fontSize($r('app.float.font_subtitle_m'))
             .fontWeight(FontWeight.Medium)
-            .fontColor('#F0E6C8')
+            .fontColor($r('app.color.ink_text'))
           Blank()
           Text('旬空 · 旺衰 · 助日')
-            .fontSize(10)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_caption_l'))
+            .fontColor($r('app.color.ink_text_secondary'))
         }
         .width('100%')
         .margin({ bottom: 4 })
@@ -1304,8 +1304,8 @@ struct Index {
         InfoRow({ label: '月将助日', value: this.cur().dx.yuejiang.zhu ? '助' : '不助', tone: this.cur().dx.yuejiang.zhu ? 'gold' : 'plain' })
         InfoRow({ label: '贵人助日', value: this.cur().dx.guiren.zhu ? '助' : '不助', tone: this.cur().dx.guiren.zhu ? 'gold' : 'plain' })
         Text(this.zhuriOpen ? '收起助日缘由 ▴' : '为什么？· 看助日缘由 ▾')
-          .fontSize(10)
-          .fontColor('#C4A25C')
+          .fontSize($r('app.float.font_caption_l'))
+          .fontColor($r('app.color.brand_gold_deep'))
           .width('100%')
           .padding({ top: 2, bottom: 2 })
           .onClick(() => {
@@ -1314,16 +1314,16 @@ struct Index {
         if (this.zhuriOpen) {
           ForEach(this.zhuriLines, (t: string) => {
             Text(t)
-              .fontSize(11)
+              .fontSize($r('app.float.font_body_s'))
               .lineHeight(17)
-              .fontColor('#C4B183')
+              .fontColor($r('app.color.ink_text_muted'))
               .width('100%')
           }, (t: string) => 'zr' + t)
           if (this.zhuriKouJue !== '') {
             Text('原文口诀：' + this.zhuriKouJue)
-              .fontSize(10)
+              .fontSize($r('app.float.font_caption_l'))
               .lineHeight(16)
-              .fontColor('#B8A97F')
+              .fontColor($r('app.color.ink_text_source'))
               .width('100%')
           }
         }
@@ -1331,27 +1331,27 @@ struct Index {
       .width('100%')
       .padding(12)
       .borderRadius(16)
-      .backgroundColor('#1C1A16')
+      .backgroundColor($r('app.color.ink_card'))
       .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
 
       /* 解读路线：读象/毕法/中黄 三条路线速览（点击切换；四课三传先看，路线按需深入） */
       Column({ space: 8 }) {
         Row() {
           Text('解读路线')
-            .fontSize(14)
+            .fontSize($r('app.float.font_subtitle_m'))
             .fontWeight(FontWeight.Medium)
-            .fontColor('#F0E6C8')
+            .fontColor($r('app.color.ink_text'))
           Blank()
           Text('先看四课三传 · 模糊时沿一条路线深入')
-            .fontSize(10)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_caption_l'))
+            .fontColor($r('app.color.ink_text_secondary'))
         }
         .width('100%')
         Row({ space: 6 }) {
           ForEach(['读象', '毕法', '中黄'], (r: string) => {
             Text(r)
-              .fontSize(12)
-              .fontColor(this.route === r ? '#1A1410' : '#C4B183')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor(this.route === r ? '#1A1410' : $r('app.color.ink_text_muted'))
               .backgroundColor(this.route === r ? '#F0D98C' : 'rgba(138,123,92,0.12)')
               .borderRadius(10)
               .padding({ left: 14, right: 14, top: 4, bottom: 4 })
@@ -1365,14 +1365,14 @@ struct Index {
         if (this.route === '读象') {
           Column({ space: 4 }) {
             Text('读象路线：以用神/类神为链——选占事 → 类神候选 → 节点卡 → 动态三传 → 古籍断法选句')
-              .fontSize(11)
-              .fontColor('#C4B183')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_muted'))
               .lineHeight(16)
               .width('100%')
             Row({ space: 6 }) {
               Text('打开抓用神')
-                .fontSize(12)
-                .fontColor('#F0D98C')
+                .fontSize($r('app.float.font_body_m'))
+                .fontColor($r('app.color.brand_gold_bright'))
                 .backgroundColor('rgba(233,200,120,0.12)')
                 .borderRadius(10)
                 .padding({ left: 12, right: 12, top: 4, bottom: 4 })
@@ -1388,8 +1388,8 @@ struct Index {
                 })
               } else {
                 Text('当前用神：' + this.yongShen)
-                  .fontSize(11)
-                  .fontColor('#A8986E')
+                  .fontSize($r('app.float.font_body_s'))
+                  .fontColor($r('app.color.ink_text_secondary'))
               }
             }
             .width('100%')
@@ -1398,14 +1398,14 @@ struct Index {
         } else if (this.route === '毕法') {
           Column({ space: 4 }) {
             Text('毕法路线：以格局为链——命中格局 → 五层定位 → 教练组合断')
-              .fontSize(11)
-              .fontColor('#C4B183')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_muted'))
               .lineHeight(16)
               .width('100%')
             if (this.coach && this.coach.items.length > 0) {
               Text(this.coach.summary)
-                .fontSize(11)
-                .fontColor('#F0D98C')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.brand_gold_bright'))
                 .lineHeight(16)
                 .width('100%')
             } else {
@@ -1416,8 +1416,8 @@ struct Index {
         } else if (this.route === '中黄') {
           Column({ space: 4 }) {
             Text('中黄路线（先锋链路）：时支(先锋门) → 变干(动能) → 初传/用神(落点)')
-              .fontSize(11)
-              .fontColor('#C4B183')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_muted'))
               .lineHeight(16)
               .width('100%')
             if (this.zhonghuangMode !== '中黄') {
@@ -1429,15 +1429,15 @@ struct Index {
                 (this.zhonghuangAna.bianJiang !== '' ? ' 乘' + this.zhonghuangAna.bianJiang : '') +
                 ') 为日干之' + this.zhonghuangAna.bianLq +
                 (this.zhonghuangAna.bianInChuan !== '' ? ' · 入' + this.zhonghuangAna.bianInChuan : ''))
-                .fontSize(12)
+                .fontSize($r('app.float.font_body_m'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#F0D98C')
+                .fontColor($r('app.color.brand_gold_bright'))
                 .lineHeight(17)
                 .width('100%')
             } else {
               Text('排盘后自动生成先锋链路')
-                .fontSize(11)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .lineHeight(16)
                 .width('100%')
             }
@@ -1448,34 +1448,34 @@ struct Index {
       .width('100%')
       .padding(12)
       .borderRadius(16)
-      .backgroundColor('#1C1A16')
+      .backgroundColor($r('app.color.ink_card'))
       .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
 
       /* 神煞 */
       Column({ space: 8 }) {
         Row() {
           Text('神煞')
-            .fontSize(14)
+            .fontSize($r('app.float.font_subtitle_m'))
             .fontWeight(FontWeight.Medium)
-            .fontColor('#F0E6C8')
+            .fontColor($r('app.color.ink_text'))
           Blank()
           Text('日支 · 月将 · 初传所带')
-            .fontSize(10)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_caption_l'))
+            .fontColor($r('app.color.ink_text_secondary'))
         }
         .width('100%')
         ForEach(this.shenshaGroups(), (g: ShenshaGroup) => {
           Column({ space: 6 }) {
             Row() {
               Text(g.label)
-                .fontSize(11)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .layoutWeight(1)
               Blank()
               if (g.names.length === 0) {
                 Text('无')
-                  .fontSize(11)
-                  .fontColor('#A8986E')
+                  .fontSize($r('app.float.font_body_s'))
+                  .fontColor($r('app.color.ink_text_secondary'))
               }
             }
             .width('100%')
@@ -1500,34 +1500,34 @@ struct Index {
       .width('100%')
       .padding(12)
       .borderRadius(16)
-      .backgroundColor('#1C1A16')
+      .backgroundColor($r('app.color.ink_card'))
       .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
 
       /* 毕法 */
       Column({ space: 8 }) {
         Row() {
           Text('毕法格局')
-            .fontSize(14)
+            .fontSize($r('app.float.font_subtitle_m'))
             .fontWeight(FontWeight.Medium)
-            .fontColor('#F0E6C8')
+            .fontColor($r('app.color.ink_text'))
           Blank()
           Text('点击展开定位五层')
-            .fontSize(10)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_caption_l'))
+            .fontColor($r('app.color.ink_text_secondary'))
         }
         .width('100%')
         /* 付费门禁：毕法教练（付费区仅开发/收费版显示；免费版整体隐藏） */
         if (PayConfig.isPaidMode() && PayConfig.paidVisible() && !PayGate.isUnlocked(PayConfig.F_BIFA)) {
           Row({ space: 6 }) {
             Text('🔒')
-              .fontSize(13)
+              .fontSize($r('app.float.fs_caption'))
             Text('毕法法诀研习内容（组合对照 · 参考提示）为付费解锁')
-              .fontSize(11)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_secondary'))
             Blank()
             Text('解锁')
-              .fontSize(12)
-              .fontColor('#F0D98C')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.brand_gold_bright'))
               .onClick(() => {
                 this.unlockBifa();
               })
@@ -1541,11 +1541,11 @@ struct Index {
           Column({ space: 4 }) {
             Row({ space: 6 }) {
               Text('🧭')
-                .fontSize(14)
+                .fontSize($r('app.float.font_subtitle_m'))
               Text(this.coach.summary)
-                .fontSize(12)
+                .fontSize($r('app.float.font_body_m'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor(this.coach.xiong > this.coach.ji ? '#E8A483' : '#F0D98C')
+                .fontColor(this.coach.xiong > this.coach.ji ? '#E8A483' : $r('app.color.brand_gold_bright'))
                 .lineHeight(17)
                 .layoutWeight(1)
             }
@@ -1553,22 +1553,22 @@ struct Index {
             if (this.coach.groups.length > 0) {
               ForEach(this.coach.groups, (g: string) => {
                 Text('· ' + g)
-                  .fontSize(11)
-                  .fontColor('#C4B183')
+                  .fontSize($r('app.float.font_body_s'))
+                  .fontColor($r('app.color.ink_text_muted'))
                   .lineHeight(16)
                   .width('100%')
               }, (g: string) => g)
             }
             if (this.coach.advice.length > 0) {
               Text('建议：' + this.coach.advice.join('；'))
-                .fontSize(11)
-                .fontColor('#B8A97F')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_source'))
                 .lineHeight(16)
                 .width('100%')
             }
             Text('以上为古籍毕法断语整理，仅供传统文化研习参考，不构成医疗、法律或决策建议')
-              .fontSize(9)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_m'))
+              .fontColor($r('app.color.ink_text_secondary'))
               .lineHeight(13)
               .width('100%')
           }
@@ -1585,20 +1585,20 @@ struct Index {
           Column({ space: 6 }) {
             Row({ space: 8 }) {
               Text(hit.法名)
-                .fontSize(14)
+                .fontSize($r('app.float.font_subtitle_m'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#F0D98C')
+                .fontColor($r('app.color.brand_gold_bright'))
                 .layoutWeight(1)
               TagBadge({ text: '第' + hit.序 + '法', tone: 'cinnabar' })
               Blank()
               Text(this.expandedBifa === hit.序 ? '收起' : '展开') /* layout-ok: 仅「收起/展开」两值，长度有界 */
-                .fontSize(11)
-                .fontColor('#C4A25C')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.brand_gold_deep'))
             }
             .width('100%')
             Text('原文 · ' + hit.判)
-              .fontSize(12)
-              .fontColor('#B8A97F')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_text_source'))
               .lineHeight(18)
               .width('100%')
             if (this.expandedBifa === hit.序) {
@@ -1618,7 +1618,7 @@ struct Index {
           .width('100%')
           .padding(12)
           .borderRadius(12)
-          .backgroundColor('#211E18')
+          .backgroundColor($r('app.color.ink_surface'))
           .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
           .onClick(() => {
             this.expandedBifa = (this.expandedBifa === hit.序) ? -1 : hit.序;
@@ -1630,20 +1630,20 @@ struct Index {
           Column({ space: 6 }) {
             Row() {
               Text('年命适配')
-                .fontSize(11)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_secondary'))
               Blank()
               Text('选年命地支 · 看个性化建议')
-                .fontSize(10)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.ink_text_secondary'))
             }
             .width('100%')
             Scroll() {
               Row({ space: 6 }) {
                 ForEach(HOURS, (z: string) => {
                   Text(z)
-                    .fontSize(12)
-                    .fontColor(this.nianZhi === z ? '#1A1410' : '#C4B183')
+                    .fontSize($r('app.float.font_body_m'))
+                    .fontColor(this.nianZhi === z ? '#1A1410' : $r('app.color.ink_text_muted'))
                     .backgroundColor(this.nianZhi === z ? '#F0D98C' : 'rgba(138,123,92,0.12)')
                     .borderRadius(12)
                     .padding({ left: 10, right: 10, top: 4, bottom: 4 })
@@ -1667,13 +1667,13 @@ struct Index {
                 '（' + this.nianming.liuqin + '）' + (this.nianming.kong ? '·空' : '') +
                 ' ' + this.nianming.wangShuai +
                 (this.nianming.rel !== '' ? ' · 与用神' + this.nianming.rel : ''))
-                .fontSize(11)
-                .fontColor('#C4B183')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_muted'))
                 .lineHeight(16)
                 .width('100%')
               Text(this.nianming.advice)
-                .fontSize(12)
-                .fontColor('#F0D98C')
+                .fontSize($r('app.float.font_body_m'))
+                .fontColor($r('app.color.brand_gold_bright'))
                 .lineHeight(18)
                 .width('100%')
             } else {
@@ -1683,33 +1683,33 @@ struct Index {
             /* 行年小运：出生年 + 性别 → 本命/行年/上神 */
             Row() {
               Text('行年小运')
-                .fontSize(11)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_secondary'))
               Blank()
               Text('出生年 + 性别 · 看今年')
-                .fontSize(10)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.ink_text_secondary'))
             }
             .width('100%')
             Row({ space: 12 }) {
               Row({ space: 8 }) {
                 Text('‹')
-                  .fontSize(24)
-                  .fontColor('#C4A25C')
+                  .fontSize($r('app.float.fs_title'))
+                  .fontColor($r('app.color.brand_gold_deep'))
                   .onClick(() => {
                     this.changeBirthYear(-1);
                   })
                 Column({ space: 2 }) {
                   Text('出生年 · 点击输入')
-                    .fontSize(10)
-                    .fontColor('#A8986E')
+                    .fontSize($r('app.float.font_caption_l'))
+                    .fontColor($r('app.color.ink_text_secondary'))
                   if (this.birthEditing) {
                     TextInput({ text: this.birthEditVal, placeholder: String(this.birthYear) })
                       .type(InputType.Number)
                       .maxLength(4)
-                      .fontSize(16)
-                      .fontColor('#F0D98C')
-                      .backgroundColor('#211E18')
+                      .fontSize($r('app.float.fs_body'))
+                      .fontColor($r('app.color.brand_gold_bright'))
+                      .backgroundColor($r('app.color.ink_surface'))
                       .height(30)
                       .width(86)
                       .onChange((v: string) => {
@@ -1723,9 +1723,9 @@ struct Index {
                       })
                   } else {
                     Text(String(this.birthYear))
-                      .fontSize(16)
+                      .fontSize($r('app.float.fs_body'))
                       .fontWeight(FontWeight.Medium)
-                      .fontColor('#F0D98C')
+                      .fontColor($r('app.color.brand_gold_bright'))
                       .onClick(() => {
                         this.birthEditVal = String(this.birthYear);
                         this.birthEditing = true;
@@ -1733,8 +1733,8 @@ struct Index {
                   }
                 }
                 Text('›')
-                  .fontSize(24)
-                  .fontColor('#C4A25C')
+                  .fontSize($r('app.float.fs_title'))
+                  .fontColor($r('app.color.brand_gold_deep'))
                   .onClick(() => {
                     this.changeBirthYear(1);
                   })
@@ -1742,8 +1742,8 @@ struct Index {
               Row({ space: 6 }) {
                 ForEach(['男', '女'], (g: string) => {
                   Text(g)
-                    .fontSize(12)
-                    .fontColor(this.gender === g ? '#1A1410' : '#C4B183')
+                    .fontSize($r('app.float.font_body_m'))
+                    .fontColor(this.gender === g ? '#1A1410' : $r('app.color.ink_text_muted'))
                     .backgroundColor(this.gender === g ? '#F0D98C' : 'rgba(138,123,92,0.12)')
                     .borderRadius(10)
                     .padding({ left: 12, right: 12, top: 3, bottom: 3 })
@@ -1763,41 +1763,41 @@ struct Index {
                 '（' + (this.xingnian.shun ? '顺行' : '逆行') + '）· 行年' + this.xingnian.xingNianZhi +
                 ' · 上神' + this.xingnian.shangShen + '（' + this.xingnian.liuqin + '）' +
                 (this.xingnian.kong ? '·空' : '') + ' ' + this.xingnian.wangShuai)
-                .fontSize(11)
-                .fontColor('#C4B183')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_muted'))
                 .lineHeight(16)
                 .width('100%')
               if (this.xingnian.rel !== '') {
                 Text('与用神' + this.xingnian.yongShen + '：' + this.xingnian.rel)
-                  .fontSize(11)
-                  .fontColor('#C4B183')
+                  .fontSize($r('app.float.font_body_s'))
+                  .fontColor($r('app.color.ink_text_muted'))
                   .lineHeight(16)
                   .width('100%')
               }
               Text('流年·' + this.xingnian.tsRel + (this.xingnian.jiang !== '' ? ' · 乘将' + this.xingnian.jiang + '（' + this.xingnian.jiangJx + '）' : ''))
-                .fontSize(11)
-                .fontColor('#C4B183')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_muted'))
                 .lineHeight(16)
                 .width('100%')
               Text('研习参考 · 吉凶权重 ' + this.xingnian.score + '分（' + this.xingnian.band + '）')
-                .fontSize(13)
+                .fontSize($r('app.float.fs_caption'))
                 .fontWeight(FontWeight.Medium)
                 .fontColor(this.bandColor(this.xingnian.band))
                 .lineHeight(18)
                 .width('100%')
               Text(this.xingnian.advice)
-                .fontSize(12)
-                .fontColor('#F0D98C')
+                .fontSize($r('app.float.font_body_m'))
+                .fontColor($r('app.color.brand_gold_bright'))
                 .lineHeight(18)
                 .width('100%')
               Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')
-                .fontSize(9)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .lineHeight(13)
                 .width('100%')
               Text('以上为古籍断法整理，仅供传统文化研习参考，不构成现实判断或决策建议')
-                .fontSize(9)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .lineHeight(13)
                 .width('100%')
             } else {
@@ -1814,26 +1814,26 @@ struct Index {
           Column({ space: 6 }) {
             Row() {
               Text('中黄五变经')
-                .fontSize(11)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_secondary'))
               Blank()
               Text('日干遁·时干遁 双演 · 遁干切换在天地盘标题')
-                .fontSize(10)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.ink_text_secondary'))
             }
             .width('100%')
 
             /* ① 双视角对比：常遁 vs 中黄 六亲变化 */
             Text('① 六亲视角对比（常遁/日遁 → 中黄/时遁）· 变化 ' + this.zhonghuangAna.changed.length + ' 宫')
-              .fontSize(11)
+              .fontSize($r('app.float.font_body_s'))
               .fontWeight(FontWeight.Medium)
-              .fontColor('#C4B183')
+              .fontColor($r('app.color.ink_text_muted'))
               .width('100%')
             Flex({ wrap: FlexWrap.Wrap }) {
               ForEach(this.zhonghuangAna.cmp, (it: ZhonghuangCmpItem) => {
                 Text(it.gong + ' ' + it.xunLq + (it.changed ? ('→' + it.zhLq) : ''))
-                  .fontSize(10)
-                  .fontColor(it.changed ? '#F0D98C' : '#A8986E')
+                  .fontSize($r('app.float.font_caption_l'))
+                  .fontColor(it.changed ? '#F0D98C' : $r('app.color.ink_text_secondary'))
                   .backgroundColor(it.changed ? 'rgba(240,217,140,0.12)' : 'rgba(107,95,69,0.12)')
                   .borderRadius(8)
                   .padding({ left: 7, right: 7, top: 3, bottom: 3 })
@@ -1847,42 +1847,42 @@ struct Index {
               (this.zhonghuangAna.bianJiang !== '' ? ' 乘' + this.zhonghuangAna.bianJiang : '') +
               ' 为日干' + this.zhonghuangAna.dun.dayGan + '之' + this.zhonghuangAna.bianLq +
               (this.zhonghuangAna.bianInChuan !== '' ? ' · 入' + this.zhonghuangAna.bianInChuan : ' · 不入三传'))
-              .fontSize(12)
+              .fontSize($r('app.float.font_body_m'))
               .fontWeight(FontWeight.Medium)
-              .fontColor('#F0D98C')
+              .fontColor($r('app.color.brand_gold_bright'))
               .lineHeight(17)
               .width('100%')
             Text(this.zhonghuangTxt())
-              .fontSize(11)
-              .fontColor('#C4B183')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_text_muted'))
               .lineHeight(16)
               .width('100%')
 
             /* ③ 建合检测 */
             Text('③ 建合检测（日遁×时遁 天干五合）')
-              .fontSize(11)
+              .fontSize($r('app.float.font_body_s'))
               .fontWeight(FontWeight.Medium)
-              .fontColor('#C4B183')
+              .fontColor($r('app.color.ink_text_muted'))
               .width('100%')
             if (this.zhonghuangAna.jianhe.length === 0) {
               Text('本盘无建合（日遁与时遁在日上/支上/变干宫/三传无干合）')
-                .fontSize(11)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_body_s'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .lineHeight(16)
                 .width('100%')
             } else {
               ForEach(this.zhonghuangAna.jianhe, (jh: ZhonghuangJianhe) => {
                 Text(jh.pos + '(' + jh.gong + '宫) 日遁' + jh.riGan + '×时遁' + jh.shiGan + ' → ' + jh.type + '（吉，夫妇相见鬼不能克）')
-                  .fontSize(11)
-                  .fontColor('#F0D98C')
+                  .fontSize($r('app.float.font_body_s'))
+                  .fontColor($r('app.color.brand_gold_bright'))
                   .lineHeight(16)
                   .width('100%')
               }, (jh: ZhonghuangJianhe) => 'jh' + jh.pos)
             }
 
             Text('注：盘面天干默认「旬遁」（传统：旬内同支取干，空亡支本旬无干故不显，即空亡之验——《六壬集成五要权衡》云「旬遁方有空亡」）；中黄模式显「时干遁」（经文以时干论变、建随时刻变：「复见天上时干有何变」「随时变矣」）；日干遁(体)用于天将基准与今日建合，见宫情条与建合检测（古籍研习参考）')
-              .fontSize(9)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_m'))
+              .fontColor($r('app.color.ink_text_secondary'))
               .lineHeight(13)
               .width('100%')
           }
@@ -1894,7 +1894,7 @@ struct Index {
       .width('100%')
       .padding(12)
       .borderRadius(16)
-      .backgroundColor('#1C1A16')
+      .backgroundColor($r('app.color.ink_card'))
       .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
     }
     .width('100%')
@@ -1905,12 +1905,12 @@ struct Index {
   private pillar($$: PillarParams) {
     Column({ space: 3 }) {
       Text($$.label)
-        .fontSize(10)
-        .fontColor('#A8986E')
+        .fontSize($r('app.float.font_caption_l'))
+        .fontColor($r('app.color.ink_text_secondary'))
       Text($$.value)
-        .fontSize(14)
+        .fontSize($r('app.float.font_subtitle_m'))
         .fontWeight(FontWeight.Medium)
-        .fontColor('#F0D98C')
+        .fontColor($r('app.color.brand_gold_bright'))
     }
     .layoutWeight(1)
   }
@@ -1928,15 +1928,15 @@ struct Index {
       if (this.showRuleTip) {
         Row({ space: 8 }) {
           Text('⚠')
-            .fontSize(13)
+            .fontSize($r('app.float.fs_caption'))
             .fontColor('#E8C46A')
           Text('部分规则表未加载，相关栏目已标注「规则表未加载」· 盘仍照旧排出')
-            .fontSize(11)
+            .fontSize($r('app.float.font_body_s'))
             .fontColor('#E8C46A')
             .layoutWeight(1)
           Text('知道了')
-            .fontSize(11)
-            .fontColor('#C4A25C')
+            .fontSize($r('app.float.font_body_s'))
+            .fontColor($r('app.color.brand_gold_deep'))
             .onClick(() => {
               this.showRuleTip = false;
             })
@@ -1978,16 +1978,16 @@ struct Index {
       Scroll() {
         Column({ space: 14 }) {
           Text(this.ready ? '排盘已就绪 · 四柱/盘面如下' : '正在载入历法数据…')
-            .fontSize(11)
-            .fontColor('#A8986E')
+            .fontSize($r('app.float.font_body_s'))
+            .fontColor($r('app.color.ink_text_secondary'))
             .textAlign(TextAlign.Center)
             .width('100%')
 
           /* 古籍案例速排 */
           Row({ space: 6 }) {
             Text('📜 古籍案例速排')
-              .fontSize(12)
-              .fontColor(this.showAncient ? '#F0D98C' : '#C4B183')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor(this.showAncient ? '#F0D98C' : $r('app.color.ink_text_muted'))
               .padding({ left: 12, right: 12, top: 4, bottom: 4 })
               .borderRadius(10)
               .backgroundColor(this.showAncient ? 'rgba(240,217,140,0.12)' : 'rgba(138,123,92,0.12)')
@@ -1995,26 +1995,26 @@ struct Index {
                 this.showAncient = !this.showAncient;
               })
             Text(this.ancientNote !== '' ? this.ancientNote : '输入古案例（月将+日干支+占时）→ 完整盘面')
-              .fontSize(10)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_secondary'))
           }
           .width('100%')
 
           if (this.showAncient) {
             Column({ space: 6 }) {
               Text('必填：月将支 + 日干 + 日支 + 占时；选填：年干支/月支（有则神煞完整）')
-                .fontSize(10)
-                .fontColor('#A8986E')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.ink_text_secondary'))
                 .width('100%')
               /* 月将（横向滚动） */
               Row() {
-                Text('月将').fontSize(11).fontColor('#A8986E').margin({ right: 6 })
+                Text('月将').fontSize($r('app.float.font_body_s')).fontColor($r('app.color.ink_text_secondary')).margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
-                        .fontSize(12)
-                        .fontColor(this.ancientMj === z ? '#1A1410' : '#C4B183')
+                        .fontSize($r('app.float.font_body_m'))
+                        .fontColor(this.ancientMj === z ? '#1A1410' : $r('app.color.ink_text_muted'))
                         .backgroundColor(this.ancientMj === z ? '#F0D98C' : 'rgba(138,123,92,0.12)')
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
@@ -2029,13 +2029,13 @@ struct Index {
               .width('100%')
               /* 日干（横向滚动） */
               Row() {
-                Text('日干').fontSize(11).fontColor('#A8986E').margin({ right: 6 })
+                Text('日干').fontSize($r('app.float.font_body_s')).fontColor($r('app.color.ink_text_secondary')).margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(LiurenCore.GAN, (g: string) => {
                       Text(g)
-                        .fontSize(12)
-                        .fontColor(this.ancientDg === g ? '#1A1410' : '#C4B183')
+                        .fontSize($r('app.float.font_body_m'))
+                        .fontColor(this.ancientDg === g ? '#1A1410' : $r('app.color.ink_text_muted'))
                         .backgroundColor(this.ancientDg === g ? '#F0D98C' : 'rgba(138,123,92,0.12)')
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
@@ -2050,13 +2050,13 @@ struct Index {
               .width('100%')
               /* 日支（横向滚动） */
               Row() {
-                Text('日支').fontSize(11).fontColor('#A8986E').margin({ right: 6 })
+                Text('日支').fontSize($r('app.float.font_body_s')).fontColor($r('app.color.ink_text_secondary')).margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
-                        .fontSize(12)
-                        .fontColor(this.ancientDz === z ? '#1A1410' : '#C4B183')
+                        .fontSize($r('app.float.font_body_m'))
+                        .fontColor(this.ancientDz === z ? '#1A1410' : $r('app.color.ink_text_muted'))
                         .backgroundColor(this.ancientDz === z ? '#F0D98C' : 'rgba(138,123,92,0.12)')
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
@@ -2071,13 +2071,13 @@ struct Index {
               .width('100%')
               /* 占时（横向滚动） */
               Row() {
-                Text('占时').fontSize(11).fontColor('#A8986E').margin({ right: 6 })
+                Text('占时').fontSize($r('app.float.font_body_s')).fontColor($r('app.color.ink_text_secondary')).margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
-                        .fontSize(12)
-                        .fontColor(this.ancientHz === z ? '#1A1410' : '#C4B183')
+                        .fontSize($r('app.float.font_body_m'))
+                        .fontColor(this.ancientHz === z ? '#1A1410' : $r('app.color.ink_text_muted'))
                         .backgroundColor(this.ancientHz === z ? '#F0D98C' : 'rgba(138,123,92,0.12)')
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
@@ -2092,13 +2092,13 @@ struct Index {
               .width('100%')
               /* 选填：年干/年支/月支 */
               Row() {
-                Text('年干(选)').fontSize(10).fontColor('#A8986E').margin({ right: 6 })
+                Text('年干(选)').fontSize($r('app.float.font_caption_l')).fontColor($r('app.color.ink_text_secondary')).margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(LiurenCore.GAN, (g: string) => {
                       Text(g)
-                        .fontSize(11)
-                        .fontColor(this.ancientYG === g ? '#1A1410' : '#A8986E')
+                        .fontSize($r('app.float.font_body_s'))
+                        .fontColor(this.ancientYG === g ? '#1A1410' : $r('app.color.ink_text_secondary'))
                         .backgroundColor(this.ancientYG === g ? '#F0D98C' : 'rgba(107,95,69,0.2)')
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
@@ -2112,13 +2112,13 @@ struct Index {
               }
               .width('100%')
               Row() {
-                Text('年支(选)').fontSize(10).fontColor('#A8986E').margin({ right: 6 })
+                Text('年支(选)').fontSize($r('app.float.font_caption_l')).fontColor($r('app.color.ink_text_secondary')).margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
-                        .fontSize(11)
-                        .fontColor(this.ancientYZ === z ? '#1A1410' : '#A8986E')
+                        .fontSize($r('app.float.font_body_s'))
+                        .fontColor(this.ancientYZ === z ? '#1A1410' : $r('app.color.ink_text_secondary'))
                         .backgroundColor(this.ancientYZ === z ? '#F0D98C' : 'rgba(107,95,69,0.2)')
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
@@ -2132,13 +2132,13 @@ struct Index {
               }
               .width('100%')
               Row() {
-                Text('月支(选)').fontSize(10).fontColor('#A8986E').margin({ right: 6 })
+                Text('月支(选)').fontSize($r('app.float.font_caption_l')).fontColor($r('app.color.ink_text_secondary')).margin({ right: 6 })
                 Scroll() {
                   Row({ space: 6 }) {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
-                        .fontSize(11)
-                        .fontColor(this.ancientMZ === z ? '#1A1410' : '#A8986E')
+                        .fontSize($r('app.float.font_body_s'))
+                        .fontColor(this.ancientMZ === z ? '#1A1410' : $r('app.color.ink_text_secondary'))
                         .backgroundColor(this.ancientMZ === z ? '#F0D98C' : 'rgba(107,95,69,0.2)')
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
@@ -2154,8 +2154,8 @@ struct Index {
               Button('反推盘面')
                 .width('100%')
                 .height(36)
-                .fontSize(14)
-                .fontColor('#1A1410')
+                .fontSize($r('app.float.font_subtitle_m'))
+                .fontColor($r('app.color.ink_page'))
                 .linearGradient({ angle: 90, colors: [['#F5D98E', 0.0], ['#D9A94E', 1.0]] })
                 .borderRadius(18)
                 .onClick(() => {
@@ -2165,7 +2165,7 @@ struct Index {
             .width('100%')
             .padding(10)
             .borderRadius(12)
-            .backgroundColor('#211E18')
+            .backgroundColor($r('app.color.ink_surface'))
             .border({ width: 1, color: 'rgba(233,200,120,0.15)' })
           }
 
@@ -2173,8 +2173,8 @@ struct Index {
             this.resultArea()
           } else {
             Text('起课后在此显示：天地盘 · 四课 · 三传 · 盘态 · 神煞 · 毕法格局')
-              .fontSize(12)
-              .fontColor('#A8986E')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_text_secondary'))
               .textAlign(TextAlign.Center)
               .lineHeight(20)
               .width('100%')
@@ -2190,13 +2190,13 @@ struct Index {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#14120F')
+    .backgroundColor($r('app.color.pan_core'))
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
     .bindSheet($$this.showYongShen, this.yongShenSheet(), {
       height: SheetSize.MEDIUM,
       dragBar: true,
       showClose: false,
-      backgroundColor: '#1C1A16'
+      backgroundColor: $r('app.color.ink_card')
     })
   }
 

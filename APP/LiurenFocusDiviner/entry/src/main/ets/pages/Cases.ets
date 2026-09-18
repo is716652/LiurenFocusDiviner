@@ -109,7 +109,7 @@ struct Cases {
     .height('100%')
     .justifyContent(FlexAlign.Start)
     .alignItems(HorizontalAlign.Start)
-    .backgroundColor('#14120F')
+    .backgroundColor($r('app.color.pan_core'))
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 }

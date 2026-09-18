@@ -14,18 +14,18 @@ export struct RuleHealthBadge {
   build() {
     Row({ space: 6 }) {
       Text(this.summary)
-        .fontSize(11)
+        .fontSize($r('app.float.font_body_s'))
         .fontColor(this.hasProblem ? '#E8C46A' : '#8FA88C')
         .layoutWeight(1)
       if (this.hasProblem) {
         Text('查看缺表 ›')
-          .fontSize(11)
-          .fontColor('#C4A25C')
+          .fontSize($r('app.float.font_body_s'))
+          .fontColor($r('app.color.brand_gold_deep'))
       }
       Blank()
       Text('数据自检')
-        .fontSize(11)
-        .fontColor('#A8986E')
+        .fontSize($r('app.float.font_body_s'))
+        .fontColor($r('app.color.ink_text_secondary'))
     }
     .width('100%')
     .padding({ left: 10, right: 10, top: 7, bottom: 7 })
