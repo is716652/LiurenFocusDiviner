@@ -91,8 +91,8 @@ struct Ancient {
         Row({ space: 8 }) {
           Text('经文')
             .fontSize($r('app.float.font_body_m'))
-            .fontColor(this.tab === 'jing' ? '#1A1410' : $r('app.color.ink_text_muted'))
-            .backgroundColor(this.tab === 'jing' ? '#E9C878' : $r('app.color.ink_surface'))
+            .fontColor(this.tab === 'jing' ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+            .backgroundColor(this.tab === 'jing' ? $r('app.color.brand_gold') : $r('app.color.ink_surface'))
             .borderRadius(14)
             .padding({ left: 12, right: 12, top: 6, bottom: 6 })
             .onClick(() => {
@@ -101,8 +101,8 @@ struct Ancient {
             })
           Text('案例鉴赏')
             .fontSize($r('app.float.font_body_m'))
-            .fontColor(this.tab === 'case' ? '#1A1410' : $r('app.color.ink_text_muted'))
-            .backgroundColor(this.tab === 'case' ? '#E9C878' : $r('app.color.ink_surface'))
+            .fontColor(this.tab === 'case' ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+            .backgroundColor(this.tab === 'case' ? $r('app.color.brand_gold') : $r('app.color.ink_surface'))
             .borderRadius(14)
             .padding({ left: 12, right: 12, top: 6, bottom: 6 })
             .onClick(() => {

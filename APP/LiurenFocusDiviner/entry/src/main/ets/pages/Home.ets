@@ -439,7 +439,7 @@ struct Home {
           GridItem() {
             Text(h)
               .fontSize($r('app.float.font_body_s'))
-              .fontColor(hi >= 5 ? '#C4A25C' : $r('app.color.ink_text_secondary'))
+              .fontColor(hi >= 5 ? $r('app.color.brand_gold_deep') : $r('app.color.ink_text_secondary'))
               .textAlign(TextAlign.Center)
               .width('100%')
           }
@@ -457,7 +457,7 @@ struct Home {
               Text(String(this.dayNum(r)))
                 .fontSize($r('app.float.font_subtitle_m'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor(this.dayNum(r) === this.day ? '#1A1410' : $r('app.color.ink_text'))
+                .fontColor(this.dayNum(r) === this.day ? $r('app.color.ink_page') : $r('app.color.ink_text'))
               Text(r.dg + r.dz)
                 .fontSize($r('app.float.font_caption_m'))
                 .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : $r('app.color.ink_text_secondary'))
@@ -474,7 +474,7 @@ struct Home {
             .height(56)
             .justifyContent(FlexAlign.Center)
             .borderRadius(8)
-            .backgroundColor(this.dayNum(r) === this.day ? '#E9C878' : $r('app.color.ink_surface'))
+            .backgroundColor(this.dayNum(r) === this.day ? $r('app.color.brand_gold') : $r('app.color.ink_surface'))
             .onClick(() => {
               this.day = this.dayNum(r);
             })
@@ -510,8 +510,8 @@ struct Home {
         ForEach(HOURS, (z: string) => {
           Text(z)
             .fontSize($r('app.float.fs_caption'))
-            .fontColor(this.hourZhi === z ? '#1A1410' : $r('app.color.ink_text_muted'))
-            .backgroundColor(this.hourZhi === z ? '#E9C878' : $r('app.color.ink_surface'))
+            .fontColor(this.hourZhi === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+            .backgroundColor(this.hourZhi === z ? $r('app.color.brand_gold') : $r('app.color.ink_surface'))
             .borderRadius(16)
             .padding({ left: 12, right: 12, top: 6, bottom: 6 })
             .margin({ right: 8, bottom: 8 })

@@ -585,7 +585,7 @@ export struct AncientStudy {
       ForEach(this.lines(p), (line: string, li: number) => {
         Text(this.tableClean(line))
           .fontSize($r('app.float.font_body_m'))
-          .fontColor(li === 0 ? '#E9C878' : $r('app.color.ink_text_muted'))
+          .fontColor(li === 0 ? $r('app.color.brand_gold') : $r('app.color.ink_text_muted'))
           .fontWeight(li === 0 ? FontWeight.Bold : FontWeight.Normal)
           .lineHeight(19)
           .width('100%')

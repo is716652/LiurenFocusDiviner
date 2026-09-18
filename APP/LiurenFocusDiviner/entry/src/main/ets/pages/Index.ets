@@ -990,8 +990,8 @@ struct Index {
               ForEach(['旬遁', '中黄'], (m: string) => {
                 Text(m)
                   .fontSize($r('app.float.font_caption_l'))
-                  .fontColor(this.zhonghuangMode === m ? '#1A1410' : $r('app.color.ink_text_muted'))
-                  .backgroundColor(this.zhonghuangMode === m ? '#F0D98C' : 'rgba(138,123,92,0.12)')
+                  .fontColor(this.zhonghuangMode === m ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+                  .backgroundColor(this.zhonghuangMode === m ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
                   .borderRadius(8)
                   .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                   .onClick(() => {
@@ -1016,7 +1016,7 @@ struct Index {
                 })
               Text('本位')
                 .fontSize($r('app.float.font_caption_l'))
-                .fontColor(this.showBenshen ? '#A8986E' : $r('app.color.ink_text_secondary'))
+                .fontColor(this.showBenshen ? $r('app.color.ink_text_secondary') : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -1046,7 +1046,7 @@ struct Index {
                 })
               Text('本位')
                 .fontSize($r('app.float.font_caption_l'))
-                .fontColor(this.showBenshen ? '#A8986E' : $r('app.color.ink_text_secondary'))
+                .fontColor(this.showBenshen ? $r('app.color.ink_text_secondary') : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -1168,7 +1168,7 @@ struct Index {
             (this.customYS ? '⚡ 外应取用：' + this.yongShen + '（' + (this.customLayer === '天盘' ? '天盘加临之象' : '地盘本位之象') + '）· 点盘可换 · 缘由见「抓用神 · 读象」' :
               '点盘任一支 = 外应取用（天盘优先）'))
             .fontSize($r('app.float.font_caption_l'))
-            .fontColor(this.zhonghuangMode === '中黄' ? '#C4A25C' : (this.customYS ? '#F0D98C' : $r('app.color.ink_text_secondary')))
+            .fontColor(this.zhonghuangMode === '中黄' ? $r('app.color.brand_gold_deep') : (this.customYS ? $r('app.color.brand_gold_bright') : $r('app.color.ink_text_secondary')))
             .margin({ top: 4 })
             .width('100%')
             .textAlign(TextAlign.Center)
@@ -1351,8 +1351,8 @@ struct Index {
           ForEach(['读象', '毕法', '中黄'], (r: string) => {
             Text(r)
               .fontSize($r('app.float.font_body_m'))
-              .fontColor(this.route === r ? '#1A1410' : $r('app.color.ink_text_muted'))
-              .backgroundColor(this.route === r ? '#F0D98C' : 'rgba(138,123,92,0.12)')
+              .fontColor(this.route === r ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+              .backgroundColor(this.route === r ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
               .borderRadius(10)
               .padding({ left: 14, right: 14, top: 4, bottom: 4 })
               .onClick(() => {
@@ -1545,7 +1545,7 @@ struct Index {
               Text(this.coach.summary)
                 .fontSize($r('app.float.font_body_m'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor(this.coach.xiong > this.coach.ji ? '#E8A483' : $r('app.color.brand_gold_bright'))
+                .fontColor(this.coach.xiong > this.coach.ji ? $r('app.color.state_warn_text') : $r('app.color.brand_gold_bright'))
                 .lineHeight(17)
                 .layoutWeight(1)
             }
@@ -1643,8 +1643,8 @@ struct Index {
                 ForEach(HOURS, (z: string) => {
                   Text(z)
                     .fontSize($r('app.float.font_body_m'))
-                    .fontColor(this.nianZhi === z ? '#1A1410' : $r('app.color.ink_text_muted'))
-                    .backgroundColor(this.nianZhi === z ? '#F0D98C' : 'rgba(138,123,92,0.12)')
+                    .fontColor(this.nianZhi === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+                    .backgroundColor(this.nianZhi === z ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
                     .borderRadius(12)
                     .padding({ left: 10, right: 10, top: 4, bottom: 4 })
                     .onClick(() => {
@@ -1743,8 +1743,8 @@ struct Index {
                 ForEach(['男', '女'], (g: string) => {
                   Text(g)
                     .fontSize($r('app.float.font_body_m'))
-                    .fontColor(this.gender === g ? '#1A1410' : $r('app.color.ink_text_muted'))
-                    .backgroundColor(this.gender === g ? '#F0D98C' : 'rgba(138,123,92,0.12)')
+                    .fontColor(this.gender === g ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+                    .backgroundColor(this.gender === g ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
                     .borderRadius(10)
                     .padding({ left: 12, right: 12, top: 3, bottom: 3 })
                     .onClick(() => {
@@ -1833,7 +1833,7 @@ struct Index {
               ForEach(this.zhonghuangAna.cmp, (it: ZhonghuangCmpItem) => {
                 Text(it.gong + ' ' + it.xunLq + (it.changed ? ('→' + it.zhLq) : ''))
                   .fontSize($r('app.float.font_caption_l'))
-                  .fontColor(it.changed ? '#F0D98C' : $r('app.color.ink_text_secondary'))
+                  .fontColor(it.changed ? $r('app.color.brand_gold_bright') : $r('app.color.ink_text_secondary'))
                   .backgroundColor(it.changed ? 'rgba(240,217,140,0.12)' : 'rgba(107,95,69,0.12)')
                   .borderRadius(8)
                   .padding({ left: 7, right: 7, top: 3, bottom: 3 })
@@ -1987,7 +1987,7 @@ struct Index {
           Row({ space: 6 }) {
             Text('📜 古籍案例速排')
               .fontSize($r('app.float.font_body_m'))
-              .fontColor(this.showAncient ? '#F0D98C' : $r('app.color.ink_text_muted'))
+              .fontColor(this.showAncient ? $r('app.color.brand_gold_bright') : $r('app.color.ink_text_muted'))
               .padding({ left: 12, right: 12, top: 4, bottom: 4 })
               .borderRadius(10)
               .backgroundColor(this.showAncient ? 'rgba(240,217,140,0.12)' : 'rgba(138,123,92,0.12)')
@@ -2014,8 +2014,8 @@ struct Index {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
                         .fontSize($r('app.float.font_body_m'))
-                        .fontColor(this.ancientMj === z ? '#1A1410' : $r('app.color.ink_text_muted'))
-                        .backgroundColor(this.ancientMj === z ? '#F0D98C' : 'rgba(138,123,92,0.12)')
+                        .fontColor(this.ancientMj === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+                        .backgroundColor(this.ancientMj === z ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                         .onClick(() => { this.ancientMj = z; })
@@ -2035,8 +2035,8 @@ struct Index {
                     ForEach(LiurenCore.GAN, (g: string) => {
                       Text(g)
                         .fontSize($r('app.float.font_body_m'))
-                        .fontColor(this.ancientDg === g ? '#1A1410' : $r('app.color.ink_text_muted'))
-                        .backgroundColor(this.ancientDg === g ? '#F0D98C' : 'rgba(138,123,92,0.12)')
+                        .fontColor(this.ancientDg === g ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+                        .backgroundColor(this.ancientDg === g ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                         .onClick(() => { this.ancientDg = g; })
@@ -2056,8 +2056,8 @@ struct Index {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
                         .fontSize($r('app.float.font_body_m'))
-                        .fontColor(this.ancientDz === z ? '#1A1410' : $r('app.color.ink_text_muted'))
-                        .backgroundColor(this.ancientDz === z ? '#F0D98C' : 'rgba(138,123,92,0.12)')
+                        .fontColor(this.ancientDz === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+                        .backgroundColor(this.ancientDz === z ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                         .onClick(() => { this.ancientDz = z; })
@@ -2077,8 +2077,8 @@ struct Index {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
                         .fontSize($r('app.float.font_body_m'))
-                        .fontColor(this.ancientHz === z ? '#1A1410' : $r('app.color.ink_text_muted'))
-                        .backgroundColor(this.ancientHz === z ? '#F0D98C' : 'rgba(138,123,92,0.12)')
+                        .fontColor(this.ancientHz === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+                        .backgroundColor(this.ancientHz === z ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                         .onClick(() => { this.ancientHz = z; })
@@ -2098,8 +2098,8 @@ struct Index {
                     ForEach(LiurenCore.GAN, (g: string) => {
                       Text(g)
                         .fontSize($r('app.float.font_body_s'))
-                        .fontColor(this.ancientYG === g ? '#1A1410' : $r('app.color.ink_text_secondary'))
-                        .backgroundColor(this.ancientYG === g ? '#F0D98C' : 'rgba(107,95,69,0.2)')
+                        .fontColor(this.ancientYG === g ? $r('app.color.ink_page') : $r('app.color.ink_text_secondary'))
+                        .backgroundColor(this.ancientYG === g ? $r('app.color.brand_gold_bright') : 'rgba(107,95,69,0.2)')
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
                         .onClick(() => { this.ancientYG = (this.ancientYG === g) ? '' : g; })
@@ -2118,8 +2118,8 @@ struct Index {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
                         .fontSize($r('app.float.font_body_s'))
-                        .fontColor(this.ancientYZ === z ? '#1A1410' : $r('app.color.ink_text_secondary'))
-                        .backgroundColor(this.ancientYZ === z ? '#F0D98C' : 'rgba(107,95,69,0.2)')
+                        .fontColor(this.ancientYZ === z ? $r('app.color.ink_page') : $r('app.color.ink_text_secondary'))
+                        .backgroundColor(this.ancientYZ === z ? $r('app.color.brand_gold_bright') : 'rgba(107,95,69,0.2)')
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
                         .onClick(() => { this.ancientYZ = (this.ancientYZ === z) ? '' : z; })
@@ -2138,8 +2138,8 @@ struct Index {
                     ForEach(HOURS, (z: string) => {
                       Text(z)
                         .fontSize($r('app.float.font_body_s'))
-                        .fontColor(this.ancientMZ === z ? '#1A1410' : $r('app.color.ink_text_secondary'))
-                        .backgroundColor(this.ancientMZ === z ? '#F0D98C' : 'rgba(107,95,69,0.2)')
+                        .fontColor(this.ancientMZ === z ? $r('app.color.ink_page') : $r('app.color.ink_text_secondary'))
+                        .backgroundColor(this.ancientMZ === z ? $r('app.color.brand_gold_bright') : 'rgba(107,95,69,0.2)')
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
                         .onClick(() => { this.ancientMZ = (this.ancientMZ === z) ? '' : z; })

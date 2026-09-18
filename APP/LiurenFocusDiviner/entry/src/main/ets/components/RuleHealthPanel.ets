@@ -119,7 +119,7 @@ export struct RuleHealthPanel {
               Row({ space: 6 }) {
                 Text(s.loaded ? (s.missingKeys.length > 0 ? '!' : '✓') : '✗')
                   .fontSize($r('app.float.font_body_s'))
-                  .fontColor(!s.loaded ? '#E8A483' : (s.missingKeys.length > 0 ? '#E8C46A' : '#8FA88C'))
+                  .fontColor(!s.loaded ? $r('app.color.state_warn_text') : (s.missingKeys.length > 0 ? '#E8C46A' : '#8FA88C'))
                 Text(s.label)
                   .fontSize($r('app.float.font_body_s'))
                   .fontColor($r('app.color.ink_text_muted'))

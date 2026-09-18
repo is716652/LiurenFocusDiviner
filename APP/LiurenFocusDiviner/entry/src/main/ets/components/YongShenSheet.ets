@@ -358,7 +358,7 @@ export struct YongShenSheet {
                       Row({ space: 3 }) {
                         Text((ti === 0 ? '★ ' : '') + tr.pos)
                           .fontSize(8)
-                          .fontColor(ti === 0 ? '#F0D98C' : $r('app.color.ink_text_secondary'))
+                          .fontColor(ti === 0 ? $r('app.color.brand_gold_bright') : $r('app.color.ink_text_secondary'))
                           .fontWeight(ti === 0 ? FontWeight.Bold : FontWeight.Normal)
                           .width(22)
                         Text(tr.gan)
@@ -387,7 +387,7 @@ export struct YongShenSheet {
                       if (tr.shensha !== '') {
                         Text(tr.shensha)
                           .fontSize(7)
-                          .fontColor(tr.kong ? '#D0704A' : $r('app.color.ink_text_secondary'))
+                          .fontColor(tr.kong ? $r('app.color.brand_cinnabar') : $r('app.color.ink_text_secondary'))
                           .lineHeight(10)
                           .width('100%')
                           .maxLines(2)
@@ -434,7 +434,7 @@ export struct YongShenSheet {
                         Text(kr.jiang !== '' ? kr.jiang : '—')
                           .fontSize($r('app.float.font_caption_l'))
                           .fontWeight(ki === 3 ? FontWeight.Bold : FontWeight.Medium)
-                          .fontColor(ki === 3 ? '#F0D98C' : (kr.jiang !== '' && LiurenCore.JIANG_JX[kr.jiang] === '凶' ? '#D0704A' : $r('app.color.brand_gold')))
+                          .fontColor(ki === 3 ? $r('app.color.brand_gold_bright') : (kr.jiang !== '' && LiurenCore.JIANG_JX[kr.jiang] === '凶' ? $r('app.color.brand_cinnabar') : $r('app.color.brand_gold')))
                           .maxLines(1)
                           .textOverflow({ overflow: TextOverflow.Ellipsis })
                         Text(kr.xZhi)
@@ -450,7 +450,7 @@ export struct YongShenSheet {
                       .padding({ top: 4, bottom: 6, left: 2, right: 2 })
                       .borderRadius(5)
                       .backgroundColor(ki === 3 ? 'rgba(240,217,140,0.16)' : 'rgba(233,200,120,0.07)')
-                      .border({ width: ki === 3 ? 1 : 0, color: '#F0D98C' })
+                      .border({ width: ki === 3 ? 1 : 0, color: $r('app.color.brand_gold_bright') })
                       .constraintSize({ minHeight: 82 })
                     }, (kr: MiniKegRow, ki: number) => 'kr' + this.refreshTick + ki + kr.kn)
                   }

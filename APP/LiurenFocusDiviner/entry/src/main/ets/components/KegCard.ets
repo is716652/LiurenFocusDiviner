@@ -15,7 +15,7 @@ export struct KegCard {
     Column({ space: 3 }) {
       Text((this.highlight ? '★ ' : '') + this.kn)
         .fontSize($r('app.float.font_caption_l'))
-        .fontColor(this.highlight ? '#F0D98C' : $r('app.color.ink_text_secondary'))
+        .fontColor(this.highlight ? $r('app.color.brand_gold_bright') : $r('app.color.ink_text_secondary'))
         .fontWeight(this.highlight ? FontWeight.Bold : FontWeight.Normal)
         .letterSpacing(1)
       Text(this.shang)
@@ -37,6 +37,6 @@ export struct KegCard {
     .padding({ top: 10, bottom: 10, left: 4, right: 4 })
     .borderRadius(12)
     .backgroundColor(this.highlight ? 'rgba(240,217,140,0.16)' : $r('app.color.ink_surface'))
-    .border({ width: this.highlight ? 1.5 : 1, color: this.highlight ? '#F0D98C' : 'rgba(233,200,120,0.18)' })
+    .border({ width: this.highlight ? 1.5 : 1, color: this.highlight ? $r('app.color.brand_gold_bright') : 'rgba(233,200,120,0.18)' })
   }
 }

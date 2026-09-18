@@ -31,8 +31,8 @@ export struct AffairChips {
             Text(n)
               .fontSize($r('app.float.fs_caption'))
               .fontWeight(this.selected === n ? FontWeight.Medium : FontWeight.Normal)
-              .fontColor(this.selected === n ? '#1A1410' : $r('app.color.ink_text_muted'))
-              .backgroundColor(this.selected === n ? '#F0D98C' : 'rgba(138,123,92,0.12)')
+              .fontColor(this.selected === n ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+              .backgroundColor(this.selected === n ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
               .borderRadius(16)
               .padding({ left: 14, right: 14, top: 6, bottom: 6 })
               .onClick(() => {
