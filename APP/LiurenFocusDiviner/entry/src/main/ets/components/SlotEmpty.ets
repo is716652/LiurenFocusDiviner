@@ -42,7 +42,7 @@ export struct SlotEmpty {
   }
 
   private toneColor(): ResourceColor {
-    return this.reason().warn ? '#E8A483' : '#A8986E';
+    return this.reason().warn ? $r('app.color.state_warn_text') : $r('app.color.ink_text_secondary');
   }
 
   private entryLabel(): string {

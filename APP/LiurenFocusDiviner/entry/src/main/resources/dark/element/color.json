@@ -25,8 +25,16 @@
       "value": "#5FA394"
     },
     {
+      "name": "ink_bg",
+      "value": "#14120F"
+    },
+    {
       "name": "ink_card",
       "value": "#1C1A16"
+    },
+    {
+      "name": "ink_divider",
+      "value": "#3A3325"
     },
     {
       "name": "ink_hairline",
@@ -163,6 +171,10 @@
     {
       "name": "pan_tian",
       "value": "#F0D98C"
+    },
+    {
+      "name": "start_window_background",
+      "value": "#14120F"
     },
     {
       "name": "state_warn",

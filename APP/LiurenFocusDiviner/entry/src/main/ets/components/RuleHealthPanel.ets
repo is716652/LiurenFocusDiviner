@@ -203,7 +203,7 @@ export struct RuleHealthPanel {
     .width('100%')
     .height('100%')
     .padding(16)
-    .backgroundColor('#141210')
+    .backgroundColor($r('app.color.ink_bg'))
     .alignItems(HorizontalAlign.Start)
   }
 
