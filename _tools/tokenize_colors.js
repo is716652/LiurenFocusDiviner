@@ -27,7 +27,8 @@ const DRY = process.argv.indexOf('--dry') >= 0;
 const EXCLUDE = [
   'entryability/EntryAbility.ets',        /* ② 系统栏 API 要 string */
   'pages/Legal/UserAgreement.ets',        /* ① 富文本长文本拼接 */
-  'pages/Legal/PrivacyPolicy.ets'         /* ① 同上 */
+  'pages/Legal/PrivacyPolicy.ets'         /* ① 同上 */,
+  'components/AncientCaseGallery.ets'      /* ③ 属性声明为 string（Resource 不可赋） */
 ];
 
 const val2tok = new Map();
