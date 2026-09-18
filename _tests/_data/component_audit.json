@@ -1,9 +1,9 @@
 {
- "生成时间": "2026-09-13T12:59:08.349Z",
+ "生成时间": "2026-09-18T14:18:24.991Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 54,
-  ".ets（免费版）": 54,
+  ".ets（免费版）": 41,
   "core（真源 .ts）": 16,
   "core（产物 .js）": 1,
   "core 合计": 17,
@@ -12,7 +12,7 @@
  "结论": {
   "B4耦合判定": "脆链接（fragile）：改 JSON 键会**静默改变排盘结果**而无人察觉——4/5 个实验里引擎不报错但输出变了",
   "A组件写死": {
-   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 12 处、注释出处 60 处、_tools 脚本字面量 24 处，均只计数不计失败）",
+   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 12 处、注释出处 50 处、_tools 脚本字面量 24 处，均只计数不计失败）",
    "A2按课特判": "0 处（静态）",
    "A2维度敏感性": "日干 500/500，日支 231/231，月将 500/500，占时 500/500",
    "A3盘面事实硬编码": "0 处",
@@ -21,7 +21,7 @@
   "BJSON耦合": {
    "B1键缺失": "0 类",
    "B1类型不符": "0 处",
-   "B2危险兜底": "32 处",
+   "B2危险兜底": "26 处",
    "B2运行期静默项": "4 个规则表",
    "B2 DataLoader口径危险项": "4 个（不报错但改盘）；行年面抛错 2 个（会被 Index.ets 的 try/catch 吞掉）",
    "B3重复真源": "6 组，其中不一致 0 组",
@@ -384,7 +384,7 @@
     }
    ],
    "数据路径引用计数": 12,
-   "注释计数": 60,
+   "注释计数": 50,
    "注释明细": [
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/DuyuCard.ets",
@@ -669,66 +669,6 @@
      "text": "/* 毕法赋格局识别（18 可判定格局；chu=三传数组[{z}]，可传本课或动态三传） */"
     },
     {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 23,
-     "lit": "指南",
-     "text": "/* 课体辅助静态表（《大六壬指南》三传排法规范） */"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 121,
-     "lit": "断案",
-     "text": "/* 涉害取用（《六壬指南》口径：**先判所临地盘宫孟/仲，再在同档内取深**）： 一、见机（孟优先）：候中「所临地盘宫」属孟（寅申巳亥）者，只在此档内取用； 二、察微（无孟则仲）"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 121,
-     "lit": "指南",
-     "text": "/* 涉害取用（《六壬指南》口径：**先判所临地盘宫孟/仲，再在同档内取深**）： 一、见机（孟优先）：候中「所临地盘宫」属孟（寅申巳亥）者，只在此档内取用； 二、察微（无孟则仲）"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 121,
-     "lit": "六壬大全",
-     "text": "/* 涉害取用（《六壬指南》口径：**先判所临地盘宫孟/仲，再在同档内取深**）： 一、见机（孟优先）：候中「所临地盘宫」属孟（寅申巳亥）者，只在此档内取用； 二、察微（无孟则仲）"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 121,
-     "lit": "心镜",
-     "text": "/* 涉害取用（《六壬指南》口径：**先判所临地盘宫孟/仲，再在同档内取深**）： 一、见机（孟优先）：候中「所临地盘宫」属孟（寅申巳亥）者，只在此档内取用； 二、察微（无孟则仲）"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 121,
-     "lit": "粹言",
-     "text": "/* 涉害取用（《六壬指南》口径：**先判所临地盘宫孟/仲，再在同档内取深**）： 一、见机（孟优先）：候中「所临地盘宫」属孟（寅申巳亥）者，只在此档内取用； 二、察微（无孟则仲）"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 121,
-     "lit": "经纬",
-     "text": "/* 涉害取用（《六壬指南》口径：**先判所临地盘宫孟/仲，再在同档内取深**）： 一、见机（孟优先）：候中「所临地盘宫」属孟（寅申巳亥）者，只在此档内取用； 二、察微（无孟则仲）"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 121,
-     "lit": "直指",
-     "text": "/* 涉害取用（《六壬指南》口径：**先判所临地盘宫孟/仲，再在同档内取深**）： 一、见机（孟优先）：候中「所临地盘宫」属孟（寅申巳亥）者，只在此档内取用； 二、察微（无孟则仲）"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 121,
-     "lit": "神定经",
-     "text": "/* 涉害取用（《六壬指南》口径：**先判所临地盘宫孟/仲，再在同档内取深**）： 一、见机（孟优先）：候中「所临地盘宫」属孟（寅申巳亥）者，只在此档内取用； 二、察微（无孟则仲）"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/sanchuan.ets",
-     "line": 121,
-     "lit": "金铰剪",
-     "text": "/* 涉害取用（《六壬指南》口径：**先判所临地盘宫孟/仲，再在同档内取深**）： 一、见机（孟优先）：候中「所临地盘宫」属孟（寅申巳亥）者，只在此档内取用； 二、察微（无孟则仲）"
-    },
-    {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
      "line": 112,
      "lit": "2026-09-13",
@@ -749,7 +689,7 @@
    ]
   },
   "A2静态": {
-   "条件数": 4093,
+   "条件数": 3828,
    "可疑": []
   },
   "A2运行期": {
@@ -776,7 +716,7 @@
   },
   "A3": [],
   "A4": {
-   "常量数": 244,
+   "常量数": 203,
    "死常量": []
   },
   "B1": {
@@ -1006,7 +946,7 @@
    "缺月键": []
   },
   "B2": {
-   "总数": 304,
+   "总数": 234,
    "危险": [
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/YongShenCore.ets",
@@ -1125,8 +1065,7 @@
      "kind": "危险",
      "ctx": "xiang(c: ChartCore): Duxiang { const gx: JiChuSection = LiurenCore.rules.duxiang.基础关系 || {}; const r = c.r; const kx:",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1136,8 +1075,7 @@
      "kind": "危险",
      "ctx": "entYear - 4) % 12 + 12) % 12]; const gx: JiChuSection = LiurenCore.rules.duxiang.基础关系 || {}; const chongMap: Record<string",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1147,8 +1085,7 @@
      "kind": "危险",
      "ctx": "= LiurenCore.rules.duxiang.基础关系 || {}; const chongMap: Record<string, string> = gx.六冲 || {}; const heMap: Record<string, s",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1158,8 +1095,7 @@
      "kind": "危险",
      "ctx": "const gx: JiChuSection = LiurenCore.rules.duxiang.基础关系 || {}; const chongMap: Record<stri",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1169,8 +1105,7 @@
      "kind": "危险",
      "ctx": "LiurenCore.rules.duxiang.基础关系 || {}; const chongMap: Record<string, string> = gx.六冲 || {}; const chongZhi: string = ch",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1180,8 +1115,7 @@
      "kind": "危险",
      "ctx": "ShenshaResult { const S: Record<string, ShenshaRuleRaw> = LiurenCore.rules.shensha.神煞 || {}; const r = c.r; const yz =",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/shensha.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/shensha.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/shensha.ets"
      ]
     },
     {
@@ -1292,72 +1226,6 @@
      "同构重复": [
       "APP/LiurenFocusDiviner/entry/src/main/ets/model/bifa.ets",
       "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/bifa.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 147,
-     "fallback": "|| {}",
-     "kind": "危险",
-     "ctx": "xiang(c: ChartCore): Duxiang { const gx: JiChuSection = LiurenCore.rules.duxiang.基础关系 || {}; const r = c.r; const kx:",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 386,
-     "fallback": "|| {}",
-     "kind": "危险",
-     "ctx": "entYear - 4) % 12 + 12) % 12]; const gx: JiChuSection = LiurenCore.rules.duxiang.基础关系 || {}; const chongMap: Record<string",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 387,
-     "fallback": "|| {}",
-     "kind": "危险",
-     "ctx": "= LiurenCore.rules.duxiang.基础关系 || {}; const chongMap: Record<string, string> = gx.六冲 || {}; const heMap: Record<string, s",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 632,
-     "fallback": "|| {}",
-     "kind": "危险",
-     "ctx": "const gx: JiChuSection = LiurenCore.rules.duxiang.基础关系 || {}; const chongMap: Record<stri",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 633,
-     "fallback": "|| {}",
-     "kind": "危险",
-     "ctx": "LiurenCore.rules.duxiang.基础关系 || {}; const chongMap: Record<string, string> = gx.六冲 || {}; const chongZhi: string = ch",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/shensha.ets",
-     "line": 40,
-     "fallback": "|| {}",
-     "kind": "危险",
-     "ctx": "ShenshaResult { const S: Record<string, ShenshaRuleRaw> = LiurenCore.rules.shensha.神煞 || {}; const r = c.r; const yz =",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/shensha.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/shensha.ets"
      ]
     }
    ],
@@ -1556,8 +1424,7 @@
      "kind": "待人工确认",
      "ctx": "g.基础关系 || {}; const r = c.r; const kx: string[] = LrShensha.XUN_KONG[r.dg + r.dz] || []; const yz = r.mz; const wa",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1567,8 +1434,7 @@
      "kind": "待人工确认",
      "ctx": "[]; const yz = r.mz; const wangTSub: Record<string, string> = LrDx.wangT()[r.dg] || {}; const dwW: string = wangTSub[",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1578,8 +1444,7 @@
      "kind": "待人工确认",
      "ctx": "string = wangTSub[yz] || \"\"; const qj: Record<string, string> = LrDx.QIJI_GONG[r.dg] || {}; const yueLingZ: Record<string",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1589,8 +1454,7 @@
      "kind": "待人工确认",
      "ctx": "rDx.QIJI_GONG[r.dg] || {}; const yueLingZ: Record<string, string> = LrDx.YUE_LING[yz] || {}; const nodes: Record<string, N",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1600,8 +1464,7 @@
      "kind": "待人工确认",
      "ctx": "uai === \"囚\"); const chongMap: Record<string, string> = gx.六冲 || {}; const heMap: Record<string, s",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1611,8 +1474,7 @@
      "kind": "待人工确认",
      "ctx": "ap: Record<string, string> = gx.六冲 || {}; const heMap: Record<string, string> = gx.六合 || {}; const haiMap: Record<string,",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1622,8 +1484,7 @@
      "kind": "待人工确认",
      "ctx": "p: Record<string, string> = gx.六合 || {}; const haiMap: Record<string, string> = gx.六害 || {}; const xingMap: Record<string,",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1633,8 +1494,7 @@
      "kind": "待人工确认",
      "ctx": "Record<string, string> = gx.六害 || {}; const xingMap: Record<string, string[]> = gx.三刑 || {}; const relations: Record<strin",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1644,8 +1504,7 @@
      "kind": "待人工确认",
      "ctx": "l, he: heMap[z] || null, hai: haiMap[z] || null, xing: xingMap[z] || [] }; }); const dx: Dux",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1655,8 +1514,7 @@
      "kind": "待人工确认",
      "ctx": "ap: Record<string, string> = gx.六冲 || {}; const heMap: Record<string, string> = gx.六合 || {}; let tsRel = \"\"; let tsNot",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1666,8 +1524,7 @@
      "kind": "待人工确认",
      "ctx": "relToRiGan: relGan, relToYongShen: relYs, qiJi: (LrDx.QIJI_GONG[c.r.dg] || {})[tianZhi] || \"\", kong: nd.",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1677,8 +1534,7 @@
      "kind": "待人工确认",
      "ctx": "ut.kongEffect = \"\"; out.text = \"\"; out.note = \"\"; const qj = LrDx.QIJI_GONG[c.r.dg] || {}; const gong: string = qj[tia",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1688,8 +1544,7 @@
      "kind": "待人工确认",
      "ctx": "| undefined = su[gong]; if (kongState === \"同宫空亡\") { const op = ops[\"同宫空亡\"] || {}; out.kongEffect = op[\"对气机影",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1699,8 +1554,7 @@
      "kind": "待人工确认",
      "ctx": "(op[\"现场一句\"] || \"\"); } else if (kongState === \"冲空\") { const op = ops[\"冲空亡\"] || {}; out.kongEffect = op[\"对气机影",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets"
      ]
     },
     {
@@ -1710,8 +1564,7 @@
      "kind": "待人工确认",
      "ctx": "| null = null; const b = s.基准 || \"\"; const biao: Record<string, string> = s.表 || {}; if (b === \"年支\") { v",
      "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/shensha.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/shensha.ets"
+      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/shensha.ets"
      ]
     },
     {
@@ -1899,171 +1752,6 @@
      "同构重复": [
       "APP/LiurenFocusDiviner/entry/src/main/ets/model/bifa.ets",
       "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/bifa.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 149,
-     "fallback": "|| []",
-     "kind": "待人工确认",
-     "ctx": "g.基础关系 || {}; const r = c.r; const kx: string[] = LrShensha.XUN_KONG[r.dg + r.dz] || []; const yz = r.mz; const wa",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 151,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "[]; const yz = r.mz; const wangTSub: Record<string, string> = LrDx.wangT()[r.dg] || {}; const dwW: string = wangTSub[",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 153,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "string = wangTSub[yz] || \"\"; const qj: Record<string, string> = LrDx.QIJI_GONG[r.dg] || {}; const yueLingZ: Record<string",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 154,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "rDx.QIJI_GONG[r.dg] || {}; const yueLingZ: Record<string, string> = LrDx.YUE_LING[yz] || {}; const nodes: Record<string, N",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 199,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "uai === \"囚\"); const chongMap: Record<string, string> = gx.六冲 || {}; const heMap: Record<string, s",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 200,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "ap: Record<string, string> = gx.六冲 || {}; const heMap: Record<string, string> = gx.六合 || {}; const haiMap: Record<string,",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 201,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "p: Record<string, string> = gx.六合 || {}; const haiMap: Record<string, string> = gx.六害 || {}; const xingMap: Record<string,",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 202,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "Record<string, string> = gx.六害 || {}; const xingMap: Record<string, string[]> = gx.三刑 || {}; const relations: Record<strin",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 209,
-     "fallback": "|| []",
-     "kind": "待人工确认",
-     "ctx": "l, he: heMap[z] || null, hai: haiMap[z] || null, xing: xingMap[z] || [] }; }); const dx: Dux",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 388,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "ap: Record<string, string> = gx.六冲 || {}; const heMap: Record<string, string> = gx.六合 || {}; let tsRel = \"\"; let tsNot",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 584,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "relToRiGan: relGan, relToYongShen: relYs, qiJi: (LrDx.QIJI_GONG[c.r.dg] || {})[tianZhi] || \"\", kong: nd.",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 600,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "ut.kongEffect = \"\"; out.text = \"\"; out.note = \"\"; const qj = LrDx.QIJI_GONG[c.r.dg] || {}; const gong: string = qj[tia",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 652,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "| undefined = su[gong]; if (kongState === \"同宫空亡\") { const op = ops[\"同宫空亡\"] || {}; out.kongEffect = op[\"对气机影",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets",
-     "line": 656,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "(op[\"现场一句\"] || \"\"); } else if (kongState === \"冲空\") { const op = ops[\"冲空亡\"] || {}; out.kongEffect = op[\"对气机影",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/dx.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/dx.ets"
-     ]
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/shensha.ets",
-     "line": 58,
-     "fallback": "|| {}",
-     "kind": "待人工确认",
-     "ctx": "| null = null; const b = s.基准 || \"\"; const biao: Record<string, string> = s.表 || {}; if (b === \"年支\") { v",
-     "同构重复": [
-      "APP/LiurenFocusDiviner/entry/src/main/ets/model/pan/shensha.ets",
-      "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/pan/shensha.ets"
      ]
     }
    ]

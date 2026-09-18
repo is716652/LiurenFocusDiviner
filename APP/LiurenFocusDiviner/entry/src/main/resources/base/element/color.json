@@ -1,16 +1,132 @@
 {
   "color": [
-    { "name": "start_window_background", "value": "#14120F" },
-    { "name": "brand_gold", "value": "#E9C878" },
-    { "name": "brand_gold_deep", "value": "#C4A25C" },
-    { "name": "brand_cinnabar", "value": "#D0704A" },
-    { "name": "brand_verdigris", "value": "#5FA394" },
-    { "name": "brand_porcelain", "value": "#7FA0B8" },
-    { "name": "ink_bg", "value": "#14120F" },
-    { "name": "ink_surface", "value": "#211E18" },
-    { "name": "ink_card", "value": "#1C1A16" },
-    { "name": "ink_text", "value": "#F0E6C8" },
-    { "name": "ink_text_secondary", "value": "#A8986E" },
-    { "name": "ink_divider", "value": "#3A3325" }
+    {
+      "name": "start_window_background",
+      "value": "#14120F"
+    },
+    {
+      "name": "brand_gold",
+      "value": "#E9C878"
+    },
+    {
+      "name": "brand_gold_deep",
+      "value": "#C4A25C"
+    },
+    {
+      "name": "brand_cinnabar",
+      "value": "#D0704A"
+    },
+    {
+      "name": "brand_verdigris",
+      "value": "#5FA394"
+    },
+    {
+      "name": "brand_porcelain",
+      "value": "#7FA0B8"
+    },
+    {
+      "name": "ink_bg",
+      "value": "#14120F"
+    },
+    {
+      "name": "ink_surface",
+      "value": "#211E18"
+    },
+    {
+      "name": "ink_card",
+      "value": "#1C1A16"
+    },
+    {
+      "name": "ink_text",
+      "value": "#F0E6C8"
+    },
+    {
+      "name": "ink_text_secondary",
+      "value": "#A8986E"
+    },
+    {
+      "name": "ink_divider",
+      "value": "#3A3325"
+    },
+    {
+      "name": "ink_page",
+      "value": "#1A1410"
+    },
+    {
+      "name": "ink_sunken",
+      "value": "#2B241B"
+    },
+    {
+      "name": "ink_hairline",
+      "value": "#6B5F45"
+    },
+    {
+      "name": "ink_text_bright",
+      "value": "#F5EFE2"
+    },
+    {
+      "name": "ink_text_body",
+      "value": "#D8C9A3"
+    },
+    {
+      "name": "ink_text_muted",
+      "value": "#C4B183"
+    },
+    {
+      "name": "ink_text_source",
+      "value": "#B8A97F"
+    },
+    {
+      "name": "brand_gold_bright",
+      "value": "#F0D98C"
+    },
+    {
+      "name": "state_warn",
+      "value": "#A63A2B"
+    },
+    {
+      "name": "state_warn_text",
+      "value": "#E8A483"
+    },
+    {
+      "name": "pan_bg",
+      "value": "#1C1A16"
+    },
+    {
+      "name": "pan_cell",
+      "value": "#211E18"
+    },
+    {
+      "name": "pan_core",
+      "value": "#14120F"
+    },
+    {
+      "name": "pan_tian",
+      "value": "#F0D98C"
+    },
+    {
+      "name": "pan_di",
+      "value": "#A8986E"
+    },
+    {
+      "name": "pan_jiang",
+      "value": "#C4B183"
+    },
+    {
+      "name": "pan_ss",
+      "value": "#8A7B5C"
+    },
+    {
+      "name": "pan_kong",
+      "value": "#E8A483"
+    },
+    {
+      "name": "pan_sel",
+      "value": "#F0E6C8"
+    },
+    {
+      "name": "pan_sel_bg",
+      "value": "#1AE9C878"
+    }
   ]
 }
