@@ -87,13 +87,13 @@ export struct PalaceCard {
     .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
   }
 
-  private toneOf(tone: string): string {
+  private toneOf(tone: string): ResourceColor {
     if (tone === 'gold') {
-      return '#F0D98C';
+      return $r('app.color.brand_gold_bright');
     }
     if (tone === 'warn') {
       return '#E8C46A';
     }
-    return '#C4B183';
+    return $r('app.color.ink_text_muted');
   }
 }

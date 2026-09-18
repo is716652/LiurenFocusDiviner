@@ -152,9 +152,9 @@ export struct AncientCaseGallery {
     return r;
   }
 
-  private routeColor(r: string): string {
+  private routeColor(r: string): ResourceColor {
     if (r === 'duxiang') {
-      return '#A63A2B';
+      return $r('app.color.state_warn');
     }
     if (r === 'zhonghuang') {
       return '#3E5C76';
@@ -165,7 +165,7 @@ export struct AncientCaseGallery {
     if (r === 'bifa') {
       return '#8A5A2B';
     }
-    return '#A63A2B';
+    return $r('app.color.state_warn');
   }
 
   private evidenceText(e: AncientCaseEvidence): string {
@@ -304,7 +304,7 @@ export struct AncientCaseGallery {
     return '旁证';
   }
 
-  private roleColor(role?: string): string {
+  private roleColor(role?: string): ResourceColor {
     if (role === 'main') { return '#A63A2B'; }
     if (role === 'timing') { return '#2F4A5F'; }
     if (role === 'risk') { return '#7A2E2E'; }

@@ -53,20 +53,20 @@ export struct DongtaiChuan {
     .width('100%')
   }
 
-  private gzColor(pos: string): string {
+  private gzColor(pos: string): ResourceColor {
     if (pos.indexOf('初传') >= 0) {
-      return '#F0D98C';
+      return $r('app.color.brand_gold_bright');
     }
     if (pos.indexOf('中传') >= 0) {
-      return '#C4B183';
+      return $r('app.color.ink_text_muted');
     }
     return '#9A8C6E';
   }
 
-  private cardBrd(pos: string): string {
+  private cardBrd(pos: string): ResourceColor {
     if (pos.indexOf('初传') >= 0) {
-      return 'rgba(233,200,120,0.45)';
+      return $r('app.color.overlay_gold_strong');
     }
-    return 'rgba(233,200,120,0.16)';
+    return $r('app.color.overlay_gold_weak');
   }
 }

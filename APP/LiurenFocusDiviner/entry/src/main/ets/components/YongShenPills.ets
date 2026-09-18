@@ -55,33 +55,33 @@ export struct YongShenPills {
     return c.zhi + '宫';
   }
 
-  private fontColorOf(c: YongShenCand): string {
+  private fontColorOf(c: YongShenCand): ResourceColor {
     if (this.selected === c.zhi) {
-      return '#1A1410';
+      return $r('app.color.ink_page');
     }
     if (c.type === '将') {
-      return '#E8A483';
+      return $r('app.color.pan_kong');
     }
-    return '#F0D98C';
+    return $r('app.color.brand_gold_bright');
   }
 
-  private bgOf(c: YongShenCand): string {
+  private bgOf(c: YongShenCand): ResourceColor {
     if (this.selected === c.zhi) {
-      return '#F0D98C';
+      return $r('app.color.brand_gold_bright');
     }
     if (c.type === '将') {
-      return 'rgba(208,112,74,0.16)';
+      return $r('app.color.overlay_cinnabar_weak');
     }
-    return 'rgba(233,200,120,0.10)';
+    return $r('app.color.pan_sel_bg');
   }
 
-  private brdOf(c: YongShenCand): string {
+  private brdOf(c: YongShenCand): ResourceColor {
     if (this.selected === c.zhi) {
-      return '#F0D98C';
+      return $r('app.color.brand_gold_bright');
     }
     if (c.type === '将') {
       return 'rgba(208,112,74,0.55)';
     }
-    return 'rgba(233,200,120,0.40)';
+    return $r('app.color.overlay_gold_strong');
   }
 }

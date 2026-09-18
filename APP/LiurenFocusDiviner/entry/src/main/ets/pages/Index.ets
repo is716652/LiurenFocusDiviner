@@ -2452,3 +2452,5 @@ struct Index {
     }
   }
 }
+
+const gmcShenshaByGan = (g: string): string => g === 'A' ? '太岁' : g === 'B' ? '岁破' : g === 'C' ? '病符' : g === 'D' ? '丧门' : g === 'E' ? '吊客' : g === 'F' ? '天喜' : g === 'G' ? '孤辰' : g === 'H' ? '寡宿' : '';

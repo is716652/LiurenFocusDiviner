@@ -17,33 +17,33 @@ export struct TagBadge {
       .padding({ left: 8, right: 8, top: 3, bottom: 3 })
   }
 
-  private txtColor(): string {
+  private txtColor(): ResourceColor {
     if (this.tone === 'gold') {
-      return '#F0D98C';
+      return $r('app.color.brand_gold_bright');
     }
     if (this.tone === 'cinnabar') {
-      return '#E8A483';
+      return $r('app.color.pan_kong');
     }
-    return '#B8A97F';
+    return $r('app.color.ink_text_source');
   }
 
-  private bgColor(): string {
+  private bgColor(): ResourceColor {
     if (this.tone === 'gold') {
-      return 'rgba(233,200,120,0.14)';
+      return $r('app.color.overlay_gold_weak');
     }
     if (this.tone === 'cinnabar') {
-      return 'rgba(208,112,74,0.14)';
+      return $r('app.color.overlay_cinnabar_weak');
     }
-    return 'rgba(138,123,92,0.10)';
+    return $r('app.color.overlay_olive_weak');
   }
 
-  private brdColor(): string {
+  private brdColor(): ResourceColor {
     if (this.tone === 'gold') {
-      return 'rgba(233,200,120,0.45)';
+      return $r('app.color.overlay_gold_strong');
     }
     if (this.tone === 'cinnabar') {
-      return 'rgba(208,112,74,0.45)';
+      return $r('app.color.overlay_cinnabar_strong');
     }
-    return 'rgba(138,123,92,0.30)';
+    return $r('app.color.overlay_olive_mid');
   }
 }

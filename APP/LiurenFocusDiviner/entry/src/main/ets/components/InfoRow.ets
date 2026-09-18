@@ -57,13 +57,13 @@ export struct InfoRow {
     }
   }
 
-  private valueColor(): string {
+  private valueColor(): ResourceColor {
     if (this.tone === 'gold') {
-      return '#F0D98C';
+      return $r('app.color.brand_gold_bright');
     }
     if (this.tone === 'cinnabar') {
-      return '#E8A483';
+      return $r('app.color.pan_kong');
     }
-    return '#C4B183';
+    return $r('app.color.ink_text_muted');
   }
 }

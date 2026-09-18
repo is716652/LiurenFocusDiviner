@@ -41,7 +41,7 @@ export struct SlotEmpty {
     return ReasonText.of(this.slot, this.kind);
   }
 
-  private toneColor(): string {
+  private toneColor(): ResourceColor {
     return this.reason().warn ? '#E8A483' : '#A8986E';
   }
 
