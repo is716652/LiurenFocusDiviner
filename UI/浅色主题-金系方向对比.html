@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>浅色主题 · 金系方向对比（大六壬）</title>
+<style>
+  body{margin:0;padding:20px;background:#14120F;color:#D8C9A3;font:14px/1.7 "HarmonyOS Sans SC","Microsoft YaHei",sans-serif}
+  h1{font-size:20px;color:#F0D98C;margin:0 0 6px}
+  .sub{color:#A8986E;font-size:12px;margin-bottom:18px}
+  .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
+  .col{border:1px solid #6B5F45;border-radius:12px;padding:10px;background:#1C1A16}
+  .col h2{font-size:14px;color:#F0E6C8;margin:0 0 2px}
+  .col .tag{font-size:11px;color:#A8986E;margin-bottom:8px}
+  /* 模拟一张卡片：底 + 标题 + 正文 + 说明 + 原文标签 + 分隔线 + 警示 */
+  .card{border-radius:10px;padding:12px}
+  .t{font-size:17px;font-weight:700;margin:0 0 6px}
+  .b{font-size:14px;margin:0 0 6px}
+  .m{font-size:12px;margin:0 0 6px}
+  .l{font-size:11px;margin:0 0 8px}
+  .srcrow{display:flex;gap:6px;align-items:flex-start}
+  .src_tag{font-size:10px;border-radius:6px;padding:1px 5px;flex-shrink:0}
+  .src{font-size:10px;line-height:1.5}
+  .hr{border:0;border-top:1px solid;margin:10px 0}
+  .warn{font-size:12px}
+  table{border-collapse:collapse;width:100%;margin-top:8px;font-size:11px}
+  td{padding:2px 3px;border-bottom:1px solid rgba(255,255,255,.08)}
+  td.r{text-align:right;font-variant-numeric:tabular-nums}
+  .ok{color:#7FA69A}.bad{color:#E8A483;font-weight:700}
+  .hint{margin-top:16px;padding:10px 12px;border-left:3px solid #C4A25C;background:rgba(233,200,120,.08);border-radius:8px;font-size:12px}
+  .darkref{opacity:.95}
+</style>
+</head>
+<body>
+<h1>浅色主题 · 金系方向对比</h1>
+<div class="sub">用途：只为选「浅色下金色怎么变深」这一个问题。默认主题仍是现在的深色，本页不改变任何现有观感。</div>
+
+<div class="cols" id="cols"></div>
+
+<div class="hint">
+  <b>怎么挑</b>：看同一张卡片，标题（金）、正文、说明、原文标签、警示 —— 哪一列让你觉得「还是古卷、但白底上看得清」就选哪列。
+  对比度标在每列色表里：<span class="ok">≥3:1</span> 是可读底线（规范），<span class="ok">≥4.5:1</span> 是正文级；<span class="bad">低于 3:1</span> 的会被标红，不能选。
+</div>
+
+<script>
+/* ---------- 对比度（WCAG 相对亮度） ---------- */
+function lum(hex){const h=hex.replace('#','');const v=[0,2,4].map(i=>parseInt(h.substr(i,2),16)/255)
+  .map(c=>c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4));return 0.2126*v[0]+0.7152*v[1]+0.0722*v[2];}
+function ratio(a,b){const l1=lum(a),l2=lum(b);return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);}
+function rc(txt,bg){const r=ratio(txt,bg);const cls=r>=4.5?'ok':(r>=3?'ok':'bad');return '<span class="'+cls+'">'+r.toFixed(2)+':1</span>';}
+
+/* ---------- 深色现状（参照列，不参与选择） ---------- */
+const DARK={name:'现状（深色·参照）',tag:'保持默认，不改',bg:'#211E18',page:'#1A1410',
+  title:'#F0D98C',body:'#D8C9A3',muted:'#C4B183',label:'#A8986E',src:'#B8A97F',line:'#6B5F45',warn:'#A63A2B',tagbg:'rgba(233,200,120,0.10)'};
+
+/* ---------- 浅色三方案（页面底都用雪域灰系，不用纯白） ---------- */
+const LIGHT=[
+  {name:'A 偏金黄',tag:'金更艳、更接近规范金',bg:'#FBFAF7',page:'#F2F0EB',
+   title:'#8A6A1E',body:'#3A332A',muted:'#5A5145',label:'#6B6152',src:'#6E6446',line:'#C9C2B4',warn:'#9A3A22',tagbg:'rgba(138,106,30,0.10)'},
+  {name:'B 偏赭褐',tag:'更旧、更贴纸墨',bg:'#FAF7F1',page:'#F0EBE1',
+   title:'#7A5A28',body:'#3B322A',muted:'#5B5040',label:'#6C604B',src:'#6F6242',line:'#C7BEAC',warn:'#8E3A24',tagbg:'rgba(122,90,40,0.10)'},
+  {name:'C 折中',tag:'金味与纸味之间',bg:'#FBFAF6',page:'#F1EFE9',
+   title:'#82631F',body:'#3A342C',muted:'#5A5246',label:'#6B6153',src:'#6E6547',line:'#C8C2B4',warn:'#943A23',tagbg:'rgba(130,99,31,0.10)'},
+  {name:'D 只把金加深一档',tag:'最小改动（原金同色相压暗）',bg:'#FBFAF7',page:'#F2F0EB',
+   title:'#9A7A2A',body:'#3A332A',muted:'#5A5145',label:'#6B6152',src:'#6E6446',line:'#C9C2B4',warn:'#9A3A22',tagbg:'rgba(154,122,42,0.10)'}
+];
+
+function cardHTML(p){
+  return ''
+  + '<div class="card" style="background:'+p.bg+'">'
+  +   '<p class="t" style="color:'+p.title+'">韩太守占祈雪</p>'
+  +   '<p class="b" style="color:'+p.body+'">伏吟课，三传寅、巳、申。古法以传支为应期之候。</p>'
+  +   '<p class="m" style="color:'+p.muted+'">占类 天时 · 己卯日 寅将酉时 · 旬空 申酉</p>'
+  +   '<p class="l" style="color:'+p.label+'">说明：本卡只陈述盘上关系，不作现实判断。</p>'
+  +   '<hr class="hr" style="border-color:'+p.line+'">'
+  +   '<div class="srcrow"><span class="src_tag" style="color:'+p.src+';background:'+p.tagbg+'">原文</span>'
+  +     '<span class="src" style="color:'+p.src+'">世有一人，其室如悬磬，而占得此课者。</span></div>'
+  +   '<p class="warn" style="color:'+p.warn+'" >⚠ 规则数据：气机点表未加载，该栏不可用（盘仍照旧排出）</p>'
+  + '</div>';
+}
+function tableHTML(p){
+  const rows=[['标题 title',p.title,'gold_strong'],['正文 body',p.body,'text_body'],['次要 muted',p.muted,'text_muted'],
+    ['说明 label',p.label,'text_label'],['原文 source',p.src,'text_source'],['警示 warn',p.warn,'state_warn']];
+  return '<table>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td class="r">'+r[2]+'</td><td class="r">'+r[1]+'</td><td class="r">'+rc(r[1],p.bg)+'</td></tr>').join('')
+    +'<tr><td>页面底 page</td><td class="r">bg_page</td><td class="r">'+p.page+'</td><td class="r">'+rc(p.body,p.page)+'</td></tr></table>';
+}
+document.getElementById('cols').innerHTML=[DARK].concat(LIGHT).map(p=>{
+  return '<div class="col'+(p===DARK?' darkref':'')+'">'
+    + '<h2>'+p.name+'</h2><div class="tag">'+p.tag+'</div>'
+    + cardHTML(p) + tableHTML(p) + '</div>';
+}).join('');
+</script>
+</body>
+</html>
