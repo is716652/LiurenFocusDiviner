@@ -518,23 +518,35 @@ node _tests/_test_rule_health.js    # 把 RuleHealth.ets / ReasonText.ets 用 ts
 **不要凭记忆挑门禁跑。** 门禁会变多、名字会忘 —— 唯一入口负责发现与调度，并实测耗时：
 
 ```powershell
-node _tools/check_all.js            # 全量：41 项，实测 ≈ 364 s（6 分钟）—— 出包/收口前跑
-node _tools/check_all.js --fast     # 快档：37 项，实测 7.0 s —— 改完随手跑（跳过 4 项慢档）
+node _tools/check_all.js            # 全量：42 项，实测 ≈ 385 s（6 分钟）—— 出包/收口前跑
+node _tools/check_all.js --fast     # 快档：38 项，实测 ≈ 9 s —— 改完随手跑（跳过 4 项慢档）
 node _tools/check_all.js --list     # 打印清单（含慢档标记）
-node _tools/check_all.js --only readxiang   # 只跑名字含 readxiang 的项
+node _tools/check_all.js --only component_audit   # 只跑名字含该子串的项（现在真的只跑这些）
 python _tools/sign_release.py free  # 出包（内部已含前置门禁 + 出包后校验，见下）
 ```
+
+> ⛔ **绝对不要并发跑两次 `check_all`**（2026-09-18 事故，我自己犯的）：
+> `gate_mutation_check.js` 为了验证"门禁真的能抓到问题"，会**在原地变异真源文件**再还原。
+> 两个实例同时跑时，A 的还原会把 B 的变异写回、或把 B 的改动当"原样"保存 ——
+> 实测后果：主版 `pages/Index.ets` 的**真实改动被回滚**，而它插进去的正对照变异行
+> （8 个神煞名一行，用于测 A3）**留在工作区，被我的 `git add` 提交进了 580d0da**，
+> 直到 `_test_component_audit` 报 A3 硬失败才暴露。
+> 入口现已加**文件锁**（`.check_all.lock`，带 pid 存活检测），并发启动直接拒绝（exit 9）。
+> 同一个坑还有第二个成因：`--only` 以前**只过滤打印、不影响执行**（循环写的是 `ITEMS`
+> 而不是 `selected`），所以"只想看单项"实际上又跑了一遍全部 42 项 → 已修。
+> 教训通用一句话：**变异型门禁的仓库里，验证必须串行。**
 
 实测耗时分布（2026-09-13）：
 
 | 组 | 项数 | 实测 | 说明 |
 |:--|:--:|:--|:--|
-| 快档合计 | 37 | **7.0 s** | 绝大多数单项 < 200 ms；最慢的快档是 `_test_bifa_keti` 1.7 s |
-| 慢档：`gate_mutation_check.js` | 1 | **303 s** | 逐个变异后**重跑对应门禁**，固有 N× 成本；出包前跑即可 |
-| 慢档：`_test_component_audit.js` | 1 | 41.5 s | 内含 500 组随机扰动 + 挖键实验 |
-| 慢档：`_core_snapshot.js` | 1 | 10.6 s | 185,981 条行为快照逐条比对 |
-| 慢档：`_test_core_regress.js` | 1 | 1.4 s | 回归矩阵 |
-| **全量** | **41** | **≈ 364 s** | 三个大户占 355 s —— 门禁多不是问题，重活才是 |
+| 快档合计 | 38 | **≈ 9 s** | 绝大多数单项 < 200 ms；最慢的快档是 `_test_bifa_keti` 2.1 s |
+| 慢档：`gate_mutation_check.js` | 1 | **325–360 s** | 逐个变异后**重跑对应门禁**，固有 N× 成本；出包前跑即可，**必须独占** |
+| 慢档：`_test_component_audit.js` | 1 | 39.5 s | 内含 500 组随机扰动 + 挖键实验 |
+| 慢档：`_core_snapshot.js` | 1 | 10.4 s | 185,981 条行为快照逐条比对 |
+| 慢档：`_test_core_regress.js` | 1 | 1.6 s | 回归矩阵 |
+| **全量** | **42** | **≈ 385 s**（2026-09-18 实测） | 三个大户占 375 s —— 门禁多不是问题，重活才是 |
+
 
 **去重纪律**：同一条判定只跑一次 —— `verify_free_edition.py` 内部已复用 `sync_free_edition.diff_against()`，
 故入口里不再单列 `sync --check`（要单跑手敲即可）。
