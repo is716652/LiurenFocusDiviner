@@ -30,8 +30,8 @@ export struct RuleHealthBadge {
     .width('100%')
     .padding({ left: 10, right: 10, top: 7, bottom: 7 })
     .borderRadius(10)
-    .backgroundColor(this.hasProblem ? 'rgba(208,170,74,0.10)' : 'rgba(120,150,120,0.08)')
-    .border({ width: 1, color: this.hasProblem ? 'rgba(232,196,106,0.35)' : 'rgba(143,168,140,0.22)' })
+    .backgroundColor(this.hasProblem ? $r('app.color.overlay_gold_weak') : $r('app.color.overlay_teal_weak'))
+    .border({ width: 1, color: this.hasProblem ? $r('app.color.overlay_gold_strong') : $r('app.color.overlay_teal_strong') })
     .onClick(() => {
       this.onTap();
     })

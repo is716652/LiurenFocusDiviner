@@ -79,7 +79,7 @@ struct Splash {
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.brand_gold_bright'))
           .letterSpacing(14)
-          .shadow({ radius: 24, color: 'rgba(233,200,120,0.45)', offsetY: 2 })
+          .shadow({ radius: 24, color: $r('app.color.overlay_gold_strong'), offsetY: 2 })
         Text('读象工作台 · 管辂一系')
           .fontSize($r('app.float.font_subtitle_m'))
           .fontColor($r('app.color.ink_text_muted'))
@@ -103,7 +103,7 @@ struct Splash {
         .fontColor($r('app.color.ink_page'))
         .linearGradient({ angle: 90, colors: [['#F5D98E', 0.0], ['#D9A94E', 1.0]] })
         .borderRadius(27)
-        .shadow({ radius: 22, color: 'rgba(233,200,120,0.40)', offsetY: 6 })
+        .shadow({ radius: 22, color: $r('app.color.overlay_gold_strong'), offsetY: 6 })
         .translate({ y: 252 })
         .onClick(() => {
           this.getUIContext().getRouter().replaceUrl({ url: 'pages/Home' });

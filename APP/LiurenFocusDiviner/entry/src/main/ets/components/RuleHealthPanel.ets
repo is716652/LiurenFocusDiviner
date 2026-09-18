@@ -104,8 +104,8 @@ export struct RuleHealthPanel {
             .alignItems(HorizontalAlign.Start)
             .padding(10)
             .borderRadius(10)
-            .backgroundColor('rgba(208,112,74,0.08)')
-            .border({ width: 1, color: 'rgba(208,112,74,0.28)' })
+            .backgroundColor($r('app.color.overlay_cinnabar_weak'))
+            .border({ width: 1, color: $r('app.color.overlay_cinnabar_mid') })
           }
 
           /* 逐表自检 */
@@ -136,7 +136,7 @@ export struct RuleHealthPanel {
           .padding(10)
           .borderRadius(10)
           .backgroundColor($r('app.color.ink_card'))
-          .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+          .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
 
           /* 诊断文本预览（可长按选择复制，剪贴板失败时也能看） */
           Column({ space: 4 }) {
@@ -158,7 +158,7 @@ export struct RuleHealthPanel {
           .padding(10)
           .borderRadius(10)
           .backgroundColor($r('app.color.ink_card'))
-          .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+          .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
 
           if (this.tip !== '') {
             Text(this.tip)
@@ -182,7 +182,7 @@ export struct RuleHealthPanel {
           .padding({ left: 14, right: 14, top: 8, bottom: 8 })
           .borderRadius(10)
           .backgroundColor($r('app.color.ink_surface'))
-          .border({ width: 1, color: 'rgba(233,200,120,0.20)' })
+          .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
           .onClick(() => {
             this.onRecheck();
             this.refresh();

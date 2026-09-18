@@ -947,7 +947,7 @@ struct Index {
       .padding({ top: 12, bottom: 12, left: 6, right: 6 })
       .borderRadius(16)
       .backgroundColor($r('app.color.ink_card'))
-      .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+      .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
 
       /* 抓用神·读象 入口（半模态弹出） */
       Button('抓用神 · 读象')
@@ -958,7 +958,7 @@ struct Index {
         .fontColor($r('app.color.ink_page'))
         .linearGradient({ angle: 90, colors: [['#F5D98E', 0.0], ['#D9A94E', 1.0]] })
         .borderRadius(21)
-        .shadow({ radius: 14, color: 'rgba(233,200,120,0.30)', offsetY: 3 })
+        .shadow({ radius: 14, color: $r('app.color.overlay_gold_strong'), offsetY: 3 })
         .onClick(() => {
           this.showYongShen = true;
         })
@@ -971,7 +971,7 @@ struct Index {
         .fontColor($r('app.color.ink_text_muted'))
         .backgroundColor($r('app.color.ink_surface'))
         .borderRadius(18)
-        .border({ width: 1, color: 'rgba(233,200,120,0.25)' })
+        .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
         .onClick(() => {
           this.saveCase();
         })
@@ -991,7 +991,7 @@ struct Index {
                 Text(m)
                   .fontSize($r('app.float.font_caption_l'))
                   .fontColor(this.zhonghuangMode === m ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-                  .backgroundColor(this.zhonghuangMode === m ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
+                  .backgroundColor(this.zhonghuangMode === m ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_weak'))
                   .borderRadius(8)
                   .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                   .onClick(() => {
@@ -1159,8 +1159,8 @@ struct Index {
             .width('100%')
             .padding({ left: 8, right: 8, top: 6, bottom: 6 })
             .borderRadius(8)
-            .backgroundColor('rgba(233,200,120,0.08)')
-            .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+            .backgroundColor($r('app.color.overlay_gold_weak'))
+            .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
             .margin({ top: 5 })
           }
           Text(this.zhonghuangMode === '中黄' ?
@@ -1180,7 +1180,7 @@ struct Index {
       .padding(12)
       .borderRadius(16)
       .backgroundColor($r('app.color.ink_card'))
-      .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+      .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
 
       /* 四课 */
       Column({ space: 8 }) {
@@ -1216,7 +1216,7 @@ struct Index {
       .padding(12)
       .borderRadius(16)
       .backgroundColor($r('app.color.ink_card'))
-      .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+      .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
 
       /* 三传 */
       Column({ space: 8 }) {
@@ -1252,7 +1252,7 @@ struct Index {
       .padding(12)
       .borderRadius(16)
       .backgroundColor($r('app.color.ink_card'))
-      .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+      .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
 
       /* 课体解读卡 */
       if (this.chart && this.chuanTitle() !== '') {
@@ -1281,7 +1281,7 @@ struct Index {
         .padding(12)
         .borderRadius(16)
         .backgroundColor($r('app.color.ink_card'))
-        .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+        .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
       }
 
       /* 盘态 */
@@ -1332,7 +1332,7 @@ struct Index {
       .padding(12)
       .borderRadius(16)
       .backgroundColor($r('app.color.ink_card'))
-      .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+      .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
 
       /* 解读路线：读象/毕法/中黄 三条路线速览（点击切换；四课三传先看，路线按需深入） */
       Column({ space: 8 }) {
@@ -1352,7 +1352,7 @@ struct Index {
             Text(r)
               .fontSize($r('app.float.font_body_m'))
               .fontColor(this.route === r ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-              .backgroundColor(this.route === r ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
+              .backgroundColor(this.route === r ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_weak'))
               .borderRadius(10)
               .padding({ left: 14, right: 14, top: 4, bottom: 4 })
               .onClick(() => {
@@ -1373,7 +1373,7 @@ struct Index {
               Text('打开抓用神')
                 .fontSize($r('app.float.font_body_m'))
                 .fontColor($r('app.color.brand_gold_bright'))
-                .backgroundColor('rgba(233,200,120,0.12)')
+                .backgroundColor($r('app.color.overlay_gold_weak'))
                 .borderRadius(10)
                 .padding({ left: 12, right: 12, top: 4, bottom: 4 })
                 .onClick(() => {
@@ -1449,7 +1449,7 @@ struct Index {
       .padding(12)
       .borderRadius(16)
       .backgroundColor($r('app.color.ink_card'))
-      .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+      .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
 
       /* 神煞 */
       Column({ space: 8 }) {
@@ -1501,7 +1501,7 @@ struct Index {
       .padding(12)
       .borderRadius(16)
       .backgroundColor($r('app.color.ink_card'))
-      .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+      .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
 
       /* 毕法 */
       Column({ space: 8 }) {
@@ -1534,7 +1534,7 @@ struct Index {
           }
           .width('100%')
           .padding({ top: 6 })
-          .border({ width: { top: 1 }, color: 'rgba(233,200,120,0.15)' })
+          .border({ width: { top: 1 }, color: $r('app.color.overlay_gold_weak') })
         }
         /* 毕法教练栏（组合断 + 建议汇总；付费区仅开发/收费版显示） */
         if (this.coach && PayConfig.paidVisible() && PayGate.isUnlocked(PayConfig.F_BIFA) && this.coach.items.length > 0) {
@@ -1575,8 +1575,8 @@ struct Index {
           .width('100%')
           .padding(10)
           .borderRadius(12)
-          .backgroundColor(this.coach.xiong > this.coach.ji ? 'rgba(208,112,74,0.10)' : 'rgba(233,200,120,0.08)')
-          .border({ width: 1, color: this.coach.xiong > this.coach.ji ? 'rgba(208,112,74,0.35)' : 'rgba(233,200,120,0.25)' })
+          .backgroundColor(this.coach.xiong > this.coach.ji ? $r('app.color.overlay_cinnabar_weak') : $r('app.color.overlay_gold_weak'))
+          .border({ width: 1, color: this.coach.xiong > this.coach.ji ? $r('app.color.overlay_cinnabar_strong') : $r('app.color.overlay_gold_mid') })
         }
         if (this.cur().dx.bifa.length === 0) {
           SlotEmpty({ slot: SlotId.BIFA, kind: this.bifaEmptyKind() })
@@ -1612,14 +1612,14 @@ struct Index {
               .width('100%')
               .alignItems(HorizontalAlign.Start)
               .padding({ top: 4, left: 2, right: 2 })
-              .border({ width: { top: 1 }, color: 'rgba(233,200,120,0.15)' })
+              .border({ width: { top: 1 }, color: $r('app.color.overlay_gold_weak') })
             }
           }
           .width('100%')
           .padding(12)
           .borderRadius(12)
           .backgroundColor($r('app.color.ink_surface'))
-          .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
+          .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
           .onClick(() => {
             this.expandedBifa = (this.expandedBifa === hit.序) ? -1 : hit.序;
           })
@@ -1644,7 +1644,7 @@ struct Index {
                   Text(z)
                     .fontSize($r('app.float.font_body_m'))
                     .fontColor(this.nianZhi === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-                    .backgroundColor(this.nianZhi === z ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
+                    .backgroundColor(this.nianZhi === z ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_weak'))
                     .borderRadius(12)
                     .padding({ left: 10, right: 10, top: 4, bottom: 4 })
                     .onClick(() => {
@@ -1744,7 +1744,7 @@ struct Index {
                   Text(g)
                     .fontSize($r('app.float.font_body_m'))
                     .fontColor(this.gender === g ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-                    .backgroundColor(this.gender === g ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
+                    .backgroundColor(this.gender === g ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_weak'))
                     .borderRadius(10)
                     .padding({ left: 12, right: 12, top: 3, bottom: 3 })
                     .onClick(() => {
@@ -1806,7 +1806,7 @@ struct Index {
           }
           .width('100%')
           .padding({ top: 8 })
-          .border({ width: { top: 1 }, color: 'rgba(233,200,120,0.15)' })
+          .border({ width: { top: 1 }, color: $r('app.color.overlay_gold_weak') })
         }
 
         /* 中黄研习（付费门禁；双视角对比 + 变干主线 + 建合检测） */
@@ -1834,7 +1834,7 @@ struct Index {
                 Text(it.gong + ' ' + it.xunLq + (it.changed ? ('→' + it.zhLq) : ''))
                   .fontSize($r('app.float.font_caption_l'))
                   .fontColor(it.changed ? $r('app.color.brand_gold_bright') : $r('app.color.ink_text_secondary'))
-                  .backgroundColor(it.changed ? 'rgba(240,217,140,0.12)' : 'rgba(107,95,69,0.12)')
+                  .backgroundColor(it.changed ? $r('app.color.overlay_gold_weak') : $r('app.color.overlay_olive_weak'))
                   .borderRadius(8)
                   .padding({ left: 7, right: 7, top: 3, bottom: 3 })
                   .margin({ right: 5, bottom: 5 })
@@ -1888,14 +1888,14 @@ struct Index {
           }
           .width('100%')
           .padding({ top: 8 })
-          .border({ width: { top: 1 }, color: 'rgba(233,200,120,0.15)' })
+          .border({ width: { top: 1 }, color: $r('app.color.overlay_gold_weak') })
         }
       }
       .width('100%')
       .padding(12)
       .borderRadius(16)
       .backgroundColor($r('app.color.ink_card'))
-      .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+      .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
     }
     .width('100%')
   }
@@ -1945,8 +1945,8 @@ struct Index {
         .padding({ left: 12, right: 12, top: 8, bottom: 8 })
         .margin({ left: 16, right: 16, top: 6 })
         .borderRadius(10)
-        .backgroundColor('rgba(232,196,106,0.10)')
-        .border({ width: 1, color: 'rgba(232,196,106,0.30)' })
+        .backgroundColor($r('app.color.overlay_gold_weak'))
+        .border({ width: 1, color: $r('app.color.overlay_gold_strong') })
       }
       /* 页头：PageHeader 组件（标题 + ModeSwitch + 改期）——组件为独立渲染单元，规避首子渲染问题 */
       PageHeader({
@@ -1990,7 +1990,7 @@ struct Index {
               .fontColor(this.showAncient ? $r('app.color.brand_gold_bright') : $r('app.color.ink_text_muted'))
               .padding({ left: 12, right: 12, top: 4, bottom: 4 })
               .borderRadius(10)
-              .backgroundColor(this.showAncient ? 'rgba(240,217,140,0.12)' : 'rgba(138,123,92,0.12)')
+              .backgroundColor(this.showAncient ? $r('app.color.overlay_gold_weak') : $r('app.color.overlay_olive_weak'))
               .onClick(() => {
                 this.showAncient = !this.showAncient;
               })
@@ -2015,7 +2015,7 @@ struct Index {
                       Text(z)
                         .fontSize($r('app.float.font_body_m'))
                         .fontColor(this.ancientMj === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-                        .backgroundColor(this.ancientMj === z ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
+                        .backgroundColor(this.ancientMj === z ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_weak'))
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                         .onClick(() => { this.ancientMj = z; })
@@ -2036,7 +2036,7 @@ struct Index {
                       Text(g)
                         .fontSize($r('app.float.font_body_m'))
                         .fontColor(this.ancientDg === g ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-                        .backgroundColor(this.ancientDg === g ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
+                        .backgroundColor(this.ancientDg === g ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_weak'))
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                         .onClick(() => { this.ancientDg = g; })
@@ -2057,7 +2057,7 @@ struct Index {
                       Text(z)
                         .fontSize($r('app.float.font_body_m'))
                         .fontColor(this.ancientDz === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-                        .backgroundColor(this.ancientDz === z ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
+                        .backgroundColor(this.ancientDz === z ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_weak'))
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                         .onClick(() => { this.ancientDz = z; })
@@ -2078,7 +2078,7 @@ struct Index {
                       Text(z)
                         .fontSize($r('app.float.font_body_m'))
                         .fontColor(this.ancientHz === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-                        .backgroundColor(this.ancientHz === z ? $r('app.color.brand_gold_bright') : 'rgba(138,123,92,0.12)')
+                        .backgroundColor(this.ancientHz === z ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_weak'))
                         .borderRadius(8)
                         .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                         .onClick(() => { this.ancientHz = z; })
@@ -2099,7 +2099,7 @@ struct Index {
                       Text(g)
                         .fontSize($r('app.float.font_body_s'))
                         .fontColor(this.ancientYG === g ? $r('app.color.ink_page') : $r('app.color.ink_text_secondary'))
-                        .backgroundColor(this.ancientYG === g ? $r('app.color.brand_gold_bright') : 'rgba(107,95,69,0.2)')
+                        .backgroundColor(this.ancientYG === g ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_mid'))
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
                         .onClick(() => { this.ancientYG = (this.ancientYG === g) ? '' : g; })
@@ -2119,7 +2119,7 @@ struct Index {
                       Text(z)
                         .fontSize($r('app.float.font_body_s'))
                         .fontColor(this.ancientYZ === z ? $r('app.color.ink_page') : $r('app.color.ink_text_secondary'))
-                        .backgroundColor(this.ancientYZ === z ? $r('app.color.brand_gold_bright') : 'rgba(107,95,69,0.2)')
+                        .backgroundColor(this.ancientYZ === z ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_mid'))
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
                         .onClick(() => { this.ancientYZ = (this.ancientYZ === z) ? '' : z; })
@@ -2139,7 +2139,7 @@ struct Index {
                       Text(z)
                         .fontSize($r('app.float.font_body_s'))
                         .fontColor(this.ancientMZ === z ? $r('app.color.ink_page') : $r('app.color.ink_text_secondary'))
-                        .backgroundColor(this.ancientMZ === z ? $r('app.color.brand_gold_bright') : 'rgba(107,95,69,0.2)')
+                        .backgroundColor(this.ancientMZ === z ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_olive_mid'))
                         .borderRadius(6)
                         .padding({ left: 5, right: 5, top: 1, bottom: 1 })
                         .onClick(() => { this.ancientMZ = (this.ancientMZ === z) ? '' : z; })
@@ -2166,7 +2166,7 @@ struct Index {
             .padding(10)
             .borderRadius(12)
             .backgroundColor($r('app.color.ink_surface'))
-            .border({ width: 1, color: 'rgba(233,200,120,0.15)' })
+            .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
           }
 
           if (this.chart) {

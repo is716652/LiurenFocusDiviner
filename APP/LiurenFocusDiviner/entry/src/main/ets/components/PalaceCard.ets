@@ -84,7 +84,7 @@ export struct PalaceCard {
     .padding(12)
     .borderRadius(12)
     .backgroundColor($r('app.color.ink_card'))
-    .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
+    .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
   }
 
   private toneOf(tone: string): string {

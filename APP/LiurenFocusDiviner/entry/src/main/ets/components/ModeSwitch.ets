@@ -19,7 +19,7 @@ export struct ModeSwitch {
           .fontSize($r('app.float.font_body_s'))
           .fontWeight(this.active === i ? FontWeight.Medium : FontWeight.Normal)
           .fontColor(this.active === i ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-          .backgroundColor(this.active === i ? $r('app.color.brand_gold') : 'rgba(138,123,92,0.14)')
+          .backgroundColor(this.active === i ? $r('app.color.brand_gold') : $r('app.color.overlay_olive_weak'))
           .borderRadius(11)
           .padding({ left: 11, right: 11, top: 4, bottom: 4 })
           .onClick(() => {

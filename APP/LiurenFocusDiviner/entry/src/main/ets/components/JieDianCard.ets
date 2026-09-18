@@ -35,7 +35,7 @@ export struct JieDianCard {
             .fontSize($r('app.float.font_body_s'))
             .fontColor(this.anchor === w.v ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
             .backgroundColor(this.anchor === w.v ? $r('app.color.brand_gold_bright') : $r('app.color.pan_sel_bg'))
-            .border({ width: 1, color: this.anchor === w.v ? $r('app.color.brand_gold_bright') : 'rgba(233,200,120,0.30)' })
+            .border({ width: 1, color: this.anchor === w.v ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_gold_strong') })
             .borderRadius(10)
             .padding({ left: 8, right: 8, top: 3, bottom: 3 })
             .margin({ right: 6, bottom: 6 })
@@ -65,14 +65,14 @@ export struct JieDianCard {
         }
         .width('100%')
         .padding({ top: 4 })
-        .border({ width: { top: 1 }, color: 'rgba(233,200,120,0.15)' })
+        .border({ width: { top: 1 }, color: $r('app.color.overlay_gold_weak') })
       }
     }
     .width('100%')
     .padding(12)
     .borderRadius(12)
     .backgroundColor($r('app.color.ink_surface'))
-    .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
+    .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
   }
 
   /* 词云标签：显示 k 的短名（去掉"将·"/"纳音·"前缀），值截断 14 字 */

@@ -53,7 +53,7 @@ export struct PageHeader {
       .padding({ left: 16, right: 16 })
 
       Divider()
-        .color('rgba(233,200,120,0.2)')
+        .color($r('app.color.overlay_gold_mid'))
         .width('100%')
     }
     .width('100%')

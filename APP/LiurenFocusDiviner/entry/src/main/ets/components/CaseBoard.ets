@@ -142,7 +142,7 @@ export struct CaseBoard {
     .padding(12)
     .borderRadius(14)
     .backgroundColor($r('app.color.ink_card'))
-    .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+    .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
     .onClick(() => {
       this.onRestore(r);
     })

@@ -490,7 +490,7 @@ struct Home {
     .padding(16)
     .borderRadius(16)
     .backgroundColor($r('app.color.ink_card'))
-    .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+    .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
   }
 
   @Builder
@@ -526,7 +526,7 @@ struct Home {
     .padding(16)
     .borderRadius(16)
     .backgroundColor($r('app.color.ink_card'))
-    .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+    .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
   }
 
   /* 排盘主卡：金色渐变全宽 */
@@ -540,20 +540,20 @@ struct Home {
           .fontColor($r('app.color.ink_page'))
         Text('选好日期时辰 · 起课观盘')
           .fontSize($r('app.float.fs_caption'))
-          .fontColor('rgba(26,20,16,0.72)')
+          .fontColor($r('app.color.overlay_ink_scrim'))
       }
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
       Blank()
       Text('☷')
         .fontSize(40)
-        .fontColor('rgba(26,20,16,0.85)')
+        .fontColor($r('app.color.overlay_ink_scrim'))
     }
     .width('100%')
     .padding({ left: 22, right: 22, top: 22, bottom: 22 })
     .borderRadius(18)
     .linearGradient({ angle: 120, colors: [['#F5D98E', 0.0], ['#D9A94E', 1.0]] })
-    .shadow({ radius: 20, color: 'rgba(233,200,120,0.35)', offsetY: 6 })
+    .shadow({ radius: 20, color: $r('app.color.overlay_gold_strong'), offsetY: 6 })
   }
 
   build() {
@@ -576,7 +576,7 @@ struct Home {
         .letterSpacing(1)
         .margin({ left: 20, top: 4 })
       Divider()
-        .color('rgba(233,200,120,0.2)')
+        .color($r('app.color.overlay_gold_mid'))
         .margin({ top: 12 })
 
       Scroll() {
@@ -639,7 +639,7 @@ struct Home {
           .padding({ left: 16, right: 16, top: 16, bottom: 16 })
           .borderRadius(16)
           .backgroundColor($r('app.color.ink_card'))
-          .border({ width: 1, color: 'rgba(233,200,120,0.16)' })
+          .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
           .onClick(() => {
             this.goCases();
           })
@@ -674,7 +674,7 @@ struct Home {
           .padding({ left: 16, right: 16, top: 16, bottom: 16 })
           .borderRadius(16)
           .backgroundColor($r('app.color.ink_card'))
-          .border({ width: 1, color: 'rgba(233,200,120,0.16)' })
+          .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
           .onClick(() => {
             this.goAncient();
           })

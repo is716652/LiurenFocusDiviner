@@ -47,7 +47,7 @@ export struct ChuanCard {
     .width('100%')
     .padding({ top: 10, bottom: 10, left: 4, right: 4 })
     .borderRadius(12)
-    .backgroundColor(this.highlight ? 'rgba(240,217,140,0.16)' : $r('app.color.ink_surface'))
-    .border({ width: this.highlight ? 1.5 : 1, color: this.highlight ? $r('app.color.brand_gold_bright') : 'rgba(233,200,120,0.18)' })
+    .backgroundColor(this.highlight ? $r('app.color.overlay_gold_mid') : $r('app.color.ink_surface'))
+    .border({ width: this.highlight ? 1.5 : 1, color: this.highlight ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_gold_mid') })
   }
 }

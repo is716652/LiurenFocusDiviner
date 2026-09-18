@@ -36,7 +36,7 @@ export struct DuyuCard {
         .padding(12)
         .borderRadius(12)
         .backgroundColor($r('app.color.ink_surface'))
-        .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
+        .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
       }
 
       /* 管辂象意选句 */
@@ -90,7 +90,7 @@ export struct DuyuCard {
         .padding(12)
         .borderRadius(12)
         .backgroundColor($r('app.color.ink_surface'))
-        .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
+        .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
       }
     }
     .width('100%')

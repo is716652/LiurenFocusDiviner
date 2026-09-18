@@ -370,7 +370,7 @@ export struct AncientStudy {
           .padding({ top: 8, bottom: 8 })
           .borderRadius(8)
           .backgroundColor($r('app.color.ink_surface'))
-          .border({ width: 1, color: 'rgba(233,200,120,0.18)' })
+          .border({ width: 1, color: $r('app.color.overlay_gold_mid') })
         }, (u: string, ui: number) => 'ku' + ui + u)
       }
       .width('100%')
@@ -382,8 +382,8 @@ export struct AncientStudy {
     .width('100%')
     .padding(10)
     .borderRadius(10)
-    .backgroundColor('rgba(33,30,24,0.8)')
-    .border({ width: 1, color: 'rgba(233,200,120,0.12)' })
+    .backgroundColor($r('app.color.overlay_ink_scrim'))
+    .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
     .margin({ top: 10 })
   }
 
@@ -416,8 +416,8 @@ export struct AncientStudy {
     .width('100%')
     .padding(10)
     .borderRadius(10)
-    .backgroundColor('rgba(33,30,24,0.8)')
-    .border({ width: 1, color: 'rgba(233,200,120,0.12)' })
+    .backgroundColor($r('app.color.overlay_ink_scrim'))
+    .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
     .margin({ top: 10 })
   }
 
@@ -448,8 +448,8 @@ export struct AncientStudy {
     .width('100%')
     .padding(10)
     .borderRadius(10)
-    .backgroundColor('rgba(33,30,24,0.8)')
-    .border({ width: 1, color: 'rgba(233,200,120,0.12)' })
+    .backgroundColor($r('app.color.overlay_ink_scrim'))
+    .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
     .margin({ top: 10 })
   }
 
@@ -480,8 +480,8 @@ export struct AncientStudy {
     .width('100%')
     .padding(10)
     .borderRadius(10)
-    .backgroundColor('rgba(33,30,24,0.8)')
-    .border({ width: 1, color: 'rgba(233,200,120,0.12)' })
+    .backgroundColor($r('app.color.overlay_ink_scrim'))
+    .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
     .margin({ top: 10 })
   }
 
@@ -573,8 +573,8 @@ export struct AncientStudy {
     .width('100%')
     .padding(10)
     .borderRadius(8)
-    .backgroundColor('rgba(33,30,24,0.85)')
-    .border({ width: 1, color: 'rgba(138,155,168,0.2)' })
+    .backgroundColor($r('app.color.overlay_ink_scrim'))
+    .border({ width: 1, color: $r('app.color.overlay_teal_mid') })
     .margin({ top: 10 })
   }
 
@@ -594,8 +594,8 @@ export struct AncientStudy {
     .width('100%')
     .padding(10)
     .borderRadius(8)
-    .backgroundColor('rgba(33,30,24,0.85)')
-    .border({ width: 1, color: 'rgba(233,200,120,0.15)' })
+    .backgroundColor($r('app.color.overlay_ink_scrim'))
+    .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
     .margin({ top: 10 })
   }
 
@@ -628,7 +628,7 @@ export struct AncientStudy {
           }
           .width('100%')
           .padding({ top: 18, bottom: 14 })
-          .border({ width: { bottom: 1 }, color: 'rgba(233,200,120,0.15)' })
+          .border({ width: { bottom: 1 }, color: $r('app.color.overlay_gold_weak') })
 
           /* 经文段落（清洗 md + 盘式结构化渲染） */
           ForEach(this.listRows()[this.curIdx].段落, (p: string, pi: number) => {
@@ -670,8 +670,8 @@ export struct AncientStudy {
                 .width('100%')
                 .padding({ left: 10, right: 8, top: 6, bottom: 6 })
                 .borderRadius(6)
-                .backgroundColor('rgba(122,110,85,0.08)')
-                .border({ width: { left: 2 }, color: 'rgba(122,110,85,0.4)' })
+                .backgroundColor($r('app.color.overlay_olive_weak'))
+                .border({ width: { left: 2 }, color: $r('app.color.overlay_olive_strong') })
                 .margin({ top: 8 })
             } else if (this.isQuote(p)) {
               /* 引用块（原 > 前缀）：缩进 + 暗金 */
@@ -682,8 +682,8 @@ export struct AncientStudy {
                 .width('100%')
                 .padding({ left: 12, right: 8, top: 8, bottom: 8 })
                 .borderRadius(8)
-                .backgroundColor('rgba(168,152,110,0.08)')
-                .border({ width: { left: 3 }, color: 'rgba(168,152,110,0.5)' })
+                .backgroundColor($r('app.color.overlay_olive_weak'))
+                .border({ width: { left: 3 }, color: $r('app.color.overlay_olive_strong') })
                 .margin({ top: 10 })
             } else {
               /* 正文段落（去 md 标记：- / # / **） */
@@ -735,7 +735,7 @@ export struct AncientStudy {
       .width('100%')
       .padding({ left: 16, right: 16, top: 8, bottom: 72 })
       .backgroundColor($r('app.color.ink_card'))
-      .border({ width: { top: 1 }, color: 'rgba(233,200,120,0.15)' })
+      .border({ width: { top: 1 }, color: $r('app.color.overlay_gold_weak') })
     }
     .width('100%')
     .height('100%')

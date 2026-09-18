@@ -1,52 +1,44 @@
 {
   "color": [
     {
-      "name": "start_window_background",
-      "value": "#14120F"
+      "name": "brand_cinnabar",
+      "value": "#D0704A"
     },
     {
       "name": "brand_gold",
       "value": "#E9C878"
     },
     {
+      "name": "brand_gold_bright",
+      "value": "#F0D98C"
+    },
+    {
       "name": "brand_gold_deep",
       "value": "#C4A25C"
-    },
-    {
-      "name": "brand_cinnabar",
-      "value": "#D0704A"
-    },
-    {
-      "name": "brand_verdigris",
-      "value": "#5FA394"
     },
     {
       "name": "brand_porcelain",
       "value": "#7FA0B8"
     },
     {
-      "name": "ink_bg",
-      "value": "#14120F"
+      "name": "brand_verdigris",
+      "value": "#5FA394"
     },
     {
-      "name": "ink_surface",
-      "value": "#211E18"
+      "name": "ink_bg",
+      "value": "#14120F"
     },
     {
       "name": "ink_card",
       "value": "#1C1A16"
     },
     {
-      "name": "ink_text",
-      "value": "#F0E6C8"
-    },
-    {
-      "name": "ink_text_secondary",
-      "value": "#A8986E"
-    },
-    {
       "name": "ink_divider",
       "value": "#3A3325"
+    },
+    {
+      "name": "ink_hairline",
+      "value": "#6B5F45"
     },
     {
       "name": "ink_page",
@@ -57,36 +49,84 @@
       "value": "#2B241B"
     },
     {
-      "name": "ink_hairline",
-      "value": "#6B5F45"
+      "name": "ink_surface",
+      "value": "#211E18"
     },
     {
-      "name": "ink_text_bright",
-      "value": "#F5EFE2"
+      "name": "ink_text",
+      "value": "#F0E6C8"
     },
     {
       "name": "ink_text_body",
       "value": "#D8C9A3"
     },
     {
+      "name": "ink_text_bright",
+      "value": "#F5EFE2"
+    },
+    {
       "name": "ink_text_muted",
       "value": "#C4B183"
+    },
+    {
+      "name": "ink_text_secondary",
+      "value": "#A8986E"
     },
     {
       "name": "ink_text_source",
       "value": "#B8A97F"
     },
     {
-      "name": "brand_gold_bright",
-      "value": "#F0D98C"
+      "name": "overlay_cinnabar_mid",
+      "value": "#47D0704A"
     },
     {
-      "name": "state_warn",
-      "value": "#A63A2B"
+      "name": "overlay_cinnabar_strong",
+      "value": "#59D0704A"
     },
     {
-      "name": "state_warn_text",
-      "value": "#E8A483"
+      "name": "overlay_cinnabar_weak",
+      "value": "#14D0704A"
+    },
+    {
+      "name": "overlay_gold_mid",
+      "value": "#2EE9C878"
+    },
+    {
+      "name": "overlay_gold_strong",
+      "value": "#59E9C878"
+    },
+    {
+      "name": "overlay_gold_weak",
+      "value": "#24E9C878"
+    },
+    {
+      "name": "overlay_ink_scrim",
+      "value": "#CE211E18"
+    },
+    {
+      "name": "overlay_olive_mid",
+      "value": "#338A7B5C"
+    },
+    {
+      "name": "overlay_olive_strong",
+      "value": "#808A7B5C"
+    },
+    {
+      "name": "overlay_olive_weak",
+      "value": "#1F8A7B5C"
+    },
+    {
+      "name": "overlay_teal_mid",
+      "value": "#335FA394"
+    },
+    {
+      "name": "overlay_teal_strong",
+      "value": "#385FA394"
+    },
+    {
+      "name": "overlay_teal_weak",
+      "value": "#145FA394"
     },
     {
       "name": "pan_bg",
@@ -101,20 +141,12 @@
       "value": "#14120F"
     },
     {
-      "name": "pan_tian",
-      "value": "#F0D98C"
-    },
-    {
       "name": "pan_di",
       "value": "#A8986E"
     },
     {
       "name": "pan_jiang",
       "value": "#C4B183"
-    },
-    {
-      "name": "pan_ss",
-      "value": "#8A7B5C"
     },
     {
       "name": "pan_kong",
@@ -127,6 +159,26 @@
     {
       "name": "pan_sel_bg",
       "value": "#1AE9C878"
+    },
+    {
+      "name": "pan_ss",
+      "value": "#8A7B5C"
+    },
+    {
+      "name": "pan_tian",
+      "value": "#F0D98C"
+    },
+    {
+      "name": "start_window_background",
+      "value": "#14120F"
+    },
+    {
+      "name": "state_warn",
+      "value": "#A63A2B"
+    },
+    {
+      "name": "state_warn_text",
+      "value": "#E8A483"
     }
   ]
 }
