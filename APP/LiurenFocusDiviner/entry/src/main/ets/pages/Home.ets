@@ -540,14 +540,14 @@ struct Home {
           .fontColor($r('app.color.ink_page'))
         Text('选好日期时辰 · 起课观盘')
           .fontSize($r('app.float.fs_caption'))
-          .fontColor($r('app.color.overlay_ink_scrim'))
+          .fontColor($r('app.color.ink_on_gold_text'))
       }
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
       Blank()
       Text('☷')
         .fontSize(40)
-        .fontColor($r('app.color.overlay_ink_scrim'))
+        .fontColor($r('app.color.ink_on_gold_text'))
     }
     .width('100%')
     .padding({ left: 22, right: 22, top: 22, bottom: 22 })
