@@ -1,5 +1,5 @@
 {
- "生成时间": "2026-09-18T14:47:23.445Z",
+ "生成时间": "2026-09-18T15:18:07.274Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 54,
@@ -289,7 +289,7 @@
      "line": 82,
      "what": "展示文案引用书名",
      "lit": "管辂",
-     "ctx": "color: 'rgba(233,200,120,0.45)', offsetY: 2 })\r\n        Text('读象工作台 · 管辂一系')\r\n          .fontSize($r"
+     "ctx": "app.color.overlay_gold_strong'), offsetY: 2 })\r\n        Text('读象工作台 · 管辂一系')\r\n          .fontSize($r"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/AncientCaseGallery.ets",
@@ -338,7 +338,7 @@
      "line": 22,
      "what": "展示文案引用书名",
      "lit": "管辂",
-     "ctx": ".fontColor('#A8986E')\r\n            Blank()\r\n            Text('管辂神书 · 类神取用')\r\n              .fontSize"
+     "ctx": "p.color.ink_text_secondary'))\r\n            Blank()\r\n            Text('管辂神书 · 类神取用')\r\n              ."
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/DuyuCard.ets",
@@ -380,7 +380,7 @@
      "line": 82,
      "what": "展示文案引用书名",
      "lit": "管辂",
-     "ctx": "color: 'rgba(233,200,120,0.45)', offsetY: 2 })\r\n        Text('读象工作台 · 管辂一系')\r\n          .fontSize(14"
+     "ctx": "app.color.overlay_gold_strong'), offsetY: 2 })\r\n        Text('读象工作台 · 管辂一系')\r\n          .fontSize($r"
     }
    ],
    "数据路径引用计数": 12,

@@ -463,14 +463,14 @@ struct Index {
   }
 
   /* 行年吉凶档位配色（大吉/吉=金，凶/大凶=绯，平=灰） */
-  private bandColor(band: string): string {
+  private bandColor(band: string): ResourceColor {
     if (band === '大吉' || band === '吉') {
-      return '#F0D98C';
+      return $r('app.color.brand_gold_bright');
     }
     if (band === '凶' || band === '大凶') {
-      return '#D0704A';
+      return $r('app.color.brand_cinnabar');
     }
-    return '#B8A97F';
+    return $r('app.color.ink_text_source');
   }
 
   /* 起课年份/出生年 就地编辑确认（免逐格步进） */
@@ -2452,5 +2452,3 @@ struct Index {
     }
   }
 }
-
-const gmcShenshaByGan = (g: string): string => g === 'A' ? '太岁' : g === 'B' ? '岁破' : g === 'C' ? '病符' : g === 'D' ? '丧门' : g === 'E' ? '吊客' : g === 'F' ? '天喜' : g === 'G' ? '孤辰' : g === 'H' ? '寡宿' : '';

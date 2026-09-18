@@ -11,7 +11,16 @@
  *   每条规则仍住在各自的门禁里；门禁需要规则时向真源取（例：verify_free_edition.py
  *   import sync_free_edition 的差异规则；ArkTS 门禁读 core/liuren/**）。
  *   新增/删除门禁只需改下面的清单（JS 测试为目录扫描，自动纳入）。
- * 用法：node _tools/check_all.js [--fast] [--list]
+ * 用法：node _tools/check_all.js [--fast] [--only <名字子串>] [--list]
+ *
+ * ⚠ **绝对不要并发跑两次**（2026-09-18 血的教训）：
+ *   gate_mutation_check.js 会**在原地变异**真源文件来验证门禁有效性，跑完再还原。
+ *   两个 check_all 同时在跑时，A 的还原会把 B 的变异写回、或把 B 的改动当"原样"保存，
+ *   结果是**工作区被静默污染**（实测：主版 pages/Index.ets 掉了 2 行、与 HEAD 不一致，
+ *   于是 A3 门禁去报了"免费版"违规 —— 因为当时被变异的其实是主版）。
+ *   故本脚本现在加文件锁：同一仓库同时只允许一个 check_all 在跑 ✗。
+ *   另：`--only` 曾经**只过滤打印、不影响执行**（循环写的是 ITEMS 而不是 selected），
+ *   于是"只跑一项"实际跑了全部 —— 也已修掉。
  * ==========================================================================*/
 'use strict';
 const fs = require('fs');
@@ -22,6 +31,26 @@ const ROOT = path.join(__dirname, '..');
 const TESTS = path.join(ROOT, '_tests');
 const fast = process.argv.includes('--fast');
 const listOnly = process.argv.includes('--list');
+
+/* ---- 并发锁：变异型门禁会改真源，绝不允许两个实例同时跑 ---- */
+const LOCK = path.join(ROOT, '.check_all.lock');
+if (!listOnly) {
+  let alivePid = 0;
+  try {
+    const old = JSON.parse(fs.readFileSync(LOCK, 'utf-8'));
+    try { process.kill(old.pid, 0); alivePid = old.pid; } catch (e) { alivePid = 0; }
+    if (alivePid) {
+      console.log('⛔ 已有一个 check_all 在跑（pid ' + alivePid + '）。'
+        + '\n   gate_mutation_check 会原地变异真源文件，并发跑会静默污染工作区，故拒绝启动。'
+        + '\n   若确认那个进程已死，删掉 ' + path.relative(ROOT, LOCK) + ' 再跑。');
+      process.exit(9);
+    }
+  } catch (e) { /* 无锁或锁文件坏了：继续 */ }
+  fs.writeFileSync(LOCK, JSON.stringify({ pid: process.pid, at: new Date().toISOString() }), 'utf-8');
+  const release = () => { try { fs.unlinkSync(LOCK); } catch (e) {} };
+  process.on('exit', release);
+  process.on('SIGINT', () => { release(); process.exit(130); });
+}
 
 /* JS 门禁：目录扫描（不写死文件名，新增即纳入） */
 function jsGates() {
@@ -65,7 +94,10 @@ if (selected.length === 0) {
 const env = Object.assign({}, process.env, { PYTHONIOENCODING: 'utf-8' });
 const results = [];
 let n = 0;
-for (const it of ITEMS) {
+/* 必须遍历 `selected` 而不是 `ITEMS`：第一版写的是 ITEMS，于是 `--only X` 只过滤打印、
+ * 执行上仍跑全部（"只跑一项"实际跑了 42 项，还在我另开一个 check_all 时并发触发两次
+ * 变异型门禁，把工作区静默污染了）。 */
+for (const it of selected) {
   n++;
   if (fast && it.slow) { results.push({ ...it, ms: 0, code: 0, skipped: true }); continue; }
   const t0 = Date.now();
@@ -75,7 +107,7 @@ for (const it of ITEMS) {
   results.push({ name: it.name, ms, code, slow: it.slow });
   const tail = ((r.stdout || '') + (r.stderr || '')).trim().split('\n').filter((l) => l.trim() !== '');
   const line = tail.length ? tail[tail.length - 1].trim() : '';
-  process.stdout.write('[' + String(n).padStart(2) + '/' + ITEMS.length + '] '
+  process.stdout.write('[' + String(n).padStart(2) + '/' + selected.length + '] '
     + (code === 0 ? 'PASS' : 'FAIL') + '  ' + String(ms + 'ms').padStart(8) + '  ' + it.name
     + (code === 0 ? '' : '\n        ↳ ' + line.slice(0, 160)) + '\n');
 }

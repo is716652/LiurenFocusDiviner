@@ -115,7 +115,9 @@ for (const [relFile, name] of NAMES) {
     let m;
     while ((m = re.exec(text)) !== null) {
       const tail = text.slice(m.index);
-      if (new RegExp('^' + name + '\\s*\\([^()]*\\)\\s*:\\s*string').test(tail)) continue;   /* 定义行 */
+      /* 定义行要跳过：`name(...): string` 与升级后的 `name(...): ResourceColor` 都算定义。
+       * （只匹配 string 的版本会在"已升级过一次"之后再跑时，把定义行当调用点误报 ⛔） */
+      if (new RegExp('^' + name + '\\s*\\([^()]*\\)\\s*:\\s*(?:string|ResourceColor)').test(tail)) continue;
       const callee = enclosingCall(text, m.index + name.length);
       if (!API_OK.has(callee)) {
         bad++;
@@ -146,6 +148,12 @@ for (const [relFile, names] of namesByFile) {
   const eol = raw.indexOf('\r\n') >= 0 ? '\r\n' : '\n';
   const lines = raw.split(/\r?\n/);
   for (const name of names) {
+    /* 幂等：已经是 ResourceColor 的直接跳过（本工具会被重跑，例如工作区被外部
+     * 变异型门禁回滚之后）。没有这条就会在"签名未匹配"处 process.exit(4) 中断。 */
+    if (new RegExp('^\\s*(?:private|public|protected)?\\s*(?:static\\s+)?' + name + '\\s*\\([^()]*\\)\\s*:\\s*ResourceColor\\s*\\{', 'm').test(lines.join('\n'))) {
+      console.log('· 已是 ResourceColor，跳过：' + relFile + ' ' + name + '()');
+      continue;
+    }
     /* 定位函数体（按行，够用：本项目函数体不含嵌套大括号以外的花括号复杂度） */
     let start = -1, end = -1, depth = 0;
     for (let i = 0; i < lines.length; i++) {
