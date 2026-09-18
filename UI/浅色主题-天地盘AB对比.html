@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>浅色主题 · 天地盘 A/B 对比（大六壬）</title>
+<style>
+  body{margin:0;padding:18px;background:#14120F;color:#D8C9A3;font:13px/1.6 "HarmonyOS Sans SC","Microsoft YaHei",sans-serif}
+  h1{font-size:19px;color:#F0D98C;margin:0 0 4px}
+  .sub{color:#A8986E;font-size:12px;margin-bottom:14px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .col{border:1px solid #6B5F45;border-radius:12px;padding:12px;background:#1C1A16}
+  .col h2{font-size:14px;color:#F0E6C8;margin:0 0 2px}
+  .col .tag{font-size:11px;color:#A8986E;margin-bottom:10px}
+  /* 天地盘：一圈十二宫 */
+  .pan{position:relative;width:100%;aspect-ratio:1/1;max-width:420px;margin:0 auto;border-radius:50%;border:1px solid}
+  .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46%;height:46%;border-radius:50%;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;border:1px solid}
+  .core .k{font-size:12px}
+  .core .v{font-size:15px;font-weight:700}
+  .gong{position:absolute;width:24%;height:24%;transform:translate(-50%,-50%);border-radius:10px;border:1px solid;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.25;padding:2px}
+  .gong .t{font-size:15px;font-weight:700}
+  .gong .d{font-size:9px}
+  .gong .j{font-size:10px}
+  .gong .s{font-size:8px;white-space:nowrap;overflow:hidden;max-width:100%}
+  .gong.sel{border-width:2px}
+  .gong .kong{font-size:8px}
+  table{border-collapse:collapse;width:100%;margin-top:12px;font-size:11px}
+  td{padding:2px 3px;border-bottom:1px solid rgba(255,255,255,.08)}
+  td.r{text-align:right;font-variant-numeric:tabular-nums}
+  .ok{color:#7FA69A}.bad{color:#E8A483;font-weight:700}
+  .hint{margin-top:14px;padding:10px 12px;border-left:3px solid #C4A25C;background:rgba(233,200,120,.08);border-radius:8px;font-size:12px}
+</style>
+</head>
+<body>
+<h1>浅色主题 · 天地盘 A/B 对比</h1>
+<div class="sub">同一张课（示例：己卯日 寅将酉时，三传 巳·戌·卯）在 A 偏金黄 / B 偏赭褐 两套浅色下的样子。
+左边「巳」为命中态（选中环），「申」「酉」为旬空标记 —— 这两种状态在浅底上最容易糊掉，请重点看它们。</div>
+<div class="cols" id="cols"></div>
+<div class="hint">
+  <b>看盘时请重点判断三件事</b>：① 天支（大号字）在浅底上是否够清楚；② 地盘支/乘将/神煞三层小字**会不会糊成一团**；
+  ③ 选中环与旬空标记是否一眼可辨（浅色下最容易和底色混掉 ✗）。下方色表给出每格对比度实算，低于 3:1 标红即淘汰。
+</div>
+<script>
+function lum(hex){const h=hex.replace('#','');const v=[0,2,4].map(i=>parseInt(h.substr(i,2),16)/255)
+  .map(c=>c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4));return 0.2126*v[0]+0.7152*v[1]+0.0722*v[2];}
+function ratio(a,b){const l1=lum(a),l2=lum(b);return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);}
+function rc(t,b){const r=ratio(t,b);return '<span class="'+(r>=3?'ok':'bad')+'">'+r.toFixed(2)+':1</span>';}
+
+const DARK={name:'现状（深色·参照）',page:'#1A1410',pan:'#1C1A16',cell:'#211E18',line:'#6B5F45',
+  tian:'#F0D98C',di:'#A8986E',jiang:'#C4B183',ss:'#8A7B5C',kong:'#E8A483',sel:'#F0E6C8',selbg:'rgba(233,200,120,0.10)',core:'#14120F'};
+const A={name:'A 偏金黄',page:'#F2F0EB',pan:'#FBFAF7',cell:'#FFFFFF',line:'#C9C2B4',
+  tian:'#8A6A1E',di:'#6B6152',jiang:'#5A5145',ss:'#7E7565',kong:'#9A3A22',sel:'#8A6A1E',selbg:'rgba(138,106,30,0.12)',core:'#F2F0EB'};
+const B={name:'B 偏赭褐',page:'#F0EBE1',pan:'#FAF7F1',cell:'#FFFDF9',line:'#C7BEAC',
+  tian:'#7A5A28',di:'#6C604B',jiang:'#5B5040',ss:'#7C7259',kong:'#8E3A24',sel:'#7A5A28',selbg:'rgba(122,90,40,0.13)',core:'#F0EBE1'};
+
+/* 十二宫角度：午在上（-90°）顺时针 —— 与 App 天地盘同排法 */
+const ANG={午:-90,未:-60,申:-30,酉:0,戌:30,亥:60,子:90,丑:120,寅:150,卯:180,辰:210,巳:240};
+/* 示例盘（与 App 同构：天支 + 地盘宫 + 乘将 + 神煞 + 状态） */
+const CELLS=[
+  {t:'巳',d:'子',j:'玄武',s:'劫煞 亡神',sel:true},
+  {t:'午',d:'丑',j:'太常',s:'生气'},
+  {t:'未',d:'寅',j:'白虎',s:'皇书 血支'},
+  {t:'申',d:'卯',j:'天空',s:'孤辰',kong:true},
+  {t:'酉',d:'辰',j:'青龙',s:'天喜',kong:true},
+  {t:'戌',d:'巳',j:'勾陈',s:'寡宿'},
+  {t:'亥',d:'午',j:'六合',s:'成神'},
+  {t:'子',d:'未',j:'朱雀',s:'天医'},
+  {t:'丑',d:'申',j:'螣蛇',s:'游都'},
+  {t:'寅',d:'酉',j:'贵人',s:'日禄 驿马'},
+  {t:'卯',d:'戌',j:'天后',s:'岁破'},
+  {t:'辰',d:'亥',j:'太阴',s:'华盖 破碎'}
+];
+function panHTML(p){
+  const gongs=CELLS.map(c=>{
+    const a=(ANG[c.t]||0)*Math.PI/180, left=(50+38*Math.cos(a)).toFixed(2), top=(50+38*Math.sin(a)).toFixed(2);
+    return '<div class="gong'+(c.sel?' sel':'')+'" style="left:'+left+'%;top:'+top+'%;background:'+(c.sel?p.selbg:p.cell)
+      +';border-color:'+(c.sel?p.sel:p.line)+'">'
+      + '<div class="t" style="color:'+p.tian+'">'+c.t+'</div>'
+      + '<div class="d" style="color:'+p.di+'">地盘 '+c.d+'</div>'
+      + '<div class="j" style="color:'+p.jiang+'">'+c.j+'</div>'
+      + (c.kong?'<div class="kong" style="color:'+p.kong+'">旬空</div>':'<div class="s" style="color:'+p.ss+'">'+c.s+'</div>')
+      + '</div>';
+  }).join('');
+  return '<div class="pan" style="background:'+p.pan+';border-color:'+p.line+'">'+gongs
+    + '<div class="core" style="background:'+p.core+';border-color:'+p.line+'">'
+    + '<div class="k" style="color:'+p.di+'">课体</div><div class="v" style="color:'+p.tian+'">重审</div>'
+    + '<div class="k" style="color:'+p.di+'">三传</div><div class="v" style="color:'+p.jiang+'">巳·戌·卯</div>'
+    + '<div class="k" style="color:'+p.di+'">旬空</div><div class="v" style="color:'+p.kong+'">申酉</div></div></div>';
+}
+function tableHTML(p){
+  const rows=[['天支（大）',p.tian],['地盘支',p.di],['乘将',p.jiang],['神煞',p.ss],['旬空标记',p.kong],['选中环字',p.sel]];
+  return '<table>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td class="r">'+r[1]+'</td><td class="r">'+rc(r[1],p.cell)+'</td></tr>').join('')+'</table>';
+}
+document.getElementById('cols').innerHTML=[DARK,A,B].map(p=>'<div class="col"><h2>'+p.name+'</h2><div class="tag">页底 '+p.page+' · 盘底 '+p.pan+' · 宫格 '+p.cell+'</div>'+panHTML(p)+tableHTML(p)+'</div>').join('');
+</script>
+</body>
+</html>
