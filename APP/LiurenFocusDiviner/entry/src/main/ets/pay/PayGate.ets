@@ -10,7 +10,6 @@
  */
 import { common } from '@kit.AbilityKit';
 import { PayConfig } from './PayConfig';
-import type { PayProduct } from './PayConfig';
 import { PayStore } from './PayStore';
 import { IapAdapterFactory } from './IapAdapter';
 import type { IapAdapter, PurchaseResult } from './IapAdapter';

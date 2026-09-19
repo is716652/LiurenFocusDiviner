@@ -167,6 +167,40 @@ for (const f of walk(ETS)) {
 console.log('③ 运行时取色名（绘图表）：' + (rtMissing.length ? rtMissing.length + ' 处不存在' : '全部存在 ✓'));
 for (const x of rtMissing.slice(0, 10)) console.log('   ✗ ' + x.name + ' 缺于 ' + x.miss + '  ' + x.file + ':' + x.line);
 
-const fail = bad.length + onlyBase.length + onlyDark.length + rtMissing.length;
+/* ---------- 规则 ④：不得把色值藏在声明为 string 的地方 ----------
+ * 形状：`@Prop color: string = '#E9C878'` —— 这类位置**令牌化不了**（类型是 string），
+ * 也拿不到浅色值，于是浅色主题下永远是深色主题的那一档。
+ * 2026-09-18 的"初传干支看不清"就是这个形状（干支色是 Index 里算出来的 string，再当 prop 传下去）。 */
+const stringColor = [];
+for (const f of walk(ETS)) {
+  const rel = path.relative(ROOT, f).replace(/\\/g, '/').replace('APP/LiurenFocusDiviner/entry/src/main/ets/', '');
+  fs.readFileSync(f, 'utf-8').split(/\r?\n/).forEach((l, i) => {
+    if (/:\s*string\s*=\s*'(#[0-9A-Fa-f]{3,8}|rgba?\([^']*\))'/.test(l)) stringColor.push(rel + ':' + (i + 1));
+  });
+}
+console.log('④ 声明为 string 却默认色值：' + (stringColor.length ? stringColor.length + ' 处' : '无 ✓'));
+for (const x of stringColor.slice(0, 10)) console.log('   ✗ ' + x);
+
+/* ---------- 规则 ⑤：死令牌（定义了却无人引用） ----------
+ * 无用令牌会带来"二义性"：读代码的人不知道哪个才是该用的。
+ * 例外：被**配置文件**引用的令牌（如 module.json5 的 $color:start_window_background）不算死。 */
+const cfgText = (() => {
+  let t = '';
+  for (const rel of ['entry/src/main/module.json5', 'AppScope/app.json5']) {
+    const p = path.join(ROOT, 'APP/LiurenFocusDiviner/' + rel);
+    try { t += fs.readFileSync(p, 'utf-8'); } catch (e) { /* 缺文件则跳过 */ }
+  }
+  return t;
+})();
+const deadTokens = [];
+for (const name of base.keys()) {
+  if (cfgText.indexOf(name) >= 0) continue;
+  const pats = ["$r('app.color." + name + "')", "tok(res, '" + name + "')", "getColorByNameSync('" + name + "')", "'" + name + "'"];
+  let n = 0;
+  for (const f of walk(ETS)) { const t = fs.readFileSync(f, 'utf-8'); for (const p of pats) n += t.split(p).length - 1; }
+  if (n === 0) deadTokens.push(name);
+}
+console.log('⑤ 死令牌（无任何引用）：' + (deadTokens.length ? deadTokens.length + ' 个：' + deadTokens.join(', ') : '无 ✓'));
+const fail = bad.length + onlyBase.length + onlyDark.length + rtMissing.length + stringColor.length + deadTokens.length;
 console.log(fail ? '\n颜色令牌门禁：FAIL' : '\n颜色令牌门禁：PASS');
 process.exit(fail ? 1 : 0);
