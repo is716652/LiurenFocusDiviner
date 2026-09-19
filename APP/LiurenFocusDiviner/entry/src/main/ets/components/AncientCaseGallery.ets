@@ -22,7 +22,7 @@ interface ChuanRow {
   gz: string;
   jiang: string;
   lq: string;
-  color: string;
+  color: ResourceColor;
 }
 
 @Component
@@ -127,7 +127,7 @@ export struct AncientCaseGallery {
         gz: ch.sanchuan.chuans[i].gz,
         jiang: jiang,
         lq: this.liuqinOf(ch, z),
-        color: (LiurenCore.JIANG_JX[jiang] === '吉') ? '#E9C878' : '#D0704A'
+        color: (LiurenCore.JIANG_JX[jiang] === '吉') ? $r('app.color.brand_gold') : $r('app.color.brand_cinnabar')
       });
     }
     return out;

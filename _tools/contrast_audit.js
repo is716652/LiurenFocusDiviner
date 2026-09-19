@@ -63,6 +63,52 @@ function walk(dir, out) {
   return out;
 }
 
+/* ---------- 跨文件 prop 追溯（2026-09-18 补） ----------
+ * 解析 `fontColor(this.color)` 这类"父级传进来的颜色"。原先只解析 字面量 / $r() /
+ * 帮助函数 return / 本文件变量 ⇒ **跨文件传值是个静默盲点**（"初传干支看不清"就是这么漏掉的：
+ * Index 里 chuanRows() 算出 color 字段 → 当 color prop 传给 ChuanCard）。
+ * 定位交给 prop_trace.js，颜色提取仍在本文件（只有这里知道令牌表与主题）。 */
+const propTrace = require('./prop_trace');
+const FILE_TEXTS = walk(ETS_ROOT, []).map((f) => ({
+  rel: path.relative(ROOT, f).replace(/\\/g, '/'),
+  text: fs.readFileSync(f, 'utf-8')
+}));
+const PROP_CACHE = new Map();
+const PROP_UNRESOLVED = [];
+let PROP_RESOLVED = 0;
+
+/** 把"父级传入的 prop 表达式"解析成具体颜色（分层：直接值 → 帮助函数 → 数据对象字段） */
+function propColors(rel, fileText, propName) {
+  /* 缓存键**必须含主题**：令牌值随主题变，第一版只按 文件|prop 缓存，
+   * 于是深色那遍的结果被浅色那遍复用（干支显示成 #E9C878 而不是浅色的 #7E5F1A）✗ */
+  const key = THEME + '|' + rel + '|' + propName;
+  if (PROP_CACHE.has(key)) return PROP_CACHE.get(key);
+  const out = [];
+  const comp = propTrace.componentNameOf(fileText);
+  if (comp) {
+    for (const e of propTrace.propExprs({ files: FILE_TEXTS, selfRel: rel, componentName: comp, propName })) {
+      let got = candidatesOf(e.expr).map(parseColor).filter(Boolean);
+      if (!got.length) {
+        /* L3：this.helper(...) 的 return 值（在被调用方文件里找） */
+        got = helperReturnColors(e.fileText.split(/\r?\n/), e.expr).map(parseColor).filter(Boolean);
+      }
+      if (!got.length) {
+        /* L4：this.fn()[i].field → 进 fn 体内找 field 的赋值 */
+        const m = e.expr.match(/this\.([A-Za-z_$][\w$]*)\s*\([\s\S]*?\)[\s\S]*?\.([A-Za-z_$][\w$]*)/);
+        if (m) {
+          for (const v of propTrace.fieldValues(e.fileText, m[1], m[2])) {
+            got = got.concat(candidatesOf(v).map(parseColor).filter(Boolean));
+          }
+        }
+      }
+      if (got.length) { out.push(...got); PROP_RESOLVED++; }
+      else PROP_UNRESOLVED.push(rel + ' 的 ' + propName + ' ← ' + e.fileRel + ' 传 ' + e.expr.slice(0, 60));
+    }
+  }
+  PROP_CACHE.set(key, out);
+  return out;
+}
+
 /* ---------- 颜色计算 ---------- */
 function parseColor(s) {
   const v = String(s).trim();
@@ -315,14 +361,26 @@ const files = walk(ETS_ROOT, []).filter((f) => !fileFilter || f.indexOf(fileFilt
 const asJson = process.argv.includes('--json');
 const THEMES_TO_RUN = THEME_ARG === 'both' ? ['dark', 'base'] : [THEME_ARG];
 
-/* 前景色候选：字面量 **或** 令牌 **或** 帮助函数（升级后帮助函数 return 的也是令牌） */
-const FG_RE = /fontColor\(\s*(?:'(#[0-9A-Fa-f]{3,8}|rgba?\([^']*\))'|\$r\('app\.color\.([A-Za-z0-9_]+)'\)|(this\.[A-Za-z_][A-Za-z0-9_]*\s*\([^)]*\)))/;
-function fgColorsOfLine(lines, line) {
+/* 前景色候选：字面量 / 令牌 / 帮助函数 return / **`this.<prop>`（跨文件追溯）**
+ * 顺序要紧：`this.fn(` 这种带括号的要排在裸 `this.x` 前面，否则会被前者吃掉一半。 */
+const FG_RE = /fontColor\(\s*(?:'(#[0-9A-Fa-f]{3,8}|rgba?\([^']*\))'|\$r\('app\.color\.([A-Za-z0-9_]+)'\)|(this\.[A-Za-z_][A-Za-z0-9_]*\s*\([^)]*\))|(this\.[A-Za-z_][A-Za-z0-9_]*))/;
+function fgColorsOfLine(lines, line, ctx) {
   const m = line.match(FG_RE);
   if (!m) return [];
   if (m[1]) { const c = parseColor(m[1]); return c ? [c] : []; }
   if (m[2]) { const v = TOK.get(m[2]); const c = v ? parseColor(v) : null; return c ? [c] : []; }
   if (m[3]) return helperReturnColors(lines, m[3]).map(parseColor).filter(Boolean);
+  if (m[4] && ctx) {
+    /* 只有**参数整体就是** `this.<name>` 时才当作"跨文件传入的颜色"去追溯。
+     * 第一版没这个限制：`fontColor(this.highlight ? $r(A) : $r(B))` 里的 this.highlight 被当成
+     * 整个参数、于是去追溯一个**布尔** prop，得到 10 条"无法解析"的噪音（highlight/active/…）✗ */
+    if (/fontColor\(\s*this\.[A-Za-z_][A-Za-z0-9_]*\s*\)/.test(line)) {
+      return propColors(ctx.rel, ctx.text, m[4].replace(/^this\./, ''));
+    }
+    /* 更长的表达式（三元等）：按表达式取色值并集 —— 保守（取最差对比度），也比跳过强 */
+    const arg = (line.match(/fontColor\(([^)]*)\)/) || [])[1] || '';
+    return candidatesOf(arg).map(parseColor).filter(Boolean);
+  }
   return [];
 }
 
@@ -361,17 +419,48 @@ function worstWith(fgList, bgList) {
   return worst;
 }
 
+/* 字号令牌表（供"大字阈值"判定）：float.json 里 name → fp 数值 */
+const FLOAT = (() => {
+  const m = new Map();
+  try {
+    const p = path.join(ROOT, 'APP/LiurenFocusDiviner/entry/src/main/resources/base/element/float.json');
+    for (const t of JSON.parse(fs.readFileSync(p, 'utf-8')).float) {
+      const v = String(t.value).match(/^([\d.]+)fp$/);
+      if (v) m.set(t.name, Number(v[1]));
+    }
+  } catch (e) { /* 缺文件则不判大字，一律按正文阈值（更严） */ }
+  return m;
+})();
+
+/** 该文字站点是否"大字号"（WCAG：≥24fp；或 ≥18.66fp 且粗体）⇒ 阈值 3:1 而非 4.5:1 */
+function isLargeText(lines, i, indent) {
+  let size = 0, bold = false;
+  for (let j = i; j < lines.length; j++) {
+    const l = lines[j];
+    if (l.trim() === '') continue;
+    if (indentOf(l) !== indent || !l.trim().startsWith('.')) break;
+    const ms = l.match(/fontSize\((\d+(?:\.\d+)?)\)/);
+    if (ms) size = Number(ms[1]);
+    const mt = l.match(/fontSize\(\$r\('app\.float\.([A-Za-z0-9_]+)'\)\)/);
+    if (mt && FLOAT.has(mt[1])) size = FLOAT.get(mt[1]);
+    if (/fontWeight\(\s*FontWeight\.(Bold|Bolder|Medium|Heavy)\s*\)/.test(l)) bold = true;
+    if (/fontWeight\(\s*FontWeight\.(Normal|Regular|Lighter)\s*\)/.test(l)) bold = false;
+  }
+  return size >= 24 || (bold && size >= 18.66);
+}
+
 const perTheme = new Map();
 for (const theme of THEMES_TO_RUN) {
   THEME = theme; TOK = TOKENS[theme];
   const findings = [], nonText = [], decoration = [];
   for (const f of files) {
     const lines = fs.readFileSync(f, 'utf-8').split(/\r?\n/);
+    const ctx = { rel: path.relative(ROOT, f).replace(/\\/g, '/'), text: lines.join('\n') };
     const blocks = lightBlocks(lines);
     const builders = builderIndex(lines, blocks);
     for (let i = 0; i < lines.length; i++) {
       /* ---- 文字（4.5:1） ---- */
-      const fgs = fgColorsOfLine(lines, lines[i]);
+      const fgs = fgColorsOfLine(lines, lines[i], ctx);
       if (fgs.length) {
         const ind = indentOf(lines[i]);
         if (trace && path.basename(f) + ':' + (i + 1) === trace) {
@@ -387,10 +476,16 @@ for (const theme of THEMES_TO_RUN) {
           : (light ? [light] : (res.resolved ? res.colors : [WORST[theme]]));
         const worst = worstWith(fgs, cands);
         if (!worst) continue;
+        /* 阈值按字号分档（与项目规范一致：**正文 ≥4.5:1、图标/标题 ≥3:1**）。
+         * 不区分大小字会把"干支"这种 fs_title 粗体的大字误判违规 —— 本工具第一版就一律按 4.5 卡，
+         * 追溯能力一上线就报出一条假阳性（ChuanCard 干支 4.26:1，其实按大字 3:1 是达标的）。 */
+        const big = isLargeText(lines, i, ind);
+        const need = big ? 3 : 4.5;
         findings.push({
           file: path.basename(f), line: i + 1, fg: worst.fgHex,
-          context: res.self ? '元素自身' : (light ? '浅底' : (res.resolved ? '深底' : '深底-推断')),
-          below45: worst.contrast < 4.5, below3: worst.contrast < 3, worst
+          context: (res.self ? '元素自身' : (light ? '浅底' : (res.resolved ? '深底' : '深底-推断'))) + (big ? '（大字）' : ''),
+          need,
+          below45: worst.contrast < need, below3: worst.contrast < 3, worst
         });
       }
       /* ---- 非文字（3:1，只卡有语义的） ---- */
@@ -454,5 +549,10 @@ for (const theme of THEMES_TO_RUN) {
     }
   }
 }
+
+/* 跨文件 prop 传色的追溯情况：把"看不见的盲点"变成可见清单（而不是静默跳过） */
+console.log('\n跨文件 prop 传色：解析成功 ' + PROP_RESOLVED + ' 处（双主题合计，已计入上面判定）'
+  + '；无法解析 ' + new Set(PROP_UNRESOLVED).size + ' 处');
+for (const u of [...new Set(PROP_UNRESOLVED)].slice(0, 10)) console.log('  ⚠ 无法解析：' + u);
 
 process.exit(anyBad ? 1 : 0);
