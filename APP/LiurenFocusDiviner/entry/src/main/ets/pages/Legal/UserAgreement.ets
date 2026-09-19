@@ -1,3 +1,4 @@
+import { curves } from '@kit.ArkUI';
 /**
  * UserAgreement —— 用户协议页（墨夜鎏金深色，与本项目风格一致）
  * 路由：由 Splash/Index 底部链接 pushUrl 进入，返回用 router.back()
@@ -5,6 +6,16 @@
 @Entry
 @Component
 struct UserAgreementPage {
+  /* 页面转场：淡入淡出 + 弹簧曲线（应用市场自检建议）。
+     只声明 opacity —— 不写 slide/translate，故不产生左右平移或上下位移；
+     Push / Pop 两个方向都显式声明（默认 RouteType.None 不保险）。 */
+  pageTransition() {
+    PageTransitionEnter({ type: RouteType.Push, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionExit({ type: RouteType.Push, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionEnter({ type: RouteType.Pop, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionExit({ type: RouteType.Pop, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+  }
+
   build() {
     Column() {
       /* 顶部栏 */

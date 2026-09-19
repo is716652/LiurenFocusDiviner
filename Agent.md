@@ -293,7 +293,15 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 ## 8. 发布记录（新 → 旧）
 
 - **1.0.5 / 1000005（待提交，2026-09-19 出包）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
-  （1,576,919 字节，sha256 `BF144287C7EF7A2DBB02534FBC3C4D65DE7FAE954D37D6EC6BA72022D0E505E8`）。
+  （1,579,220 字节，sha256 `A48CBC794D570FC55FE809EA1755793EDCB037089B5CE2E9B1092271BE46C74F`）。
+  **第二包自检又提一条 → 已修 → 再出**：页面转场被点名「建议使用系统转场，页面转场采用淡入淡出，
+  不应单帧直接切换、左右平移或上下位移，曲线优先使用弹簧曲线」。
+  根因：7 个 `@Entry` 页面原先**都没声明 `pageTransition`** ⇒ 走系统默认（左右平移）。
+  修法：每个页面统一声明 `pageTransition()` —— `PageTransitionEnter/Exit`（Push 与 Pop 各一对，
+  「duration 260」）**只声明 `.opacity(0)`**（不写 slide/translate/scale ⇒ 无位移），
+  曲线用 `curves.springCurve(0.6, 1, 320, 34)`；并新增门禁 `_tests/_test_page_transition.js`
+  （逐个 @Entry 页面校验：必须声明转场、必须用 opacity、不得出现位移/缩放、曲线必须是弹簧曲线；
+  两条变异均已验证会报警）。
   **首包自检失败 → 已修 → 重出**：首包（1,576,985 / `A9D950D9…408F`）被应用市场自检判"状态栏图标被深色挡住"。
   根因是 `ThemeStore` 取色走 `win.getUIContext().getHostContext()`，而它在 `onWindowStageCreate`
   （`loadContent` 之前）拿不到 host context → 异常被吞 → `statusBarContentColor` 回落成深色 ⇒ 深底深图标。

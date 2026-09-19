@@ -44,6 +44,7 @@ import { PanDisk } from '../components/PanDisk';
 import { TagBadge } from '../components/TagBadge';
 import { YongShenSheet } from '../components/YongShenSheet';
 import { goTab } from '../model/NavUtil';
+import { curves } from '@kit.ArkUI';
 
 const MIN_YEAR: number = 1900;
 const MAX_YEAR: number = 2060;
@@ -1915,6 +1916,16 @@ struct Index {
   }
 
   /* ============================ 根布局 ============================ */
+
+  /* 页面转场：淡入淡出 + 弹簧曲线（应用市场自检建议）。
+     只声明 opacity —— 不写 slide/translate，故不产生左右平移或上下位移；
+     Push / Pop 两个方向都显式声明（默认 RouteType.None 不保险）。 */
+  pageTransition() {
+    PageTransitionEnter({ type: RouteType.Push, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionExit({ type: RouteType.Push, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionEnter({ type: RouteType.Pop, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionExit({ type: RouteType.Pop, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+  }
 
   build() {
     /* 单页结果台：页头(PageHeader 统一胶囊) + 排盘内容 + 结果区 */

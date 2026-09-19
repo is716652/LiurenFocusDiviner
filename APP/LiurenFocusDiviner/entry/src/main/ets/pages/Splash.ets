@@ -5,7 +5,7 @@
  *  - 字号按 densityPixels 放大（Canvas px 为物理像素，高密度屏必须换算）
  * 点击「进入」→ pages/Index
  */
-import { display } from '@kit.ArkUI';
+import { display, curves } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { PayGate } from '../pay/PayGate';
 
@@ -40,6 +40,16 @@ struct Splash {
     if (this.timer > 0) {
       clearInterval(this.timer);
     }
+  }
+
+  /* 页面转场：淡入淡出 + 弹簧曲线（应用市场自检建议）。
+     只声明 opacity —— 不写 slide/translate，故不产生左右平移或上下位移；
+     Push / Pop 两个方向都显式声明（默认 RouteType.None 不保险）。 */
+  pageTransition() {
+    PageTransitionEnter({ type: RouteType.Push, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionExit({ type: RouteType.Push, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionEnter({ type: RouteType.Pop, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionExit({ type: RouteType.Pop, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
   }
 
   build() {
