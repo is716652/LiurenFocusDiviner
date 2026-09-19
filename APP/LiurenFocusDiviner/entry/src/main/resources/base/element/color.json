@@ -289,14 +289,6 @@
       "value": "#143F6F63"
     },
     {
-      "name": "pan_bg",
-      "value": "#FBFAF7"
-    },
-    {
-      "name": "pan_cell",
-      "value": "#FFFFFF"
-    },
-    {
       "name": "pan_cinnabar",
       "value": "#9A3A22"
     },
@@ -307,10 +299,6 @@
     {
       "name": "pan_di",
       "value": "#6B6152"
-    },
-    {
-      "name": "pan_jiang",
-      "value": "#5A5145"
     },
     {
       "name": "pan_kong",
@@ -329,20 +317,8 @@
       "value": "#949A7A2A"
     },
     {
-      "name": "pan_sel",
-      "value": "#7A5C18"
-    },
-    {
       "name": "pan_sel_bg",
       "value": "#1F8A6A1E"
-    },
-    {
-      "name": "pan_ss",
-      "value": "#7E7565"
-    },
-    {
-      "name": "pan_tian",
-      "value": "#7A5C18"
     },
     {
       "name": "start_window_background",
