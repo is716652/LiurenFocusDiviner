@@ -1,7 +1,9 @@
 /**
  * ChuanCard —— 三传单卡
  * pos=初/中/末；gz=遁干+地支；jiang=天将；lq=六亲；color=主色
- * highlight=true：初传醒目标记（金边框+亮背景+★）
+ * 四张三传卡**外观统一**（2026-09-18 去掉初传的"金边框+亮背景+★"特殊标记：
+ * 用户反馈已无必要，且金色淡底会把凶将朱砂文字的对比度压到 3.1:1 导致干支看不清）。
+ * color=干支主色（资源令牌：吉=brand_gold / 凶=brand_cinnabar）
  */
 @Component
 export struct ChuanCard {
@@ -9,15 +11,16 @@ export struct ChuanCard {
   @Prop gz: string = '';
   @Prop jiang: string = '';
   @Prop lq: string = '';
-  @Prop color: string = '#E9C878';
-  @Prop highlight: boolean = false;
+  @Prop color: ResourceColor = $r('app.color.brand_gold');
   /* 关键标注：如 马/空/鬼；空串不显示 */
   @Prop mark: string = '';
+  /* 交互高亮：案卷页点用神时高亮对应传（不再换底色，只加粗标题与边框） */
+  @Prop highlight: boolean = false;
 
   build() {
     Column({ space: 3 }) {
       Row() {
-        Text((this.highlight ? '★ ' : '') + this.pos)
+        Text(this.pos)
           .fontSize($r('app.float.font_caption_l'))
           .fontColor(this.highlight ? $r('app.color.brand_gold_bright') : $r('app.color.ink_text_secondary'))
           .fontWeight(this.highlight ? FontWeight.Bold : FontWeight.Normal)
@@ -47,7 +50,7 @@ export struct ChuanCard {
     .width('100%')
     .padding({ top: 10, bottom: 10, left: 4, right: 4 })
     .borderRadius(12)
-    .backgroundColor(this.highlight ? $r('app.color.overlay_gold_mid') : $r('app.color.ink_surface'))
+    .backgroundColor($r('app.color.ink_surface'))
     .border({ width: this.highlight ? 1.5 : 1, color: this.highlight ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_gold_mid') })
   }
 }

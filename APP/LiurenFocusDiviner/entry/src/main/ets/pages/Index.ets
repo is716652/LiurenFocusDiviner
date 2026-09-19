@@ -56,7 +56,7 @@ interface ChuanRow {
   gz: string;
   jiang: string;
   lq: string;
-  color: string;
+  color: ResourceColor;
   /* 小标注：空亡传支标「空」（1–2 字） */
   mark: string;
 }
@@ -864,7 +864,7 @@ struct Index {
       const z = chuans[i].z;
       const jiang = this.jiangOf(z);
       const lq = this.liuqinOf(z);
-      const color = (LiurenCore.JIANG_JX[jiang] === '吉') ? '#E9C878' : '#D0704A';
+      const color: ResourceColor = (LiurenCore.JIANG_JX[jiang] === '吉') ? $r('app.color.brand_gold') : $r('app.color.brand_cinnabar');
       /* 空亡传支标「空」：旬遁下该支本旬无干，gz 只余地支，此处补上标记 */
       const mark = (c.dx.xunkong.indexOf(z) >= 0) ? '空' : '';
       out.push({ pos: posNames[i], gz: chuans[i].gz, jiang: jiang, lq: lq, color: color, mark: mark });
@@ -1206,8 +1206,7 @@ struct Index {
             shang: this.kegRows()[2].keg.x, jiang: this.jiangOf(this.kegRows()[2].keg.x) })
             .layoutWeight(1)
           KegCard({ kn: this.kegRows()[3].kn, xia: this.kegRows()[3].keg.s,
-            shang: this.kegRows()[3].keg.x, jiang: this.jiangOf(this.kegRows()[3].keg.x),
-            highlight: true })
+            shang: this.kegRows()[3].keg.x, jiang: this.jiangOf(this.kegRows()[3].keg.x) })
             .layoutWeight(1)
         }
         .width('100%')
@@ -1235,7 +1234,7 @@ struct Index {
         Row({ space: 8 }) {
           ChuanCard({ pos: this.chuanRows()[0].pos, gz: this.chuanRows()[0].gz,
             jiang: this.chuanRows()[0].jiang, lq: this.chuanRows()[0].lq, color: this.chuanRows()[0].color,
-            mark: this.chuanRows()[0].mark, highlight: true })
+            mark: this.chuanRows()[0].mark })
             .layoutWeight(1)
           ChuanCard({ pos: this.chuanRows()[1].pos, gz: this.chuanRows()[1].gz,
             jiang: this.chuanRows()[1].jiang, lq: this.chuanRows()[1].lq, color: this.chuanRows()[1].color,
