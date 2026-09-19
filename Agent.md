@@ -1,1273 +1,392 @@
-# Agent.md —— LargeLiuRen Design 项目交接与实施手册
+# Agent.md —— LargeLiuRen Design 操作手册（当前态）
 
-> 写给后续 AI / 开发者：先读这份，再动代码。  
-> 最近更新：2026-09-13（引擎组件化 → 读数装配收口「引擎出数 / App 出呈现」→ 真机反馈修复 → 发布链路加固）  
-> 本文档更新前 main HEAD：`cddd1e0 工程链路加固：免费版同步的单一真源 + 打包门禁前置`
+> 写给后续 AI / 开发者：**先读这份，再动代码**。
+> 最近更新：2026-09-19（浅色主题与令牌体系落地 → 门禁扩到 45 项 → 1.0.5 出包）
+> 本文档更新前 main HEAD：`2ba22f3 发布：1.0.5 出包记录与归档命名缺陷`
 
----
-
-## 1. 项目定位
-
-这是一个 **HarmonyOS 大六壬研习 App** 工程，核心目标：
-
-- 免费版：完整开放、零权限、无联网、无 IAP 痕迹、无“锁定/会员/解锁”诱导。
-- 付费版（以后）：只能做 **新增增量**，**绝不锁免费版已有功能**。
-- 内容方向：从“起盘工具”升级为“古籍案例研读库”：不是给几句断语，而是还原古人如何由课传证据推出断语。
-
-当前重点：
-
-- 免费版已上架（2026-09-05 早上定时上架，初期零下载属正常）。
-- 已上架商店素材先不动；新截图只作下一版备用，不重新提交。
-- 主线最近在做：中黄天地盘 UX v1（常遁/中黄、双干同宫、身/变/传、点宫宫情）。
-
-发布包位置（2026-09-15 更新）：
-
-- **历史在架版（1.0.3 / 1000003，2026-09-11 上架 → 2026-09-16 被 1.0.4 取代）**：提审包归档为
-  `APP/release_pkg/archive/LiurenFocusDiviner-free-release-signed-1.0.3-20260910.app`
-  （1,574,345 字节，SHA256 `3E55D6CA4A847DCB4F4F2D1E9117EEF8F635B85374E2DF73600FDA5D966B500E`）。
-  在架版**已含**中黄天地盘 UX（1.0.2 起）、十二天将顺逆修正、柔日昴星修正、遁干改旬遁（空亡可见）；
-  案例鉴赏在免费包中始终隐藏（`SHOW_ANCIENT_CASE_GALLERY=false`），收费块数据自 1.0.4 起不再随免费包分发。
-- **历史在架版（1.0.1 / 1000001，2026-08-26 上架 → 2026-09-11 被 1.0.3 取代）**：归档
-  `…-1.0.1-onshelf-20260826.app`（1,481,472 字节）。该版**没有中黄、没有案例鉴赏**，
-  且含天将/昴星/遁干修正前的错误口径（1.0.3 起已修正）。
-- **待提交版（1.0.5 / 1000005；2026-09-19 出包，尚未提交审核）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
-  （1,576,985 字节，sha256 `A9D950D997F2575AC500EE702FB9B317252789C860D478396441AE38D376408F`）；
-  出包流水线四项均过：前置 `verify_free_edition.py` PASS → `assembleApp` 签名包 → `verify-app success` → 包级 `verify_app_pkg.py` 16/16 PASS。
-  源码锚点：tag `v1.0.5-packaged`（提交审核时应另打 `v1.0.5-submitted`）。
-  本版内容要点：浅色主题（`base` 浅色值 81 个令牌，双主题对比度 0 违规）＋ 天地盘画布改为运行时按令牌取色 ＋
-  主题开关（偏好持久化，**默认深色**，系统栏跟随）＋ 排盘「初传/第一课」特殊背景移除（原设计导致干支对比度 3.1:1）＋
-  颜色令牌门禁六条规则（全部变异验证）＋ 无用 import 门禁 ＋ 对比度门禁跨文件 prop 追溯；引擎（`core/`）与 1.0.4 逐字节一致。
-  ⚠ 出包脚本 `sign_release.py` 的归档步骤把**上一个包**贴上了**当前版本号**的标签（本次把在架 1.0.4 包归档成 `…-1.0.5-20260913-1800.app`）——
-  已核验字节相同（sha256 均为 `26BC3317…930E5`）并删除该误导副本；**脚本这个命名缺陷待修**（应标上一个包的版本，而不是当前版本）。
-- **在架版（1.0.4 / 1000004；2026-09-15 提交 → 2026-09-16 审核通过并上架）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
-  （**1,559,532 字节**，2026-09-13 18:00 构建，SHA256 `26BC331775920FCC394ECA2722BED67538A3E4CD9C222E038C25ED11D30930E5`，
-  `verify-app success`；包内 versionName=1.0.4、versionCode=1000004、requestPermissions=0，
-  `python _tools/verify_app_pkg.py` 16 项全过）。**2026-09-16 审核通过并上架**（取代 1.0.3）；**商店素材与文案未动**。
-  提交时的源码状态锚点：tag `v1.0.4-submitted`（此后仅有文档与 `_tools` 变更，App 源码与该包一致）。
-  上架锚点：tag `v1.0.4-onshelf`；在架包归档
-  `APP/release_pkg/archive/LiurenFocusDiviner-free-release-signed-1.0.4-onshelf-20260916.app`（与 generic 名逐字节一致）。
-  审核若出问题需快速修：以该 tag 为基准做最小改动，再走 `_ets_pipeline` → 两版构建 → `sign_release.py free`。
-- **1.0.4 相对在架 1.0.3 的增量**：三传（九宗门）按规范重写 + 涉害改「孟仲季优先」、页签导航修复
-  （1.0.3 审核意见第 2 条）、免费包剔除收费块数据、毕法展开排版修复、空态与数据健康徽标/自检、
-  点宫速查卡 + 助日缘由、点盘不再自动弹用神面板、合规措辞整改；**内在**为统一真源 + 组件化 + 链路加固。
-  逐版边界与依据提交见 `鸿蒙规范文档/商店页文案与截图清单.md` §18.9；提交文案定稿见 §18.10。
-- 本版本历次切刀归档（命名 `…-1.0.4-YYYYMMDD-HHMM.app`）：
-  `…-1357.app`（1,559,616）→ `…-1405.app`（1,559,657 / `2D98057B…98751`）→
-  `…-1606.app`（1,559,429 / `78EEF0EF…502FC`）→ `…-1800.app`（1,559,532 / `26BC3317…930E5`）。
-  **例外（如实登记）**：16:38 那一刀（1,559,518 / `B6C89DB1…0B9FB7`）**未被归档** ——
-  当时归档靠手工、漏了，随即被下一次出包覆盖。已由 `sign_release.py` 的「覆盖前自动归档」堵住（§17）。
-- 案例鉴赏在两版免费包中都隐藏（`FeatureFlags.SHOW_ANCIENT_CASE_GALLERY=false`）；案例库 45 案与证据链升级只影响主版。
+**这份文档只描述"当前是什么、怎么改、怎么验"。** 历史迁移过程（引擎组件化怎么从单体切出来、
+早期版本怎么一步步演进）已按用户要求删除 —— 需要考古请看 git 历史与 tag（`v1.0.4-pre-componentize`、
+`pre-visual-token-20260916` 等）。
 
 ---
 
-## 2. 硬纪律（必须遵守）
+## 0. 怎么用这份文档
 
-1. **已上架包与商店资料不要动**
-   - 不撤回、不重提、不换包、不改后台版本信息。
-   - 已上架 8 张截图继续使用；新处理截图仅归档备用。
-   - 商店素材变更也可能触发资料审核；无必要不提交。
+| 你要做的事 | 看哪一节 |
+|:--|:--|
+| 改引擎算法 / 排盘读象 | §2.1（真源在 `core/liuren/**`，产物勿手改）+ §3（改完跑唯一入口） |
+| 改规则表 / 古籍数据 | §2.2 |
+| 改配色 / 加主题 | §2.3 + §7（令牌与对比度硬规则） |
+| 改 UI / 组件 | §3.2（UI 类门禁）+ §7（不得写死色值） |
+| 改完主版要出包 | §4（先同步免费版！）+ §5 + §6 |
+| 遇到诡异现象 | §9（常见坑，都是踩过的） |
 
-2. **版本号（2026-09-10 起）**
-   - 当前记录：`versionName=1.0.2` / `versionCode=1000002`（因算法修正升版，用户确认后执行）。
-   - 在架：`1.0.4` / `1000004`（2026-09-16 上架）；**下一版版号待定**（升级只在主版 `AppScope/app.json5` 改，免费版由 sync 生成）。除发版外不要随手 bump；升版只在主版 `AppScope/app.json5` 改，免费版由 sync 脚本生成。
-
-3. **免费版由脚本生成，不手改免费版当源头**
-   - 主版源头：`APP/LiurenFocusDiviner`
-   - 免费版生成：`python _tools/sync_free_edition.py`
-   - 免费版校验：`python _tools/verify_free_edition.py`
-
-4. **合规口径**
-   - 确定性断语统一降级为：`古籍云 / 古籍谓 / 按九宗门法 / 传统文化研习参考`。
-   - 医疗、法律、投资、仕途、生死内容必须带“非现实判断/非医疗法律投资建议”。
-   - 免费版不得出现 `付费/解锁/会员/VIP/价格/购买` 等可见字样。
-
-5. **遁干口径（2026-09-10 起）**
-   - 三传/盘面天干**默认「旬遁」**（传统层）；旬外二支为旬空、本旬无干 → **留空**，由三传卡打「空」标；
-   - 中黄模式另起「时干遁」（中黄·用，用于判断的那一套）上盘；日干遁(体)用于天将基准与今日建合，见点宫宫情条与建合检测；
-   - 依据：《六壬集成五要权衡·遁干》「须用旬遁……旬遁方有空亡……若用时遁无空亡」；
-   - 案例库 `expect.chuanGz` 默认按旬遁校验，个案可用 `dunKouJing: "rigan"` 声明按日干遁（如中黄经文13）。
-
-6. **古籍案例入库原则**
-   - 先用核心排盘复算，再写 `expect`。
-   - `expect` 强校验以程序可复核项为主：四课、三传、遁干、旬空、旺衰、月令、宗门、中黄。
-   - 天将 `chuanJiang` 只在传本与程序一致时强校验。
-   - 传本与程序不一致时，不强合，写入“存疑对读”。
+**唯一入口是 `node _tools/check_all.js`。** 不要凭记忆挑门禁跑。
 
 ---
 
-## 3. 免费版 / 收费版边界（已修正）
+## 1. 这个 App 是什么
 
-### 免费版当前真实策略
+**大六壬排盘与读象**（墨底金文风格）。核心功能：
 
-以 `_tools/sync_free_edition.py` 为准：
+- **排盘**：天地盘（画布绘制：天将 / 天盘支 / 遁干 / 地盘支 / 中心月将）、四课、三传、课体、旬空标记、用神高亮。
+- **读象**：以干支生克与课传结构出"读象清单"，引擎出数、App 出呈现（见 §7.5）。
+- **毕法赋教练**：一百法逐条对照、课体判定、差在哪。
+- **古籍案例库**：原文 + 复算对照 + 「一局多占」剧情推演（剧情数据见 §2.2）。
+- **中黄天地盘**：时干 → 变干 → 落宫的旁证链（含两遁对照）。
+- **数据健康**：规则表缺失/未加载会明说，不静默（见 §7.5）。
 
-- `PayConfig.MODE='free'`
-- 免费版同步后 `PREVIEW_FREE=false`：**全功能开放、无锁、无付费痕迹**
-- 免费版同步后 `SHOW_ANCIENT_CASE_GALLERY=false`：**只隐藏古籍案例鉴赏入口**
-- 无 `requestPermissions`
-- 无 `INTERNET`
-- 无 `permission_internet_reason`
-- 无可见锁 UI；免费版 `PayGate.isUnlocked()` 视为 true
+### 两个版本（差异只有 5 条规则，见 §4）
 
-重要修正：
-
-- **中黄开关、常遁/中黄、身/变/传、古籍研习不是免费版禁用项**。只要当前免费包真实可见，商店图可以如实展示。
-- 免费版不能展示：古籍案例鉴赏入口、证据链/异断对读等未开放内容、任何付费暗示。
-
-### 安装与共存（2026-09-10 确认）
-
-- 两个工程 `bundleName` 相同（`cn.is716652.LiurenFocusDiviner`）：**同机不能共存，后装覆盖先装**；商店视角是同一应用走版本升级。
-- 用户自己手机装的是**主版**（通过 DevEco 手动安装，无需 hdc 代劳）；想对比免费版效果时自行换装即可，切换成本低。
-- 免费/收费的唯一分界目前是 `FeatureFlags.SHOW_ANCIENT_CASE_GALLERY` 编译期常量；将来接 IAP 时把它换成购买态决定，路径已预留。
-- 本机工具链：hdc 在 `D:\HarmonyOS\command-line-tools-6.1.1-release\sdk\default\openharmony\toolchains\hdc.exe`，可用于装包/截图/日志；但用户优先 DevEco 手动安装。
-
-### 收费版（以后）
-
-原则：
-
-- 只做新增增量；
-- 不锁免费已有功能；
-- 若中黄/抓用神/毕法等在免费版已开放，付费版不得回收；
-- 付费增量优先方向：古籍案例鉴赏、证据链、异断对读、共识带；
-- 付费页/购买态等免费版正式上线稳定后再做。
-
----
-
-## 4. 目录结构与职责
-
-### 根目录
-
-- `core/liuren/**`：大六壬核心 TypeScript **真源**（`facade.ts` 门面 + 各模块；组件化见 §13）。
-- `core/liuren-core.ts`：**装配产物**，由 `node _tools/build_core.js` 拼装生成，**勿手改**。
-- `core/liuren-core.js`：由 TS 编译出的单一 JS 产物，用于 Node 测试与 Web 端加载。
-- `_tests/`：核心与案例反验脚本。
-- `_tools/`：免费版生成/校验等工程脚本。
-- `鸿蒙规范文档/`：合规、上架、文案落地记录。
-- `大六壬文档/壬占汇选/`：古籍源文档与提取笔记。
-- `大六壬文档/中黄五变经/`：中黄经文、研读整理、算法笔记。
-- `APP/`：HarmonyOS 工程。
-
-### APP 目录
-
-- `APP/LiurenFocusDiviner/`：主版（含古籍案例鉴赏入口；未来收费研习内容在这里先做）。
-- `APP/LiurenFocusDivinerFree/`：免费版生成产物；**不要手改**。
-
-关键文件：
-
-- `APP/LiurenFocusDiviner/entry/src/main/ets/model/LiurenCore.ets`：ArkTS 核心门面（**生成产物**），
-  与 `core/liuren-core.js` 同构；其实现分散在 `model/pan/*.ets` 与 `model/{bifa,zhonghuang}.ets`，
-  两侧统一由 `core/liuren/**` 重建（§9）。
-- `APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets`：数据结构与 rawfile 加载。
-- `APP/LiurenFocusDiviner/entry/src/main/resources/rawfile/ancient/case_gallery.json`：古籍案例库（当前 **45 案**）。
-- `APP/LiurenFocusDiviner/entry/src/main/ets/components/PanDisk.ets`：天地盘绘制（中圈单干：旬遁/时干遁；含身/变/传标记）。
-- `APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets`：主排盘页（含中黄宫情条）。
-- `APP/LiurenFocusDiviner/entry/src/main/ets/components/AncientCaseGallery.ets`：案例鉴赏 UI。
-- `APP/LiurenFocusDiviner/entry/src/main/ets/components/YongShenSheet.ets`：抓用神弹层（迷你盘后续只标变干）。
-- `APP/LiurenFocusDiviner/entry/src/main/ets/components/AncientStudy.ets`：古籍文本盘（保持原文，后续只加今盘对照）。
-- `APP/LiurenFocusDiviner/entry/src/main/ets/entryability/EntryAbility.ets`：窗口全屏/安全区设置。
-- `APP/LiurenFocusDiviner/entry/src/main/ets/FeatureFlags.ets`：免费版隐藏案例鉴赏入口。
-
----
-
-## 5. Git 情况
-
-- 远程：`git@github.com:is716652/LiurenFocusDiviner.git`
-- 分支：`main`
-- 本文档更新前 HEAD：`cddd1e0`
-
-最近关键提交线（新在上）：
-
-- `cddd1e0` 发布链路加固：免费版同步单一真源（`sync_free_edition.py --check`）+ 打包门禁前置与覆盖前自动归档
-- `a7fe9e9` 真机反馈修复：宫情卡 `ForEach` 键改内容派生（换宫不刷新）+ 点盘不再自动弹抓用神
-- `865be4f` 读数装配收口：引擎单一真源，App 只呈现（删 App 侧 `ReadXiang.ets`/`ReadXiangData.ets` 与摊平层）
-- `3df187c` / `22869a5` 速查卡行装配收回引擎（`readXiangCard` + R7/R8 断言）与「接口用点、Record 用括号」修形
-- `a9d4acd` 点宫速查卡（远景→中景→近景→气机点→收梢）+ 助日「为什么助」ArkTS 侧走通
-- `984dd58` / `6cb895e` 读象读数接线（气机点×qiJi / 空亡三态 / 助日缘由）+ 产物按流水线归一
-- `1810c2f` / `e8de5ab` 合规措辞门禁（C1 八字语汇 / C2 算命占卜类词 / C3 出处纪律）与三处整改
-- `24dda56` / `40b6629` web 原型十二宫定位修复 + 速查卡「原文」对比度达标（配色门禁所抓）
-- `8fa7cde` 读象数据覆盖度与内容鉴定报告（11 份文档 × 14 张表）
-- `621e2be` 中黄五变经 5 案补全 reasoning 证据链
-- `eafc71e` 案例按来源日课分组并支持占类筛选
-- `734aba1` 壬占汇选戊辰日入库（安全 tag 前）
-- `a33123a` 正名常遁/中黄并修变干乘将与参证口吻
-- `1741e15` 主天地盘中黄双干同宫与身变传宫情
-- `e114f9b` 中黄身变传分色并加图例说明
-- `726b7a3` 拉开中黄变传标记间距
-- `30baa52` 下一版商店页文案与截图清单
-- `79e9ca2` 修正免费版中黄可见边界
-
-安全回退点：
-
-- tag：`pre-zhonghuang-pandisk-20260828` at `734aba1`
-- 如需回退主盘 v1：`git reset --hard pre-zhonghuang-pandisk-20260828`（untracked 文件不受影响）
-
-注意：工作区常有大量 untracked 的 `大六壬文档/古籍原文-易藏-术数/**` 文本，UI 提交不要误加。
-
----
-
-## 6. 中黄天地盘 UX v1（已落地）
-
-原则：中黄不能替换传统排法；地支仍是骨架，天干是中黄生克判官。
-
-已实现：
-
-- 主盘模式：`旬遁 / 中黄`；默认**旬遁（传统层）**干净，无身/变/传（旧称「常遁」＝中黄·日干遁，现只在中黄模式内作为「体」层出现）。
-- 中黄开时：中圈改为**单干＝时干遁**（中黄·用）；日干遁(体)不再并排上盘，改由宫情条与建合检测呈现（依据见§11.5）。
-- 变干常显，余宫弱显；点宫看详情。
-- 身/变/传只在切到中黄后出现：
-  - `身` = 日干寄宫，青灰 `#9FB6A8`
-  - `变` = 占时/变干宫，亮金 `#F0D98C`
-  - `传` = 变干入三传，橙金 `#D98C5F`
-- 中黄开时盘下方有图例：`身 日干寄宫 / 变 变干宫 / 传 变干入传`。
-- 点盘交互分流：
-  - 常遁：点盘 = 外应取用；
-  - 中黄：点盘 = 看宫情，不切用神。
-- 宫情条内容：地盘宫/天盘支/天将/常遁干/中黄干/中黄六亲/身/变/传/空亡/建合/神煞。
-- 起新盘、古籍速排、切回常遁时清空 `zhongGong`。
-
-相关测试：
-
-```powershell
-node _tests/_test_zhonghuang.js
-node _tests/_test_zhonghuang_analyze.js
-```
-
-中黄口径：
-
-- `变干 = 时干遁盘中占时支之干`。
-- `bianJiang = c.jiangMap[hourZhi]`，不要用天干反查地支将。
-- “旬”只用于旬空/旬首，不作为第三种盘面天干模式；遁干口径统一为 `常遁 / 中黄`。
-
----
-
-## 7. 商店页与截图节奏（已确认）
-
-### 当前节奏
-
-```text
-现在：
-不动已上架截图。
-不重截。
-不重新提交商店资料。
-先看 3~7 天数据。
-```
-
-### 下一版资料更新原则
-
-不是“见中黄就换”，而是只换：
-
-- 旧“旬/日遁/时遁”口径；
-- 古籍案例鉴赏入口；
-- 过满年命/行年现实建议话术；
-- 任何付费/解锁暗示；
-- 与当前免费包不一致的内容。
-
-中黄/常遁/身变传/古籍研习若免费包真实可见，可保留。
-
-### 已上架截图
-
-- 路径：`APP/screenshots_out/免费版已经上架的截图`
-- 尺寸：`1080x1920`，webp/png 双份。
-- 当前结论：继续用，不动。
-
-### 新截图备用稿
-
-用户新截原始图：
-
-```text
-APP/screenshots_out/免费版下一版 2026-9-5
-```
-
-已处理出两套过程稿 + 一套最终备用稿：
-
-- `processed_1080x1920`：对齐旧比例，但长屏有裁切，过程稿。
-- `processed_1080x2160_fullapp`：保完整 app 内容，备用参考。
-- `final_1080x1920_webp`：按已上架 webp 尺寸 `1080x1920` 输出，含 `shot01.webp~shot08.webp` 与 png；当前只归档，不上传。
-
-处理规则：去顶部状态栏（微信/时间/信号/电池）、去底部手势条；`shot03` 为保天地盘完整，顶部大标题让位。
-
----
-
-## 8. 古籍案例库当前进展
-
-案例数据：`case_gallery.json` 当前 **45 案**。
-
-来源/分组包括：
-
-- 中黄五变经
-- 六壬断案
-- 壬占汇选·甲子日 / 乙丑日 / 丙寅日 / 丁卯日 / 戊辰日
-
-结构演进：
-
-- 最初：原文 + summary + chain + expect。
-- 现在：增加 `routes / focus / reasoning / topics / mark / key / role`。
-- UI 已支持：来源/日课分组、占类筛选、证据链、点证据回盘高亮、详情返回先回列表。
-
-### topics 词表
-
-`来意 / 疾病 / 官讼 / 行人 / 仕宦 / 生产 / 风水 / 应候 / 役事 / 终身 / 省试 / 会试 / 流年 / 前程 / 己身 / 复建 / 亡盗 / 远行 / 索债 / 赴任 / 复任 / 补官 / 六甲`
-
-### validator 注意
-
-- `_tests/_test_ancient_gallery.js` 与 `DataLoader.ets` 的 input 键是 `yearGan/yearZhi`；旧笔记里的 `yg/yz` 已过时。
-- 反验命令：`node _tests/_test_ancient_gallery.js`，当前应 `ALL PASS (45 cases)`。
-
-### 待精修
-
-- ~~中黄五变经 5 案 reasoning~~ 已完成（`621e2be`，route 用 `zhonghuang`，参证口吻）。
-- 释己身第一参证思路：丙寄巳 → 巳上申 → 申干不克丙 → 三传不克日 → 变干壬官鬼落戌旬空不入传，只作参证。
-- 非中黄源案例：中黄只作旁证，不压主断。
-
-### 剧情数据「一局多占」（2026-09-10 起，Web 原型已跑通）
-
-设计讨论稿：`大六壬文档/古籍案例剧情动态演进讨论稿.txt`（主线/支线、取证后揭断）。当前落地口径：
-
-- 真源：`APP/LiurenFocusDiviner/entry/src/main/resources/rawfile/ancient/case_story.json`，key = 案例 id（与 `case_gallery.json` 对齐）。
-- 网页导出：`python _tools/export_case_story_web.py` → `UI/_data/case_story.js`（`window.CASE_STORY`）。
-- 结构：`story = { brief, note, asks[] }`；`ask = { id, role:'original'|'derived', topic, title, badge, intro, question, clues[], goodWords[], endings[4], ending }`。
-- 线索锚点：`clue.anchors = [{kind, ref?, pos?}]`，kind 与证据链同一套，另增 `shensha`（ref = `支/神煞名`）。
-- 纪律：`original` 支线的 hint 只给盘面事实与古法通则，**不得抄录该案原文断语与应验**（原断留到「呈上断语」后揭，揭的是 `case_gallery.original`，剧情数据不复制原文）；`derived`（同课异占）只给取象清单与规则依据，`ending.note` 必写「非古籍原断」并加现实免责，`ending.text` 不得含结论。
-- 反验：`node _tests/_test_case_story.js`（锚点必须落到复算盘面 + 反抄录检测 + 合规 + 导出同步）、`node _tests/_test_case_story_web.js`（无头跑原型：每条线索都有点位可点、支线结算不泄露原文、切换支线复位、无剧情案例不崩）。
-- 已写剧情：`duanan_001_han_qixue`（原占祈雪 + 同课异占·占行人 + 同课异占·占远行，三支线）、`renzhan_jiazi_011_xue_xingren`（原占）。其余 43 案待补，每案按「1 条原占 + 2~3 条异占」扩。
-- 原型：`UI/壬案推演原型.html`（一局多占版）：卷宗 → 选占问方向 → 起盘 → 点盘取证 → 呈上断语。原型把「可点位」先登记进 `SURFACES` 再挂事件（数据先行），无头环境才能遍历校验；`protoSurfaces()/protoState()` 为测试钩子。
-- **已完成**（2026-09-12 1.0.4 重打包）：剧情/案例数据只随主版发布，免费包已物理剔除。落在 `_tools/sync_free_edition.py` 的 `PAID_RAWFILE`（第 28 行白名单）+ `drop_paid_rawfile()`（第 80 行，输出 `已剔除: ancient/case_gallery.json (184956 bytes)` / `已剔除: ancient/case_story.json (17823 bytes)`），调用点第 119 行；由 `_tools/verify_free_edition.py` 硬断言守住（`check_paid_data_absent()` 第 61 行 / `check_free_data_present()` 第 71 行 / `check_free_data_matches_main()` 第 92 行，调用第 159–161 行）。包内实证：`resources/rawfile/ancient/` 只剩 `zhonghuang_jing.json`，`rawfile` 35 → 33 条，`.app` 1,576,778 → 1,520,926 字节（−55,852）。
-
----
-
-## 9. 工程命令
-
-### 核心编译（真源 → 产物）
-
-组件化（§13）后，真源已拆成多模块：**真源 = `core/liuren/facade.ts`（门面）+ `core/liuren/**`（各模块）**。
-`core/liuren-core.ts` 是**装配产物**（由脚本按固定顺序拼装，文件头有「勿手改」警告），
-`core/liuren-core.js` 仍是**单一编译产物**——Node 测试与 Web 端只加载它，加载方式未变。
-
-```powershell
-# core 侧（Node/Web 产物）：改动一律写在 core/liuren/** 里，不要碰 core/liuren-core.ts
-node _tools/rebuild_core.js          # 唯一重建入口：切片 → 补只读接口 → 门面收尾 → 装配+tsc
-node _tools/build_core.js            # 仅装配+编译（rebuild_core 的第 4 步；不切片）
-node _tools/build_core.js --check    # 只校验：产物与真源不一致即 exit 1
-
-# ArkTS 侧（另一条链，真源同为 core/liuren/**，手工同构）
-node _tools/_ets_pipeline.js         # _ets_facade_extras → _ets_split → _ets_qualify → 免费版 sync/verify
-#   之后接主版构建（工作目录 APP/LiurenFocusDiviner）：
-#   D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode module -p product=default --no-daemon
-```
-
-**禁止直接编辑 `core/liuren-core.ts`**：它是装配产物，会被下一次 `build_core.js` 整体覆盖；
-同理 ArkTS 侧 `model/LiurenCore.ets`、`model/pan/*.ets`、`model/{bifa,zhonghuang}.ets` 也是产物。
-
-同步关系（取代旧的「三份实现 .ts / .js / .ets 同步」口径）：**真源只在一处 = `core/liuren/**`**；
-`.js` 由 `_tools/build_core.js` 重建，`.ets` 由 `_tools/_ets_pipeline.js` 重建，两侧各一个入口。
-
-辅助校验：
-
-```powershell
-node _tools/_core_snapshot.js        # 行为快照比对（基线 _tests/_data/core_snapshot.json，185981 条规范化输出逐条哈希）
-node _tools/_api_parity.js           # 与 tag v1.0.4-pre-componentize 的产物逐成员比对外 API
-```
-
-### 门禁有效性自检（变异测试，2026-09-12 新增）
-
-```powershell
-node _tools/gate_mutation_check.js   # 往真实文件里临时注入可疑写法 → 跑门禁 → 期望结果 → 逐字节还原
-```
-
-**为什么必须有这一项**：门禁全绿只说明「没抓到东西」，不说明「抓得住」。组件化把扫描面从
-单体文件换成目录、又放宽过豁免面，结果 `_test_component_audit.js` 的 A3（UI 不得硬编码盘面事实）
-**一度形同虚设**：它的「规则表数据区」豁免条件是「任何含 ≥4 个引号的 `{}`/`[]` 区间」，
-于是任何含 2 个字符串字面量的函数体/if 块都被当成规则表 —— 实测 `pages/Index.ets` 里最大豁免区间
-覆盖全文 **97%**，连「同一行 3 个天将名」的变异体都判不出来（基线依旧全绿）。
-现行判据收紧为三条同时成立：① 开括号处于表达式位置（前一非空字符 ∈ `= : ( , [ { >`）；
-② 区间内无控制流关键字（if/else/for/while/switch/return/=>）；③ 长度 ≤ 30000。
-另加**文案豁免**：名字只出现在带文案标点的字符串里（… ： （ ） 、 ， —）时不算写死
-（例：`'宗门法：' + name + '（贼克/比用/涉害/遥克…）'` 是给用户看的举例）。
-扫描面＝App 侧 `.ets` 的**非引擎**目录（`pages/` `components/` `pay/` `entryability/` 等）；
-**排除 `model/**`**（引擎真源与生成镜像本来就是天将/课体/神煞名的权威来源，
-例如 sanchuan 依阳日/阴日给昴星取「昴星·虎视转蓬」/「昴星·冬蛇掩目」变体名）。
-引擎侧写死个案由 A1（个案标识）/A2（I-O）/A4（死常量）+ 17280 全枚举规范门禁 + 传本锚点把关。
-
-自检脚本 11 条用例（8 正例必须拦下 + 3 反例必须放过，反例防止门禁重新变成误报机器）：
-`P1–P2` 个案日期串/案例 id 写进引擎模块、`P3` 值 import、`P4` `Date.now`、`P5` 死常量、
-`P6–P8` UI 页把天将名/课体名/神煞名当映射表用；`N1` 引擎取变体名、`N2` UI 文案举例、
-`N3` UI 规则常量表（数组形态，其是否多余由 A4 判）。
-
-**改动门禁后必须重跑本项**（改判据、改扫描面、放宽任何豁免都要跑），并确认退出码 0。
-
-关键点抽查：`JIANG_NI` 应为 0、`buildJiang`/`xunDun`/`maoxingFirst` 应齐全；真源基线 tag 为 `v1.0.4-pre-componentize`（两侧切片脚本都从它取单体基线）。
-
-### 案例反验
-
-```powershell
-node _tests/_test_ancient_gallery.js       # 45 案：expect 复算比对 + 证据链锚点
-node _tests/_test_case_story.js            # 剧情数据：锚点 + 反抄录 + 口径 + 导出同步
-python _tools/export_case_story_web.py     # 改完 case_story.json 后必须重导（测试会查同步）
-node _tests/_test_case_story_web.js        # 无头跑原型：点位可达性 / 结算不泄露原文
-```
-
-### 配色对比度门禁（应用市场自检口径，2026-09-10 新增）
-
-```powershell
-node _tools/contrast_audit.js              # 全量扫 fontColor：低于 4.5:1 列清单并返回 1
-node _tools/contrast_audit.js --trace AncientCaseGallery.ets:376   # 打印某处底色的推断过程
-```
-
-自检要求：图标/标题文字与背景 > 3:1，正文文字 > 4.5:1（浅色模式下同样量测）。
-深底文字安全线：与本文件 `DARK_WORST`（`#352F22`，12% 金底叠加后的最亮深底）达到 4.5:1；
-**浅色面板内的文字必须反过来用深色**，改色时不能全局一把梭（案例鉴赏的纸面板即反例）。
-
-### 页签导航反验（1.0.3 审核反馈，2026-09-10 新增）
-
-```powershell
-node _tests/_test_navutil.js    # 抽出 NavUtil.ets 跑模拟路由栈：反复横跳后回排盘等 9 项
-```
-
-注意：该测试验证的是**决策逻辑 + 官方文档语义**（模拟栈按 `back(index)`/`pushUrl` 语义实现），
-真机行为仍需上机确认。
-
-### 天将规则对账（规范 ↔ 引擎，2026-09-10 新增）
-
-```powershell
-node _tests/_test_jiangpan_rules.js   # 规范 JSON ↔ 引擎：贵人表/昼夜分界/顺逆/将序/安贵人+布将（1440 组）
-```
-
-规范真源：`大六壬文档/json/十二天神与贵人.json`（说明文档 `大六壬文档/排盘/十二天神与昼贵夜贵说明.md`）。
-改天将/贵人相关代码或改这两份文档后**必跑**；两侧任何一方漂移都会立刻判否。
-
-### 排盘规则反验（天将顺逆 / 昴星 / 九宗门，2026-09-10 新增）
-
-```powershell
-node _tests/_test_jiangpan.js        # 传本锚点：经文13/18/20 + 汇选046~049 + 昴星取用
-node _tests/_test_dungan.js          # 遁干口径：旬遁传本锚点 + 空亡留空 + 中黄双遁 + 抓用神同口径
-node _tests/_test_jiangpan_all.js    # 天将布列结构（840 项）
-node _tests/_test_keti.js            # 九宗门课体
-node _tests/_test_zhonghuang_dun.js  # 日干遁/时干遁
-```
-
-### 组件层体检 + JSON 耦合审计（组件化前置门禁，2026-09-10 新增）
-
-与 `_test_no_hardcode.js`（引擎纪律门禁，只管引擎四份文件）**分工不同、可并跑**：
-本脚本扫整个 App（`APP/LiurenFocusDiviner/entry/src/main/ets/**` 全部 .ets + 免费版 + `core/**` + `_tools/*.py`），
-并且做「代码 ↔ rawfile JSON」的契约核对（含**破坏性实验**，故不并入常驻门禁）。
-
-```powershell
-node _tests/_test_component_audit.js            # 逐项跑 A1–A4 + B1–B4；任一硬失败 exit 1
-node _tests/_test_component_audit.js --verbose  # 额外逐处打印注释出处/软项清单
-```
-
-### UI 排版门禁：Row + Blank 里的长文本必须有宽度约束（2026-09-12 新增）
-
-由来：用户报「排盘 → 毕法格局 → 展开」后**文字溢出右边界、且不左对齐**。根因是
-`components/InfoRow.ets` 旧写法 `Row() { Text(label)  Blank()  Text(value).textAlign(End) }` ——
-`value` 既无 `width` 也无 `layoutWeight`，长文案（毕法展开的五层：定性/定象/定时/定策/定级）
-顶出父容器右边界；`textAlign(End)` 又让它不左对齐。短值（「旬空/无」）看不出来，
-所以只在长文案处暴露。
-
-```powershell
-node _tests/_test_ui_layout.js   # 扫 UI 目录（主版 + 免费版），违规即 exit 1
-```
-
-判据（三条同时成立才报，避免噪声）：① 该 `Text` 与 `Blank()` 处在**同一 Row 的直接子节点**层
-（嵌套的 Column/Row/Flex/Stack/Grid 里不算 —— 那不是兄弟关系；花括号只在**括号深度 0** 时才算块级，
-`Row({ space: 8 }) {` 的参数花括号曾被误当块级，闹出过漏报与误报）；
-② 属性链里没有 `width` / `layoutWeight` / `constraintSize` / `maxLines` / `flexShrink`；
-③ 参数**不是纯字符串字面量**（长度不可控）。
-
-修法：① 数据驱动的值加 `.layoutWeight(1)`（若它是 Blank 之后的末位元素，另加 `.textAlign(TextAlign.End)`
-以保持贴右）；② **长段落**改用 `InfoRow({ ..., stack: true })`（标签在上、值在下、左对齐），
-容器 Column 显式 `.alignItems(HorizontalAlign.Start)` —— ArkUI 的 Column 默认居中，
-靠默认值就会出现「看着没左对齐」；③ 长度确实有界的（如「地支+时」「收起/展开」「日期串」）
-在该行写块注释标记 `layout-ok: 理由`（理由必填），门禁放行并计入豁免计数供人工过目。
-
-产物：`_tests/_data/component_audit.json`（逐项结论 + 证据 + 违规位置；含 B4 实验前后 JSON 哈希）。
-辅助模块：`_tests/_engine_probe.js`（运行期探针：维度敏感性 / 规则影响面 / 神煞·天将全枚举 / B4 基线比对），
-它不是门禁，只被上面的脚本 require。
-
-判据口径（要点）：
-- **A1** 非注释代码不得有个案 id（`duanan_*`/`renzhan_*`/`_yichou_` 等）与「X日」判定条件；书名的三种用法分级：
-  文件名/数据路径＝引用（软）、展示文案＝软（只计数）、`=== '断案'` 作判定条件＝**硬**；
-  按数据自带字段分流（`c.source.indexOf('壬占汇选')`）＝数据驱动，记软项。
-- **A2** 静态扫「同一条件里 ≥3 个干支字面量比较」＋运行期 500 组随机输入逐维度扰动（改干/改支/改将/改时），
-  某维度**恒不变**即判该维度被忽略或被写死。
-- **A3** UI/组件里天将名 ≥3 个 / 神煞名 ≥8 个 / 课体名 ≥3 个**成组出现在数据字面量区之外**才判违规。
-- **A4** .ets 具名常量（`static readonly` / 顶层 `const`）只定义不引用＝死常量。
-- **B1** 代码读取的每个 JSON 键路径必须存在且类型匹配（可选键须在代码里有守卫，才可标 opt）。
-- **B2** 兜底分级：`|| {}`/`|| []` 且来源是规则表＝**危险**（把缺失规则表掩盖成空结果）；
-  并做运行期复核：按 DataLoader 真实口径（键缺失 → 字段 undefined）逐个复现，看是抛错还是静默变值。
-- **B3** 重复真源：同一规则表既在代码又在 JSON 的（天将序/六亲键域/行年打分表/月将近似表/神煞名）两侧一致性核对。
-- **B4** 强/脆链接判定：改名 rawfile 里的 JSON 键 → 引擎是否**静默改盘**；实验后**逐字节还原**并全校验哈希。
-
-纪律：本脚本只做体检与报告，**不得**为让它变绿而放宽判据、加白名单或改业务逻辑；
-真问题（写死个案 / 静默掩盖缺失规则表）按报告修代码或修数据。
-
-### 数据健康运行期断言（2026-09-12 新增）
-
-```powershell
-node _tests/_test_rule_health.js    # 把 RuleHealth.ets / ReasonText.ets 用 tsc 转成 JS 真跑一遍
-```
-
-与 `_test_ui_empty_state.js`（**静态**查"有没有写文案"）分工不同：本脚本验**行为** ——
-把 `.ets` 复制成 `.ts`、把 ArkTS 的 `hilog` import 换成本地桩，tsc 到临时目录后 require，逐条断言：
-
-- `R1` 徽标摘要分母 = 登记表张数（14）；只有「读到且无缺键」才算已加载（11 张 → `11/14 ⚠`）；
-- `R2` 三态互不混淆：`fail`（没读到）/ `okWithMissingKeys`（表在但内容不完整）/ `ok`；
-  **并区分「执行过入口但没读到」（`attempted=true`）与「本次启动没执行过入口」（→「尚未尝试加载」）**
-  —— 否则加载完成前首页徽标与自检面板会把 14 张表全报成「未加载」，吓人也失真（这是本轮运行期断言抓出来的）；
-- `R3` 导出诊断含版本 + 可读时间 + 14 行逐表状态，且**不含数据文件名/路径**、含离线与隐私说明；
-- `R4` 缺表一次性提示：第一次 true、第二次 false、`resetTip()` 后可再次提示（重启语义）；
-- `R5` 空态文案表运行期齐备（10 条登记文案均非兜底；未登记栏位走兜底仍有文案与入口）；`kindFor` 三态映射正确；
-- `R6` 规则表读取路径不得再有裸 `JSON.parse`（`cal/`、`ancient/` 有自己的解析，不属规则表）；
-  UI 必须用 `RuleHealth.usable()` 判栏目可用性。
-
-临时目录 `_tests/_tmp_rulehealth/` 每次运行重建、结束时删除（不进仓库）。
-
-### 校验的唯一入口（`node _tools/check_all.js`）
-
-**不要凭记忆挑门禁跑。** 门禁会变多、名字会忘 —— 唯一入口负责发现与调度，并实测耗时：
-
-```powershell
-node _tools/check_all.js            # 全量：42 项，实测 ≈ 385 s（6 分钟）—— 出包/收口前跑
-node _tools/check_all.js --fast     # 快档：38 项，实测 ≈ 9 s —— 改完随手跑（跳过 4 项慢档）
-node _tools/check_all.js --list     # 打印清单（含慢档标记）
-node _tools/check_all.js --only component_audit   # 只跑名字含该子串的项（现在真的只跑这些）
-python _tools/sign_release.py free  # 出包（内部已含前置门禁 + 出包后校验，见下）
-```
-
-> ⛔ **绝对不要并发跑两次 `check_all`**（2026-09-18 事故，我自己犯的）：
-> `gate_mutation_check.js` 为了验证"门禁真的能抓到问题"，会**在原地变异真源文件**再还原。
-> 两个实例同时跑时，A 的还原会把 B 的变异写回、或把 B 的改动当"原样"保存 ——
-> 实测后果：主版 `pages/Index.ets` 的**真实改动被回滚**，而它插进去的正对照变异行
-> （8 个神煞名一行，用于测 A3）**留在工作区，被我的 `git add` 提交进了 580d0da**，
-> 直到 `_test_component_audit` 报 A3 硬失败才暴露。
-> 入口现已加**文件锁**（`.check_all.lock`，带 pid 存活检测），并发启动直接拒绝（exit 9）。
-> 同一个坑还有第二个成因：`--only` 以前**只过滤打印、不影响执行**（循环写的是 `ITEMS`
-> 而不是 `selected`），所以"只想看单项"实际上又跑了一遍全部 42 项 → 已修。
-> 教训通用一句话：**变异型门禁的仓库里，验证必须串行。**
-
-实测耗时分布（2026-09-13）：
-
-| 组 | 项数 | 实测 | 说明 |
-|:--|:--:|:--|:--|
-| 快档合计 | 38 | **≈ 9 s** | 绝大多数单项 < 200 ms；最慢的快档是 `_test_bifa_keti` 2.1 s |
-| 慢档：`gate_mutation_check.js` | 1 | **325–360 s** | 逐个变异后**重跑对应门禁**，固有 N× 成本；出包前跑即可，**必须独占** |
-| 慢档：`_test_component_audit.js` | 1 | 39.5 s | 内含 500 组随机扰动 + 挖键实验 |
-| 慢档：`_core_snapshot.js` | 1 | 10.4 s | 185,981 条行为快照逐条比对 |
-| 慢档：`_test_core_regress.js` | 1 | 1.6 s | 回归矩阵 |
-| **全量** | **42** | **≈ 385 s**（2026-09-18 实测） | 三个大户占 375 s —— 门禁多不是问题，重活才是 |
-
-
-**去重纪律**：同一条判定只跑一次 —— `verify_free_edition.py` 内部已复用 `sync_free_edition.diff_against()`，
-故入口里不再单列 `sync --check`（要单跑手敲即可）。
-
-### 门禁索引（按保护面，改动后按行跑快档）
-
-| 保护面 | 门禁 | 何时必跑 |
+| | 主版 | 免费版（**上架用**） |
 |:--|:--|:--|
-| 引擎行为回归 | `_test_core_smoke` `_test_core_regress` `_test_sanchuan_spec` `_test_jiangpan*` `_test_dungan` `_test_keti` `_test_zhonghuang*` `_test_xingnian` `_test_nianming2` `_test_selectDuyu` `_test_palace` | 改 `core/liuren/**` 后 |
-| 防写死 / 三端同构 | `_test_no_hardcode`（A1–A6，A6 = 三端逐行同构）`_test_component_audit`（UI 层 + JSON 契约 + 行为一致性） | 改引擎或 UI 后 |
-| 合规措辞 | `_test_compliance_wording`（C1 八字语汇 / C2 算命占卜类词 / C3 出处纪律） | 改规则表文案后 |
-| UI 呈现 | `_test_ui_layout`（排版）`_test_ui_empty_state`（E1–E8 空态说话）`_test_ui_foreach_key`（列表键须内容派生） | 改 `.ets` 页面/组件后 |
-| 读数单一真源 | `_test_readxiang`（R1–R8 行为）`_test_readxiang_single_source`（S1–S3 结构） | 改读象/速查卡后 |
-| 数据健康 | `_test_rule_health`（运行期断言 + 缺表不静默） | 改 DataLoader/RuleHealth 后 |
-| 案例剧情数据 | `_tests/_test_case_story.js`（结构与**锚点复算**）+ `_tools/case_story_audit.js`（**批量填充审计**：文案断言与复算不符 / 抄既有案 / 编造应验 / 占位符残留 / derived 越界） | 改剧情数据后 |
-| 文档结构 | `_test_docs_structure`（围栏 / 编号 / 登记 HEAD 存在性） | 改 `.md` 后 |
-| 免费版与包 | `verify_free_edition.py`（数据 + 源码树一致性）`verify_app_pkg.py`（包内 16 项） | 出包前（`sign_release.py` 已自动调用） |
-| 产物一致性 | `build_core.js --check` `_api_parity.js` `_core_snapshot.js` | 改真源后 |
-| 门禁自身有效性 | `gate_mutation_check.js`（11 条：正例能拦、反例不冤枉） | 出包前 |
+| 工程 | `APP/LiurenFocusDiviner` | `APP/LiurenFocusDivinerFree`（**生成物**，gitignored） |
+| 定位 | 全功能开发版 | 上架版：零权限、无收费项痕迹 |
+| 数据 | 含收费块（案例鉴赏 / 剧情） | 剔除收费块数据 |
+| 提交目标 | 不直接提审 | `sign_release.py free` 出包提审 |
 
-**门禁与真源的关系（松耦合）**：门禁一律是**外部观测者**，不写进 `core/liuren/**` —— 否则改真源时
-可能顺手把门禁一起改掉。但它们**只读真源**，且判定依据尽量单一来源：
-`verify_free_edition.py` 向 `sync_free_edition.py` 取差异规则、ArkTS 各门禁读 `core/liuren/**` 与生成物、
-`_test_ui_foreach_key` 扫全部 `.ets`（不写死文件名）。
+---
 
-**新增门禁的三条纪律**：① 快档里必须 < 1 s，否则登记为慢档；② 必须自带变异证明（改坏要被它拦住）；
-③ 放在 `_tests/_test_*.js`（入口自动纳入）或登记进 `check_all.js` 的工具清单。
+## 2. 真源与生成链
 
-### 文档地图（谁对什么权威）
+### 2.1 引擎真源 = `core/liuren/**`（TypeScript）
+
+**改动一律写在这里。** 两侧产物都由脚本重建：
+
+```
+core/liuren/**  ──(build_core.js / rebuild_core.js)──►  core/liuren-core.js      （Node / Web 用）
+                ──(_ets_pipeline.js)─────────────────►  APP/.../ets/model/pan/*.ets
+                                                        APP/.../ets/model/{LiurenCore,bifa,zhonghuang}.ets
+```
+
+`_ets_pipeline.js` 是 ArkTS 侧**唯一入口**，按固定顺序跑（任一步失败即停）：
+
+1. `_ets_facade_extras.js`：从 `core/liuren/pan/dx.ts` 抽 `palaceLookup` → `_ets_extras_dx.txt`
+2. `_ets_split.js`：从**基线单体**（tag `v1.0.4-pre-componentize` 的 `model/LiurenCore.ets`）按
+   「成员 → 模块」显式映射切出各模块 + 生成门面
+3. `_ets_qualify.js`：归属限定符改写（`LiurenCore.X` → `LrX.X`，与 `.ts` 侧同口径）
+4. `sync_free_edition.py` + `verify_free_edition.py`（免费版同步与校验，见 §4）
+
+**生成物一律勿手改**：`model/pan/*.ets`、`model/{LiurenCore,bifa,zhonghuang}.ets`。
+手工改会在下一次重建时被无声覆盖。
+
+**引擎的守护门禁**（改引擎后必跑）：
+
+- `_test_no_hardcode.js`：A1–A6 —— 引擎内不得有个案标识 / I/O / 输入特判 / 死常量 / 个案口径只能进数据且带出处 /
+  **三端同构**（`resolveSanchuan`、`buildJiang`、`xunDun` 在 `.ts`、主版 `.ets`、免费版 `.ets` 归一化后逐行相同）
+- `_api_parity.js`：对外 API **只增不改**（改签名会让界面静默失效）
+- `_core_snapshot.js`：**185,981 条行为快照**逐条比对（引擎行为回归的最后一道网）
+- `_test_core_regress.js`：回归矩阵
+
+### 2.2 数据真源 = `APP/.../rawfile/{rule,cal,ancient}/**.json`
+
+| 目录 | 内容 | 保护门禁 |
+|:--|:--|:--|
+| `rule/`（14 个 JSON） | 规则表：神煞起法、十二宫气机点、空亡规则、助日规则、行年打分… | `_test_rule_health.js`（含运行期断言：**缺表必须说话**） |
+| `cal/`（18 个 JSON） | 万年历（`yj_all.json` 等） | 同上 |
+| `ancient/case_gallery.json` | 古籍案例原文与复算对照 | `_test_ancient_case.js`、`_test_ancient_gallery.js` |
+| `ancient/case_story.json` | 案例**剧情**（一局多占推演） | `_test_case_story.js`、`case_story_audit.js` |
+
+剧情数据的契约、坑位、硬规则住在 `大六壬文档/案例剧情/剧情补录方案与样张.md`（§2 契约 / §9 坑 / §10 硬规则）——
+**写剧情前必读**。剧情也会导出给 Web 原型：`_tools/export_case_story_web.py` → `UI/_data/case_story.js`，
+两个测试（`_test_case_story.js` 与 `_test_case_story_web.js`）会校验"数据与导出产物同步"。
+
+### 2.3 视觉真源 = `resources/{base,dark}/element/{color,float}.json`
+
+- **颜色令牌 81 个**，两主题**同名不同值**：`base/`=浅色（方案 A 偏金黄）、`dark/`=深色（原墨底金文）。
+- **默认深色**：`model/ThemeStore.ets` 启动时读偏好（无偏好=深色）并调 `setColorMode` 覆盖 colorMode；
+  用户在首页金卡上可切换。系统栏配色也由 ThemeStore 从令牌取（该 API 只收字符串）。
+- **画布（天地盘）不能用 `$r()`**：`PanDisk.ets` 用 `tok(res, '令牌名')` → `getColorByNameSync`
+  **运行时**取当前主题色值。名字写错是**运行时**错（编译不报），由门禁③兜住。
+- 令牌细节与设计取舍见 `鸿蒙规范文档/视觉风格/设计令牌清单.md`、`实现方式决定.md`；
+  尚未令牌化的残留与原因见 `剩余色值分类清单.md`。
+
+### 2.4 Web 原型 = `UI/*.html` + `UI/_data/*.js`
+
+原型用于在改 App 之前试玩法与视觉（数据由 App 的 rawfile 导出，见 §2.2）。
+原型是**独立 HTML**（无构建、无框架），改动不影响 App 包体。
+
+---
+
+## 3. 门禁体系
+
+### 3.1 唯一入口
+
+```powershell
+node _tools/check_all.js            # 全量 45 项，实测 ≈ 415 s（含 349 s 变异自检）
+node _tools/check_all.js --fast     # 快档 41 项，实测 ≈ 11 s —— 改完随手跑
+node _tools/check_all.js --only component_audit   # 只跑名字含该子串的项
+node _tools/check_all.js --list     # 打印清单（含慢档标记）
+```
+
+⛔ **绝对不要并发跑两次**：`gate_mutation_check.js` 会**在原地变异真源**验证门禁有效性，跑完再还原。
+两个实例同时跑会互相踩（真实事故：主版 `Index.ets` 的真实改动被回滚、变异行被提交进历史）。
+入口已加文件锁 `.check_all.lock`（带 pid 存活检测），并发启动直接拒绝（exit 9）。
+**若确认那个进程已死**，删掉锁文件再跑。
+
+### 3.2 45 项按保护面分组
+
+| 保护面 | 门禁 |
+|:--|:--|
+| **引擎**（`core/liuren/**`） | `_test_core_smoke` `_test_core_regress` `_core_snapshot` `_api_parity` `build_core --check` `_test_no_hardcode` `_test_sanchuan_spec` `_test_keti` `_test_jiangpan` `_test_jiangpan_all` `_test_jiangpan_rules` `_test_dungan` `_test_palace` `_test_readxiang` `_test_readxiang_single_source` `_test_zhonghuang` `_test_zhonghuang_analyze` `_test_zhonghuang_dun` `_test_xingnian` `_test_nianming2` `_test_selectDuyu` `_test_bifa_keti` `_test_bifa_coach` `_test_coach2` |
+| **数据**（rawfile） | `_test_rule_health` `_test_ancient_case` `_test_ancient_gallery` `_test_case_story` `_test_case_story_web` `_test_case_xu_cibin` `case_story_audit` |
+| **UI / 组件** | `_test_component_audit`（慢） `_test_ui_layout` `_test_ui_foreach_key` `_test_ui_empty_state` `_test_empty_state` `_test_navutil` |
+| **颜色 / 主题** | `_test_color_tokens`（六条规则，见 §7.3） `contrast_audit`（浅/深双跑） |
+| **文案合规** | `_test_compliance_wording` |
+| **工程 / 发布** | `verify_free_edition` `verify_app_pkg` `_test_docs_structure` `_test_hygiene`（无用 import） |
+| **门禁的门禁** | `gate_mutation_check`（慢：逐条注入变异、重跑对应门禁，确认它真的报警） |
+
+慢档 4 项 = `gate_mutation_check`（349 s）/ `_test_component_audit`（42 s）/ `_core_snapshot`（11.5 s）/
+`_test_core_regress`（1.7 s）。
+
+### 3.3 门禁纪律（每条都是踩坑换来的）
+
+1. **新门禁必须变异验证**：注入一个该被抓的问题 → 确认 FAIL → 还原 → 确认 PASS。
+   没做这一步就可能"写了但没用"。**实例**：颜色门禁规则⑥第一版正则写成 `[A-Za-z_$][\w$]*[Cc]olor`，
+   前缀是必选的 → 只匹配 `fontColor:`，**裸 `color:` 反而漏掉**；注入探针时门禁毫无反应（exit 0），
+   是变异测试当场揭穿的。
+2. **变异验证的还原不能用宽 `git checkout`**：它会把同一文件里**未提交的真实改动一起还原**（踩过两次）。
+   推荐用脚本写回，或**先提交再变异**。
+3. **假阳性比漏报更危险**：它让人开始忽视门禁。实例：对比度门禁原先一律按 4.5:1 卡，
+   把 `fs_title` 粗体大字（按规范应为 3:1）误判 —— 加入跨文件追溯后立刻爆出一条假阳性，已补大字阈值。
+4. **门禁会过期失效**：令牌化曾把 `contrast_audit` 悄悄"卸械"——它只认字符串字面量，
+   站点改成 `$r(...)` 后一个都匹配不上，**却照样打印"通过"**。定期自问："这个门禁还看得见它该看的东西吗？"
+5. **同一条判定只跑一次**：判定方一律复用规则真源（例如 `verify_free_edition` 复用
+   `sync_free_edition.diff_against()`），不得另写白名单。
+
+### 3.4 当前状态
+
+2026-09-19 全量 **45/45 PASS**（414 s，含 349 s 变异自检）—— 即"每个门禁都被证明能抓住它该抓的问题"。
+
+---
+
+## 4. 免费版同步（唯一差异真源）
+
+**差异规则只住在 `_tools/sync_free_edition.py`**（5 条）：
+
+1. 复制源码（`entry/src`、`AppScope`、配置），排除构建产物（`build/.hvigor/.preview/.idea/oh_modules` 等）
+2. `PayConfig.PREVIEW_FREE` 写为 `false`（过审版全功能开放、无锁无付费痕迹，与申报"无收费项"一致）
+3. `FeatureFlags.SHOW_ANCIENT_CASE_GALLERY` 写为 `false`（案例鉴赏入口隐藏）
+4. 从免费版 `rawfile` **删除收费块数据**（案例鉴赏 / 剧情）—— HAP 即 zip、JSON 明文，随包发出等于公开
+5. 移除免费版 `module.json5` 的 INTERNET 权限 + 对应权限文案（保持**零权限**申报）
+
+```powershell
+python _tools/sync_free_edition.py           # 真同步（清空并重建免费版目录）
+python _tools/sync_free_edition.py --check   # 只判定：同一套规则跑在临时目录，再与现存免费版逐文件比对
+python _tools/verify_free_edition.py         # 不变量与树一致性（出包前置门禁）
+```
+
+**两条纪律**：
+
+- **改完主版（任何源码或资源，含 `resources/` 的 JSON）必须重跑同步。** 否则免费版仍是旧代码，
+  编出来却 **BUILD SUCCESSFUL**（静默陷阱，最容易骗过自己）。出包前 `verify_free_edition` 会兜住。
+- **免费版目录是生成物**（gitignored），**不要手改**，也不要把它的 diff 当"改动"提交。
+
+---
+
+## 5. 构建与出包
+
+```powershell
+# 主版构建（改完随手编）
+cd APP\LiurenFocusDiviner
+D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode module -p product=default --no-daemon
+
+# 出包（默认 free = 上架用；main = 开发版）
+python _tools/sign_release.py free
+```
+
+出包流程（`sign_release.py`）：
+
+```
+前置门禁（free → verify_free_edition.py，不过即中止：不构建、不出包）
+  → hvigor assembleApp（release 产品 + 正式签名）
+  → 归档上一刀（进 release_pkg/archive/）
+  → 复制到 APP/release_pkg/LiurenFocusDiviner-free-release-signed.app
+  → verify-app 签名校验（不是 verify-app success 就拒交）
+  → 出包后校验 verify_app_pkg.py（16 项：包结构 / 包内 versionName·versionCode / bundleName /
+     buildMode=release / requestPermissions 为空 / 收费块数据 ABSENT / 关键数据在位 /
+     rawfile 与主版源码树逐文件对齐 / 免费版入口开关已关）
+```
+
+**已知缺陷（2026-09-19 发现，待修）**：归档步骤把**上一个包**贴上**当前版本号**的标签
+（本次把在架 1.0.4 包归档成 `…-1.0.5-20260913-1800.app`）。核验字节相同后已删除该误导副本；
+脚本应改为标上一个包的版本（或加 `prev` 标记）。
+
+---
+
+## 6. 版本递进
+
+| 项 | 规则 |
+|:--|:--|
+| **版本真源** | `APP/LiurenFocusDiviner/AppScope/app.json5` 的 `versionName` / `versionCode`（免费版随同步复制） |
+| 编号 | `versionName` = `1.0.X`；`versionCode` = `100000X`（一一对应，递增，不跳号） |
+| 一次提交 | 一个版本号；**升版本号必须由用户明确要求**（交给 AI 决定版本号是不对的） |
+| 标签约定 | `vX.Y.Z-packaged`（出包源码锚点）→ `vX.Y.Z-submitted`（提审）→ `vX.Y.Z-onshelf`（上架）；`pre-*` 记录改造前状态 |
+| 出包后必做 | ① 更新 §8 发布记录（包指纹 + 流水线结果 + 内容要点）② 打 `-packaged` 标签 |
+| 提审后 | 补打 `-submitted`；审核通过并上架后打 `-onshelf` 并更新 §8 |
+| 商店资料 | 文案与截图清单在 `鸿蒙规范文档/商店页文案与截图清单.md`（每次上架前的素材与发布记录都在那里） |
+
+**出包到提审之间的纪律**：包一旦生成，其对应的源码状态就用标签钉住；此后只允许改文档与 `_tools`，
+App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代码"不是一回事）。
+
+---
+
+## 7. 主题、颜色与呈现纪律
+
+### 7.1 令牌体系
+
+- 两套同名令牌：`base/`（浅色，方案 A 偏金黄 —— 金色在浅底**必须加深**，`#F0D98C` 放白底上几乎不可读）
+  与 `dark/`（深色，原墨底金文）。**两表的令牌名必须完全一致**（门禁①）。
+- **默认深色**、应用内可切浅色（`ThemeStore`，偏好持久化；系统栏跟随）。
+
+### 7.2 角色比名字重要（拆分换来的教训）
+
+同一个色值在一次改造里可能承担**相反的角色**，浅色主题下无法兼顾，必须拆开：
+
+| 角色 | 令牌 | 两主题关系 |
+|:--|:--|:--|
+| 配深字的**亮色填充**（选中态、金卡） | `accent_gold_fill` / `accent_gold_fill_bright` / `accent_blue_fill` | 恒定（不随主题变） |
+| **文字 / 细线** | `brand_gold` / `brand_gold_bright` / `brand_gold_deep` | 浅色下**加深** |
+| **深底上的浅字** | `ink_on_deep_text` | 恒定 |
+| **金卡上的深字** | `ink_page` / `ink_on_gold_text` | 恒定 |
+| **案卷纸面**（纸色卡 + 深字） | `case_paper` / `case_snow` / `case_*` 系列 | 恒定 |
+| 遮罩 | `overlay_ink_scrim` | 深色=暗遮罩，浅色=亮遮罩 |
+
+**值驱动的令牌化只能定"值"、定不了"角色"**：两个令牌同值时，"谁赢"取决于 `color.json` 的**排序**
+（实例：`case_paper` 与 `ink_text_bright` 同为 `#F5EFE2`，纸色令牌把**文字位置**抢走了）。
+所以每加一批令牌都要跑 `_tools/token_roles.js`（角色审计）。
+
+### 7.3 颜色门禁六条规则（`_tests/_test_color_tokens.js`）
+
+| 规则 | 内容 | 为什么 |
+|:--|:--|:--|
+| ① | `base` / `dark` 令牌表对齐 | 深色缺键会**回落 base 值** ⇒ 该令牌不随主题变化（静默看错） |
+| ② | 可令牌化位置上不得有未登记色值 | 判定按位置：颜色属性白名单 / 紧邻三元兄弟是令牌 / 所在函数返回 `ResourceColor` |
+| ③ | 运行时取色名必须存在 | 画布用 `getColorByNameSync('名字')`，写错是**运行时**错、编译不报 |
+| ④ | 不得把色值藏在声明为 `string` 的地方 | 这类位置令牌化不了、也拿不到浅色值（"初传干支看不清"就是这个形状） |
+| ⑤ | 无死令牌（定义了却零引用） | 无用令牌制造"该用哪个"的二义性（配置文件引用的除外） |
+| ⑥ | 色值字面量不得赋给"颜色字段" | `color: '#E9C878'` 这类值会被当 prop 传下去，规则②④都覆盖不到 |
+
+### 7.4 对比度口径（`_tools/contrast_audit.js`）
+
+- **正文 ≥4.5:1；大字（≥24fp，或 ≥18.66fp 且粗体）与图标/边界 ≥3:1。**
+- 依据：官方 `homecheck ColorContrastCheck`（`> 4.5:1`，只覆盖文字，**会解析资源令牌**）
+  ＋ 应用市场自检口径"图标/标题 > 3:1"。
+- **半透明必须先合成到底色再算**；浅/深**两遍**都跑。
+- **只卡"有语义的边界与状态"**：`border`/`borderColor`（含三元，即选中态）、`divider({color})`、`.color()`；
+  不卡 `shadow`、渐变、常量发丝线 border、以及全部背景填充（本 App 的"选中"靠金边框 + 文字色表达，
+  10% 淡底在数学上到不了 3:1，不算语义边界）。
+- **跨文件 prop 追溯**：`fontColor(this.color)` 这类会沿调用点追（`_tools/prop_trace.js`：
+  直接值 → 表达式 → 帮助函数 return → `this.fn()[i].field`）。解析不到的会**打印成清单**，不静默跳过。
+
+### 7.5 呈现纪律（产品级）
+
+- **引擎出数、App 出呈现**：读数（干支生克、旺衰、旬空、神煞）由引擎算，界面只负责把它讲清楚；
+  不得在界面里重算或写死盘面事实（`_test_component_audit` 的 A1–A4 专门抓这个）。
+- **三种"空"必须区分**：① 确实无 ② 规则表未加载/缺内容（警示色）③ 未填未开。空态**要说话**
+  （原因取自 `ReasonText` 登记表），**不留白、不给现实结论、不出现数据文件名**。
+- **点宫速查卡 / 规则表速查栏 / 数据健康徽标**：点天地盘任一宫给该宫情；工具区给规则表状态；
+  缺表要显式提示。
+
+---
+
+## 8. 发布记录（新 → 旧）
+
+- **1.0.5 / 1000005（待提交，2026-09-19 出包）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
+  （1,576,985 字节，sha256 `A9D950D997F2575AC500EE702FB9B317252789C860D478396441AE38D376408F`）。
+  流水线四项全过：`verify_free_edition` → `assembleApp` → `verify-app success` → `verify_app_pkg` 16/16。
+  标签 `v1.0.5-packaged`。内容要点：浅色主题（`base` 浅色值 81 个令牌，双主题对比度 0 违规）
+  ＋ 天地盘画布改为运行时按令牌取色 ＋ 主题开关（**默认深色**，系统栏跟随）
+  ＋ 排盘"初传/第一课"特殊背景移除（原设计让干支掉到 3.1:1）＋ 颜色令牌门禁六条规则
+  ＋ 无用 import 门禁 ＋ 对比度门禁跨文件 prop 追溯；**引擎 `core/` 与 1.0.4 逐字节一致**。
+  ⚠ 浅色主题**未做真机目视验证**（只有计算出的对比度与构建/签名证据）。
+- **1.0.4 / 1000004（在架，2026-09-15 提交 → 2026-09-16 审核通过上架）**：包
+  `APP/release_pkg/archive/LiurenFocusDiviner-free-release-signed-1.0.4-onshelf-20260916.app`
+  （1,559,532 字节，sha256 `26BC3317…930E5`；包内 versionName=1.0.4、versionCode=1000004、
+  requestPermissions=0、收费块数据 ABSENT）。源码锚点 `v1.0.4-submitted`、`v1.0.4-onshelf`。
+- **1.0.3 / 1000003（历史，2026-09-11 上架 → 2026-09-16 被 1.0.4 取代）**。
+- **1.0.1 / 1000001（历史，2026-08-26 上架 → 2026-09-11 被 1.0.3 取代）**。
+  早期版本的详细记录见 `鸿蒙规范文档/商店页文案与截图清单.md` §11–§18。
+
+---
+
+## 9. 常见坑（都真踩过，别再踩）
+
+| 坑 | 现象 | 做法 |
+|:--|:--|:--|
+| **CRLF** | 脚本里用 `\n` 拼多行去匹配文件 → 匹配不到、静默不改 | 逐行处理（`split(/\r?\n/)`）或先探测 eol |
+| **脚本转义** | 在生成脚本里写 `\n`、内层引号 → 生成出语法错的文件 | 用数组 `join('\n')` 或模板字符串；复杂补丁直接写成独立模块文件 |
+| **宽 `git checkout`** | `git checkout -- <大目录>` 把并发/未提交的真实改动一起回滚 | 只还原**具体文件**；变异测试**先提交再变异** |
+| **并发 `check_all`** | 变异型门禁互相踩 → 工作区被静默污染 | 独占跑；入口有锁，别绕过 |
+| **值匹配的二义性** | 按值令牌化时同值令牌"谁赢"取决于排序 | 令牌化后跑 `token_roles.js`（角色审计） |
+| **免费版不同步** | 主版改了、免费版是旧的，编出来却 BUILD SUCCESSFUL | 改完必跑 `sync_free_edition.py`；出包前置门禁会兜 |
+| **pwsh 处理 CJK** | `Get-Content` 默认编码把中文读成乱码、`Set-Content` 写回就毁文件 | **不要用 shell 改源码**；用文件工具或 node 脚本 |
+| **文档整段替换** | 替换时顺手删掉相邻内容 | 整段替换后**必须回读** |
+| **手改生成物** | 改了 `model/pan/*.ets`，下次重建被覆盖 | 改 `core/liuren/**`，用 `_ets_pipeline.js` 重建 |
+
+---
+
+## 10. 文档地图（谁对什么权威）
 
 | 文档 | 权威范围 | 维护方式 |
 |:--|:--|:--|
-| **本文（Agent.md）** | **操作权威**：纪律、真源边界、构建/校验/出包流程、门禁索引、常见坑 | 收口时**就地订正**，并推进头部「最近更新 / 更新前 main HEAD」（`_test_docs_structure` 会校验存在性并打印落后提交数） |
-| `鸿蒙规范文档/商店页文案与截图清单.md` | **发布记录**：每一刀的用户可见变化、包指纹、归档链 | 只追加、不改旧口径（历史留痕） |
-| `大六壬文档/读象规则/读象数据覆盖度与内容鉴定报告.md` | **数据鉴定**：11 份文档 × 14 张表的覆盖度与合规扫描 | 数据变更时更新 |
-| `大六壬文档/**`、`鸿蒙规范文档/ArkTS开发规范指南.md` | **参考/历史**：传本、规范摘录 | 不当作操作依据；门禁里的同类结构问题只 WARN |
+| **本文（Agent.md）** | **操作权威**：真源边界、门禁、同步、版本递进、常见坑、发布记录 | 收口时就地订正，并推进头部「最近更新 / 更新前 main HEAD」 |
+| `鸿蒙规范文档/视觉风格/*` | 色彩/字体/图标/圆角/间隔规范 ＋ 本项目令牌清单、实现方式决定、剩余色值分类 | 改配色/主题时同步 |
+| `鸿蒙规范文档/商店页文案与截图清单.md` | 商店文案与截图素材 ＋ 历次发布记录（§11–§18） | 每次上架前更新 |
+| `大六壬文档/**` | 六壬内容：案例剧情方案与样张、各批审阅清单、速查表、口径对读 | 补内容时同步 |
+| `_tools/*.js` 头部注释 | 每个工具的口径、用法与踩坑记录（含"一次性迁移脚本"标记） | 改工具时同步 |
 
-**改本文档的纪律（2026-09-13 踩过两次）**：用「起点锚点 → 终点锚点」的**整段替换**改文档时，
-必须**回读该段确认没有吞掉中间条目**。两次实例：① 插入「免费版同步纪律」时把 `---` 分隔线吞掉；
-② 把「在架版」改成 1.0.3 时，把中间的「待提审版 1.0.4 指纹条 + 归档链」整条吞掉（当日未察觉，
-次日才发现）。**优先外科式锚点**（只替换那一行/那一句）；必须整段替换时，改完立刻 `read` 该区域核对。
-
-> 给后续 AI / 开发者：**先读本文档即可开工** —— 要跑什么、多久、规则住在哪、产物怎么出，都在这里；
-> 其他文档是证据与留痕，不是入口。
-
-### 免费版同步与校验
-
-```powershell
-python _tools/sync_free_edition.py     # 真同步：清空并重建免费版；剔除收费块数据（case_gallery/case_story）
-python _tools/sync_free_edition.py --check   # 【只判定】同一套规则干跑到临时目录，与现存免费版逐文件比对
-                                       #   缺 / 多 / 内容不同 都报；**不写工作区**；无白名单（规则即真源）
-python _tools/verify_free_edition.py   # 硬断言：收费数据不得在 + 免费数据必须全 + rawfile 与主版逐文件比对
-                                       #   + 【源码/配置树 = 主版 + 差异规则】（判定复用 sync，不另写清单）
-```
-
-### 免费版同步纪律（2026-09-13，一次静默漂移换来的）
-
-`LiurenFocusDivinerFree` 是**生成物**：免费版 = 主版 + `sync_free_edition.py` 的差异规则。
-两条铁律：
-
-1. **改了主版源码，先跑 `node _tools/_ets_pipeline.js`（内含同步），再编免费版。**
-   实测教训：改完主版 `PalaceCard.ets` 直接编免费版，构建 1.9 秒就 SUCCESSFUL —— 编的是旧代码。
-2. **差异规则只住 `sync_free_edition.py` 一处。** 判定方（verify / 打包脚本）只**调用**
-   `sync_free_edition.diff_against()` 或 `--check`，**不得另写白名单/允许差异清单** ——
-   那会变成第二处规则真源，规则一改判定就漂移。
-
-### 包内实证（.app → .hap → rawfile）
-
-```powershell
-python _tools/verify_app_pkg.py        # 【上传包级硬断言】默认校验 release_pkg 里那个免费包
-#   16 项：包结构 / 包内 versionName·versionCode（对主版 app.json5 真源）/ bundleName /
-#   buildMode=release / requestPermissions 为空 / 收费块数据 ABSENT / 关键数据在位 /
-#   rawfile 与主版源码树逐文件对齐 / 免费版入口开关已关；任一条不符 exit 1
-python _tools/verify_app_pkg.py --selftest   # 校验器的负向自检：篡改包必须被判 FAIL
-#   （放回 case_gallery.json → 必须报「免费包不含收费块数据」；剔掉 cal_2000.json → 必须报对齐失败。
-#    注意篡改副本的**文件名要保留 free 字样**：校验器按名判免费/主版，否则会「因为错的原因」通过）
-python _tools/_inspect_app_pkg.py APP\release_pkg\LiurenFocusDiviner-free-release-signed.app
-# 列出 rawfile/ancient、rule、cal 全部条目；免费包内若命中收费块数据则 exit 2
-python _tools/_diff_app_pkg.py <旧 .app> <新 .app>
-# 逐条目对比两包，定位字节差异来源（是否只少了该少的）
-```
-
-### 发布打包（release 产品 + 正式签名 → release_pkg）
-
-```powershell
-python _tools/sign_release.py free    # 免费版（上架用）= 默认；main = 主版
-# 产物：APP/release_pkg/LiurenFocusDiviner-free-release-signed.app
-# 流程（2026-09-13 起）：前置门禁（free 目标跑 verify_free_edition）→ assembleApp →
-#   **覆盖前自动归档上一刀** → 复制到 release_pkg → verify-app 签名校验 → 出包后校验（verify_app_pkg）
-# 前置门禁不过即中止：**不构建、不出包**（实测 fail-fast）；打包脚本不承载差异规则、不做同步。
-# 归档命名沿用 …-<版本>-YYYYMMDD-HHMM.app（时间取旧包 mtime；同分钟反复切刀加序号，绝不覆盖已有归档）——
-#   手工归档会漏（本轮就漏过一刀），故交给脚本。
-# 路径不写死：仓库根由 __file__ 推导（LIUREN_ROOT 可覆盖）；工具链可用 LIUREN_TOOLCHAIN /
-#   LIUREN_HVIGOR / LIUREN_JAVA / LIUREN_SIGN_TOOL 覆盖；缺失时给清晰提示而不是让 hvigor 抛错。
-```
-
-### 构建
-
-```powershell
-D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat assembleHap --mode module -p product=default --no-daemon
-```
-
-主版工作目录：`APP/LiurenFocusDiviner`  
-免费版工作目录：`APP/LiurenFocusDivinerFree`
+> 调色板的**唯一真源是 `resources/{base,dark}/element/color.json` 本身**。
+> `_tools/` 下若干脚本（`tokenize_colors` / `overlay_tokens` / `pending_colors` / `case_palette` /
+> `pandisk_tokens` / `light_palette` / `color_helper_upgrade`）是**一次性迁移工具，已执行完毕**，
+> 作用是留下"这批令牌当初怎么来的"记录 —— **不要把它们当调色板真源，也不要日常改色时改它们。**
 
 ---
 
-## 10. 常见坑
+## 11. 当前状态与下一步
 
-1. **Nutstore 同步导致写入冲突**
-   - 报错：`ReplaceFileW EIO (Win32 1175)` 或 “file changed since it was read”。
-   - 处理：等待几秒 → 重新 read → 再 edit。
-   - 不要并行改同一个文件。
+**已完成**：1.0.5 出包（§8）；全量门禁 45/45 PASS；浅色主题在代码层面完整
+（浅色值 + 画布运行时取色 + 开关 + 对比度双主题 0 违规）。
 
-1.5 **UI 的 `.ets` 行尾本来就混着 LF / CRLF（2026-09-12 踩过）**
-   - 现象：`components/**`、`model/pan/**`、`pay/**`、`pages/Legal/**` 里不少文件是 LF，
-     而 `pages/Index.ets` 等是 CRLF；`git status` 却干净（索引里就是 LF）。
-   - 别做的事：**不要**为了"统一行尾"把整目录转成 CRLF —— 会一次性制造几十个纯空白改动，
-     把真正的修改淹掉（实测 35 个文件）。按文件现状保留即可，是纯空白差异、不影响编译与产物行为。
-   - 附带现象：`git add/commit` 有时会触碰工作区文件（mtime 变新），导致下次 hvigor 判定需重编译。
-     这属正常，**提交含 UI 的文件后要重跑一次构建再打包**，否则包会比源码旧。
-   - 用 `write`/脚本整文件重写某个 `.ets` 时，请保持该文件原有行尾（读进来什么样、写回去什么样）。
+**待办（按优先级）**：
 
-2. **真源漂移（2026-09-10 踩过；2026-09-12 按组件化更新）**
-   - 只改 `core/liuren-core.js` 而没改真源（或反之），会让真源与产物不一致；
-   - 只改 `core/liuren/**` 而忘了 `node _tools/build_core.js`，测试跑的仍是**旧产物**
-     （测试加载的是 `core/liuren-core.js`，它不会自己变）；
-   - 手改 `core/liuren-core.ts`，或手改 `model/LiurenCore.ets` / `model/pan/*.ets`
-     → 下一次重建整体覆盖，改动直接丢失：**这三个位置是产物，不是真源**；
-   - 两侧不同步：改完 core 侧还要跑 `node _tools/_ets_pipeline.js`，
-     否则 A6 三端同构门禁会红（.ets 侧仍停在旧实现）；
-   - 改核心算法一律五步：改 `core/liuren/**` → `node _tools/build_core.js`
-     → `node _tools/_ets_pipeline.js` → 主版 hvigorw 构建 → 最后跑全套 `_tests/_test_*.js`。
+1. **浅色主题真机目视验证**（唯一没做的验证）：① 默认启动是否深色 ② 切换后页面与状态栏是否一起变浅
+   ③ 排盘页天地盘是否变浅、四课三传是否外观一致 ④ 杀进程重开是否记住选择。没有设备就做不了。
+2. **`sign_release.py` 归档命名缺陷**（§5）：应标上一个包的版本，而不是当前版本。
+3. 盘面**逐格**对比度（天支/地盘支/乘将/神煞四层彼此可分辨）目前只覆盖"语义边界 3:1"口径，
+   未逐格验；需要的话补一个盘面专用审计。
+4. 跨文件 prop 追溯只覆盖一层数据对象字段；更深的间接（例如经多层函数返回）会落进"无法解析"清单
+   （会被打印，不会静默）。
+5. 商店页素材若要展示浅色主题，需要补一组浅色截图（默认仍是深色，现有截图不算错）。
 
-3. **ArkTS 严格模式**
-   - 禁止 any/unknown。
-   - `ForEach` 回调最好显式写类型。
-   - 中文 key 可点访问，但接口要先定义。
-
-4. **核心字段名**
-   - JS 核心里是 `c.kegs`，不是 `c.sike`。
-   - 三传项是 `{ z, gz }`，天将要经 `jiangMap[gongOf(tp,z)]` 反查。
-
-5. **案例 input 字段**
-   - 必须是 `mj/dg/dz/hour`，月份用 `monthZhi`；可选年干支用 `yearGan/yearZhi`。
-   - 不要写成 `yueJiang/dayGan/dayZhi/mz/yg/yz`。
-
-6. **免费版**
-   - 免费版是生成产物，任何改动必须先改主版，再跑 sync/verify。
-   - 免费版当前不是“隐藏中黄”，而是“全功能开放无锁，只隐藏案例鉴赏入口”。
-
-7. **构建命令**
-   - 项目内没有本地 `hvigorw.bat`，必须用全路径：`D:\HarmonyOS\command-line-tools-6.1.1-release\bin\hvigorw.bat`。
-   - hvigor 打了 WARN 时进程可能仍返回非 0，但会打印 `BUILD SUCCESSFUL`；
-     判断构建是否真的成功，看产物时间戳（`entry/build/default/outputs/default/entry-default-signed.hap`）。
-
-8. **应用市场对比度自检（1.0.2 被卡在这里）**
-   - 要求：图标/标题文字 > 3:1，正文文字 > 4.5:1，且**系统浅色模式下同样量测**。
-   - 深色主题最容易踩线的是「弱化文字」那一档（`#5A4F3D` 实测 1.82:1 =
-     毕法赋卡下合规提示）；次要文字 `#8A7B5C`(4.02)、`#6B5F45`(2.64) 也不达标。
-   - 反方向同样会踩：浅色面板（案例鉴赏纸/淡蓝面板）里的文字必须用深色，
-     改配色**不能全库替换色值**，务必按容器分别处理。
-   - 改完必跑：`node _tools/contrast_audit.js`，要求 0 处低于 4.5:1。
-
-9. **页签导航（1.0.3 审核反馈）**
-   - 页签不要写「进入用 pushUrl、回排盘用 back()」：反复切换会把页面栈堆起来，回不到排盘页。
-   - 统一走 `model/NavUtil.ets` 的 `goTab / goTabWith`（栈里有就 `back(index)`，没有才 `pushUrl`）。
-   - `back({ url })` 不是可靠写法：栈里没有该页时**不响应**（等于没点）；
-     要先 `getStateByUrl` 查栈拿索引，再 `back(index)`。
-   - 页签回到已存在的实例不会重建页面 → 需要刷新的数据自己加 `onPageShow`。
+**不要做**：擅自升版本号、手改生成物、绕过唯一入口挑着跑门禁、并发跑 `check_all`、
+在界面里重算盘面事实、把收费块数据放进免费包。
 
 ---
 
-## 11. 下一步实施建议
+## 12. 旧章节号对照（本文件 2026-09-19 重写为"当前态"）
 
-优先级从高到低：
+重写时删掉了历史叙事与已完成的迁移记录，**章节号变了**。以下是旧 §N 现在去哪里 ——
+主要给**生成物里改不动的注释**用（`model/pan/*.ets`、`model/{LiurenCore,bifa}.ets` 头部写着
+「见 Agent.md §13」，那些文件由 `_ets_pipeline.js` 生成，**不要为了改注释去手改它们**）。
 
-1. **商店观察期（3~7 天）**
-   - 不动已上架截图/文案/包；
-   - 只看曝光、详情页访问、下载、投诉/驳回；
-   - 新截图继续归档备用。
-
-2. **中黄 UX 精修**
-   - 真机看双干同宫、身/变/传密度；
-   - 迷你天地盘：只标变干 + 一句说明；
-   - 古籍文本盘：原文不动，后续只加今盘对照；
-   - 案例详情后续再考虑中黄开关/宫情。
-
-3. ~~中黄 5 案补 reasoning~~ ✅ 已完成（`621e2be`）。
-
-4. ~~修中黄 5 案数据~~ ✅ 已完成（2026-09-10，随天将修正一并做）
-   - 4 案（`c13_1/c16_1/c18_1/c20_1`）月将改回「十一月将＝丑将」、月令子，`expect` 全部复算；
-   - 5 案 `original` 换为**经文断语原句**（逐字取自经文 1/13/16/18/20），「朱雀入关」等无据概括语删除；
-   - `c13_1`（经文13）、`c18_1`（经文18）、`c20_1`（经文20）修正后与经文课例**逐项吻合**；`c16_1`（＝癸卯日丑将卯时）与经文16 有涉害深浅之异 → 已写「存疑对读」，
-     **2026-09-10 补完诊断并正式登记**：见本文 §11.9 与 `_tests/_data/sanchuan_kaiyi.json`（已穷举 100+ 涉害计数组合证「取深」口径下无解；疑点在涉害候选集是否应先经比用筛选；不改引擎、不改经文）；
-   - 连带重锚两张逆布案证据链：`renzhan_bingyin_039`（午/白虎→辰/白虎）、`renzhan_wuchen_053`（酉/朱雀→酉/太阴，与原文「太阴乘酉加亥」一致）；
-   - `_test_ancient_gallery.js` 已回到 `ALL PASS (45 cases)`。
-
-5. **继续案例入库**
-   - 延续“用户找源/选源，助手 OCR 转写、写提取笔记、复算、入库、跑 validator”的节奏；
-   - 《壬占汇选》更多日课；
-   - 易藏其他书只作后续 mining，UI 提交不要带入 untracked 文本。
-   - 中黄 4 案 id 已按章号统一（`c13_1`/`c16_1`/`c18_1`/`c20_1`）并补 `chapterNo`；`title` 统一作「十一月（丑）将」。
-
-6. **付费版准备**
-   - 只在免费版正式上线稳定后开始；
-   - 付费内容定位为“古籍案例研读库增量”，不做功能锁；
-   - 商品/IAP 真机与沙盒流程最后再接。
-
----
-
-## 11.5 引擎修正：十二天将顺逆 / 昴星取用 / 遁干口径（2026-09-10）
-
-> 详见 `大六壬文档/排盘/天将顺逆修正对照.md`（含前后对照、自查清单、影响面统计）。
-
-**改了什么**
-
-| # | 问题 | 修法 |
-|:--:|:--|:--|
-| 1 | 天将顺逆失效：`order = shun ? JIANG_SHUN : JIANG_NI` 与「逆方向」叠加互相抵消 → 恒顺布，应逆布的盘十二天将整体镜像（10/12 宫错） | 抽唯一实现 `LiurenCore.buildJiang(dg, tp, hourZhi)`（js+ets 两个起盘入口共用）；`JIANG_ORDER` 恒定将序、方向由 `JIANG_SHUN_GONGS` 决定；删除 `JIANG_NI` |
-| 2 | 柔日昴星初传写死为「午」：`Z[(Z.indexOf("酉") - 3 + 12) % 12]` | 抽 `LiurenCore.maoxingFirst(tp, yangGan)`：刚日取地盘酉上神、柔日取天盘酉下神 |
-| 3 | 九宗门散落的魔数 | 八专 `BA_ZHUAN_STEP`、返吟井栏射 `JINGLAN_SHE`、伏吟自刑 `ZI_XING`、昴星锚 `MAOXING_ANCHOR` 全部具名化 |
-
-**规则唯一来源**：`core/liuren/pan/jiang.ts` 末尾「十二天将布列规则」块 + `LiurenCore.ets` 同名块（注释互指，改一处必须同步另一处）。
-
-**影响面（17280 盘全枚举）**：天将变化 50.0%（每盘 10/12 宫）；中黄变干乘将 41.7%；毕法命中变化 15.5%；柔日昴星 1.6%；至少一处 50.9%。
-
-**传本锚点**：经文13（初传太常·中传六合）、经文18（环列 亥天后·寅朱雀·巳青龙）、经文20（未贵人·申天后·酉太阴·戌玄武）、汇选046~049 课式图 —— 已固化进 `_tests/_test_jiangpan.js`。
-
-**注意**：`_tests/_test_jiangpan.js` 旧版把错误口径写成了断言（“巳时逆布：辰宫=天后”），已重写为传本锚点测试；`_test_core_regress.js` 本就排除天将比对，不受影响。
-
-**历史在架包同病**：1.0.1（2026-08-26 构建自 `84b755e`）在其在架期间（08-26 → 09-11）含这两个 bug；
-  按硬纪律当时不撤回/不重提，**1.0.3（2026-09-10 构建 / 09-11 上架）已含本修正**。
-
-**随修正一并处理**：① 中黄 5 案数据重修（月将/月令、expect 复算、`original` 换经文原句）——见 §11.4；② 两张逆布案证据链将名重锚（`renzhan_bingyin_039`、`renzhan_wuchen_053`）；③ `_test_ancient_gallery.js` 回到 `ALL PASS (45 cases)`。
-
-**遁干口径（同轮一并修正）**：新增 `LiurenCore.xunDun(dg,dz)`（旬遁，唯一实现）＋ chart 带 `dunXun`；三传 `gz`、天地盘中圈（默认）、地盘干、抓用神动态三传、用神节点卡一律走旬遁；中黄模式仍为日干遁(体)＋时干遁(用)双干。旬遁下空亡支留空 → 三传卡补「空」标（`ChuanCard.mark`）。传本锚点：汇选035/046/052、断案001、经文18（含「（原阙）」）固化进 `_tests/_test_dungan.js`。
-
-**贵人表校勘**：两份中黄文档的丁/辛/壬 三行已按传本校正（丁 昼亥/夜酉、辛 昼午/夜寅、壬 昼巳/夜卯）并附依据；代码未动。
-
-**仍待定**：① 辛/壬 贵人表暂缺本库传本实证；② 1.0.1 在架期间不含本轮修正（1.0.3 起已含）；③ 案例鉴赏收费设计（另议）。
-
----
-
-## 11.6 应用市场对比度自检修正（1.0.3 · 2026-09-10）
-
-**故障**：1.0.2 提交后自检未过 ——「系统浅色模式下控件文字与背景对比度存在问题」，报出某 Text 控件
-对比度 **1.83**（要求图标/标题 > 3:1、正文 > 4.5:1）。
-
-**定位**：`pages/Index.ets` 毕法赋卡（底 `#1C1A16`，内层 `rgba(233,200,120,0.08)` 面板）下方的合规提示
-`#5A4F3D` —— 合成底色下实算 **1.82:1**，与自检值吻合。全量扫描发现同类「太暗」文字共 137 处。
-
-**根因**：深色主题里 `#8A7B5C / #6B5F45 / #5A4F3D` 三级「弱化文字」全体低于 4.5:1；
-另有反方向的坑——案例鉴赏的**浅色面板**内混用了浅色文字（`#F0E6C8` 标题在纸底上只有 1.09:1）；
-标签底色本身也有不达标者（浅字压 `#3F7D6B` 仅 4.21:1、压 `#8A7B5C` 仅 3.62:1）。
-
-**修正**：深底弱化文字统一提到 `#A8986E`（对最亮深底 4.70:1）、金色辅助字 → `#C4A25C`、
-事类标签文字 → `#E08A7A`、用神标签底 → `#33705E`、旁证标签底 → `#5A4F3D`；
-浅色面板内的文字反向改深（`#2B241B / #6B5F45`）；`color.json`（base+dark）同步；
-`EntryAbility` 由 `COLOR_MODE_NOT_SET` 改为 `COLOR_MODE_DARK`（本应用为单主题深色）。
-明细表见 `鸿蒙规范文档/商店页文案与截图清单.md` §9。
-
-**门禁**：新增 `_tools/contrast_audit.js`（按 ArkTS 构建器结构推断文字真实底色：同行修饰符背景 →
-浅色区块 → 逐层外层容器 → rgba 合成 → 辅助函数 return 值；推不出时按最亮深底 `#352F22` 保守判定）。
-当前 323 处 `fontColor` **0 处低于 4.5:1**（退出码 0）。`--trace 文件:行号` 可打印某处的推断过程。
-
-**发布**：版号 → `1.0.3 / 1000003`；免费版 sync + verify PASS，零权限；签名包
-`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`（1,574,345 字节，
-SHA256 `3E55D6CA4A847DCB4F4F2D1E9117EEF8F635B85374E2DF73600FDA5D966B500E`，verify-app success）；
-1.0.2 提审包归档到 `APP/release_pkg/archive/`。**上架素材与文案未动**（版式未变，仅次要文字亮度提升）。
-
-**顺带修掉的一类隐形问题**：16 处 `Text` 未显式指定 `fontColor`（如中黄变干主线、时支行、年命行、
-🔒/🧭 图标行），在系统浅色模式下会取到主题的深色默认字色 → 深底上几乎不可见；
-声明单主题深色后这些文字回归浅色，同时浅色面板内也没有这类无字色文字（已扫描确认 0 处）。
-
-**结果**：1.0.3 应用市场审核通过（2026-09-10）。
-
----
-
-## 11.7 页签导航修复（1.0.3 审核反馈 · 未升版号）
-
-**审核反馈**：「排盘-排盘/课例/古籍：在重复进入课例/古籍界面时，点击排盘不能正确回到排盘」
-（测试环境 HarmonyOS 6.1.0 / API 6.1.1(24) 实机，要求下一版修复）。
-
-**根因**：三个页签「进入」用 `pushUrl`、「回排盘」用 `router.back()`——只退**一层**。
-反复进入课例/古籍会把页面栈堆成 `Index→Cases→Ancient→Cases…`，点「排盘」只退到上一个页签页。
-
-**修法**：新增 `entry/src/main/ets/model/NavUtil.ets`，三页页签切换统一走 `goTab / goTabWith`：
-1. 目标页已在页面栈中 → `back(index)` 直接回到它（页面不重建，排盘页盘面与用神保留）；
-2. 目标页不在栈中 → `pushUrl` 新开一页；
-3. 目标页就是当前页 → 不动（页签允许点当前项）。
-
-不用 `back({ url })`：文档明确「如果页面栈上没有 url 页面，则不响应该情况」（不在栈里等于没点），
-所以必须先 `getStateByUrl` 查栈、拿到索引后再 `back(index)`。
-SDK 声明已核对：`back(index, params?)` / `getStateByUrl` / `getState` 均在 `@ohos.arkui.UIContext` 的 Router 上。
-
-**配套改动**：
-- `Index.ets` 页签跳转改 `goTab`；新增 `onPageShow`：**仅在收到新令牌 `t`** 时按新日期重排
-  （`recastFromRoute()`），普通页签返回不带令牌 → 盘面保持不动；`restoreCase` 的重排逻辑抽为
-  `recastFromRoute()` 共用。
-- `Cases.ets` 页签跳转改 `goTab`；新增 `onPageShow` 刷新课例列表（页签回到已存在实例不会重建页面）；
-  `restoreCase` 改 `goTabWith(..., { y, m, d, hz, t })` 带令牌返回。
-- `Ancient.ets` 页签跳转改 `goTab`；`onBackPress`（案例详情先回列表）不变；`‹ 返回` 仍为 `back()`。
-
-**校验**：`node _tests/_test_navutil.js` —— 把 `NavUtil.ets` 真实代码抽出（去注释/类型注解），
-用按官方语义实现的模拟路由栈跑 9 项，含审核那串操作（反复横跳后点排盘回到排盘页、横跳不堆栈、
-栈中无排盘页时新开、课例恢复带参、`‹ 返回` 仍退一层）。**仅验证决策逻辑与文档语义，真机行为待上机确认。**
-
-**状态**：未升版号、未打包（1.0.3 已在架）；随下一版一并提交，更新说明草案见
-`鸿蒙规范文档/商店页文案与截图清单.md` §10。
-
----
-
-## 11.8 天将规则对账（用户反馈「己巳日 酉时 子将 第一课应为朱雀」· 2026-09-10）
-
-**反馈**：古籍排盘中，己巳日 子将 酉时，第一课（上神戌）盘中乘太阴，用户认为应乘朱雀。
-
-**查证**（三方对照）：
-1. **传本**：《六壬断案》39）某占家宅（正月己巳日子将酉时）课式印作 `蛇陈后朱` / 三传 `申勾陈·亥螣蛇·寅太阴`，
-   即第一课乘**朱雀** → 该书用**昼贵**（子）；而同一书 001）韩太守占祈雪（十一月己卯日寅将酉时）
-   课式与**原文自证**「子作勾陈」均按**夜贵**（申）→ 两例同为酉时而贵不同 → 属占例/排印差异。
-2. **规范**：`大六壬文档/json/十二天神与贵人.json` 与 `排盘/十二天神与昼贵夜贵说明.md`——
-   昼夜分界 卯至申昼、酉至寅夜（纯以占时）；贵人临亥子丑寅卯辰顺、巳午未申酉戌逆；将序恒定。
-   按此口径：酉时为夜 → 己日夜贵申 → 贵人乘申落巳宫 → **逆布** → 未宫＝太阴 → 引擎输出与规范一致。
-3. **引擎**：`buildJiang` 与规范**逐项一致**（贵人表 10 行、昼夜分界、顺逆宫位、将序、安贵人与布将方向
-   10 干×12 时×12 将 全枚举）。
-
-**结论**：引擎无需改动；该课按既定规范就是**太阴**，书中作朱雀是**书版/占例问题**。
-登记于规范 JSON 的「校验记录.问题与修正」。
-
-**顺带校勘**：规范文档「安贵人」原措辞「加临地盘**占时**宫位（贵加占时）」按字面实现会使天将
-只由占时决定、与日干无关，且与同文档第 4 步「在天盘上填入」矛盾 → 判为措辞笔误，
-已改为「加临该支在天盘所在的地盘宫位（贵人乘其支）」；引擎行为不变。
-
-**新增守门测试**：`_tests/_test_jiangpan_rules.js`——把规范 JSON 与引擎逐项锁死（含全枚举），
-任一侧漂移立即判否。
-
-**不设昼/夜开关（2026-09-10 定）**：一度考虑加「按占时 / 昼占 / 夜占」开关，以便照书上的图复核，
-**已否决**——昼夜贵由占时唯一决定（卯至申昼、酉至寅夜），规则是单值，给选项等于把规则降级为
-用户偏好、盘面无从对错，也会把书版排印差异混进盘面。书例不合者一律登记为书版存疑；
-复核时按书上的昼夜另算一遍并注明「该书此例作昼/夜占」即可，不动引擎、不加开关。
-
----
-
-## 11.9 三传·涉害复等口径修正 + 癸卯例存疑对读（2026-09-10）
-
-> **2026-09-12 补记**：本节所记「癸卯日 丑将 卯时」存疑**已消解**——随 3efa909「涉害取用改孟仲季优先」修正，引擎现与该例经文原文逐位相符（_tests/_test_sanchuan_spec.js 锚点 12/12 全过，sanchuan_kaiyi.json 已结案）。
-
-**问题**：`node _tools/ancient_corpus_audit.js` 报中黄经文课例三传 3/15 不符，三例全在涉害课。
-
-**根因**：涉害复等（见机/察微）判的是「**上神所临地盘宫**」是否孟/仲，原实现误判为「上神自身」是否孟/仲。
-
-**依据**（原文可核）：
-1. `大六壬文档/古籍原文-易藏-术数/六壬指南-明-陈公献/六壬指南-明-陈公献.utf8.txt` 第 24 行：
-   「……则名之曰涉害课，**先以寅申巳亥上乘之神为用**，则涉之深而建名曰见机……**若孟神上无克贼则以子午卯酉上乘之神为用**……」
-   ——「寅申巳亥**上乘**之神」「孟**神上**无克贼」＝地盘孟/仲宫位**所乘**之神，故姓孟/姓仲的是**地盘宫**，不是上神本人。
-2. 规范 md `大六壬文档/排盘/大六壬指南的四课三传的三传排法.md` §3 原措辞「先取孟位（寅申巳亥）**上神**」可被读反，
-   已订正为「**所临地盘宫**属孟/仲」并加**校勘注**（该 md 是本次唯一点名的规范文档）。
-
-**修正**：`resolveSanchuan` 涉害复等改判 `gongOf(tp, 上神)` 的孟/仲（`core/liuren-core.ts` → 手工同构 `LiurenCore.ets`）。
-**计数方向未动**（仍是「自所临地盘宫顺数地盘至本家，计地盘支克上神之数，取多者」）——曾试「逆数」，
-实测会把辛酉例改坏、全枚举不一致从 816 涨到 1272，已回退。复等只在**深浅相等**时介入（辛酉例：未2 > 卯0，径取深者）。
-
-**影响面**：全枚举 17280 盘，三传改变 **600 盘（3.47%）**，宗门迁移**全部为「涉害→涉害」**（四课/天地盘不受影响）。
-量化脚本：`node _tools/sanchuan_impact.js`（HEAD 旧引擎 vs 现引擎，两引擎各在独立 vm context 跑全枚举）。
-回归基线 `_tests/_data/sanchuan_baseline.json` 按其文件头指示 `--regen` 重生成（sweep 4908 条中变 160 条，全部为涉害课）。
-
-**存疑对读（不改引擎、不改经文）**：`16.释官讼门第十六.md` 第 183 行「癸卯日 丑将 卯时」
-书三传 **丑/亥/酉**、引擎 **亥/酉/未**（四课一致）。已穷举「起点×方向×止点×计数对象×取舍」100+ 组合，
-**「取深」口径下无任何计数组合能选中丑**（该例恒为 亥 ≥ 丑），复等亦不可救（深浅 1 vs 4 不等）。
-疑点在「**涉害课的候选集是否应先经比用筛选**」（该例两候选丑/亥同为阴支，比用筛不掉）。
-**不得为凑此例改规则**；登记于 `_tests/_data/sanchuan_kaiyi.json`，待更多传本再定（若他本亦作丑/亥/酉则查引擎候选集；若作亥/酉/未则书上为排印/占例差异）。
-
-**新增守门**：`_tests/_test_sanchuan_spec.js` 锚点由 3 条扩到 **6 条**（原《六壬断案》88/165/93 +
-中黄乙亥`16.md:218`/丙子`8.md:88`/辛酉`16.md:111`），改涉害口径必须先过这六条。
-
----
-
-## 12. 给后续 AI 的操作建议
-
-- 先跑：`node _tests/_test_ancient_gallery.js`
-- 改案例后必跑：反验 → 免费同步 → 免费校验 → 主版构建 → 免费版构建 → commit/push。
-- 改中黄/盘后必跑：`node _tests/_test_zhonghuang.js`、`node _tests/_test_zhonghuang_analyze.js`、`node _tests/_test_zhonghuang_dun.js`、`node _tests/_test_jiangpan.js`，并构建主/免费 HAP。
-- 改配色后必跑：`node _tools/contrast_audit.js`（须 0 处低于 4.5:1）→ 主版构建 → 免费 sync/verify → 免费版构建 → `python _tools/sign_release.py free`。
-- 改页签/路由后必跑：`node _tests/_test_navutil.js`（决策逻辑），并**上机确认**（模拟测试不覆盖真机行为）。
-- 改天将/贵人相关代码或改 `大六壬文档/json/十二天神与贵人.json` 后必跑：`node _tests/_test_jiangpan_rules.js`。
-- 改核心算法：改 `core/liuren/**`（真源，**不要手改装配产物 `core/liuren-core.ts`**）→ `node _tools/build_core.js` 重建 `core/liuren-core.js` → `node _tools/_ets_pipeline.js` 重建 `.ets` 模块与门面（含 `ChartCore`/`Chart` 接口字段）；三端必须同构（A6 抽查），且新增盘字段别忘 `withDx` 浅拷贝。
-- 写古籍案例时：先程序复算，再写断语解释；不要先信 OCR。
-- 遇到传本不一致：宁可写“存疑对读”，不要硬改引擎去迎合 OCR。
-- **盘面规则不要再写死**：天将/贵人/九宗门取用/遁干的常量与阈值一律进「规则块」并抽成具名常量或方法；两个起盘入口（`buildChart`/`buildChartAncient`）共用同一实现。
-- **规则口径单值、不给用户选项**：昼夜贵（卯至申昼 / 酉至寅夜）、顺逆、将序、旬遁等一经定论即唯一执行；书例不合登记「存疑对读」，不得加开关让用户自选（2026-09-10 定）。
-- **期望值来源要标注、不得为迎合而硬推**（2026-09-10 定）：案例/锚点的 `expect` 字段，凡古籍原文写明的（三传、四课、宗门/课体、乘将）**一律以书为准**；原文未载的派生字段**允许用引擎复算补齐**，但必须标注来源（`书` / `引擎复算`）。禁止为让测试变绿而写死个例、加特例分支、或把书值与引擎不一致处抹平；书与规范冲突时两个值都留，标「存疑对读」。
-- **遁干分层**：默认旬遁（三传/盘面）＝传统层；中黄两次遁只在「中黄」模式叠加，不得再拿日干遁当默认。
-- 任何涉及医疗/法律/投资/仕途/生死的文本，都加非建议口径。
-- 商店素材：默认不动；要动先确认是否真有必要，且只更新资料，不碰包和版本号。
-
----
-
-## 13. 引擎组件化方案（2026-09-10 定，2026-09-12 已执行）
-
-**回滚点**：附注标签 `v1.0.4-pre-componentize` → commit `7f988c95911d9bf97e19daf7555d5b4f46c57de1`（2026-09-10 打，已推远端；含三传九宗门规范重写＋涉害孟仲季优先＋防写死门禁＋1.0.4 包）。回滚：`git reset --hard v1.0.4-pre-componentize`。
-
-现状问题：`core/liuren-core.ts` 与 `APP/.../model/LiurenCore.ets` 都是 2200~2700 行单体，
-排盘定法、盘态、毕法、中黄、抓用神全挤在一个类里，改一处要通读全局。
-
-**拆分边界（每个模块只做一件事）**：
-
-| 模块 | 职责 | 关键不变量 |
-|:--|:--|:--|
-| `pan/tiandipan` | 天地盘：月将加占时、地盘↔天盘映射 | 规范《天地盘的天盘地支排法》 |
-| `pan/jigong` | 天干寄宫 | 甲寅/乙辰/丙戊巳/丁己未/庚申/辛戌/壬亥/癸丑 |
-| `pan/sike` | 四课（干→干阴→支→支阴） | 规范《四课排法》；已验 15/15 经文课例 |
-| `pan/sanchuan` | 九宗门·三传取用（含涉害顺数＋复等） | 规范《三传排法》；传本锚点 88/93 |
-| `pan/jiang` | 十二天将：昼夜贵、顺逆、乘将 | 规范 JSON《十二天神与贵人》 |
-| `pan/dungan` | 旬遁 / 日干遁 / 时干遁 | 《五子元遁法》；旬遁为传统默认 |
-| `pan/xunkong` | 旬空 | 旬遁下空亡支不配干 |
-| `pan/shensha` | 神煞起法 + 地盘本位 | `地盘本位神煞.md` |
-| `pan/dx` | 盘态：旺衰/气机点/关系/贵人状态 | 旺衰休囚死规则 |
-| `bifa` | 毕法赋一百法命中 | 一百法规则 |
-| `zhonghuang` | 中黄五变经（二次遁、变干主线） | 经文与两份中黄口径文档 |
-| `yongshen` | 抓用神（**唯一允许灵活的一层**） | 取象/评分，不进定法 |
-
-**三端同构策略（不能破坏）**：
-- 真源仍是 `.ts`（ArkTS 兼容子集、无 import/export 的全局脚本），按模块拆成多个文件，
-  由装配层 `core/liuren-core.ts` 依序引用 → `npx tsc` → `core/liuren-core.js`（Node/Web 仍只加载这一个产物）；
-- ArkTS 侧同名分模块（`APP/.../model/pan/*.ets`，ArkTS 原生 import），`LiurenCore.ets` 降级为门面；
-- 新增 `_tests/_test_modules_parity.js`：逐模块比对 .ts 与 .ets 的规则常量表与关键函数行为，
-  再跑全套 `_tests/_test_*.js` + 传本锚点。
-
-**执行顺序（2026-09-10 定）**：先把三传正确性收敛（八专余量、回归基线、主/免费版构建、命中率报告）
-→ 再做组件化拆分（纯结构改动、行为不变、以现有测试与传本锚点为回归网）→ 拆分完成后再动规则。
-
-### 执行结果（2026-09-12）
-
-**已按上表拆分完成，纯结构改动、行为不变。** 真源从单体搬到 `core/liuren/**`，两侧各有**唯一重建入口**。
-
-**core 侧实际模块清单（与上表逐行对应）**：
-
-| 上表模块 | 实际文件 | 类名 |
-|:--|:--|:--|
-| （类型） | `core/liuren/types.ts` | 顶层 `interface` 集中定义（无类） |
-| （公共底座） | `core/liuren/liuren-const.ts` | `LrBase` |
-| `pan/jigong` | `core/liuren/pan/jigong.ts` | `LrJigong` |
-| `pan/xunkong` | `core/liuren/pan/xunkong.ts` | `LrXunkong` |
-| `pan/jiang` | `core/liuren/pan/jiang.ts` | `LrJiang` |
-| `pan/dungan` | `core/liuren/pan/dungan.ts` | `LrDungan` |
-| `pan/sanchuan` | `core/liuren/pan/sanchuan.ts` | `LrSanchuan` |
-| `pan/sike` | `core/liuren/pan/sike.ts` | `LrSike`（四课实现集中在 `sikeOf`） |
-| `pan/tiandipan` | `core/liuren/pan/tiandipan.ts` | `LrTiandipan` |
-| `pan/shensha` | `core/liuren/pan/shensha.ts` | `LrShensha` |
-| `pan/dx` | `core/liuren/pan/dx.ts` | `LrDx` |
-| `bifa` | `core/liuren/bifa.ts` | `LrBifa` |
-| `zhonghuang` | `core/liuren/zhonghuang.ts` | `LrZhonghuang` |
-| `yongshen` | `core/liuren/yongshen.ts` | `YongShenCore`（独立文件，抓用神/读象） |
-| （门面） | `core/liuren/facade.ts` | `LiurenCore`：只做常量绑定、公开方法转发、类型 re-export |
-
-**core 侧装配方式（为什么需要装配层）**：模块间靠**全局同名 class** 互调（`LrXxx` 互调 + 门面转发），
-而 `tsc` **无法把多个文件拼成一个全局脚本**（一文件一产物、全局脚本无 import/export）。
-故必须有一层装配：`_tools/build_core.js` 按固定顺序拼装各模块 → **装配产物** `core/liuren-core.ts`
-→ `tsc` → **单一产物** `core/liuren-core.js`（Node 测试与 Web 端仍只加载这一个，加载方式未变）。
-
-**两侧各一个重建入口**（真源同为 `core/liuren/**`）：
-
-- core 侧：`node _tools/rebuild_core.js`（唯一入口：切片 `_core_split.js` → 补只读接口 `_core_api_extras.js` → 门面收尾 `_core_assemble.js` → 装配编译 `build_core.js`）；
-  只想装配不想重切片时用 `node _tools/build_core.js`（拼装 → 同一条 `npx tsc core/liuren-core.ts --target ES2017 --module commonjs --strict --noImplicitAny` → `node --check`）；
-  另有 `--check` 只校验「产物 vs 真源」是否一致（不一致 exit 1）。
-- ArkTS 侧：`node _tools/_ets_pipeline.js`（`_ets_facade_extras.js` → `_ets_split.js` → `_ets_qualify.js` → 免费版 `sync_free_edition.py` / `verify_free_edition.py`）；
-  生成物为 `APP/.../model/pan/*.ets` + `model/{bifa,zhonghuang}.ets` + 门面 `model/LiurenCore.ets`，之后接主版 hvigorw 构建。
-
-**可见性放宽 5 个成员（不是笔误，不要改回 `private`）**：
-
-| 成员 | 所在模块 | 放宽原因 |
-|:--|:--|:--|
-| `EMPTY_NODE` | `pan/dx.ts` | 跨模块引用空盘态节点 |
-| `wangT` | `pan/dx.ts` | 跨模块取旺衰表 |
-| `yearZhiOf` | `pan/dx.ts` | 跨模块由日记录取年支 |
-| `withDx` | `pan/dx.ts` | 跨模块附加盘态（新增盘字段别忘它） |
-| `findDayRec` | `pan/tiandipan.ts` | 跨模块按日期取日记录 |
-
-上述成员**原为 `private static`**，因被跨模块调用/被门面转发而提升为 `static`（两侧同一批）。
-性质是**可见性放宽，非逻辑改动**——看到它们不再 `private` 不要当成笔误改回去。
-
-**唯一的等价抽取**：四课实现抽为 `LrSike.sikeOf`（两个起盘入口 `buildChart` / `buildChartAncient`
-不再各自内联四课），**判定不变**。
-
-**门禁口径随之订正（均已生效）**：
-
-- **A2**（`_tests/_test_no_hardcode.js`）：例外只开给 **`.ets` 侧**——ArkTS 里 import 是唯一的
-  模块机制，允许模块 import（仍受 `require/fs/process/Date.now/new Date` 约束，**实质约束未放宽**）。
-  **`.ts` 侧维持原判据不放宽：任何 `import` / `export` 都违规**——真源是全局脚本，模块间靠
-  **全局同名 class** 互调（实测 `core/liuren/**` 一条 import 都没有，给 `.ts` 开口子等于白送）。
-  收紧后已做变异测试：往模块 `.ts` 注入「值 import / `import type` / `export`」三者均被判否，
-  注入后逐字节还原并复跑门禁通过。
-- **A3**（`_tests/_test_component_audit.js`）：原实现逐行近似判「这行是不是注释」，
-  块注释里含 `?` 的续行会被误判成代码（组件化后 `pan/jiang.ets` 中讲历史坑的那段正好被误报）。
-  已改为**字符级求块注释区间**。判据方向不变：**非注释**代码成组出现天将名仍违规。
-
-**回归证据（2026-09-12）**：
-
-- 行为快照 `node _tools/_core_snapshot.js`：**185981 条规范化输出逐条一致** ✓（总哈希
-  `f2a02d139a053ff7c820d8483eb2de923fc6e5159053c6987ac2eff8ed273aa1` 未变）；
-- 对外 API `node _tools/_api_parity.js`：与 tag `v1.0.4-pre-componentize` 产物比对 **0 缺失**（只增不改：新增 `buildSiKe`/`ruleHealth`/`missingRules`/`palaceLookup` + 16 项模块类暴露；常量 31 项全一致）✓；
-- **34 个测试全绿**（`_tests/_test_*.js`；含 `_test_readxiang_single_source.js` 单一真源门禁与
-  `_test_ui_foreach_key.js` ForEach 键门禁）；`node _tools/build_core.js --check` 报「与真源一致 ✓」；
-- 两侧 HAP **BUILD SUCCESSFUL**（主版 + 免费版）。
-
-**真源基线 tag**：`v1.0.4-pre-componentize`（两侧切片脚本都从它取单体基线）。
-
----
-
-## 14. 空态纪律与自查工具（组件化后实施）
-
-> 本节**只约束 UI 与自检工具，不改排盘定法**；组件化（§13）完成后执行，§13 之前落地其中 1、2 两节亦可。
-
-### 14.1 根源问题：三种「空」必须区分
-
-现在**神煞 / 毕法 / 中黄 / 年命 / 行年**任一栏为空时，界面上长得一模一样：都不显示、或只显示一个 `—`。但这三种「空」意义完全不同：
-
-| # | 空的种类 | 例子 | 用户应看到 | 现状 |
-|:--:|:--|:--|:--|:--|
-| ① | **本来就该空** | 本课确实未命中毕法；该支本位确实不带神煞 | 「为什么空」的一句说明 + 规则出处入口 | 无说明 |
-| ② | **数据被改坏或未加载** | 某张规则表被改名 / 规则表缺失 / 加载抛错（**提示里不得写数据文件名**，见 §14.2 纪律） | **必须显式报错**：该栏标「规则表未加载」+ 一次性提示 + 日志 | **静默空白 ✗（当前行为）** |
-| ③ | **用户不懂为何不中** | 有 100 法却一条未中；神煞名看不懂 | 判定口径、规则表、可检索全文 | 无入口 |
-
-**根因**：①与②在代码里走的是同一条「没有值 → 不渲染 / 显示 `—`」路径。
-**纪律**：**无值的来源必须可分辨**——「确实无」与「没读到」在 UI 上不得同形。
-
-### 14.2 空态要说话（原因文案）
-
-每个可能为空的栏位都必须带**原因文案**，而不是留白：
-
-| 栏位 | 空的原因 | 文案（草案） | 附加入口 |
-|:--|:--|:--|:--|
-| 毕法 | ① 本课未命中 | 「本课未命中可判定格局 · 毕法共 100 法，其中 18 法可自动判定，其余需结合占事取象」 | 「查看判定规则」 |
-| 毕法 | ② 规则表缺失 | 「毕法规则表未加载，本栏不可用」（红色，见 §14.3） | 「查看数据自检」 |
-| 神煞 | ① 该支本位无 | 「本课该支本位无神煞」 | 「神煞起法速查」 |
-| 神煞 | ② 规则表缺失 | 「规则表未加载」 | 「查看数据自检」 |
-| 中黄 | 未开中黄 | 「未开中黄天地盘」+ 一句开关说明 | 开关本身 |
-| 年命 | 未填年支 | 「未填本命年支，年命栏不参与判断」 | 输入入口 |
-| 行年 | 未算 | 「行年未算出」（见 §14.7 第 3 条，**不得静默消失**） | 「查看数据自检」 |
-
-**依据（当前数据）**：神煞名来自 `c.dx.shensha.byZhi`（键为天盘支 / 地盘宫）；毕法可判定法取自 `毕法赋一百法.json` 的 `判定.可判定`；「18 可判定格局」见 `LiurenCore.ets` 的「毕法赋格局识别（18 可判定格局）」注释。
-
-**口径**：文案必须**只陈述规则、不给现实结论**；照 §11.6 的合规口径，不得出现医疗/法律/投资/仕途/生死的确定断语。
-
-**纪律（2026-09-12 补）**：**缺表提示不得出现数据文件名**——不得写「`xxx.json` 未加载」，
-要写「某规则表未加载」（规则表名可写，文件名不可写）；引擎代码里出现 `.json` 会被
-`_tests/_test_no_hardcode.js` 的 **A1** 判否（A1 token 表含 `.json` 与 `rawfile`）。
-
-### 14.3 数据健康徽标 + 自检页
-
-**徽标**（设置页 / 首页常显）：
-
-- 正常：`规则数据：已加载 14/14 表 ✓`
-- 缺表：黄色警示 `规则数据：已加载 11/14 表 ⚠`，点开给**缺表清单**（表名 + 失败原因）。
-  > **口径订正（2026-09-12 实施）**：原文写「表名 + 期望路径 + 失败原因」，但 §14.2（补）的纪律要求
-  > **缺表提示不得出现数据文件名**，两条冲突 → 取更严的一条：用户可见的清单与导出诊断**只给规则表名 + 原因**，
-  > 不给文件名/路径；排查需要的文件路径在源码与自检脚本里查，不进用户界面。
-
-**计数口径**（不要写成「CoreRules 有 8 表」就完事）：以 `rawfile/rule/*.json` 的**已知表清单**为分母（当前 14 张），逐表记录「读到 / 未读到 / 解析失败」；`DataLoader.loadCoreRules()` 只组装其中 7 张（另 1 张 `行年打分.json` 单独 try 加载），其余由 `loadZhanShi / loadBifaCoach / loadKetiYi / loadLeixiang / loadXiangyi` 各自加载——徽标计数按**实际入口逐个登记**，不按目录数硬编码。
-
-**一键数据自检**（逐表报告）：条目数、必填键是否齐、版本/来源字段、加载时间戳。
-**一键导出诊断信息**：上述自检结果 + 表清单哈希 + 版本号 + 日期时辰，可复制文本（离线，不联网）。
-
-**实现注记**：「加载成功与否」必须由 `DataLoader` 逐表返回状态，**不得**再用 `try/catch` + 空兜底吞掉（§14.6）。
-
-**可查询的缺失清单 API 现状（2026-09-12 补）**：
-
-- **core / Node 侧：已提供**——`LiurenCore.ruleHealth()` 与 `LiurenCore.missingRules()`
-  （读**引擎真正使用**的路径，不是扫目录）：缺表 → `loaded=false` + `note`；
-  表在但无条目 → `loaded=true` / `entries=0`（**这两种必须区分开**，后者是数据问题不是加载问题）。
-- **ArkTS 侧：暂未提供**——其「按表名取字典」的写法会触发 ArkTS 的 `arkts-no-props-by-index` 编译报错，
-  故 `.ets` 侧不提供同名 API，改由 `DataLoader` 的**逐表状态**承担（见本节上面的计数口径）。
-- **UI 侧：已落地（2026-09-12）**——首页常显徽标 + 自检面板，吃的是 ArkTS 侧 `DataLoader` 的逐表登记；
-  core/Node 侧对话框与 Web 端仍走 `ruleHealth()/missingRules()`。
-  实测文件：`model/RuleHealth.ets`（登记/自检/诊断）、`components/SlotEmpty.ets`（空态说话）、
-  `components/RuleHealthBadge.ets`（徽标）、`components/RuleHealthPanel.ets`（自检面板 + 导出诊断）、
-  `model/ReasonText.ets`（空态文案登记表）、`model/DataLoader.ets`（逐表 `readRule/parseRule/report`）。
-
-### 14.3.1 实施记录（2026-09-12，与本节规范逐条对应）
-
-| 规范要求 | 落点 |
+| 旧章节 | 现在的位置 |
 |:--|:--|
-| 徽标常显 + 缺表可点开 | `components/RuleHealthBadge.ets`（首页 `Home.ets` 常显），点开 `RuleHealthPanel.ets` |
-| 计数按实际入口逐表登记 | `RuleHealth.TABLE_KEYS`（14 张）+ `DataLoader` 各 loader 内 `readRule/parseRule/report` 登记；`_test_ui_empty_state.js` E6 核对「登记张数 = 实际规则表张数」且无漏登记 |
-| 一键数据自检 | `RuleHealth.selfCheckText()`（条目数 / 必填键 / 版本 / 登记时间）；面板逐表列出 |
-| 一键导出诊断（离线可复制） | `RuleHealth.diagnoseText()` + 面板「导出诊断（复制）」走 `pasteboard`，并同屏显示可长按选择的诊断文本 |
-| 不得用 try/catch 空兜底吞掉 | `readRule` 读失败即 `fail`；`parseRule` 解析失败即 `fail`；`report` 记必填键缺失；盘仍照旧排出 |
-| 行年不得静默消失（§14.7 第 3 条） | `Index.ets` 新增 `computeXingNian()`（成功 / 未填 / 缺表 / 异常四态），**全部 6 处**调用点统一改走它；`_test_ui_empty_state.js` E5 断言「Index 里只剩 1 处 `LiurenCore.xingNian(`，且必须在 `computeXingNian` 内」 |
-| 缺表一次性顶部提示 | `Index.ets` 顶部横幅（`RuleHealth.consumeTip()` 保证每次启动只提示一次）+ `hilog` 日志（每表一次） |
-| 无声空态 = 测试失败 | 新增常驻门禁 `_tests/_test_ui_empty_state.js`（E1–E8，见 §9） |
+| §2 硬纪律 | §0「怎么用这份文档」＋ §7.5「呈现纪律」＋ §9「常见坑」 |
+| §3 免费版/收费版边界、安装共存 | §1「两个版本」＋ §4「免费版同步」 |
+| §4 目录结构与职责 | §2「真源与生成链」 |
+| §5 Git 情况 | §6「版本递进」（标签与锚点约定） |
+| §6 中黄天地盘 UX v1 | §1 功能列表（产品行为以代码与门禁为准） |
+| §7 商店页与截图节奏 | §10 文档地图 → `鸿蒙规范文档/商店页文案与截图清单.md` |
+| §8 古籍案例库进展、topics 词表、剧情「一局多占」 | §2.2 ＋ `大六壬文档/案例剧情/剧情补录方案与样张.md` |
+| §9 工程命令、案例反验、各项反验配方 | §3「门禁体系」＋ §5「构建与出包」＋ §9「常见坑」 |
+| §10 常见坑 | §9（同名保留） |
+| §11 下一步实施建议 | §11「当前状态与下一步」 |
+| §11.5–11.9 引擎历次修正（天将顺逆 / 昴星 / 遁干 / 涉害等） | **已删**：行为真源是 `core/liuren/**` ＋ 对应门禁；过程看 git 历史 |
+| §12 给后续 AI 的操作建议 | §0 ＋ §9 |
+| §13 引擎组件化方案（已执行） | **已删**：现状见 §2.1（生成链与基线 tag `v1.0.4-pre-componentize`） |
+| §14 / 14.1–14.8 空态纪律、数据健康、点宫速查、规则表速查 | §7.5「呈现纪律」 |
+| 「读象读数：引擎出数 / App 出呈现」 | §7.5 第一条 |
 
-### 14.4 点宫速查卡（点天地盘任一宫）
-
-点任一宫 → 弹出该支的速查卡，一屏给全：
-
-- 该支五行阴阳
-- 与日干、与用神的生克关系
-- 是否气机点
-- 是否空亡
-- 所带神煞
-- 所乘天将
-- 遁干（旬遁；中黄模式下另列日干遁 / 时干遁）
-- **该支在本课的角色**（用神 / 初传 / 中传 / 末传 / 日支 / 未入传 …）
-
-**三张「App 加载但引擎未读」的规则表归入此处**（不删除，也不作为「给读者读的 JSON」）：
-
-| 规则表 | 磁盘路径 | 现状 | 归入 |
-|:--|:--|:--|:--|
-| 十二宫气机点 | `APP/LiurenFocusDiviner/entry/src/main/resources/rawfile/rule/十二宫气机点.json` | `DataLoader` 已读进 `rules.duxiang["十二宫气机点"]`（`DataLoader.ets:163/186`），**引擎尚未真正读取** | 「是否气机点」的规则出处 + 「查看判定规则」 |
-| 空亡规则 | 同目录 `空亡规则.json` | 同上（`DataLoader.ets:164/187`），未读 | 「是否空亡」的规则出处 |
-| 助日规则 | 同目录 `助日规则.json` | 同上（`DataLoader.ets:165/188`），未读 | 生克/助力说明的规则出处 |
-
-**待办**：三表要么**接入引擎**（走 §13 的模块化路径，接入后由 §14.7 门禁守住），要么**在速查卡里作为可点开的规则出处**呈现；**不得**继续「加载了但没人读」地悬着，也不得当成读者要读的原始 JSON 直接摊开。
-
-### 14.5 规则表速查栏（工具区）
-
-放一处，给用户自己查规则（**只读、可检索、可折叠**）：
-
-- 神煞表（神煞起法）
-- 五行生克关系表（基础关系：六冲 / 六合 / 六害 / 三刑）
-- 空亡规则
-- 十二宫气机点
-- 毕法 100 法全文（**可检索**：按法序、法名、赋文、白话关键字）
-
-**排序**：与「点宫速查卡」同属 §14.4 的规则出处体系，**与组件化一起做**。
-
-### 14.6 毕法「差在哪」（可选后续）
-
-本课 0 命中时，列出**最接近的 1~2 条**，并说明**差哪个条件未满足**（例：「差：初传未乘玄武」/「差：日干未临长生」）。
-
-- 复用现成资产：引擎已有 18 格命中判定 + `毕法教练.json` 的定位/定象/定时/定策/定级数据，不需要新建规则体系。
-- **个别条需补判定条件**（把判定条件写进 `毕法赋一百法.json` 的 `判定` 块），**不得硬判**——即不得为了「差在哪」能出结果而在代码里写死个例、加特例分支（§12 与 `_test_no_hardcode.js` 已立此纪律）。
-- **单独排期**，不阻塞 1~4。
-
-### 14.7 纪律（缺表、静默、行年）
-
-1. **缺表 → 照旧出盘**，不得整体 fail-fast：用户明确要求「总能排出来」。
-   但对应栏目**必须**标「规则表未加载」+ **顶部一次性提示**（每次启动只提示一次，不反复弹）+ **写日志**。
-   （`Index.ets:243` 现在的 `catch { /* 规则加载失败：引擎以空规则兜底，可继续排盘 */ }` 就是典型：继续排盘是对的，**什么都不说**是错的。）
-2. **无声空态 = 测试失败**：本条要加进常驻门禁 `_tests/_test_no_hardcode.js`——
-   静态扫「规则表驱动的栏位」在无值分支里是否**只**做了 `return '' / null / 不渲染`；命中即判否，除非同处有显式的原因文案或状态位。
-   与 `_test_component_audit.js` 的 B2 / B2c（兜底分级 + 运行期复现）分工：B2 判「引擎侧有没有被掩盖」，本门禁判「UI 侧有没有说出来」。
-3. **行年不得被吞成静默消失**，必须改成可见提示：
-   - 引擎侧 `LiurenCore.xingNian` 在 `rules.xingnian` 的 `kong` / `bands` 缺失时会抛错（`LiurenCore.ets:2151~2160` 直接 `rule.kong` / `rule.bands.length`，无守卫）；
-   - 宿主 `Index.ets` 的 `try/catch` 会吞掉它 → 行年**整块静默消失**（此现象已登记在 `_tests/_test_component_audit.js` 的 B2 报告，见该文件 `warn('B2', '……行年整块静默消失')` 一处）；
-   - 判定经验：`行年打分.json` **整个文件缺失**时 `DataLoader.ets:214` 兜底为 undefined → 引擎走内置默认表 `XN_SCORE_DEFAULT`；**键被改名/缺失**时 `DataLoader.ets:205~213` 照赋 undefined → 引擎抛错 → 被宿主吞掉。所以「文件没了」看得见、「键改名了」看不见，**正是要堵的那一类**。
-   - **修法**：`xingNian` 调用点包一层显式状态（成功 / 缺表 / 异常），缺表时行年栏显示「行年打分表未加载」而不是消失，并进日志与自检清单。
-4. **不为让栏位好看而放宽判据**：不得为了消灭空态而造值、不得给规则表加「看起来像」的默认结果（与 §13 组件化纪律、B2 口径一致）。
-
-### 14.8 实施顺序（写进去照做）
-
-| 优先级 | 内容 | 理由 |
-|:--:|:--|:--|
-| **1** | §14.2 空态说话 + §14.3 数据健康徽标 / 自检页 | 低成本，直接消除「是不是坏了」的疑虑；不动算法 |
-| **2** | §14.4 点宫速查卡 + §14.5 规则表速查栏 | 与组件化（§13）一起做：三张未读规则表正好在拆分时决定「接入还是只作出处」 |
-| **3** | §14.6 毕法「差在哪」 | 需要先补判定条件，**单独排期** |
-
-**门禁接入顺序**：§14.7 第 2 条（无声空态）随第 1 优先级一并加进 `_tests/_test_no_hardcode.js`；第 3 条（行年可见提示）随第 1 优先级修，并补一条运行期断言。
-
-### 读象读数：引擎出数 / App 出呈现（2026-09-13）
-
-三张读象规则表（`十二宫气机点` / `空亡规则` / `助日规则`）此前是「已加载但引擎从不读」。现已接上盘，
-分工固定为两条腿，**不要在两侧各写一套判断**：
-
-- **引擎（core/liuren/pan/dx.ts）**：`qijiReading(c, 天盘支)` 出"宫位名（已算 qiJi）× 表内象义 × 冲宫/合宫/三合/延长带、
-  空亡三态（同宫空亡/冲空 由旬空与六冲算出；填实只作条件说明）、冲支"；`zhuriWhy(c)` 出月将/贵人的逐条缘由。
-  两者经门面转发（对外 API 只增不改），Node/Web 端直接用。
-- **App（components/PalaceCard.ets + pages/Index.ets）**：**只呈现引擎给的行**。App 侧原有一份重复装配
-  （`model/ReadXiang.ets` + `model/ReadXiangData.ets` + DataLoader 里的摊平层）已于 2026-09-13 **删除** ——
-  同一份判断在两侧各写一套，任一端改了另一端不动就是静默漂移。
-  - `Index.openPalaceCard()` → `LiurenCore.readXiangCard(c, z, yongShen)`（行 = `Record<string, string>`，
-    四字段 `label`/`text`/`source`/`tone`，顺序照《以炁为基点读象》的三层景）；
-    `Index.toggleZhuri()` → `LiurenCore.zhuriWhy(c)`，取 `yueJiang`/`guiRen`/`note`/`kouJue` 排成行。
-  - **点盘交互（2026-09-13 用户决定 A）**：点天地盘宫位 = 取用神（照旧）+ 开宫情卡，**不再自动弹出**
-    「抓用神」半模态（半模态会盖住卡片）。要看用神缘由点「抓用神 · 读象」按钮；页面既有
-    「⚡ 外应取用：×」提示行承担告知。实现：`pickCustomZhi(zhi, layer, openSheet)` —— 点盘传 `false`，
-    抓用神面板内的迷你盘传 `true`（面板本已打开，不可自己关掉）。
-  - `PalaceCard` 只排版：小标题 + 正文 + 可选「原文」行（tone 三色）。引擎缺表时把说明放在 `note`，
-    App **必须显示**（warn 色调）—— 静默留白等于骗人（§14.1）。
-  - ArkTS 形状纪律：**接口字段用点访问，`Record` 才可下标**。extras 片段是逐字追加、**不做** `X["k"] → X.k`
-    改写（只有切片路径会改写），所以真源里一律写点访问（`LiurenCore.rules.duxiang.基础关系`、`gx.六冲`）。
-
-**门禁**（改这两处后都要跑）：
-
-```powershell
-node _tests/_test_readxiang.js                # 表被读的负向验证（改表即改输出）＋ 空亡三态 ＋ 缺表不静默 ＋ 我方陈述合规
-node _tests/_test_readxiang_single_source.js  # 单一真源：S1 无重复实现 / S2 三端齐备且门面无重复转发 / S3 消费契约
-node _tests/_test_compliance_wording.js       # C1 八字专有语汇 / C2 算命占卜类词 / C3 出处纪律（白名单须写理由）
-```
-
-**三条纪律（都踩过）**：
-
-1. **不得往随包规则表注入"消费方不认识的键"**——为记录出处把 `元数据.来源` 写进 `占事体系/类象库/行年打分` 后，
-   行为快照出现 1 个分区不一致（顶层键会被读象/词云遍历）→ 出处一律登记在表外
-   `_tests/_data/compliance_provenance.json`。
-2. **禁词表要先验证本项目的既有用法**——`比肩` 在本项目是**六亲名**（引擎 `liuQin`），门禁首次运行误杀过它；
-   `食神`（管辂体系神煞名）、`正财/偏财`（占事体系财之来源）属歧义词，只计数不判否。
-
-3. **ArkTS 生成物有两个坑（本轮实测，都已加守门）**：
-   - `_ets_split.js` 的 `FORWARD` 里一行转发被**整行复制**（`palaceLookup` 出现两次）→ 门面生成两个同名方法
-     → ArkTS 报 `Duplicate function implementation`。阴险之处：树里旧的生成物仍是单条，**故障要等下次重新生成才爆**。
-     现在生成脚本自带「转发去重」断言（同一签名出现两次即抛错，已用变异测试证明会红），门禁 S2 再兜一层。
-   - `pan/types.ets` 的 interface 是从**基线 tag `v1.0.4-pre-componentize` 的 `.ets`** 切出来的（不是从真源 types.ts 切），
-     早于读象三表 → 新增的规则表键必须**注入切片体**（`_ets_split.js` 中对 `DuxiangRulesRaw` 的注入）。
-     不注入的后果：引擎读 `rules.duxiang.十二宫气机点` 报 `Property '十二宫气机点' does not exist on type 'DuxiangRulesRaw'`，
-     并连带三条 `arkts-no-any-unknown`（属性不存在 → 该表达式退化为 any）。
-
-4. **UI 列表的 ForEach 键必须内容派生（2026-09-13 真机缺陷）**：点宫速查卡的键原为
-   `'pc' + i + r['label']`，而同一卡片在不同宫位下**行标签集与顺序恒定** → ArkUI 判定为同一批子组件，
-   **复用且不更新其内容**。真机现象极具辨识度：卡片标题（`@Prop title`）在变、**正文却停在上一个宫位**，
-   收起卡片再点才对。修法：键 = 索引 + 内容（`'pc' + i + '|' + label + '|' + text + '|' + source + '|' + tone`）——
-   索引在前保证键唯一，内容在后保证内容变化必然重建。古籍研习另五处同类键（`'dline' + li` 等）一并清掉。
-   门禁：`_tests/_test_ui_foreach_key.js`（扫两侧 App 全部 `.ets`，判定每个键生成器是否引用条目自身；
-   已做变异测试证明会红）。**键里只有索引/字面量 = 迟早静默显示旧内容**。
+**为什么删而不留**：这些是"我们从旧形态转到现在"的过程记录，迭代多个版本后已不再指导日常操作；
+保留会让读者把精力花在考古上。真源与门禁才是当下的权威 —— 过程需要时查 git。
