@@ -390,3 +390,62 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 
 **为什么删而不留**：这些是"我们从旧形态转到现在"的过程记录，迭代多个版本后已不再指导日常操作；
 保留会让读者把精力花在考古上。真源与门禁才是当下的权威 —— 过程需要时查 git。
+
+---
+
+## 13. 附录：目录树 · 页面流程 · 不入库 · 合规口径
+
+> 原 README.md 的独有内容并入此处（README 现仅作指路牌，自身不再承载事实，避免两处漂移）。
+
+### 13.1 仓库目录树
+
+```
+├─ core/                       # ★ 引擎真源：liuren/**.ts
+│   └─ liuren-core.js          #   生成物（build_core.js 重建）——勿手改
+├─ APP/LiurenFocusDiviner/     # 鸿蒙主项目（全功能开发版，唯一源码树）
+│   └─ entry/src/main/
+│       ├─ ets/pages/          #   Splash(引导) Home(起课台) Index(排盘) Cases(课例) Ancient(古籍) Legal/(协议)
+│       ├─ ets/components/     #   PanDisk(天地盘canvas) KegCard ChuanCard YongShenSheet CaseBoard
+│       │                      #   AncientStudy AncientCaseGallery PalaceCard RuleHealth* TagBadge …
+│       ├─ ets/model/          #   ★ 生成物：pan/*.ets、LiurenCore/bifa/zhonghuang.ets（_ets_pipeline.js 重建）
+│       │                      #   手写：DataLoader CaseStore YongShenCore ThemeStore ReasonText RuleHealth
+│       ├─ ets/FeatureFlags.ets#   版本形态开关（免费版同步脚本置隐藏项）
+│       ├─ ets/pay/            #   付费门禁（PayConfig/PayGate/IapAdapter；过审版全功能开放）
+│       └─ resources/          #   ★ 视觉真源：base/(浅色) dark/(深色) element/{color,float}.json + rawfile/(数据)
+├─ APP/LiurenFocusDivinerFree/ # 免费上架版 —— 生成物，不入库（sync_free_edition.py 重建）
+├─ UI/                         # Web 原型（独立 HTML，无构建）：万年历起课 / 壬案推演 / 排盘教学 / 浅色主题对比
+├─ 大六壬文档/                 # 六壬内容：案例剧情方案与样张、各批审阅清单、速查表、经文校对
+├─ 鸿蒙规范文档/               # 鸿蒙规范文档 + 本项目令牌清单/实现方式决定/商店页文案与截图清单
+├─ 万年历JSON数据/             # 历法底座（json/ 1900–2060 分片 + ext/ 校验扩展）
+├─ _tests/                     # 门禁（45 项，见 §3）
+├─ _tools/                     # 构建 / 生成 / 同步 / 打包 / 门禁工具（每个文件头部写着自己的口径）
+└─ tools/                      # 历法数据再生成脚本（.pyext 依赖，不入库）
+```
+
+### 13.2 页面流程
+
+```
+Splash(引导) → Home(起课台：万年历+时辰+排盘/课例/古籍三入口)
+   ├─ 排盘 → Index(自动出盘：四柱 / 天地盘 / 四课 / 三传 / 毕法 / 年命行年 / 中黄；‹改期回 Home)
+   ├─ 课例 → Cases(保存的排盘记录，点卡片恢复重排)
+   └─ 古籍 → Ancient(中黄五变经：目录+阅读；主版另含「案例鉴赏」页签，免费版同步时隐藏入口)
+三页页头统一 PageHeader（标题 + 排盘/课例/古籍 胶囊切换 + 返回）
+```
+
+### 13.3 哪些内容不入库（.gitignore 要点）
+
+- `.pyext/`（Python 依赖 + JPL 星历 623MB）、`node_modules/`
+- 构建产物：`APP/*/build`、`.hvigor`、`.idea`、`oh_modules`、`*.hap`/`*.app`、`release_pkg/`
+- `APP/LiurenFocusDivinerFree/`（免费版是生成物）
+- `APP/APPCerts/`（签名证书，本机私有资产）
+- 万年历 csv/db/xls（由 json 分片派生）、经文 PDF 扫描件（135MB，md 转录版已入库）
+- `_backup/`（历史快照）
+
+### 13.4 合规口径（应用市场审核相关，逐条遵守）
+
+- 应用名「六壬读象」；核心排盘为纯历法计算；古籍为原文照录 + 整理校勘标注（【存疑】弱化展示）
+- 断语均挂「古籍断法 · 传统文化研习参考」框架，**非替用户做命运判断**
+- 年命/行年/太岁/中黄/毕法教练的"建议"类文案统一降级为「古籍云/按九宗门法」陈述并挂研习参考；
+  详见 `鸿蒙规范文档/合规文案落地清单.md`（由门禁 `_test_compliance_wording` 看住）
+- 免费版**零权限、无任何付费痕迹**，与「无收费项」申报一致（见 §4）
+- 页面根容器只扩展底部安全区、不沉浸状态栏，避免标题/按钮与状态栏遮挡（华为 UX 审核要求）
