@@ -80,7 +80,7 @@ export struct YongShenPills {
       return $r('app.color.brand_gold_bright');
     }
     if (c.type === '将') {
-      return 'rgba(208,112,74,0.55)';
+      return $r('app.color.overlay_cinnabar_edge');
     }
     return $r('app.color.overlay_gold_strong');
   }

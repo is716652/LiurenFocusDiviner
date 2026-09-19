@@ -69,6 +69,10 @@ function toolChecks() {
     { name: '_api_parity.js（对外 API 只增不改）', cmd: process.execPath, args: [path.join(ROOT, '_tools/_api_parity.js')], slow: false },
     { name: 'verify_app_pkg.py（上传包级 16 项）', cmd: 'python', args: [path.join(ROOT, '_tools/verify_app_pkg.py')], slow: false },
     { name: 'case_story_audit.js（案例剧情批量填充审计）', cmd: process.execPath, args: [path.join(ROOT, '_tools/case_story_audit.js')], slow: false },
+    /* 2026-09-18 接入：浅/深**双主题**对比度（解析 $r 令牌、半透明先合成、非文字按 3:1）。
+     * 依据：官方 homecheck ColorContrastCheck 是 4.5:1、只覆盖文字；应用市场自检另要求
+     * 「图标/标题 > 3:1」。浅色主题此前只是"写好了值但没人验"，这条门禁就是那个验的人。 */
+    { name: 'contrast_audit.js（浅/深双主题对比度：文字 4.5:1 · 语义边界 3:1）', cmd: process.execPath, args: [path.join(ROOT, '_tools/contrast_audit.js')], slow: false },
     { name: '_core_snapshot.js（行为快照 185981 条）', cmd: process.execPath, args: [path.join(ROOT, '_tools/_core_snapshot.js')], slow: true },
     { name: 'gate_mutation_check.js（门禁有效性自检：逐个变异后重跑对应门禁，故最慢）', cmd: process.execPath, args: [path.join(ROOT, '_tools/gate_mutation_check.js')], slow: true },
   ];

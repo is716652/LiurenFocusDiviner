@@ -60,7 +60,7 @@ export struct DongtaiChuan {
     if (pos.indexOf('中传') >= 0) {
       return $r('app.color.ink_text_muted');
     }
-    return '#9A8C6E';
+    return $r('app.color.ink_text_olive');
   }
 
   private cardBrd(pos: string): ResourceColor {

@@ -38,31 +38,10 @@ const EXCLUDE_FILES = ['entryability/EntryAbility.ets', 'pages/Legal/UserAgreeme
 
 /* 已登记的低频字面色值：确实还没有令牌（不是漏了）。key = 大写色值 */
 const ALLOW = new Map([
-  /* 2026-09-18：16 个原有"待定"值已建令牌（_tools/pending_colors.js）；
-   * 下表是**仍然没有令牌**的残留值（案卷页的 route/role 填充色、以及 ResourceColor 函数返回位
-   * 上尚未替换的字面量）。标为"待定·二期"：每次运行都会打印出来，浅色主题启用前必须处理完。 */
-  ['#00000000', '待定·二期：API:backgroundColor'],
-  ['#2F4A5F', '待定·二期：返回 ResourceColor'],
-  ['#33705E', '待定·二期：返回 ResourceColor'],
-  ['#3E5C76', '待定·二期：返回 ResourceColor'],
-  ['#4A3F32', '待定·二期：API:fontColor'],
-  ['#5A4F3D', '待定·二期：返回 ResourceColor'],
-  ['#7A2E2E', '待定·二期：返回 ResourceColor'],
-  ['#8A5A2B', '待定·二期：返回 ResourceColor'],
-  ['#9A8C6E', '待定·二期：返回 ResourceColor'],
-  ['#A63A2B', '待定·二期：返回 ResourceColor'],
-  ['#E08A7A', '待定·二期：API:fontColor'],
-  ['#E8C46A', '待定·二期：返回 ResourceColor'],
-  ['#EEF3F6', '待定·二期：API:backgroundColor'],
-  ['RGBA(122,46,46,0.10)', '待定·二期：API:backgroundColor'],
-  ['RGBA(166,58,43,0.08)', '待定·二期：API:backgroundColor'],
-  ['RGBA(166,58,43,0.10)', '待定·二期：API:backgroundColor'],
-  ['RGBA(166,58,43,0.15)', '待定·二期：API:border'],
-  ['RGBA(166,58,43,0.25)', '待定·二期：API:border'],
-  ['RGBA(208,112,74,0.55)', '待定·二期：返回 ResourceColor'],
-  ['RGBA(47,74,95,0.10)', '待定·二期：API:backgroundColor'],
-  ['RGBA(47,74,95,0.20)', '待定·二期：API:border'],
-  ['RGBA(62,92,118,0.25)', '待定·二期：API:border']
+  /* 2026-09-18 清空：原先登记的"待定"色值**已全部建令牌**
+   * （_tools/pending_colors.js 16 个 + _tools/case_palette.js 15 个案卷色），
+   * 可令牌化位置上已 0 处未登记。留着空转的白名单只会掩盖"以后有人再写死"的回归。
+   * 若确需保留字面色值，加进来时必须写明原因。 */
 ]);
 
 const LIT = /(['"])(#[0-9A-Fa-f]{6,8}|rgba?\([^)'"]*\))\1/g;

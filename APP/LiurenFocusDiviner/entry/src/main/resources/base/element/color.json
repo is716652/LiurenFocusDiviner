@@ -26,7 +26,7 @@
     },
     {
       "name": "accent_gold_amber",
-      "value": "#7A5C18"
+      "value": "#D9A94E"
     },
     {
       "name": "accent_gold_fill",
@@ -85,8 +85,68 @@
       "value": "#3F6F63"
     },
     {
+      "name": "case_blue_deep",
+      "value": "#2F4A5F"
+    },
+    {
+      "name": "case_blue_haze_25",
+      "value": "#403E5C76"
+    },
+    {
+      "name": "case_blue_wash_10",
+      "value": "#1A2F4A5F"
+    },
+    {
+      "name": "case_blue_wash_20",
+      "value": "#332F4A5F"
+    },
+    {
+      "name": "case_brown_deep",
+      "value": "#4A3F32"
+    },
+    {
+      "name": "case_darkred_wash_10",
+      "value": "#1A7A2E2E"
+    },
+    {
+      "name": "case_olive_deep",
+      "value": "#5A4F3D"
+    },
+    {
       "name": "case_paper",
       "value": "#F5EFE2"
+    },
+    {
+      "name": "case_red_deep",
+      "value": "#7A2E2E"
+    },
+    {
+      "name": "case_red_soft",
+      "value": "#9A3A22"
+    },
+    {
+      "name": "case_red_wash_08",
+      "value": "#14A63A2B"
+    },
+    {
+      "name": "case_red_wash_10",
+      "value": "#1AA63A2B"
+    },
+    {
+      "name": "case_red_wash_15",
+      "value": "#26A63A2B"
+    },
+    {
+      "name": "case_red_wash_25",
+      "value": "#40A63A2B"
+    },
+    {
+      "name": "case_snow",
+      "value": "#EEF3F6"
+    },
+    {
+      "name": "case_transparent",
+      "value": "#00000000"
     },
     {
       "name": "ink_bg",
@@ -103,6 +163,10 @@
     {
       "name": "ink_hairline",
       "value": "#C9C2B4"
+    },
+    {
+      "name": "ink_on_deep_text",
+      "value": "#F5EFE2"
     },
     {
       "name": "ink_on_gold_text",
@@ -143,6 +207,10 @@
     {
       "name": "ink_text_paper",
       "value": "#3A332A"
+    },
+    {
+      "name": "ink_text_paper_muted",
+      "value": "#5A5145"
     },
     {
       "name": "ink_text_secondary",

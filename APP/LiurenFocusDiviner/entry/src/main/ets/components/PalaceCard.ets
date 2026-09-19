@@ -92,7 +92,7 @@ export struct PalaceCard {
       return $r('app.color.brand_gold_bright');
     }
     if (tone === 'warn') {
-      return '#E8C46A';
+      return $r('app.color.accent_gold_soft');
     }
     return $r('app.color.ink_text_muted');
   }

@@ -26,7 +26,7 @@ export struct ChuanCard {
         if (this.mark !== '') {
           Text(this.mark)
             .fontSize($r('app.float.font_caption_m'))
-            .fontColor($r('app.color.ink_text_bright'))
+            .fontColor($r('app.color.ink_on_deep_text'))
             .backgroundColor($r('app.color.state_warn'))
             .borderRadius(7)
             .padding({ left: 5, right: 5, top: 1, bottom: 1 })

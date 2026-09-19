@@ -106,6 +106,23 @@ function ternarySibling(line, idx) {
   return '';
 }
 
+/* 证法 C：字面值所在函数的**返回类型是 ResourceColor**（帮助函数升级后新增的位置类型）。
+ * 例：private toneOf(t: string): ResourceColor { return '#E8C46A'; } —— 该位置接受 Resource。
+ * 缺这条判定时，这类站点一直换不掉（值明明已经有令牌）—— 门禁 _test_color_tokens.js 早就有它。 */
+function inResourceColorFn(lines, lineNo) {
+  for (let i = lineNo - 1; i >= 0; i--) {
+    const m = /^\s*(?:private|public|protected)?\s*(?:static\s+)?[A-Za-z_$][\w$]*\s*\([^()]*\)\s*:\s*([A-Za-z_$][\w$|<>\[\]\s]*?)\s*\{/.exec(lines[i]);
+    if (!m) continue;
+    let depth = 0;
+    for (let j = i; j < lines.length; j++) {
+      depth += (lines[j].match(/\{/g) || []).length - (lines[j].match(/\}/g) || []).length;
+      if (depth <= 0) return j >= lineNo && /ResourceColor/.test(m[1]);
+    }
+    return false;
+  }
+  return false;
+}
+
 let files = 0, colorSites = 0, fontSites = 0, skippedLines = 0, residual = 0;
 const perFile = [];
 const residualRows = [];
@@ -136,11 +153,12 @@ for (const f of walk(ETS)) {
       const s = sites[k];
       const callee = enclosingCall(line, s.idx);
       const byApi = API_OK.has(callee);
-      const bySib = byApi ? '' : ternarySibling(line, s.idx);
+      const byFn = byApi ? false : inResourceColorFn(lines, i);
+      const bySib = (byApi || byFn) ? '' : ternarySibling(line, s.idx);
       const tok = val2tok.get(/^rgba?\(/i.test(s.lit) ? rgba2argb(s.lit) : s.lit.toUpperCase());
       let why = '';
       if (unsafe) why = '富文本/拼接行';
-      else if (!byApi && !bySib) why = callee ? '最内层调用 ' + callee + '() 非颜色属性' : '不在颜色属性实参位';
+      else if (!byApi && !byFn && !bySib) why = callee ? '最内层调用 ' + callee + '() 非颜色属性' : '不在颜色属性实参位';
       else if (!tok) why = '无对应令牌';
       if (why) {
         residual++;
