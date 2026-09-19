@@ -61,6 +61,14 @@
       "value": "#3F6F63"
     },
     {
+      "name": "bar_bg",
+      "value": "#F2F0EB"
+    },
+    {
+      "name": "bar_content",
+      "value": "#1A1410"
+    },
+    {
       "name": "brand_cinnabar",
       "value": "#9A3A22"
     },

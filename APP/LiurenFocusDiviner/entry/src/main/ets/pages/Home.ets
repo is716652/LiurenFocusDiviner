@@ -11,6 +11,7 @@
 import { common, bundleManager } from '@kit.AbilityKit';
 import type { DayRec } from '../model/LiurenCore';
 import { DataLoader } from '../model/DataLoader';
+import { ThemeStore } from '../model/ThemeStore';
 import { RuleHealth } from '../model/RuleHealth';
 import { RuleHealthBadge } from '../components/RuleHealthBadge';
 import { RuleHealthPanel } from '../components/RuleHealthPanel';
@@ -545,9 +546,22 @@ struct Home {
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
       Blank()
-      Text('☷')
-        .fontSize(40)
-        .fontColor($r('app.color.ink_on_gold_text'))
+      Column({ space: 4 }) {
+        Text('☷')
+          .fontSize(34)
+          .fontColor($r('app.color.ink_on_gold_text'))
+        /* 主题切换入口：默认深色；点击即刻切换并记住（偏好由 ThemeStore 持久化） */
+        Text('浅色 / 深色')
+          .fontSize($r('app.float.fs_caption'))
+          .fontColor($r('app.color.ink_on_gold_text'))
+          .padding({ left: 8, right: 8, top: 3, bottom: 3 })
+          .borderRadius(9)
+          .backgroundColor($r('app.color.overlay_cinnabar_weak'))
+          .onClick(() => {
+            ThemeStore.toggle(getContext(this) as common.UIAbilityContext, null);
+          })
+      }
+      .alignItems(HorizontalAlign.Center)
     }
     .width('100%')
     .padding({ left: 22, right: 22, top: 22, bottom: 22 })
