@@ -1,7 +1,8 @@
 # Agent.md —— LargeLiuRen Design 操作手册（当前态）
 
 > 写给后续 AI / 开发者：**先读这份，再动代码**。
-> 最近更新：2026-09-19（浅色主题与令牌体系落地 → 门禁扩到 45 项 → 1.0.5 出包）
+> 最近更新：2026-09-19（浅色主题与令牌体系 → 门禁扩到 **46 项**（含转场/无用 import 门禁）→ 1.0.5 出包，
+> 并依应用市场自检修复两处：**状态栏适配**与**页面转场**，两条自检口径已写成门禁）
 > 本文档更新前 main HEAD：`2ba22f3 发布：1.0.5 出包记录与归档命名缺陷`
 
 **这份文档只描述"当前是什么、怎么改、怎么验"。** 历史迁移过程（引擎组件化怎么从单体切出来、
@@ -113,8 +114,8 @@ core/liuren/**  ──(build_core.js / rebuild_core.js)──►  core/liuren-co
 ### 3.1 唯一入口
 
 ```powershell
-node _tools/check_all.js            # 全量 45 项，实测 ≈ 415 s（含 349 s 变异自检）
-node _tools/check_all.js --fast     # 快档 41 项，实测 ≈ 11 s —— 改完随手跑
+node _tools/check_all.js            # 全量 46 项，实测 ≈ 415 s（含 349 s 变异自检）
+node _tools/check_all.js --fast     # 快档 42 项，实测 ≈ 11 s —— 改完随手跑
 node _tools/check_all.js --only component_audit   # 只跑名字含该子串的项
 node _tools/check_all.js --list     # 打印清单（含慢档标记）
 ```
@@ -131,7 +132,8 @@ node _tools/check_all.js --list     # 打印清单（含慢档标记）
 | **引擎**（`core/liuren/**`） | `_test_core_smoke` `_test_core_regress` `_core_snapshot` `_api_parity` `build_core --check` `_test_no_hardcode` `_test_sanchuan_spec` `_test_keti` `_test_jiangpan` `_test_jiangpan_all` `_test_jiangpan_rules` `_test_dungan` `_test_palace` `_test_readxiang` `_test_readxiang_single_source` `_test_zhonghuang` `_test_zhonghuang_analyze` `_test_zhonghuang_dun` `_test_xingnian` `_test_nianming2` `_test_selectDuyu` `_test_bifa_keti` `_test_bifa_coach` `_test_coach2` |
 | **数据**（rawfile） | `_test_rule_health` `_test_ancient_case` `_test_ancient_gallery` `_test_case_story` `_test_case_story_web` `_test_case_xu_cibin` `case_story_audit` |
 | **UI / 组件** | `_test_component_audit`（慢） `_test_ui_layout` `_test_ui_foreach_key` `_test_ui_empty_state` `_test_empty_state` `_test_navutil` |
-| **颜色 / 主题** | `_test_color_tokens`（六条规则，见 §7.3） `contrast_audit`（浅/深双跑） |
+| **转场 / 动效** | `_test_page_transition`（系统转场 + 淡入淡出 + 无位移 + 弹簧曲线 + 时长按设备尺寸分档，见 §7.6） |
+| **颜色 / 主题** | `_test_color_tokens`（**七条**规则，见 §7.3） `contrast_audit`（浅/深双跑） |
 | **文案合规** | `_test_compliance_wording` |
 | **工程 / 发布** | `verify_free_edition` `verify_app_pkg` `_test_docs_structure` `_test_hygiene`（无用 import） |
 | **门禁的门禁** | `gate_mutation_check`（慢：逐条注入变异、重跑对应门禁，确认它真的报警） |
@@ -157,6 +159,8 @@ node _tools/check_all.js --list     # 打印清单（含慢档标记）
 ### 3.4 当前状态
 
 2026-09-19 全量 **45/45 PASS**（414 s，含 349 s 变异自检）—— 即"每个门禁都被证明能抓住它该抓的问题"。
+此后新增 `_test_hygiene`（无用 import）与 `_test_page_transition`（转场）两项，
+随快档验证（**42 项全过**）；**全量 46 项待下次出包前重跑**（新增门禁的变异验证是单独做过的）。
 
 ---
 
@@ -256,7 +260,7 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 （实例：`case_paper` 与 `ink_text_bright` 同为 `#F5EFE2`，纸色令牌把**文字位置**抢走了）。
 所以每加一批令牌都要跑 `_tools/token_roles.js`（角色审计）。
 
-### 7.3 颜色门禁六条规则（`_tests/_test_color_tokens.js`）
+### 7.3 颜色门禁七条规则（`_tests/_test_color_tokens.js`）
 
 | 规则 | 内容 | 为什么 |
 |:--|:--|:--|
@@ -266,6 +270,8 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 | ④ | 不得把色值藏在声明为 `string` 的地方 | 这类位置令牌化不了、也拿不到浅色值（"初传干支看不清"就是这个形状） |
 | ⑤ | 无死令牌（定义了却零引用） | 无用令牌制造"该用哪个"的二义性（配置文件引用的除外） |
 | ⑥ | 色值字面量不得赋给"颜色字段" | `color: '#E9C878'` 这类值会被当 prop 传下去，规则②④都覆盖不到 |
+| ⑦ | 状态栏可读性与连续性 | `bar_content` 对 `bar_bg` 必须 ≥4.5:1，且 `bar_bg` 必须等于页面顶部底色 `ink_bg`
+（前者=图标看得见，后者=状态栏不被单独切割）。**起因**：1.0.5 首包取色失败回落成深色 ⇒ 深底深图标、状态栏图标全看不见 |
 
 ### 7.4 对比度口径（`_tools/contrast_audit.js`）
 
@@ -279,6 +285,7 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 - **跨文件 prop 追溯**：`fontColor(this.color)` 这类会沿调用点追（`_tools/prop_trace.js`：
   直接值 → 表达式 → 帮助函数 return → `this.fn()[i].field`）。解析不到的会**打印成清单**，不静默跳过。
 
+
 ### 7.5 呈现纪律（产品级）
 
 - **引擎出数、App 出呈现**：读数（干支生克、旺衰、旬空、神煞）由引擎算，界面只负责把它讲清楚；
@@ -289,6 +296,27 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
   缺表要显式提示。
 
 ---
+
+### 7.6 应用市场自检口径：系统栏与转场（已写成门禁）
+
+这两条是**审核直接提过**的要求，不是可选项；都已有门禁看住，改界面时别绕过。
+
+**① 状态栏适配**（`_test_color_tokens` 规则⑦）
+
+- 图标颜色要依状态栏背景选黑/白，保证可读；状态栏区域**不要被单独切割**（背景与页面顶部连续）；
+  状态栏内不要出现左右对比过大的配色（本 App 为单一纯色，天然满足）。
+- 实现：`model/ThemeStore.ets` 的 `apply()` 用**能力上下文的 `resourceManager`** 取 `bar_bg`/`bar_content`
+  （**不要**用 `win.getUIContext().getHostContext()` —— 在 `onWindowStageCreate` 里 `loadContent` 之前拿不到，
+  异常被吞后会把图标色回落成深色，就是首包自检失败的成因）；**取不到就整块不设**，绝不设对比度不确定的颜色。
+
+**② 全屏页面转场**（`_test_page_transition`）
+
+- 用系统转场（`pageTransition()`）、**淡入淡出**（只声明 `.opacity(0)`），
+  **不得**单帧直切、**不得**左右平移或上下位移（不写 `slide`/`translate`/`scale`），曲线用**弹簧曲线**。
+- **时长按设备物理尺寸分档**：<8.5in ≥200ms、8.5–12in ≥250ms、>12in ≥300ms。
+  实现：`model/TransitionFx.ets` —— 用 `display` 的像素分辨率与 DPI 算物理英寸，
+  取各档**上限**（220/280/320ms）而非下限；取不到尺寸回落 320ms（要求是"不短于"，最长档在任何设备都合规）。
+- 新增全屏页面时，**必须**照抄这四行转场声明（门禁会逐个 `@Entry` 页面校验）。
 
 ## 8. 发布记录（新 → 旧）
 
@@ -366,19 +394,21 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 
 ## 11. 当前状态与下一步
 
-**已完成**：1.0.5 出包（§8）；全量门禁 45/45 PASS；浅色主题在代码层面完整
-（浅色值 + 画布运行时取色 + 开关 + 对比度双主题 0 违规）。
+**已完成**：1.0.5 出包 —— 共 4 包（§8 逐个记着指纹与原因：首包自检失败 → 状态栏修复 → 转场淡入淡出 → 转场时长分档）；
+浅色主题在代码层面完整（浅色值 + 画布运行时取色 + 开关 + 对比度双主题 0 违规）；
+门禁扩到 **46 项**（新增无用 import、页面转场两道；颜色门禁七条规则），凡新增门禁均做过变异验证。
 
 **待办（按优先级）**：
 
-1. **浅色主题真机目视验证**（唯一没做的验证）：① 默认启动是否深色 ② 切换后页面与状态栏是否一起变浅
-   ③ 排盘页天地盘是否变浅、四课三传是否外观一致 ④ 杀进程重开是否记住选择。没有设备就做不了。
-2. **`sign_release.py` 归档命名缺陷**（§5）：应标上一个包的版本，而不是当前版本。
-3. 盘面**逐格**对比度（天支/地盘支/乘将/神煞四层彼此可分辨）目前只覆盖"语义边界 3:1"口径，
-   未逐格验；需要的话补一个盘面专用审计。
-4. 跨文件 prop 追溯只覆盖一层数据对象字段；更深的间接（例如经多层函数返回）会落进"无法解析"清单
-   （会被打印，不会静默）。
-5. 商店页素材若要展示浅色主题，需要补一组浅色截图（默认仍是深色，现有截图不算错）。
+1. **把第 4 包提交自检并验证**：状态栏（图标是否可见、是否与页面连续）与转场（是否淡入淡出、无位移、手感）
+   都只能真机目视 —— 我无设备，只保证 API 用法正确 + 编译通过 + 门禁卡住了可机械判定的点。
+2. **浅色主题真机目视验证**：① 默认启动是否深色 ② 切换后页面与状态栏是否一起变浅
+   ③ 排盘页天地盘是否变浅、四课三传是否外观一致 ④ 杀进程重开是否记住选择。
+3. **`sign_release.py` 归档命名缺陷**（§5）：应标上一个包的版本，而不是当前版本（本次 1.0.4 包被标成 1.0.5 那次已核验并清理）。
+4. **全量门禁 46 项重跑**：最近一次全量是 45 项（此后新增两道的变异验证是单独做的），出包前建议完整跑一遍（**独占跑**）。
+5. 盘面**逐格**对比度（天支/地盘支/乘将/神煞四层彼此可分辨）目前只覆盖"语义边界 3:1"口径，未逐格验。
+6. 跨文件 prop 追溯只覆盖一层数据对象字段；更深的间接会落进"无法解析"清单（会被打印，不会静默）。
+7. 商店页素材若要展示浅色主题，需补一组浅色截图（默认仍是深色，现有截图不算错）。
 
 **不要做**：擅自升版本号、手改生成物、绕过唯一入口挑着跑门禁、并发跑 `check_all`、
 在界面里重算盘面事实、把收费块数据放进免费包。
@@ -429,7 +459,7 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 │       ├─ ets/components/     #   PanDisk(天地盘canvas) KegCard ChuanCard YongShenSheet CaseBoard
 │       │                      #   AncientStudy AncientCaseGallery PalaceCard RuleHealth* TagBadge …
 │       ├─ ets/model/          #   ★ 生成物：pan/*.ets、LiurenCore/bifa/zhonghuang.ets（_ets_pipeline.js 重建）
-│       │                      #   手写：DataLoader CaseStore YongShenCore ThemeStore ReasonText RuleHealth
+│       │                      #   手写：DataLoader CaseStore YongShenCore ThemeStore TransitionFx ReasonText RuleHealth
 │       ├─ ets/FeatureFlags.ets#   版本形态开关（免费版同步脚本置隐藏项）
 │       ├─ ets/pay/            #   付费门禁（PayConfig/PayGate/IapAdapter；过审版全功能开放）
 │       └─ resources/          #   ★ 视觉真源：base/(浅色) dark/(深色) element/{color,float}.json + rawfile/(数据)
