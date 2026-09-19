@@ -76,7 +76,7 @@ export struct CaseBoard {
           Text('古籍')
             .fontSize($r('app.float.font_caption_m'))
             .fontColor($r('app.color.ink_page'))
-            .backgroundColor($r('app.color.brand_porcelain'))
+            .backgroundColor($r('app.color.accent_blue_fill'))
             .borderRadius(6)
             .padding({ left: 6, right: 6, top: 1, bottom: 1 })
             .margin({ left: 6 })

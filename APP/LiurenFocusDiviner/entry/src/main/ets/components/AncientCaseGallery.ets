@@ -369,9 +369,9 @@ export struct AncientCaseGallery {
   @Builder
   private tabButton(txt: string, active: boolean, onTap: () => void) {
     Text(txt)
-      .fontSize(12)
-      .fontColor(active ? '#1A1410' : '#C4B183')
-      .backgroundColor(active ? '#E9C878' : '#211E18')
+      .fontSize($r('app.float.font_body_m'))
+      .fontColor(active ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+      .backgroundColor(active ? $r('app.color.accent_gold_fill') : $r('app.color.ink_surface'))
       .borderRadius(14)
       .padding({ left: 12, right: 12, top: 6, bottom: 6 })
       .onClick(() => {
@@ -384,15 +384,15 @@ export struct AncientCaseGallery {
     Column({ space: 6 }) {
       Row() {
         Text(this.roleLabel(r.role))
-          .fontSize(9)
-          .fontColor('#F5EFE2')
+          .fontSize($r('app.float.font_caption_m'))
+          .fontColor($r('app.color.ink_text_bright'))
           .backgroundColor(this.roleColor(r.role))
           .borderRadius(8)
           .padding({ left: 6, right: 6, top: 2, bottom: 2 })
         if (this.isDivergent(this.cur, r)) {
           Text('异断')
-            .fontSize(9)
-            .fontColor('#F5EFE2')
+            .fontSize($r('app.float.font_caption_m'))
+            .fontColor($r('app.color.ink_text_bright'))
             .backgroundColor('#2F4A5F')
             .borderRadius(8)
             .padding({ left: 6, right: 6, top: 2, bottom: 2 })
@@ -400,11 +400,11 @@ export struct AncientCaseGallery {
         Text('断：' + r.claim)
           .fontSize(emphasis ? 13 : 12)
           .fontWeight(emphasis ? FontWeight.Bold : FontWeight.Medium)
-          .fontColor(this.activeClaim === r.claim ? '#A63A2B' : '#2B241B')
+          .fontColor(this.activeClaim === r.claim ? $r('app.color.state_warn') : $r('app.color.ink_sunken'))
           .layoutWeight(1)
         Text(this.routeLabel(r.route))
-          .fontSize(9)
-          .fontColor('#F5EFE2')
+          .fontSize($r('app.float.font_caption_m'))
+          .fontColor($r('app.color.ink_text_bright'))
           .backgroundColor(this.routeColor(r.route))
           .borderRadius(8)
           .padding({ left: 6, right: 6, top: 2, bottom: 2 })
@@ -415,8 +415,8 @@ export struct AncientCaseGallery {
       })
       ForEach(r.evidence, (e: AncientCaseEvidence) => {
         Text('· ' + this.evidenceText(e))
-          .fontSize(10)
-          .fontColor(this.evidenceZhi(e) !== '' && this.evidenceZhi(e) === this.focusZhi ? '#A63A2B' : '#4A3F32')
+          .fontSize($r('app.float.font_caption_l'))
+          .fontColor(this.evidenceZhi(e) !== '' && this.evidenceZhi(e) === this.focusZhi ? $r('app.color.state_warn') : '#4A3F32')
           .fontWeight(this.evidenceZhi(e) !== '' && this.evidenceZhi(e) === this.focusZhi ? FontWeight.Bold : FontWeight.Normal)
           .lineHeight(15)
           .width('100%')
@@ -431,15 +431,15 @@ export struct AncientCaseGallery {
       }, (e: AncientCaseEvidence) => e.kind + e.ref + e.why)
       if (r.ruleRef) {
         Text('规则出处：' + r.ruleRef)
-          .fontSize(9)
+          .fontSize($r('app.float.font_caption_m'))
           .fontColor('#2F4A5F')
           .width('100%')
           .textAlign(TextAlign.Start)
       }
       if (r.note) {
         Text(r.note)
-          .fontSize(9)
-          .fontColor('#6B5F45')
+          .fontSize($r('app.float.font_caption_m'))
+          .fontColor($r('app.color.ink_hairline'))
           .lineHeight(14)
           .width('100%')
           .textAlign(TextAlign.Start)
@@ -457,19 +457,19 @@ export struct AncientCaseGallery {
   private listView() {
     Column({ space: 10 }) {
       Text('案例鉴赏')
-        .fontSize(15)
+        .fontSize($r('app.float.splash_sub'))
         .fontWeight(FontWeight.Bold)
-        .fontColor('#F0D98C')
+        .fontColor($r('app.color.brand_gold_bright'))
       Text('古籍案例的程序化复原：课式校验、中黄先锋、断法链路')
-        .fontSize(10)
-        .fontColor('#A8986E')
+        .fontSize($r('app.float.font_caption_l'))
+        .fontColor($r('app.color.ink_text_secondary'))
       Scroll() {
         Row({ space: 8 }) {
           ForEach(this.topicOptions(), (t: string) => {
             Text(t)
-              .fontSize(10)
-              .fontColor(this.topicFilter === t ? '#1A1410' : '#C4B183')
-              .backgroundColor(this.topicFilter === t ? '#E9C878' : '#211E18')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor(this.topicFilter === t ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+              .backgroundColor(this.topicFilter === t ? $r('app.color.accent_gold_fill') : $r('app.color.ink_surface'))
               .borderRadius(12)
               .padding({ left: 10, right: 10, top: 5, bottom: 5 })
               .onClick(() => {
@@ -486,26 +486,26 @@ export struct AncientCaseGallery {
         if (this.casesInGroup(g).length > 0) {
           Column({ space: 8 }) {
             Text(g)
-              .fontSize(12)
+              .fontSize($r('app.float.font_body_m'))
               .fontWeight(FontWeight.Medium)
-              .fontColor('#C4A25C')
+              .fontColor($r('app.color.brand_gold_deep'))
               .margin({ top: 4 })
             ForEach(this.casesInGroup(g), (c: AncientCase) => {
               Column({ space: 5 }) {
                 Row() {
                   Text(c.title)
-                    .fontSize(14)
+                    .fontSize($r('app.float.font_subtitle_m'))
                     .fontWeight(FontWeight.Medium)
-                    .fontColor('#F0E6C8')
+                    .fontColor($r('app.color.ink_text'))
                     .layoutWeight(1)
                   Text('›')
                     .fontSize(18)
-                    .fontColor('#A8986E')
+                    .fontColor($r('app.color.ink_text_secondary'))
                 }
                 Row({ space: 6 }) {
                   ForEach((c.topics ? c.topics : []), (t: string) => {
                     Text(t)
-                      .fontSize(9)
+                      .fontSize($r('app.float.font_caption_m'))
                       .fontColor('#E08A7A')
                       .backgroundColor('rgba(166,58,43,0.10)')
                       .borderRadius(8)
@@ -513,19 +513,19 @@ export struct AncientCaseGallery {
                   }, (t: string) => c.id + ':' + t)
                 }
                 Text(c.source + ' · ' + c.chapter)
-                  .fontSize(10)
-                  .fontColor('#C4A25C')
+                  .fontSize($r('app.float.font_caption_l'))
+                  .fontColor($r('app.color.brand_gold_deep'))
                 Text(c.summary)
-                  .fontSize(11)
-                  .fontColor('#A8986E')
+                  .fontSize($r('app.float.font_body_s'))
+                  .fontColor($r('app.color.ink_text_secondary'))
                   .maxLines(2)
                   .textOverflow({ overflow: TextOverflow.Ellipsis })
               }
               .width('100%')
               .padding(12)
               .borderRadius(12)
-              .backgroundColor('#1C1A16')
-              .border({ width: 1, color: 'rgba(233,200,120,0.14)' })
+              .backgroundColor($r('app.color.ink_card'))
+              .border({ width: 1, color: $r('app.color.overlay_gold_weak') })
               .onClick(() => {
                 this.openCase(c);
               })
@@ -546,32 +546,32 @@ export struct AncientCaseGallery {
     Column({ space: 10 }) {
       Row() {
         Text('‹ 案例列表')
-          .fontSize(12)
-          .fontColor('#C4B183')
+          .fontSize($r('app.float.font_body_m'))
+          .fontColor($r('app.color.ink_text_muted'))
           .padding({ left: 10, right: 10, top: 5, bottom: 5 })
           .borderRadius(9)
-          .backgroundColor('#211E18')
+          .backgroundColor($r('app.color.ink_surface'))
           .onClick(() => {
             this.closeDetail();
           })
         Blank()
         Text('研习样例')
-          .fontSize(10)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_caption_l'))
+          .fontColor($r('app.color.ink_text_secondary'))
       }
       Text(c.title)
-        .fontSize(17)
+        .fontSize($r('app.float.font_title_s'))
         .fontWeight(FontWeight.Bold)
-        .fontColor('#F0D98C')
+        .fontColor($r('app.color.brand_gold_bright'))
       Text(c.source + ' · ' + c.chapter)
-        .fontSize(10)
-        .fontColor('#C4A25C')
+        .fontSize($r('app.float.font_caption_l'))
+        .fontColor($r('app.color.brand_gold_deep'))
       if (c.routes && c.routes.length > 0) {
         Flex({ wrap: FlexWrap.Wrap }) {
           ForEach(c.routes, (r: string) => {
             Text(this.routeLabel(r))
-              .fontSize(10)
-              .fontColor('#F5EFE2')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_bright'))
               .backgroundColor(this.routeColor(r))
               .borderRadius(9)
               .padding({ left: 8, right: 8, top: 3, bottom: 3 })
@@ -583,43 +583,43 @@ export struct AncientCaseGallery {
 
       Column({ space: 6 }) {
         Text('原文断语')
-          .fontSize(12)
+          .fontSize($r('app.float.font_body_m'))
           .fontColor('#2F4A5F')
         Text(c.original)
-          .fontSize(13)
-          .fontColor('#2B241B')
+          .fontSize($r('app.float.fs_caption'))
+          .fontColor($r('app.color.ink_sunken'))
           .lineHeight(20)
       }
       .width('100%')
       .padding(12)
       .borderRadius(12)
-      .backgroundColor('#F5EFE2')
+      .backgroundColor($r('app.color.case_paper'))
       .border({ width: 1, color: 'rgba(166,58,43,0.25)' })
 
       if (this.chart) {
         Column({ space: 10 }) {
           Row() {
             Text('程序复算 · 专属盘例')
-              .fontSize(12)
+              .fontSize($r('app.float.font_body_m'))
               .fontColor('#2F4A5F')
             Blank()
             Text('旬空 ' + (this.chart as Chart).dx.xunkong.join('') + ' · 日干' + (this.chart as Chart).dx.dayWangShuai) /* layout-ok: 旬空最多 2 支 + 日干旺衰 2 字，长度有界 */
-              .fontSize(10)
-              .fontColor('#6B5F45')
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_hairline'))
           }
           .width('100%')
           if (this.focusZhi !== '') {
             Row({ space: 6 }) {
               Text('锚点 ' + this.focusZhi + (this.focusLabel !== '' ? ' · ' + this.focusLabel : ''))
-                .fontSize(10)
-                .fontColor('#A63A2B')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.state_warn'))
                 .layoutWeight(1)
                 .maxLines(1)
                 .textOverflow({ overflow: TextOverflow.Ellipsis })
               Text('清除')
-                .fontSize(10)
-                .fontColor('#F5EFE2')
-                .backgroundColor('#A63A2B')
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.ink_text_bright'))
+                .backgroundColor($r('app.color.state_warn'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 3, bottom: 3 })
                 .onClick(() => {
@@ -642,13 +642,13 @@ export struct AncientCaseGallery {
           Column({ space: 8 }) {
             Row() {
               Text('四课')
-                .fontSize(13)
+                .fontSize($r('app.float.fs_caption'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#2B241B')
+                .fontColor($r('app.color.ink_sunken'))
               Blank()
               Text('右起第一课 · 干上神')
-                .fontSize(9)
-                .fontColor('#6B5F45')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_hairline'))
             }
             .width('100%')
             Row({ space: 8 }) {
@@ -676,14 +676,14 @@ export struct AncientCaseGallery {
           Column({ space: 8 }) {
             Row() {
               Text('三传 · ' + this.chuanTitle(this.chart as Chart))
-                .fontSize(13)
+                .fontSize($r('app.float.fs_caption'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#2B241B')
+                .fontColor($r('app.color.ink_sunken'))
                 .layoutWeight(1)
               Blank()
               Text('九宗门')
-                .fontSize(9)
-                .fontColor('#6B5F45')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_hairline'))
             }
             .width('100%')
             Row({ space: 8 }) {
@@ -710,22 +710,22 @@ export struct AncientCaseGallery {
         .width('100%')
         .padding(12)
         .borderRadius(12)
-        .backgroundColor('#F5EFE2')
+        .backgroundColor($r('app.color.case_paper'))
         .border({ width: 1, color: 'rgba(47,74,95,0.20)' })
       }
 
       if (this.ana) {
         Column({ space: 6 }) {
           Text('中黄先锋链路')
-            .fontSize(12)
-            .fontColor('#3E5C76')
+            .fontSize($r('app.float.font_body_m'))
+            .fontColor($r('app.color.accent_blue_deep'))
           Text('时干' + (this.ana as ZhonghuangAnalyze).dun.shiGan + ' · 变干' + (this.ana as ZhonghuangAnalyze).dun.bianGan + '落' + (this.ana as ZhonghuangAnalyze).bianGong + '宫 · 六亲' + (this.ana as ZhonghuangAnalyze).bianLq + ' · ' + ((this.ana as ZhonghuangAnalyze).bianInChuan ? '入' + (this.ana as ZhonghuangAnalyze).bianInChuan : '不入三传'))
-            .fontSize(11)
-            .fontColor('#2B241B')
+            .fontSize($r('app.float.font_body_s'))
+            .fontColor($r('app.color.ink_sunken'))
             .lineHeight(18)
           Text('中黄只作“时干→变干→落宫”的旁证链；若不改主断，此处明确标为参证。')
-            .fontSize(9)
-            .fontColor('#6B5F45')
+            .fontSize($r('app.float.font_caption_m'))
+            .fontColor($r('app.color.ink_hairline'))
             .lineHeight(14)
         }
         .width('100%')
@@ -738,13 +738,13 @@ export struct AncientCaseGallery {
       if (c.reasoning && c.reasoning.length > 0) {
         Column({ space: 10 }) {
           Text('断语证据链')
-            .fontSize(12)
-            .fontColor('#A63A2B')
+            .fontSize($r('app.float.font_body_m'))
+            .fontColor($r('app.color.state_warn'))
             .width('100%')
             .textAlign(TextAlign.Start)
           if (this.consensusCount(c) > 0) {
             Text('多链同断：' + this.consensusKeyword(c) + ' · 主链外另有 ' + String(this.consensusCount(c)) + ' 条佐证')
-              .fontSize(10)
+              .fontSize($r('app.float.font_caption_l'))
               .fontColor('#2F4A5F')
               .backgroundColor('rgba(47,74,95,0.10)')
               .borderRadius(8)
@@ -754,7 +754,7 @@ export struct AncientCaseGallery {
           }
           if (this.consensusKeyword(c) !== '' && this.divergentReasoning(c).length > 0) {
             Text('异断对读：主断为「' + this.consensusKeyword(c) + '」，另有 ' + String(this.divergentReasoning(c).length) + ' 条落在其他占类，宜分列参看')
-              .fontSize(10)
+              .fontSize($r('app.float.font_caption_l'))
               .fontColor('#7A2E2E')
               .backgroundColor('rgba(122,46,46,0.10)')
               .borderRadius(8)
@@ -768,8 +768,8 @@ export struct AncientCaseGallery {
 
           if (this.reasoningByRole(c, 'support').length > 0) {
             Text('旁证 ' + String(this.reasoningByRole(c, 'support').length) + (this.showSupport ? ' · 收起' : ' · 展开'))
-              .fontSize(11)
-              .fontColor('#6B5F45')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.ink_hairline'))
               .width('100%')
               .textAlign(TextAlign.Start)
               .onClick(() => {
@@ -784,7 +784,7 @@ export struct AncientCaseGallery {
 
           if (this.reasoningByRole(c, 'timing').length > 0) {
             Text('应期 ' + String(this.reasoningByRole(c, 'timing').length) + (this.showTiming ? ' · 收起' : ' · 展开'))
-              .fontSize(11)
+              .fontSize($r('app.float.font_body_s'))
               .fontColor('#2F4A5F')
               .width('100%')
               .textAlign(TextAlign.Start)
@@ -800,7 +800,7 @@ export struct AncientCaseGallery {
 
           if (this.reasoningByRole(c, 'risk').length > 0) {
             Text('风险/变局 ' + String(this.reasoningByRole(c, 'risk').length) + (this.showRisk ? ' · 收起' : ' · 展开'))
-              .fontSize(11)
+              .fontSize($r('app.float.font_body_s'))
               .fontColor('#7A2E2E')
               .width('100%')
               .textAlign(TextAlign.Start)
@@ -816,8 +816,8 @@ export struct AncientCaseGallery {
 
           if (this.reasoningByRole(c, 'cross').length > 0) {
             Text('参证 ' + String(this.reasoningByRole(c, 'cross').length) + (this.showCross ? ' · 收起' : ' · 展开'))
-              .fontSize(11)
-              .fontColor('#3E5C76')
+              .fontSize($r('app.float.font_body_s'))
+              .fontColor($r('app.color.accent_blue_deep'))
               .width('100%')
               .textAlign(TextAlign.Start)
               .onClick(() => {
@@ -834,20 +834,20 @@ export struct AncientCaseGallery {
         .alignItems(HorizontalAlign.Start)
         .padding(12)
         .borderRadius(12)
-        .backgroundColor('#F5EFE2')
+        .backgroundColor($r('app.color.case_paper'))
         .border({ width: 1, color: 'rgba(166,58,43,0.25)' })
       }
 
       Column({ space: 6 }) {
         Text('断法链路纲要')
-          .fontSize(12)
+          .fontSize($r('app.float.font_body_m'))
           .fontColor('#2F4A5F')
           .width('100%')
           .textAlign(TextAlign.Start)
         ForEach(c.chain, (line: string, idx: number) => {
           Text(String(idx + 1) + '. ' + line)
-            .fontSize(11)
-            .fontColor('#2B241B')
+            .fontSize($r('app.float.font_body_s'))
+            .fontColor($r('app.color.ink_sunken'))
             .lineHeight(18)
             .width('100%')
             .textAlign(TextAlign.Start)
@@ -857,12 +857,12 @@ export struct AncientCaseGallery {
       .alignItems(HorizontalAlign.Start)
       .padding(12)
       .borderRadius(12)
-      .backgroundColor('#F5EFE2')
+      .backgroundColor($r('app.color.case_paper'))
       .border({ width: 1, color: 'rgba(47,74,95,0.20)' })
 
       Text(c.compliance)
-        .fontSize(9)
-        .fontColor('#A8986E')
+        .fontSize($r('app.float.font_caption_m'))
+        .fontColor($r('app.color.ink_text_secondary'))
         .lineHeight(15)
     }
     .width('100%')
@@ -874,8 +874,8 @@ export struct AncientCaseGallery {
     Column() {
       if (this.cases.length === 0) {
         Text('案例库整理中')
-          .fontSize(12)
-          .fontColor('#A8986E')
+          .fontSize($r('app.float.font_body_m'))
+          .fontColor($r('app.color.ink_text_secondary'))
           .width('100%')
           .textAlign(TextAlign.Center)
           .padding(24)

@@ -35,8 +35,10 @@ const EXPLAIN = process.argv.indexOf('--explain') >= 0;
 const EXCLUDE = [
   'entryability/EntryAbility.ets',        /* ② 系统栏 API 要 string */
   'pages/Legal/UserAgreement.ets',        /* ① 富文本长文本拼接 */
-  'pages/Legal/PrivacyPolicy.ets',        /* ① 同上 */
-  'components/AncientCaseGallery.ets'      /* ③ 属性声明为 string（Resource 不可赋） */
+  'pages/Legal/PrivacyPolicy.ets'         /* ① 同上 */
+  /* components/AncientCaseGallery.ets：曾因"属性声明为 string"排除；2026-09-18 复测其颜色
+   * 帮助函数（routeColor/roleColor）已升级为 ResourceColor、自身 @State 只有 4 个文本 string，
+   * 故重新纳入，以构建结果为准。 */
 ];
 
 /* 证法 A 白名单：ArkUI 中参数类型为 ResourceColor 的属性/组件方法名 */

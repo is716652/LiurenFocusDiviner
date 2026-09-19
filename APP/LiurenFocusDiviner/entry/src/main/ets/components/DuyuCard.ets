@@ -45,7 +45,7 @@ export struct DuyuCard {
           Text(this.pick.shouGuang)
             .fontSize($r('app.float.font_body_m'))
             .fontColor($r('app.color.ink_page'))
-            .backgroundColor('rgba(240,217,140,0.85)')
+            .backgroundColor($r('app.color.overlay_gold_solid'))
             .borderRadius(8)
             .padding({ left: 10, right: 10, top: 6, bottom: 6 })
             .lineHeight(18)
@@ -71,7 +71,7 @@ export struct DuyuCard {
                 if (it.ev.length > 0) {
                   Text('✓' + it.ev.join('·'))
                     .fontSize($r('app.float.font_caption_l'))
-                    .fontColor('#7FA69A')
+                    .fontColor($r('app.color.accent_teal_soft'))
                     .margin({ left: 6 })
                 }
               }

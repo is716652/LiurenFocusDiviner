@@ -66,7 +66,7 @@ export struct RuleHealthPanel {
         Column({ space: 10 }) {
           Text(this.summary)
             .fontSize($r('app.float.fs_caption'))
-            .fontColor(this.problems.length > 0 ? '#E8C46A' : '#8FA88C')
+            .fontColor(this.problems.length > 0 ? $r('app.color.accent_gold_soft') : $r('app.color.accent_verdant'))
             .width('100%')
             .textAlign(TextAlign.Start)
 
@@ -119,7 +119,7 @@ export struct RuleHealthPanel {
               Row({ space: 6 }) {
                 Text(s.loaded ? (s.missingKeys.length > 0 ? '!' : '✓') : '✗')
                   .fontSize($r('app.float.font_body_s'))
-                  .fontColor(!s.loaded ? $r('app.color.state_warn_text') : (s.missingKeys.length > 0 ? '#E8C46A' : '#8FA88C'))
+                  .fontColor(!s.loaded ? $r('app.color.state_warn_text') : (s.missingKeys.length > 0 ? '#E8C46A' : $r('app.color.accent_verdant')))
                 Text(s.label)
                   .fontSize($r('app.float.font_body_s'))
                   .fontColor($r('app.color.ink_text_muted'))
@@ -163,7 +163,7 @@ export struct RuleHealthPanel {
           if (this.tip !== '') {
             Text(this.tip)
               .fontSize($r('app.float.font_body_s'))
-              .fontColor('#8FA88C')
+              .fontColor($r('app.color.accent_verdant'))
               .width('100%')
               .textAlign(TextAlign.Start)
           }

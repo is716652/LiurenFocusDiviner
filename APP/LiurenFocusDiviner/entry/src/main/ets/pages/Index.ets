@@ -1008,7 +1008,7 @@ struct Index {
             Row({ space: 4 }) {
               Text('地盘干')
                 .fontSize($r('app.float.font_caption_l'))
-                .fontColor(this.showDunDi ? '#7FA69A' : $r('app.color.ink_text_secondary'))
+                .fontColor(this.showDunDi ? $r('app.color.accent_teal_soft') : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -1024,7 +1024,7 @@ struct Index {
                 })
               Text('日遁')
                 .fontSize($r('app.float.font_caption_l'))
-                .fontColor(this.showRiDun ? '#8FA3A8' : $r('app.color.ink_text_secondary'))
+                .fontColor(this.showRiDun ? $r('app.color.accent_blue_haze') : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -1038,7 +1038,7 @@ struct Index {
             Row({ space: 4 }) {
               Text('地盘干')
                 .fontSize($r('app.float.font_caption_l'))
-                .fontColor(this.showDunDi ? '#7FA69A' : $r('app.color.ink_text_secondary'))
+                .fontColor(this.showDunDi ? $r('app.color.accent_teal_soft') : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -1054,7 +1054,7 @@ struct Index {
                 })
               Text('日遁')
                 .fontSize($r('app.float.font_caption_l'))
-                .fontColor(this.showRiDun ? '#8FA3A8' : $r('app.color.ink_text_secondary'))
+                .fontColor(this.showRiDun ? $r('app.color.accent_blue_haze') : $r('app.color.ink_text_secondary'))
                 .borderRadius(8)
                 .padding({ left: 8, right: 8, top: 2, bottom: 2 })
                 .onClick(() => {
@@ -1103,7 +1103,7 @@ struct Index {
                 Text('身')
                   .fontSize($r('app.float.font_caption_m'))
                   .fontWeight(FontWeight.Bold)
-                  .fontColor('#9FB6A8')
+                  .fontColor($r('app.color.accent_blue_pale'))
                 Text('日干寄宫')
                   .fontSize(8)
                   .fontColor($r('app.color.ink_text_secondary'))
@@ -1121,7 +1121,7 @@ struct Index {
                 Text('传')
                   .fontSize($r('app.float.font_caption_m'))
                   .fontWeight(FontWeight.Bold)
-                  .fontColor('#D98C5F')
+                  .fontColor($r('app.color.accent_orange'))
                 Text('变干入传')
                   .fontSize(8)
                   .fontColor($r('app.color.ink_text_secondary'))
@@ -1929,10 +1929,10 @@ struct Index {
         Row({ space: 8 }) {
           Text('⚠')
             .fontSize($r('app.float.fs_caption'))
-            .fontColor('#E8C46A')
+            .fontColor($r('app.color.accent_gold_soft'))
           Text('部分规则表未加载，相关栏目已标注「规则表未加载」· 盘仍照旧排出')
             .fontSize($r('app.float.font_body_s'))
-            .fontColor('#E8C46A')
+            .fontColor($r('app.color.accent_gold_soft'))
             .layoutWeight(1)
           Text('知道了')
             .fontSize($r('app.float.font_body_s'))

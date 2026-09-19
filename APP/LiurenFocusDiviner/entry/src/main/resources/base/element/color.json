@@ -1,6 +1,34 @@
 {
   "color": [
     {
+      "name": "accent_blue_deep",
+      "value": "#33556F"
+    },
+    {
+      "name": "accent_blue_fill",
+      "value": "#7FA0B8"
+    },
+    {
+      "name": "accent_blue_grey",
+      "value": "#33556F"
+    },
+    {
+      "name": "accent_blue_haze",
+      "value": "#33556F"
+    },
+    {
+      "name": "accent_blue_pale",
+      "value": "#33556F"
+    },
+    {
+      "name": "accent_brown",
+      "value": "#7A5C18"
+    },
+    {
+      "name": "accent_gold_amber",
+      "value": "#7A5C18"
+    },
+    {
       "name": "accent_gold_fill",
       "value": "#E9C878"
     },
@@ -9,44 +37,72 @@
       "value": "#F0D98C"
     },
     {
+      "name": "accent_gold_line",
+      "value": "#7A5C18"
+    },
+    {
+      "name": "accent_gold_soft",
+      "value": "#6E5214"
+    },
+    {
+      "name": "accent_orange",
+      "value": "#9A3A22"
+    },
+    {
+      "name": "accent_teal_soft",
+      "value": "#3F6F63"
+    },
+    {
+      "name": "accent_verdant",
+      "value": "#3F6F63"
+    },
+    {
+      "name": "accent_verdant_deep",
+      "value": "#3F6F63"
+    },
+    {
       "name": "brand_cinnabar",
-      "value": "#D0704A"
+      "value": "#9A3A22"
     },
     {
       "name": "brand_gold",
-      "value": "#E9C878"
+      "value": "#7E5F1A"
     },
     {
       "name": "brand_gold_bright",
-      "value": "#F0D98C"
+      "value": "#6E5214"
     },
     {
       "name": "brand_gold_deep",
-      "value": "#C4A25C"
+      "value": "#6E5214"
     },
     {
       "name": "brand_porcelain",
-      "value": "#7FA0B8"
+      "value": "#33556F"
     },
     {
       "name": "brand_verdigris",
-      "value": "#5FA394"
+      "value": "#3F6F63"
+    },
+    {
+      "name": "case_paper",
+      "value": "#F5EFE2"
     },
     {
       "name": "ink_bg",
-      "value": "#14120F"
+      "value": "#F2F0EB"
     },
     {
       "name": "ink_card",
-      "value": "#1C1A16"
+      "value": "#FBFAF7"
     },
     {
       "name": "ink_divider",
-      "value": "#3A3325"
+      "value": "#DED8CB"
     },
     {
       "name": "ink_hairline",
-      "value": "#6B5F45"
+      "value": "#C9C2B4"
     },
     {
       "name": "ink_on_gold_text",
@@ -62,127 +118,143 @@
     },
     {
       "name": "ink_surface",
-      "value": "#211E18"
+      "value": "#FBFAF7"
     },
     {
       "name": "ink_text",
-      "value": "#F0E6C8"
+      "value": "#1A1410"
     },
     {
       "name": "ink_text_body",
-      "value": "#D8C9A3"
+      "value": "#3A332A"
     },
     {
       "name": "ink_text_bright",
-      "value": "#F5EFE2"
+      "value": "#14100C"
     },
     {
       "name": "ink_text_muted",
-      "value": "#C4B183"
+      "value": "#5A5145"
+    },
+    {
+      "name": "ink_text_olive",
+      "value": "#6B6152"
+    },
+    {
+      "name": "ink_text_paper",
+      "value": "#3A332A"
     },
     {
       "name": "ink_text_secondary",
-      "value": "#A8986E"
+      "value": "#6B6152"
     },
     {
       "name": "ink_text_source",
-      "value": "#B8A97F"
+      "value": "#6E6446"
+    },
+    {
+      "name": "overlay_cinnabar_edge",
+      "value": "#8C9A3A22"
     },
     {
       "name": "overlay_cinnabar_mid",
-      "value": "#47D0704A"
+      "value": "#479A3A22"
     },
     {
       "name": "overlay_cinnabar_strong",
-      "value": "#59D0704A"
+      "value": "#599A3A22"
     },
     {
       "name": "overlay_cinnabar_weak",
-      "value": "#14D0704A"
+      "value": "#149A3A22"
     },
     {
       "name": "overlay_gold_mid",
-      "value": "#2EE9C878"
+      "value": "#477A5C18"
+    },
+    {
+      "name": "overlay_gold_solid",
+      "value": "#D9F0D98C"
     },
     {
       "name": "overlay_gold_strong",
-      "value": "#59E9C878"
+      "value": "#8C6E5214"
     },
     {
       "name": "overlay_gold_weak",
-      "value": "#24E9C878"
+      "value": "#2E7A5C18"
     },
     {
       "name": "overlay_ink_scrim",
-      "value": "#CE211E18"
+      "value": "#CCF2F0EB"
     },
     {
       "name": "overlay_olive_mid",
-      "value": "#338A7B5C"
+      "value": "#336B6152"
     },
     {
       "name": "overlay_olive_strong",
-      "value": "#808A7B5C"
+      "value": "#806B6152"
     },
     {
       "name": "overlay_olive_weak",
-      "value": "#1F8A7B5C"
+      "value": "#1F6B6152"
     },
     {
       "name": "overlay_teal_mid",
-      "value": "#335FA394"
+      "value": "#333F6F63"
     },
     {
       "name": "overlay_teal_strong",
-      "value": "#385FA394"
+      "value": "#383F6F63"
     },
     {
       "name": "overlay_teal_weak",
-      "value": "#145FA394"
+      "value": "#143F6F63"
     },
     {
       "name": "pan_bg",
-      "value": "#1C1A16"
+      "value": "#FBFAF7"
     },
     {
       "name": "pan_cell",
-      "value": "#211E18"
+      "value": "#FFFFFF"
     },
     {
       "name": "pan_core",
-      "value": "#14120F"
+      "value": "#F2F0EB"
     },
     {
       "name": "pan_di",
-      "value": "#A8986E"
+      "value": "#6B6152"
     },
     {
       "name": "pan_jiang",
-      "value": "#C4B183"
+      "value": "#5A5145"
     },
     {
       "name": "pan_kong",
-      "value": "#E8A483"
+      "value": "#9A3A22"
     },
     {
       "name": "pan_sel",
-      "value": "#F0E6C8"
+      "value": "#7A5C18"
     },
     {
       "name": "pan_sel_bg",
-      "value": "#1AE9C878"
+      "value": "#1F8A6A1E"
     },
     {
       "name": "pan_ss",
-      "value": "#8A7B5C"
+      "value": "#7E7565"
     },
     {
       "name": "pan_tian",
-      "value": "#F0D98C"
+      "value": "#7A5C18"
     },
     {
       "name": "start_window_background",
-      "value": "#14120F"
+      "value": "#F2F0EB"
     },
     {
       "name": "state_warn",
@@ -190,7 +262,7 @@
     },
     {
       "name": "state_warn_text",
-      "value": "#E8A483"
+      "value": "#9A3A22"
     }
   ]
 }

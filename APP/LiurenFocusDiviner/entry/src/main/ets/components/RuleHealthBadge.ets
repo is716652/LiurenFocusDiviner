@@ -15,7 +15,7 @@ export struct RuleHealthBadge {
     Row({ space: 6 }) {
       Text(this.summary)
         .fontSize($r('app.float.font_body_s'))
-        .fontColor(this.hasProblem ? '#E8C46A' : '#8FA88C')
+        .fontColor(this.hasProblem ? $r('app.color.accent_gold_soft') : $r('app.color.accent_verdant'))
         .layoutWeight(1)
       if (this.hasProblem) {
         Text('查看缺表 ›')

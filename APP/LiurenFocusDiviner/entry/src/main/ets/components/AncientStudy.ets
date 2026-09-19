@@ -565,7 +565,7 @@ export struct AncientStudy {
       ForEach(this.codeLines(p), (line: string, li: number) => {
         Text(line)
           .fontSize($r('app.float.font_body_s'))
-          .fontColor('#8A9BA8')
+          .fontColor($r('app.color.accent_blue_grey'))
           .lineHeight(17)
           .width('100%')
       }, (line: string, li: number) => 'code' + li + '|' + line)
@@ -689,7 +689,7 @@ export struct AncientStudy {
               /* 正文段落（去 md 标记：- / # / **） */
               Text(this.cleanMd(p))
                 .fontSize($r('app.float.splash_sub'))
-                .fontColor('#D8CBA8')
+                .fontColor($r('app.color.ink_text_paper'))
                 .lineHeight(26)
                 .width('100%')
                 .margin({ top: 10 })
@@ -723,7 +723,7 @@ export struct AncientStudy {
           .height(38)
           .fontSize($r('app.float.fs_caption'))
           .fontColor($r('app.color.ink_page'))
-          .backgroundColor('#D9A94E')
+          .backgroundColor($r('app.color.accent_gold_amber'))
           .borderRadius(19)
           .enabled(this.curIdx < this.listRows().length - 1)
           .onClick(() => {

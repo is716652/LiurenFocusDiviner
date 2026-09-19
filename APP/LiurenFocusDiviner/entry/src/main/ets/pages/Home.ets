@@ -460,11 +460,11 @@ struct Home {
                 .fontColor(this.dayNum(r) === this.day ? $r('app.color.ink_page') : $r('app.color.ink_text'))
               Text(r.dg + r.dz)
                 .fontSize($r('app.float.font_caption_m'))
-                .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : $r('app.color.ink_text_secondary'))
+                .fontColor(this.dayNum(r) === this.day ? $r('app.color.accent_gold_line') : $r('app.color.ink_text_secondary'))
               if (r.st && r.st.length > 0) {
                 Text(r.st)
                   .fontSize(8)
-                  .fontColor(this.dayNum(r) === this.day ? '#4A3A18' : $r('app.color.brand_gold_deep'))
+                  .fontColor(this.dayNum(r) === this.day ? $r('app.color.accent_gold_line') : $r('app.color.brand_gold_deep'))
               } else {
                 Text(' ')
                   .fontSize(8)

@@ -34,26 +34,35 @@ const API_OK = new Set(['fontColor', 'backgroundColor', 'borderColor', 'color', 
   'outline', 'linearGradient', 'radialGradient', 'sweepGradient']);
 /* 明确排除的文件（三类"不能用 Resource"的位置；与 tokenize_colors.js 保持一致） */
 const EXCLUDE_FILES = ['entryability/EntryAbility.ets', 'pages/Legal/UserAgreement.ets',
-  'pages/Legal/PrivacyPolicy.ets', 'components/AncientCaseGallery.ets'];
+  'pages/Legal/PrivacyPolicy.ets'];
 
 /* 已登记的低频字面色值：确实还没有令牌（不是漏了）。key = 大写色值 */
 const ALLOW = new Map([
-  ['#3E5C76', '案卷占类色（青），待定"新增令牌 vs 并入最近令牌"'],
-  ['#33705E', '案卷占类色（绿），同上'],
-  ['#8A5A2B', '案卷占类色（褐），同上'],
-  ['#7FA69A', '待定：青绿（近 brand_verdigris #5FA394，Δ42）'],
-  ['#8FA88C', '待定：吉绿（近 brand_verdigris，Δ49）'],
-  ['#8A9BA8', '待定：灰青（近 brand_porcelain #7FA0B8，Δ20）'],
-  ['#8FA3A8', '待定：灰青（近 brand_porcelain，Δ18）'],
-  ['#9FB6A8', '待定：浅青灰（近 brand_porcelain，Δ45）'],
-  ['#D98C5F', '待定：橘（近 brand_cinnabar #D0704A，Δ44）'],
-  ['#E8C46A', '待定：亮金（近 brand_gold #E9C878，Δ14）'],
-  ['#D9A94E', '待定：深金（近 brand_gold_deep #C4A25C，Δ36）'],
-  ['#4A3A18', '待定：暗金底（金卡描边用）'],
-  ['#D8CBA8', '待定：米白（近 ink_text_body #D8C9A3，Δ11）'],
-  ['#9A8C6E', '待定：橄榄灰（近 pan_di #A8986E，Δ14）'],
-  ['RGBA(240,217,140,0.85)', '待定：近不透明金实心填充（Δα 远超阈值；两主题下同为金）'],
-  ['RGBA(208,112,74,0.55)', '待定：朱色描边 0.55（与 overlay_cinnabar_strong 0.35 差 Δα=0.20，超合并阈值）']
+  /* 2026-09-18：16 个原有"待定"值已建令牌（_tools/pending_colors.js）；
+   * 下表是**仍然没有令牌**的残留值（案卷页的 route/role 填充色、以及 ResourceColor 函数返回位
+   * 上尚未替换的字面量）。标为"待定·二期"：每次运行都会打印出来，浅色主题启用前必须处理完。 */
+  ['#00000000', '待定·二期：API:backgroundColor'],
+  ['#2F4A5F', '待定·二期：返回 ResourceColor'],
+  ['#33705E', '待定·二期：返回 ResourceColor'],
+  ['#3E5C76', '待定·二期：返回 ResourceColor'],
+  ['#4A3F32', '待定·二期：API:fontColor'],
+  ['#5A4F3D', '待定·二期：返回 ResourceColor'],
+  ['#7A2E2E', '待定·二期：返回 ResourceColor'],
+  ['#8A5A2B', '待定·二期：返回 ResourceColor'],
+  ['#9A8C6E', '待定·二期：返回 ResourceColor'],
+  ['#A63A2B', '待定·二期：返回 ResourceColor'],
+  ['#E08A7A', '待定·二期：API:fontColor'],
+  ['#E8C46A', '待定·二期：返回 ResourceColor'],
+  ['#EEF3F6', '待定·二期：API:backgroundColor'],
+  ['RGBA(122,46,46,0.10)', '待定·二期：API:backgroundColor'],
+  ['RGBA(166,58,43,0.08)', '待定·二期：API:backgroundColor'],
+  ['RGBA(166,58,43,0.10)', '待定·二期：API:backgroundColor'],
+  ['RGBA(166,58,43,0.15)', '待定·二期：API:border'],
+  ['RGBA(166,58,43,0.25)', '待定·二期：API:border'],
+  ['RGBA(208,112,74,0.55)', '待定·二期：返回 ResourceColor'],
+  ['RGBA(47,74,95,0.10)', '待定·二期：API:backgroundColor'],
+  ['RGBA(47,74,95,0.20)', '待定·二期：API:border'],
+  ['RGBA(62,92,118,0.25)', '待定·二期：API:border']
 ]);
 
 const LIT = /(['"])(#[0-9A-Fa-f]{6,8}|rgba?\([^)'"]*\))\1/g;

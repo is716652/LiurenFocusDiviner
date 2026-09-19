@@ -34,7 +34,6 @@ const EXCLUDE = [
   'entryability/EntryAbility.ets',
   'pages/Legal/UserAgreement.ets',
   'pages/Legal/PrivacyPolicy.ets',
-  'components/AncientCaseGallery.ets'
 ];
 const API_OK = new Set(['fontColor', 'backgroundColor', 'borderColor', 'color', 'selectedColor',
   'caretColor', 'placeholderColor', 'symbolColor', 'dividerColor', 'shadow', 'border', 'divider',

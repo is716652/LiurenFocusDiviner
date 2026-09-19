@@ -59,7 +59,7 @@ export struct AffairChips {
           if (this.cfg.info !== '') {
             Text(this.cfg.info)
               .fontSize($r('app.float.font_body_s'))
-              .fontColor('#7FA69A')
+              .fontColor($r('app.color.accent_teal_soft'))
               .lineHeight(16)
               .width('100%')
           }

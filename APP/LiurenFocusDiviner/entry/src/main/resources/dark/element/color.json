@@ -1,12 +1,64 @@
 {
   "color": [
     {
+      "name": "accent_blue_deep",
+      "value": "#3E5C76"
+    },
+    {
+      "name": "accent_blue_fill",
+      "value": "#7FA0B8"
+    },
+    {
+      "name": "accent_blue_grey",
+      "value": "#8A9BA8"
+    },
+    {
+      "name": "accent_blue_haze",
+      "value": "#8FA3A8"
+    },
+    {
+      "name": "accent_blue_pale",
+      "value": "#9FB6A8"
+    },
+    {
+      "name": "accent_brown",
+      "value": "#8A5A2B"
+    },
+    {
+      "name": "accent_gold_amber",
+      "value": "#D9A94E"
+    },
+    {
       "name": "accent_gold_fill",
       "value": "#E9C878"
     },
     {
       "name": "accent_gold_fill_bright",
       "value": "#F0D98C"
+    },
+    {
+      "name": "accent_gold_line",
+      "value": "#4A3A18"
+    },
+    {
+      "name": "accent_gold_soft",
+      "value": "#E8C46A"
+    },
+    {
+      "name": "accent_orange",
+      "value": "#D98C5F"
+    },
+    {
+      "name": "accent_teal_soft",
+      "value": "#7FA69A"
+    },
+    {
+      "name": "accent_verdant",
+      "value": "#8FA88C"
+    },
+    {
+      "name": "accent_verdant_deep",
+      "value": "#33705E"
     },
     {
       "name": "brand_cinnabar",
@@ -31,6 +83,10 @@
     {
       "name": "brand_verdigris",
       "value": "#5FA394"
+    },
+    {
+      "name": "case_paper",
+      "value": "#F5EFE2"
     },
     {
       "name": "ink_bg",
@@ -81,12 +137,24 @@
       "value": "#C4B183"
     },
     {
+      "name": "ink_text_olive",
+      "value": "#9A8C6E"
+    },
+    {
+      "name": "ink_text_paper",
+      "value": "#D8CBA8"
+    },
+    {
       "name": "ink_text_secondary",
       "value": "#A8986E"
     },
     {
       "name": "ink_text_source",
       "value": "#B8A97F"
+    },
+    {
+      "name": "overlay_cinnabar_edge",
+      "value": "#8CD0704A"
     },
     {
       "name": "overlay_cinnabar_mid",
@@ -103,6 +171,10 @@
     {
       "name": "overlay_gold_mid",
       "value": "#2EE9C878"
+    },
+    {
+      "name": "overlay_gold_solid",
+      "value": "#D9F0D98C"
     },
     {
       "name": "overlay_gold_strong",
