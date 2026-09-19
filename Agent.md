@@ -293,7 +293,13 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 ## 8. 发布记录（新 → 旧）
 
 - **1.0.5 / 1000005（待提交，2026-09-19 出包）**：`APP/release_pkg/LiurenFocusDiviner-free-release-signed.app`
-  （1,576,985 字节，sha256 `A9D950D997F2575AC500EE702FB9B317252789C860D478396441AE38D376408F`）。
+  （1,576,919 字节，sha256 `BF144287C7EF7A2DBB02534FBC3C4D65DE7FAE954D37D6EC6BA72022D0E505E8`）。
+  **首包自检失败 → 已修 → 重出**：首包（1,576,985 / `A9D950D9…408F`）被应用市场自检判"状态栏图标被深色挡住"。
+  根因是 `ThemeStore` 取色走 `win.getUIContext().getHostContext()`，而它在 `onWindowStageCreate`
+  （`loadContent` 之前）拿不到 host context → 异常被吞 → `statusBarContentColor` 回落成深色 ⇒ 深底深图标。
+  修法：① 取色改走**能力上下文的 `resourceManager`**；② **取不到就整块不设**（宁可保持系统默认，
+  也绝不设对比度不确定的颜色）；③ `bar_bg` 深色值 `#17150F → #14120F`（与页面顶部 `pan_core`/`ink_bg` 同色，
+  消除"状态栏被单独切割"）；④ 新增颜色门禁**规则⑦**（`bar_content` 对 `bar_bg` 必须 ≥4.5:1 且 `bar_bg` 须等于 `ink_bg`，已变异验证）。
   流水线四项全过：`verify_free_edition` → `assembleApp` → `verify-app success` → `verify_app_pkg` 16/16。
   标签 `v1.0.5-packaged`。内容要点：浅色主题（`base` 浅色值 81 个令牌，双主题对比度 0 违规）
   ＋ 天地盘画布改为运行时按令牌取色 ＋ 主题开关（**默认深色**，系统栏跟随）

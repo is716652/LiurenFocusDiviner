@@ -11,6 +11,7 @@
 import { preferences } from '@kit.ArkData';
 import { ConfigurationConstant, common } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
+import { resourceManager } from '@kit.LocalizationKit';
 
 const STORE_NAME = 'liuren_settings';
 const KEY_THEME = 'themeMode';
@@ -55,11 +56,19 @@ export class ThemeStore {
       ThemeStore.win = (win !== null) ? win : ThemeStore.win;
       const w: window.Window | null = ThemeStore.win;
       if (w !== null) {
+        /* 系统栏配色：从**能力上下文的 ResourceManager** 取（不再走 window.getUIContext()）。
+           原来那条路径在 onWindowStageCreate（loadContent 之前）拿不到 host context，
+           异常被吞后 statusBarContentColor 回落成深色 ⇒ 深底深图标、状态栏信息全看不见
+           —— 这就是 1.0.5 自检失败的原因。另外：**取不到就整块不设**（异常抛给外层），
+           宁可保持系统默认，也绝不设一个颜色对比不确定的值。 */
+        const mgr: resourceManager.ResourceManager = ctx.resourceManager;
+        const bg: number = mgr.getColorByNameSync('bar_bg');
+        const fg: number = mgr.getColorByNameSync('bar_content');
         const props: window.SystemBarProperties = {
-          statusBarColor: ThemeStore.hex(w, 'bar_bg'),
-          statusBarContentColor: ThemeStore.hex(w, 'bar_content'),
-          navigationBarColor: ThemeStore.hex(w, 'bar_bg'),
-          navigationBarContentColor: ThemeStore.hex(w, 'bar_content')
+          statusBarColor: ThemeStore.css(bg),
+          statusBarContentColor: ThemeStore.css(fg),
+          navigationBarColor: ThemeStore.css(bg),
+          navigationBarContentColor: ThemeStore.css(fg)
         };
         w.setWindowSystemBarProperties(props);
       }
@@ -87,16 +96,12 @@ export class ThemeStore {
     ThemeStore.apply(ctx, win);
   }
 
-  private static hex(win: window.Window, token: string): string {
-    try {
-      const v: number = win.getUIContext().getHostContext()!.resourceManager.getColorByNameSync(token);
-      const h = (n: number): string => {
-        const s: string = n.toString(16).toUpperCase();
-        return s.length === 1 ? '0' + s : s;
-      };
-      return '#' + h((v >>> 16) & 0xFF) + h((v >>> 8) & 0xFF) + h(v & 0xFF);
-    } catch (e) {
-      return '#17150F';
-    }
+  /** ARGB int → '#RRGGBB'（系统栏 API 只收字符串，不认 Resource） */
+  private static css(v: number): string {
+    const h = (n: number): string => {
+      const t: string = n.toString(16).toUpperCase();
+      return t.length === 1 ? '0' + t : t;
+    };
+    return '#' + h((v >>> 16) & 0xFF) + h((v >>> 8) & 0xFF) + h(v & 0xFF);
   }
 }

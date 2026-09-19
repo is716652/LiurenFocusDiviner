@@ -219,6 +219,34 @@ for (const f of walk(ETS)) {
 }
 console.log('⑥ 色值字面量赋给颜色字段：' + (fieldColor.length ? fieldColor.length + ' 处' : '无 ✓'));
 for (const x of fieldColor.slice(0, 10)) console.log('   ✗ ' + x);
-const fail = bad.length + onlyBase.length + onlyDark.length + rtMissing.length + stringColor.length + deadTokens.length + fieldColor.length;
+/* ---------- 规则 ⑦：状态栏信息必须可读、且与页面顶部连续 ----------
+ * 起因（1.0.5 自检失败）：ThemeStore 取色失败后把 statusBarContentColor 回落成深色，
+ * 于是**深底深图标**，两个主题下状态栏的 wifi/5G 等图标全部看不见。
+ * 应用市场自检口径：① 状态栏区域不要被单独切割 ② 依页面背景选黑/白图标保证可读。
+ * 故这里卡两条：bar_content 对 bar_bg 必须 ≥4.5:1；bar_bg 必须与页面顶部底色（ink_bg）同值。 */
+const WCAG = (hexA, hexB) => {
+  const lum = (h) => {
+    const m = /^#([0-9A-Fa-f]{6})$/.exec(h);
+    if (!m) return null;
+    const c = [0, 2, 4].map((i) => parseInt(m[1].substr(i, 2), 16) / 255)
+      .map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const a = lum(hexA), b = lum(hexB);
+  if (a === null || b === null) return null;
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+};
+const barBad = [];
+for (const [themeName, map] of [['base', base], ['dark', dark]]) {
+  const bg = map.get('bar_bg'), fg = map.get('bar_content'), page = map.get('ink_bg');
+  if (!bg || !fg) { barBad.push(themeName + ' 缺少 bar_bg / bar_content 令牌'); continue; }
+  const r = WCAG(bg, fg);
+  if (r === null || r < 4.5) barBad.push(themeName + '：状态栏图标色 ' + fg + ' 对底 ' + bg + ' 仅 ' + (r === null ? '无法解析' : r.toFixed(2)) + ':1（应 ≥4.5）');
+  if (page && bg.toUpperCase() !== page.toUpperCase()) barBad.push(themeName + '：bar_bg ' + bg + ' ≠ 页面顶部底色 ink_bg ' + page + '（会被看成一截单独切割的状态栏）');
+}
+console.log('⑦ 状态栏可读性与连续性：' + (barBad.length ? barBad.length + ' 项不合格' : '无 ✓'));
+for (const x of barBad) console.log('   ✗ ' + x);
+
+const fail = bad.length + onlyBase.length + onlyDark.length + rtMissing.length + stringColor.length + deadTokens.length + fieldColor.length + barBad.length;
 console.log(fail ? '\n颜色令牌门禁：FAIL' : '\n颜色令牌门禁：PASS');
 process.exit(fail ? 1 : 0);
