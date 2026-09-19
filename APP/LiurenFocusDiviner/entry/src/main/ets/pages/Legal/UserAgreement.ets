@@ -13,7 +13,7 @@ struct UserAgreementPage {
           .fontSize(14)
           .fontColor('#F0D98C')
           .backgroundColor('rgba(233,200,120,0.12)')
-          .border({ width: 1, color: 'rgba(233,200,120,0.35)' })
+          .border({ width: 1, color: $r('app.color.overlay_gold_strong') })
           .borderRadius(8)
           .padding({ left: 12, right: 12, top: 6, bottom: 6 })
           .onClick(() => {

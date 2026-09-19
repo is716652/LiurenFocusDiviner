@@ -201,6 +201,24 @@ for (const name of base.keys()) {
   if (n === 0) deadTokens.push(name);
 }
 console.log('⑤ 死令牌（无任何引用）：' + (deadTokens.length ? deadTokens.length + ' 个：' + deadTokens.join(', ') : '无 ✓'));
-const fail = bad.length + onlyBase.length + onlyDark.length + rtMissing.length + stringColor.length + deadTokens.length;
+/* ---------- 规则 ⑥：色值字面量不得赋给"颜色字段" ----------
+ * 形状：数据对象里的 `color: '#E9C878'` / `.color = '#…'`。这类值会被当 prop 传下去，
+ * 规则②（可令牌化位置）与规则④（声明为 string）都覆盖不到 ——
+ * 案卷页 AncientCaseGallery 第 130 行就是这个形状（浅色下那批干支仅 1.55:1，门禁当时看不见）。
+ * 先剥掉行内注释再判定，避免注释里的示例误报。 */
+const fieldColor = [];
+/* 注意：前缀那一段必须是**可选**的 —— 写成必选就只匹配 fontColor:，漏掉裸 color:（我第一版就错了） */
+const FIELD_COLOR_RE_1 = /\b(?:[A-Za-z_$][\w$]*)?[Cc]olor\s*:\s*[^,;}]*'(#[0-9A-Fa-f]{3,8}|rgba?\([^']*\))'/;
+const FIELD_COLOR_RE_2 = /[Cc]olor\s*=\s*[^;]*'(#[0-9A-Fa-f]{3,8}|rgba?\([^']*\))'/;
+for (const f of walk(ETS)) {
+  const rel = path.relative(ROOT, f).replace(/\\/g, '/').replace('APP/LiurenFocusDiviner/entry/src/main/ets/', '');
+  fs.readFileSync(f, 'utf-8').split(/\r?\n/).forEach((raw, i) => {
+    const l = raw.replace(/\/\/.*$/, '');
+    if (FIELD_COLOR_RE_1.test(l) || FIELD_COLOR_RE_2.test(l)) fieldColor.push(rel + ':' + (i + 1) + '  ' + l.trim().slice(0, 80));
+  });
+}
+console.log('⑥ 色值字面量赋给颜色字段：' + (fieldColor.length ? fieldColor.length + ' 处' : '无 ✓'));
+for (const x of fieldColor.slice(0, 10)) console.log('   ✗ ' + x);
+const fail = bad.length + onlyBase.length + onlyDark.length + rtMissing.length + stringColor.length + deadTokens.length + fieldColor.length;
 console.log(fail ? '\n颜色令牌门禁：FAIL' : '\n颜色令牌门禁：PASS');
 process.exit(fail ? 1 : 0);
