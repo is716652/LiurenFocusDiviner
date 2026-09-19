@@ -98,6 +98,22 @@ def _version_name(proj):
         return 'unknown'
 
 
+def _version_of_package(path):
+    """读**包内** pack.info 的 version.name —— 归档命名要标"这个包自己是哪一版"。
+
+    2026-09-19 修：原先标的是 `_version_name(proj)`（**当前**版本），于是把上一个包
+    （1.0.4）归档成了 `…-1.0.5-20260913-1800.app`，与在架包字节相同却挂着新版本号 ⇒ 误导。
+    包内 pack.info 自带版本，故按包自证；读不到时用 `prev` 占位（宁可标不清版本，也不标错）。
+    """
+    try:
+        import zipfile, json
+        with zipfile.ZipFile(path) as z:
+            info = json.loads(z.read("pack.info").decode("utf-8"))
+        return info["summary"]["app"]["version"]["name"]
+    except Exception:
+        return None
+
+
 def archive_previous(dst, proj, tag):
     """覆盖前先归档上一刀（2026-09-13 加）。
 
@@ -112,7 +128,8 @@ def archive_previous(dst, proj, tag):
     arch_dir = os.path.join(ROOT, 'APP', 'release_pkg', 'archive')
     os.makedirs(arch_dir, exist_ok=True)
     ts = datetime.datetime.fromtimestamp(os.path.getmtime(dst)).strftime('%Y%m%d-%H%M')
-    base = 'LiurenFocusDiviner-%s-release-signed-%s-%s' % (tag, _version_name(proj), ts)
+    ver = _version_of_package(dst) or 'prev'   # 标**包自己的**版本，不是当前版本
+    base = 'LiurenFocusDiviner-%s-release-signed-%s-%s' % (tag, ver, ts)
     arch = os.path.join(arch_dir, base + '.app')
     n = 2
     while os.path.exists(arch):

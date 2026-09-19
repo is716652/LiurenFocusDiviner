@@ -2560,6 +2560,8 @@ struct DataSyncComponent {
   }
 }
 
+```
+
 ## 🚨 最新编译错误及解决方案
 
 ### Error: Object literals cannot be used as type declarations
