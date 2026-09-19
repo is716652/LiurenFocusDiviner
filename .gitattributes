@@ -1,0 +1,39 @@
+# 行尾统一：索引里存 LF，检出（checkout）也写 LF
+# ---------------------------------------------------------------------------
+# 为什么必须显式写这一行：
+#   本机 gitconfig 是 `core.autocrlf=true`（系统级，见 C:/Program Files/Git/etc/gitconfig）。
+#   在它作用下，**任何一次 `git checkout -- <文件>` 都会把工作区文件从 LF 改写成 CRLF**；
+#   而 `git status` / `git diff` 会把工作区内容规范化后再比较，所以**显示干净、看不出被改过**。
+#   但 `_tools/verify_free_edition.py` 做的是**逐字节**比对（主版源码树 vs 免费版生成树），
+#   于是它会 FAIL 并报「源码树不一致（Index.ets / ChuanCard.ets）」——
+#   2026-09-19 变异测试还原时踩到，排查花了半程（详见 Agent.md §9 常见坑）。
+# 为什么用 `text=auto eol=lf` 而不是 `-text`：
+#   索引里现存文件**全部是 LF**（`git ls-files --eol` 实测：i/crlf 为 0），
+#   而工作区有 200+ 个文件是 CRLF。`text=auto` 保留「比较前规范化」的行为 ⇒ 这些文件依旧**显示干净**；
+#   若写成 `-text`（按原始字节比较），那 200+ 文件会**立刻全部变成"已修改"**，
+#   下一次提交还会把 CRLF 写进索引 —— 制造一整批纯行尾 diff（Agent.md §9 明确禁止那种"统一行尾"式改动）。
+# 注意：本属性只改"检出时写什么行尾"，**不会**回头改写仓库里任何已有文件的内容或行尾。
+* text=auto eol=lf
+
+# 二进制：一律不做行尾/编码转换（`binary` 等价于 `-text -diff`）
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.gif  binary
+*.ico  binary
+*.ttf  binary
+*.otf  binary
+*.so   binary
+*.dll  binary
+*.exe  binary
+*.abc  binary
+*.hap  binary
+*.hsp  binary
+*.app  binary
+*.zip  binary
+*.jar  binary
+*.xlsx binary
+*.xls  binary
+*.db   binary
+*.pdf  binary

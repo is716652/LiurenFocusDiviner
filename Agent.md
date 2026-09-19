@@ -7,7 +7,8 @@
 > 并把 §11 待办拆成 **A 类（只有用户能做）／B 类（我可推进）** —— 换会话时照这两节接续即可。
 > 本轮（2026-09-19 晚）：1.0.5 **已提审**（等审核结果）；B 类两项落地 —— prop 追溯加 **L4b** 且
 > 「无法解析」改判否、新增天地盘逐层取色报告 `_tools/panlayer_contrast.js`；并记下一个新坑：
-> **`git checkout` 会改行尾**（`core.autocrlf=true`），`git status` 干净但 `verify_free_edition` 会 FAIL（§9）。
+> **`git checkout` 会改行尾**（`core.autocrlf=true`），`git status` 干净但 `verify_free_edition` 会 FAIL ——
+> 该坑已由新增的 **`.gitattributes`（`* text=auto eol=lf`）**从根上堵住（§9，含过渡期注意）。
 > 本文档更新前 main HEAD：`c1769b2 fix(转场时长): 按设备物理尺寸分档`（App 源码最后一次变更）
 
 **这份文档只描述"当前是什么、怎么改、怎么验"。** 历史迁移过程（引擎组件化怎么从单体切出来、
@@ -401,7 +402,7 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 | **CRLF** | 脚本里用 `\n` 拼多行去匹配文件 → 匹配不到、静默不改 | 逐行处理（`split(/\r?\n/)`）或先探测 eol |
 | **脚本转义** | 在生成脚本里写 `\n`、内层引号 → 生成出语法错的文件 | 用数组 `join('\n')` 或模板字符串；复杂补丁直接写成独立模块文件 |
 | **宽 `git checkout`** | `git checkout -- <大目录>` 把并发/未提交的真实改动一起回滚 | 只还原**具体文件**；变异测试**先提交再变异** |
-| **`git checkout` 改行尾** | 本机 `core.autocrlf=true`：**哪怕只还原单个文件**，工作区行尾也会 LF→CRLF；而 `git status`/`git diff` **显示干净** → 但 `verify_free_edition` 的逐字节比对 **FAIL**（主版 CRLF vs 免费版 LF，报"源码树不一致"） | 变异还原后**必跑** `verify_free_edition`；真还原用 node 按原行尾写回（`\r\n`→`\n`），或还原后再跑一次 `_ets_pipeline.js` 同步 |
+| **`git checkout` 改行尾** | 本机 `core.autocrlf=true`：**哪怕只还原单个文件**，工作区行尾也会 LF→CRLF；而 `git status`/`git diff` **显示干净** → 但 `verify_free_edition` 的逐字节比对 **FAIL**（主版 CRLF vs 免费版 LF，报"源码树不一致"） | **已由 `.gitattributes`（`* text=auto eol=lf`）从根上堵住**（2026-09-19；实测：把文件改成 CRLF 再 `git checkout --`，还原回来 **0 CRLF**）。为什么不用 `-text`：见该文件头部说明（那会让 200+ 个 CRLF 文件立刻变成"已修改"）。仍须注意两点：① 变异还原后**必跑** `verify_free_edition`；② **过渡期**：工作区现存 217 个 CRLF 文件，其中 App 源码一旦被 checkout 就会变 LF，而免费版里还是 CRLF → 校验会**响亮地** FAIL，跑一次 `_ets_pipeline.js`（内含同步）即可，别用 `git checkout` 反复"修" |
 | **并发 `check_all`** | 变异型门禁互相踩 → 工作区被静默污染 | 独占跑；入口有锁，别绕过 |
 | **值匹配的二义性** | 按值令牌化时同值令牌"谁赢"取决于排序 | 令牌化后跑 `token_roles.js`（角色审计） |
 | **免费版不同步** | 主版改了、免费版是旧的，编出来却 BUILD SUCCESSFUL | 改完必跑 `sync_free_edition.py`；出包前置门禁会兜 |
