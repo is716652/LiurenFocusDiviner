@@ -192,7 +192,7 @@ export struct RuleHealthPanel {
           .fontColor($r('app.color.ink_page'))
           .padding({ left: 14, right: 14, top: 8, bottom: 8 })
           .borderRadius(10)
-          .backgroundColor($r('app.color.brand_gold'))
+          .backgroundColor($r('app.color.accent_gold_fill'))
           .onClick(() => {
             this.copyDiagnose();
           })

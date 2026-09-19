@@ -1,6 +1,14 @@
 {
   "color": [
     {
+      "name": "accent_gold_fill",
+      "value": "#E9C878"
+    },
+    {
+      "name": "accent_gold_fill_bright",
+      "value": "#F0D98C"
+    },
+    {
       "name": "brand_cinnabar",
       "value": "#D0704A"
     },

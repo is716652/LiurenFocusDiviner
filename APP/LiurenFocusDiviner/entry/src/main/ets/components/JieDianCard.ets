@@ -34,7 +34,7 @@ export struct JieDianCard {
           Text(this.chipText(w))
             .fontSize($r('app.float.font_body_s'))
             .fontColor(this.anchor === w.v ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-            .backgroundColor(this.anchor === w.v ? $r('app.color.brand_gold_bright') : $r('app.color.pan_sel_bg'))
+            .backgroundColor(this.anchor === w.v ? $r('app.color.accent_gold_fill_bright') : $r('app.color.pan_sel_bg'))
             .border({ width: 1, color: this.anchor === w.v ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_gold_strong') })
             .borderRadius(10)
             .padding({ left: 8, right: 8, top: 3, bottom: 3 })

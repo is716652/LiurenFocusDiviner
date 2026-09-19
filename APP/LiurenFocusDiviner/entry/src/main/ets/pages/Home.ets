@@ -474,7 +474,7 @@ struct Home {
             .height(56)
             .justifyContent(FlexAlign.Center)
             .borderRadius(8)
-            .backgroundColor(this.dayNum(r) === this.day ? $r('app.color.brand_gold') : $r('app.color.ink_surface'))
+            .backgroundColor(this.dayNum(r) === this.day ? $r('app.color.accent_gold_fill') : $r('app.color.ink_surface'))
             .onClick(() => {
               this.day = this.dayNum(r);
             })
@@ -511,7 +511,7 @@ struct Home {
           Text(z)
             .fontSize($r('app.float.fs_caption'))
             .fontColor(this.hourZhi === z ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
-            .backgroundColor(this.hourZhi === z ? $r('app.color.brand_gold') : $r('app.color.ink_surface'))
+            .backgroundColor(this.hourZhi === z ? $r('app.color.accent_gold_fill') : $r('app.color.ink_surface'))
             .borderRadius(16)
             .padding({ left: 12, right: 12, top: 6, bottom: 6 })
             .margin({ right: 8, bottom: 8 })

@@ -84,7 +84,7 @@ export struct CaseBoard {
         Text(r.hourZhi + '时') /* layout-ok: 地支 + 「时」最长 2 字，长度有界 */
           .fontSize($r('app.float.font_body_s'))
           .fontColor($r('app.color.ink_page'))
-          .backgroundColor($r('app.color.brand_gold'))
+          .backgroundColor($r('app.color.accent_gold_fill'))
           .borderRadius(8)
           .padding({ left: 8, right: 8, top: 2, bottom: 2 })
           .margin({ left: 8 })
