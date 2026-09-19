@@ -147,6 +147,26 @@ if (bad.length) {
   for (const h of bad.slice(0, 20)) console.log('  ' + h.lit + '  ' + h.file + ':' + h.line + '  [' + h.why + ']');
   if (bad.length > 20) console.log('  …其余 ' + (bad.length - 20) + ' 处见 --report');
 }
-const fail = bad.length + onlyBase.length + onlyDark.length;
+/* ---------- 规则 ③：运行时取色的令牌名必须存在 ----------
+ * PanDisk 画布用 getColorByNameSync('令牌名')（画布不能用 $r），名字写错是**运行时**抛错、
+ * 编译器不管 —— 所以必须由门禁挡住。两主题都要有该名字（否则切换主题后取不到色）。 */
+const rtMissing = [];
+for (const f of walk(ETS)) {
+  const rel = path.relative(ROOT, f).replace(/\\/g, '/').replace('APP/LiurenFocusDiviner/entry/src/main/ets/', '');
+  const text = fs.readFileSync(f, 'utf-8');
+  const re = /(?:getColorByNameSync|tok\s*\(\s*res\s*,)\s*\(?\s*'([A-Za-z0-9_]+)'/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const name = m[1];
+    const miss = [];
+    if (!base.has(name)) miss.push('base');
+    if (!dark.has(name)) miss.push('dark');
+    if (miss.length) rtMissing.push({ file: rel, line: text.slice(0, m.index).split('\n').length, name, miss: miss.join('/') });
+  }
+}
+console.log('③ 运行时取色名（绘图表）：' + (rtMissing.length ? rtMissing.length + ' 处不存在' : '全部存在 ✓'));
+for (const x of rtMissing.slice(0, 10)) console.log('   ✗ ' + x.name + ' 缺于 ' + x.miss + '  ' + x.file + ':' + x.line);
+
+const fail = bad.length + onlyBase.length + onlyDark.length + rtMissing.length;
 console.log(fail ? '\n颜色令牌门禁：FAIL' : '\n颜色令牌门禁：PASS');
 process.exit(fail ? 1 : 0);

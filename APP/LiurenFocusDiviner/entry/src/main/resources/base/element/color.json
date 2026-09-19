@@ -289,6 +289,10 @@
       "value": "#FFFFFF"
     },
     {
+      "name": "pan_cinnabar",
+      "value": "#9A3A22"
+    },
+    {
       "name": "pan_core",
       "value": "#F2F0EB"
     },
@@ -303,6 +307,18 @@
     {
       "name": "pan_kong",
       "value": "#9A3A22"
+    },
+    {
+      "name": "pan_kong_fill",
+      "value": "#339A7A2A"
+    },
+    {
+      "name": "pan_pale",
+      "value": "#6E5214"
+    },
+    {
+      "name": "pan_ring",
+      "value": "#949A7A2A"
     },
     {
       "name": "pan_sel",

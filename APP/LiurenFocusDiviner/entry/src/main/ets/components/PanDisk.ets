@@ -7,8 +7,27 @@
  * v3：字号按 densityPixels 换算（Canvas px 为物理像素）
  */
 import { display } from '@kit.ArkUI';
+import { resourceManager } from '@kit.LocalizationKit';
 import { LiurenCore } from '../model/LiurenCore';
 import type { Chart, ZhonghuangDun, ZhonghuangAnalyze } from '../model/LiurenCore';
+
+/* 画布不能用 $r()（fillStyle/strokeStyle 要字符串），故运行时按**令牌名**取当前主题色值
+   （getColorByNameSync 会随浅/深色模式返回对应值），再转成通用的 rgba() 字符串。
+   注意：名字写错是**运行时**抛错、不是编译错 —— 故门禁 _test_color_tokens 会校验
+   PanDisk 里出现的每个名字都存在于 color.json（两主题都要有）。刻意不缓存：
+   主题可在运行时切换（setColorMode），缓存会留下旧主题的色值。 */
+function tok(res: resourceManager.ResourceManager, name: string): string {
+  try {
+    const v: number = res.getColorByNameSync(name);
+    const a: number = ((v >>> 24) & 0xFF) / 255;
+    const r: number = (v >>> 16) & 0xFF;
+    const g: number = (v >>> 8) & 0xFF;
+    const b: number = v & 0xFF;
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a.toFixed(3) + ')';
+  } catch (e) {
+    return '#000000';
+  }
+}
 
 @Component
 export struct PanDisk {
@@ -63,6 +82,7 @@ export struct PanDisk {
       return;
     }
     const ctx = this.ctx;
+    const res: resourceManager.ResourceManager = getContext(this).resourceManager;
     const w = ctx.width;
     const h = ctx.height;
     if (w <= 0) {
@@ -70,12 +90,12 @@ export struct PanDisk {
     }
     const cx = w / 2;
     const cy = h / 2;
-    const gold = '#E9C878';
-    const goldBright = '#F0D98C';
-    const dim = '#A8986E';
-    const faint = '#A8986E';
-    const cinnabar = '#C0704A';
-    const line = 'rgba(233,200,120,0.30)';
+    const gold = tok(res, 'brand_gold');
+    const goldBright = tok(res, 'brand_gold_bright');
+    const dim = tok(res, 'pan_di');
+    const faint = tok(res, 'pan_di');
+    const cinnabar = tok(res, 'pan_cinnabar');
+    const line = tok(res, 'overlay_gold_strong');
     const kongList: string[] = c.dx.xunkong;
     ctx.clearRect(0, 0, w, h);
 
@@ -91,7 +111,7 @@ export struct PanDisk {
     const boldPx = (vp: number): string => 'bold ' + (vp * d) + 'px sans-serif';
 
     /* 外圈六十刻度（拟六甲） */
-    ctx.strokeStyle = 'rgba(233,200,120,0.22)';
+    ctx.strokeStyle = tok(res, 'overlay_gold_mid');
     ctx.lineWidth = 1;
     const tickR = w * 0.478;
     for (let i = 0; i < 60; i++) {
@@ -116,12 +136,12 @@ export struct PanDisk {
       }
       const a = -Math.PI / 2 + (i - 6) * Math.PI / 6;
       const r = w * 0.492;
-      ctx.fillStyle = '#C4A25C';
+      ctx.fillStyle = tok(res, 'brand_gold_deep');
       ctx.fillText(nm, cx + r * Math.cos(a), cy + r * Math.sin(a));
     }
 
     /* 子午 / 卯酉 十字轴线（细虚线，标示四正） */
-    ctx.strokeStyle = 'rgba(233,200,120,0.20)';
+    ctx.strokeStyle = tok(res, 'overlay_gold_mid');
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
     ctx.beginPath();
@@ -157,7 +177,7 @@ export struct PanDisk {
       const rJ = w * 0.412;
       const jx = cx + rJ * Math.cos(ang);
       const jy = cy + rJ * Math.sin(ang);
-      ctx.fillStyle = (LiurenCore.JIANG_JX[jiang] === '吉') ? '#C4A25C' : cinnabar;
+      ctx.fillStyle = (LiurenCore.JIANG_JX[jiang] === '吉') ? tok(res, 'brand_gold_deep') : cinnabar;
       ctx.font = fontPx(w * 0.048);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -169,9 +189,9 @@ export struct PanDisk {
       const ty = cy + rT * Math.sin(ang);
       ctx.beginPath();
       ctx.arc(tx, ty, w * 0.032, 0, Math.PI * 2);
-      ctx.fillStyle = isKong ? 'rgba(120,110,90,0.25)' : 'rgba(240,217,140,0.16)';
+      ctx.fillStyle = isKong ? tok(res, 'overlay_olive_mid') : tok(res, 'pan_kong_fill');
       ctx.fill();
-      ctx.fillStyle = isKong ? '#A8986E' : goldBright;
+      ctx.fillStyle = isKong ? tok(res, 'pan_di') : goldBright;
       ctx.font = fontPx(w * 0.06);
       ctx.fillText(tianPan, tx, ty);
 
@@ -189,7 +209,7 @@ export struct PanDisk {
       const gy = cy + rG * Math.sin(ang);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = zhOn ? '#C4A25C' : faint;
+      ctx.fillStyle = zhOn ? tok(res, 'brand_gold_deep') : faint;
       ctx.font = fontPx(w * 0.044);
       ctx.fillText(ganShow ? ganShow : '', gx, gy);
 
@@ -199,7 +219,7 @@ export struct PanDisk {
       const dy = cy + rD * Math.sin(ang);
       ctx.beginPath();
       ctx.arc(dx, dy, w * 0.026, 0, Math.PI * 2);
-      ctx.fillStyle = (i % 2 === 0) ? 'rgba(233,200,120,0.20)' : 'rgba(233,200,120,0.10)';
+      ctx.fillStyle = (i % 2 === 0) ? tok(res, 'overlay_gold_mid') : tok(res, 'pan_sel_bg');
       ctx.fill();
       ctx.fillStyle = (i % 2 === 0) ? gold : dim;
       ctx.font = fontPx(w * 0.068);
@@ -217,16 +237,16 @@ export struct PanDisk {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         if (gongZhi === dayJi) {
-          ctx.fillStyle = '#9FB6A8';
+          ctx.fillStyle = tok(res, 'accent_blue_pale');
           ctx.fillText('身', cx + rM * Math.cos(ang - 0.095), cy + rM * Math.sin(ang - 0.095));
         }
         if (gongZhi === bianGong) {
-          ctx.fillStyle = '#F0D98C';
+          ctx.fillStyle = tok(res, 'brand_gold_bright');
           ctx.font = fontPx(w * 0.023);
           ctx.fillText('变', cx + rM * Math.cos(ang + 0.095), cy + rM * Math.sin(ang + 0.095));
           if (inChuan) {
             /* 传与变同宫但拉开角距并收小一号，避免和“变”挤在一起 */
-            ctx.fillStyle = '#D98C5F';
+            ctx.fillStyle = tok(res, 'accent_orange');
             ctx.font = fontPx(w * 0.020);
             ctx.fillText('传', cx + rM * Math.cos(ang + 0.285), cy + rM * Math.sin(ang + 0.285));
           }
@@ -238,7 +258,7 @@ export struct PanDisk {
         const rDD = w * 0.215;
         const ddx = cx + rDD * Math.cos(ang);
         const ddy = cy + rDD * Math.sin(ang);
-        ctx.fillStyle = '#7FA69A';
+        ctx.fillStyle = tok(res, 'accent_teal_soft');
         ctx.font = fontPx(w * 0.034);
         const diGan = c.dunXun[gongZhi]; /* 地盘干同理用旬遁；空亡支无干则不显 */
         if (diGan !== undefined && diGan !== '') {
@@ -253,7 +273,7 @@ export struct PanDisk {
         const rx = cx + rRD * Math.cos(ang);
         const ry = cy + rRD * Math.sin(ang);
         const riGan = c.dun[tianPan];
-        ctx.fillStyle = '#8FA3A8';
+        ctx.fillStyle = tok(res, 'accent_blue_haze');
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = fontPx(w * 0.030);
@@ -264,7 +284,7 @@ export struct PanDisk {
         const rBS = w * 0.128;
         const bx = cx + rBS * Math.cos(ang);
         const by = cy + rBS * Math.sin(ang);
-        ctx.fillStyle = '#A8986E';
+        ctx.fillStyle = tok(res, 'pan_di');
         ctx.font = fontPx(w * 0.026);
         ctx.fillText(LiurenCore.BENSHEN[gongZhi] || '', bx, by);
       }
@@ -297,7 +317,7 @@ export struct PanDisk {
         const hy = cy + hiR * Math.sin(a);
         ctx.beginPath();
         ctx.arc(hx, hy, w * 0.052, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(233,200,120,0.60)';
+        ctx.strokeStyle = tok(res, 'pan_ring');
         ctx.lineWidth = 1.2;
         ctx.setLineDash([4, 3]);
         ctx.stroke();
@@ -312,12 +332,12 @@ export struct PanDisk {
           const hy = cy + hiR * Math.sin(a);
           ctx.beginPath();
           ctx.arc(hx, hy, w * 0.06, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(240,217,140,0.25)';
+          ctx.fillStyle = tok(res, 'pan_kong_fill');
           ctx.fill();
-          ctx.strokeStyle = '#F0D98C';
+          ctx.strokeStyle = tok(res, 'brand_gold_bright');
           ctx.lineWidth = 2.4;
           ctx.stroke();
-          ctx.fillStyle = '#F0D98C';
+          ctx.fillStyle = tok(res, 'brand_gold_bright');
           ctx.font = fontPx(w * 0.03);
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -329,21 +349,21 @@ export struct PanDisk {
     /* 中心：月将 + 日干 */
     ctx.beginPath();
     ctx.arc(cx, cy, w * 0.092, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(233,200,120,0.18)';
+    ctx.fillStyle = tok(res, 'overlay_gold_mid');
     ctx.fill();
     ctx.beginPath();
     ctx.arc(cx, cy, w * 0.062, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(233,200,120,0.55)';
+    ctx.fillStyle = tok(res, 'pan_ring');
     ctx.fill();
-    ctx.fillStyle = '#A8986E';
+    ctx.fillStyle = tok(res, 'pan_di');
     ctx.font = fontPx(w * 0.034);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('月将', cx, cy - w * 0.036);
-    ctx.fillStyle = '#FDF3D0';
+    ctx.fillStyle = tok(res, 'pan_pale');
     ctx.font = boldPx(w * 0.07);
     ctx.fillText(c.yj.zhi, cx, cy - w * 0.004);
-    ctx.fillStyle = '#F0D98C';
+    ctx.fillStyle = tok(res, 'brand_gold_bright');
     ctx.font = fontPx(w * 0.03);
     ctx.fillText('日干 ' + c.r.dg, cx, cy + w * 0.052);
   }
