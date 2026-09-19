@@ -10,7 +10,10 @@
  *   L3 `this.fn(...)`                                      —— 取该函数所有 return 值
  *   L4 `this.fn()[i].field`                                —— 进 fn 体内找 `field:` 赋值；
  *                                                            值若是裸标识符，再解一层同名 const
- * 解析不到的一律返回给调用方（门禁会打印出来）—— 把"看不见的盲点"变成"可见清单"。
+ *   L4b `this.fn()[i].field.sub`（2026-09-19 补）           —— `field` 的值是对象字面量（或裸标识符
+ *                                                            绑定的对象字面量）时，取其中 `sub:` 的值
+ * 解析不到的一律返回给调用方 —— 调用方（对比度门禁）会打印出来，**并判否**（2026-09-19 起，
+ * 留成提示的话，写法深一层就会静默失去覆盖而报告照样 PASS）。
  * 本模块只做**定位**，不解析颜色：颜色提取交给调用方（它才知道令牌表与主题）。
  * ==========================================================================*/
 'use strict';
@@ -80,6 +83,55 @@ function componentNameOf(text) {
   return m ? m[1] : '';
 }
 
+/** 取 `{ ... }` 区间（从 open 位置起，花括号配平）；返回 [内容, 结束位置] */
+function braceBody(text, open) {
+  let depth = 0;
+  for (let i = open; i < text.length; i++) {
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') { depth--; if (depth === 0) return [text.slice(open + 1, i), i]; }
+  }
+  return ['', -1];
+}
+
+/** 在 scope 里找 `sub: <expr>`；裸标识符再解一层同名 const/let/var ——
+ *  声明在 `declScope`（= 整个函数体）里找：真实写法 `deep: { color: color }` 的 const 在对象字面量之外 */
+function subValuesIn(scope, sub, declScope) {
+  const out = [];
+  const re = new RegExp('(^|[\\s{,])' + sub + '\\s*:\\s*([^,\\n}]+)', 'g');
+  let m;
+  while ((m = re.exec(scope)) !== null) {
+    const v = m[2].trim();
+    if (/^[A-Za-z_$][\w$]*$/.test(v)) {
+      const decl = (declScope || scope).match(new RegExp('(?:const|let|var)\\s+' + v + '\\s*(?::[^=]+)?=\\s*([^;\\n]+)'));
+      if (decl) out.push(decl[1].trim());
+    } else out.push(v);
+  }
+  return out;
+}
+
+/** L4b：`this.fn()[i].field.sub` —— 取 `field` 对象字面量（或裸标识符绑定的对象字面量）里的 `sub` 值 */
+function fieldSubValues(fileText, fnName, field, sub) {
+  const body = bodyOf(fileText, fnName);
+  if (!body) return [];
+  const out = [];
+  const re = new RegExp('(^|[\\s{])' + field + '\\s*:\\s*(\\{|[A-Za-z_$][\\w$]*)', 'g');
+  let m;
+  while ((m = re.exec(body)) !== null) {
+    let scope = '';
+    if (m[2] === '{') {
+      /* 形态 A：同行对象字面量 `field: { sub: ... }` */
+      scope = braceBody(body, body.indexOf('{', m.index))[0];
+    } else {
+      /* 形态 B：`field: ident` → 找 ident 绑定的对象字面量 */
+      const decl = body.match(new RegExp('(?:const|let|var)\\s+' + m[2] + '\\s*(?::[^=]+)?=\\s*\\{'));
+      if (decl) scope = braceBody(body, body.indexOf('{', decl.index))[0];
+    }
+    if (scope) out.push(...subValuesIn(scope, sub, body));
+    re.lastIndex = m.index + 1;
+  }
+  return out;
+}
+
 /**
  * 主入口：找出该组件该 prop 在所有调用点被传入的表达式
  * @param {object} o { files:[{rel,text}], selfRel, componentName, propName }
@@ -97,4 +149,4 @@ function propExprs(o) {
   return out;
 }
 
-module.exports = { callArgs, argFor, bodyOf, fieldValues, componentNameOf, propExprs };
+module.exports = { callArgs, argFor, bodyOf, fieldValues, fieldSubValues, componentNameOf, propExprs };

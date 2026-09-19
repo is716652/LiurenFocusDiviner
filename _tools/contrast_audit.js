@@ -15,7 +15,12 @@
  *   7) 完全推不出底色时，用最保守的「深底最亮参考值」DARK_WORST 判定。
  *
  * 用法：node _tools/contrast_audit.js [--json] [--file <关键字>] [--trace <文件名:行号>]
- * 退出码：存在低于 4.5:1 的文字时返回 1（图标/标题另需 > 3:1，此处按更严的正文阈值卡）。
+ * 退出码：存在低于 4.5:1 的文字时返回 1（图标/标题另需 > 3:1，此处按更严的正文阈值卡）；
+ *   **2026-09-19 起：无法解析的跨文件传色同样返回 1**（不再只是提示）—— 见文件末尾的说明。
+ * 覆盖边界（知道它看不见什么，才不会误以为"通过=全查过"）：
+ *   ① 只扫声明式 UI 的 `fontColor(...)`／有语义的 border·divider·`.color()`；
+ *   ② **Canvas 绘制的内容完全不在扫描面内**（天地盘 `ctx.fillStyle = tok(res,'令牌')`）——
+ *      那块由 `_tools/panlayer_contrast.js` 单独出报告（层间可分辨性阈值待定，尚未入门禁）。
  */
 'use strict';
 const fs = require('fs');
@@ -74,11 +79,20 @@ const FILE_TEXTS = walk(ETS_ROOT, []).map((f) => ({
   text: fs.readFileSync(f, 'utf-8')
 }));
 const PROP_CACHE = new Map();
+/* 无法解析的跨文件传色：记 **站点位置**（2026-09-19 起由"提示"升级为"判否"，理由见文件末尾） */
 const PROP_UNRESOLVED = [];
 let PROP_RESOLVED = 0;
 
-/** 把"父级传入的 prop 表达式"解析成具体颜色（分层：直接值 → 帮助函数 → 数据对象字段） */
-function propColors(rel, fileText, propName) {
+/* 豁免：确实无法静态解析时，在该站点行（或其上一行）写 `contrast-ok: 理由` 放行（理由必填）。
+ * 与 _test_ui_layout.js 的 `layout-ok: 理由` 同一约定 —— 豁免必须留下"为什么可以不管"。 */
+function hasContrastOk(lines, i) {
+  const one = (s) => /contrast-ok\s*[:：]\s*\S/.test(String(s || ''));
+  return one(lines[i]) || one(lines[i - 1]);
+}
+
+/** 把"父级传入的 prop 表达式"解析成具体颜色（分层：直接值 → 帮助函数 → 数据对象字段 → 多一跳字段） */
+function propColors(rel, fileText, propName, site) {
+  const at = site || { line: 0, exempt: false };
   /* 缓存键**必须含主题**：令牌值随主题变，第一版只按 文件|prop 缓存，
    * 于是深色那遍的结果被浅色那遍复用（干支显示成 #E9C878 而不是浅色的 #7E5F1A）✗ */
   const key = THEME + '|' + rel + '|' + propName;
@@ -93,6 +107,15 @@ function propColors(rel, fileText, propName) {
         got = helperReturnColors(e.fileText.split(/\r?\n/), e.expr).map(parseColor).filter(Boolean);
       }
       if (!got.length) {
+        /* L4b：this.fn()[i].field.sub —— 多一跳（2026-09-19 补，对应 §11 B 类"prop 追溯深度"） */
+        const m2 = e.expr.match(/this\.([A-Za-z_$][\w$]*)\s*\([\s\S]*?\)[\s\S]*?\.([A-Za-z_$][\w$]*)\s*\.\s*([A-Za-z_$][\w$]*)/);
+        if (m2) {
+          for (const v of propTrace.fieldSubValues(e.fileText, m2[1], m2[2], m2[3])) {
+            got = got.concat(candidatesOf(v).map(parseColor).filter(Boolean));
+          }
+        }
+      }
+      if (!got.length) {
         /* L4：this.fn()[i].field → 进 fn 体内找 field 的赋值 */
         const m = e.expr.match(/this\.([A-Za-z_$][\w$]*)\s*\([\s\S]*?\)[\s\S]*?\.([A-Za-z_$][\w$]*)/);
         if (m) {
@@ -102,7 +125,10 @@ function propColors(rel, fileText, propName) {
         }
       }
       if (got.length) { out.push(...got); PROP_RESOLVED++; }
-      else PROP_UNRESOLVED.push(rel + ' 的 ' + propName + ' ← ' + e.fileRel + ' 传 ' + e.expr.slice(0, 60));
+      else PROP_UNRESOLVED.push({
+        siteRel: rel, siteLine: at.line, propName: propName,
+        fromRel: e.fileRel, expr: e.expr.slice(0, 60), exempt: !!at.exempt
+      });
     }
   }
   PROP_CACHE.set(key, out);
@@ -375,7 +401,7 @@ function fgColorsOfLine(lines, line, ctx) {
      * 第一版没这个限制：`fontColor(this.highlight ? $r(A) : $r(B))` 里的 this.highlight 被当成
      * 整个参数、于是去追溯一个**布尔** prop，得到 10 条"无法解析"的噪音（highlight/active/…）✗ */
     if (/fontColor\(\s*this\.[A-Za-z_][A-Za-z0-9_]*\s*\)/.test(line)) {
-      return propColors(ctx.rel, ctx.text, m[4].replace(/^this\./, ''));
+      return propColors(ctx.rel, ctx.text, m[4].replace(/^this\./, ''), { line: ctx.line, exempt: ctx.exempt });
     }
     /* 更长的表达式（三元等）：按表达式取色值并集 —— 保守（取最差对比度），也比跳过强 */
     const arg = (line.match(/fontColor\(([^)]*)\)/) || [])[1] || '';
@@ -455,11 +481,13 @@ for (const theme of THEMES_TO_RUN) {
   const findings = [], nonText = [], decoration = [];
   for (const f of files) {
     const lines = fs.readFileSync(f, 'utf-8').split(/\r?\n/);
-    const ctx = { rel: path.relative(ROOT, f).replace(/\\/g, '/'), text: lines.join('\n') };
+    const ctx = { rel: path.relative(ROOT, f).replace(/\\/g, '/'), text: lines.join('\n'), line: 0, exempt: false };
     const blocks = lightBlocks(lines);
     const builders = builderIndex(lines, blocks);
     for (let i = 0; i < lines.length; i++) {
       /* ---- 文字（4.5:1） ---- */
+      ctx.line = i + 1;
+      ctx.exempt = hasContrastOk(lines, i);
       const fgs = fgColorsOfLine(lines, lines[i], ctx);
       if (fgs.length) {
         const ind = indentOf(lines[i]);
@@ -506,6 +534,10 @@ for (const theme of THEMES_TO_RUN) {
 if (asJson) {
   const out = {};
   for (const [t, r] of perTheme) out[t] = { findings: r.findings, nonText: r.nonText, decorationCount: r.decoration.length };
+  /* 无法解析的跨文件传色也进 JSON（函数声明会提升，故此处可用） */
+  out.propTraceUnresolved = unresolvedUnique().map((u) => ({
+    site: u.siteRel + ':' + u.siteLine, prop: u.propName, from: u.fromRel, expr: u.expr, exempt: u.exempt
+  }));
   console.log(JSON.stringify(out, null, 2));
   process.exit(0);
 }
@@ -550,9 +582,30 @@ for (const theme of THEMES_TO_RUN) {
   }
 }
 
-/* 跨文件 prop 传色的追溯情况：把"看不见的盲点"变成可见清单（而不是静默跳过） */
+/* 跨文件 prop 传色的追溯情况（2026-09-19 起**从提示升级为判否**）：
+ * 留成提示的话，将来写法深一层（例如本工具 L4b 之外的形态）就会**静默失去覆盖，而报告照样 PASS** ——
+ * 这正是 §3.3 第 4 条"门禁会过期失效"的翻版（令牌化那次已经把本工具卸过一次械）。
+ * 处理方式二选一：让解析器认得该写法（prop_trace.js L1–L4b，必要时补一层），
+ * 或在该站点行写 `contrast-ok: 理由` 显式豁免（理由必填）。 */
+function unresolvedUnique() {
+  const m = new Map();
+  for (const u of PROP_UNRESOLVED) m.set(u.siteRel + ':' + u.siteLine + ':' + u.propName, u);
+  return [...m.values()];
+}
+const unresolved = unresolvedUnique();
+const unresolvedHard = unresolved.filter((u) => !u.exempt);
 console.log('\n跨文件 prop 传色：解析成功 ' + PROP_RESOLVED + ' 处（双主题合计，已计入上面判定）'
-  + '；无法解析 ' + new Set(PROP_UNRESOLVED).size + ' 处');
-for (const u of [...new Set(PROP_UNRESOLVED)].slice(0, 10)) console.log('  ⚠ 无法解析：' + u);
+  + '；无法解析 ' + unresolved.length + ' 处'
+  + (unresolved.length ? '（其中豁免 ' + (unresolved.length - unresolvedHard.length) + ' 处）' : ''));
+for (const u of unresolvedHard.slice(0, 10)) {
+  console.log('  ✗ 无法解析：' + u.siteRel + ':' + u.siteLine + ' 的 ' + u.propName
+    + ' ← ' + u.fromRel + ' 传 ' + u.expr);
+}
+for (const u of unresolved.filter((x) => x.exempt).slice(0, 10)) {
+  console.log('  · 已豁免：' + u.siteRel + ':' + u.siteLine + ' 的 ' + u.propName);
+}
+if (unresolvedHard.length) {
+  console.log('  → 判否：请让解析器认得该写法（prop_trace.js L1–L4b），或在该站点行写 `contrast-ok: 理由`。');
+}
 
-process.exit(anyBad ? 1 : 0);
+process.exit((anyBad || unresolvedHard.length) ? 1 : 0);
