@@ -15,6 +15,7 @@ import { AncientCaseGallery } from '../components/AncientCaseGallery';
 import { PageHeader } from '../components/PageHeader';
 import { goTab } from '../model/NavUtil';
 import { curves } from '@kit.ArkUI';
+import { TransitionFx } from '../model/TransitionFx';
 
 @Entry
 @Component
@@ -62,10 +63,10 @@ struct Ancient {
      只声明 opacity —— 不写 slide/translate，故不产生左右平移或上下位移；
      Push / Pop 两个方向都显式声明（默认 RouteType.None 不保险）。 */
   pageTransition() {
-    PageTransitionEnter({ type: RouteType.Push, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
-    PageTransitionExit({ type: RouteType.Push, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
-    PageTransitionEnter({ type: RouteType.Pop, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
-    PageTransitionExit({ type: RouteType.Pop, duration: 260, curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionEnter({ type: RouteType.Push, duration: TransitionFx.pageDur(), curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionExit({ type: RouteType.Push, duration: TransitionFx.pageDur(), curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionEnter({ type: RouteType.Pop, duration: TransitionFx.pageDur(), curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
+    PageTransitionExit({ type: RouteType.Pop, duration: TransitionFx.pageDur(), curve: curves.springCurve(0.6, 1, 320, 34) }).opacity(0)
   }
 
   build() {

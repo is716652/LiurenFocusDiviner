@@ -43,6 +43,15 @@ for (const f of walk(PAGES_DIR)) {
   const end = rest.search(/\n\s*build\(\)\s*\{/);
   const block = end > 0 ? rest.slice(0, end) : rest;
   if (!/\.opacity\s*\(/.test(block)) bad.push(rel + '：转场未使用 opacity（要求淡入淡出）');
+  /* 时长分档（自检：<8.5in ≥200 / 8.5–12in ≥250 / >12in ≥300）——
+   * 写死的数值只有在 ≥300 时才在任何设备上都合规，否则必须走按尺寸分档的接口。 */
+  const mDur = /duration:\s*(\d+)/.exec(block);
+  if (mDur && Number(mDur[1]) < 300) {
+    bad.push(rel + '：转场时长写死 ' + mDur[1] + 'ms —— 大屏（>12in）要求 ≥300ms，应改用 TransitionFx.pageDur() 按设备尺寸分档');
+  }
+  if (!/pageDur\s*\(/.test(block)) {
+    bad.push(rel + '：转场时长未走按设备尺寸分档的 TransitionFx.pageDur()');
+  }
   if (MOVE.test(block)) bad.push(rel + '：转场里出现位移/缩放（' + (block.match(MOVE) || [])[0].trim() + '）—— 自检要求不得左右平移或上下位移');
   if (!SPRING.test(block)) bad.push(rel + '：转场曲线不是弹簧曲线（应为 curves.springCurve / springMotion）');
 }
