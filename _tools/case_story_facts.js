@@ -38,7 +38,7 @@ console.log('  课体 kegs  : ' + c.kegs.map((k) => k.x + '/' + k.s).join('  '))
 console.log('  三传       : ' + c.sanchuan.chuans.map((x, i) => ['初', '中', '末'][i] + '=' + x.z + (x.gz ? '(' + x.gz + ')' : '')).join('  '));
 console.log('  三传乘将   : ' + c.sanchuan.chuans.map((x) => x.z + '→' + (c.jiangMap[LiurenCore.gongOf(c.tp, x.z)] || '')).join('  '));
 console.log('  日干/日支  : ' + c.r.dg + ' / ' + c.r.dz + '   月将/占时: ' + inp.mj + ' / ' + inp.hour);
-console.log('  旬空       : ' + JSON.stringify(c.xunkong || c.xunKong || null).slice(0, 120));
+console.log('  旬空       : ' + JSON.stringify((c.dx && c.dx.xunkong) ? c.dx.xunkong : null).slice(0, 120));
 const byZhi = (c.dx.shensha && c.dx.shensha.byZhi) ? c.dx.shensha.byZhi : {};
 console.log('  神煞(按支) : ' + Object.keys(byZhi).slice(0, 14).map((z) => z + '[' + (byZhi[z] || []).join('、') + ']').join(' '));
 try {
