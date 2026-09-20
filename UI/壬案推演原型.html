@@ -39,6 +39,22 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 .ask{border:1px solid var(--line);background:#1F1C16;border-radius:12px;padding:10px;cursor:pointer;} .ask:hover{border-color:rgba(233,200,120,.45);} .ask.on{border-color:var(--cinnabar);background:#241E19;box-shadow:inset 0 0 0 1px rgba(166,58,43,.55);} .ask b{display:block;color:#F0E6C8;font-size:14px;} .ask .q{color:#C4B183;font-size:12px;margin-top:4px;}
 .bd{display:inline-block;border-radius:999px;padding:1px 7px;font-size:10px;margin-bottom:5px;} .bd.orig{background:var(--cinnabar);color:#F5EFE2;} .bd.der{background:var(--navy);color:#DCE8F2;}
 .facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+/* ---- 盘上留痕与一占多断并置层（2026-09-20）----
+   取证不再只是"点对领提示"：命中处标序号、连线成"占到断"的路径、盘下生成证据签；
+   切换占问方向时，上一方向的痕迹以淡色虚线留在盘上，并给一行"两方向各点亮了哪些格"的对照。
+   纪律：痕迹只画在**已登记 SURFACES 对应的格**上；并置层只显示位置，不给任何结论。 */
+.tlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.tline{fill:none;stroke:#F0D98C;stroke-width:.7;stroke-dasharray:2 1.4;opacity:.55;}
+.gline{fill:none;stroke:#8A7B5C;stroke-width:.6;stroke-dasharray:1.6 1.6;opacity:.5;}
+.gong.traced{border-color:rgba(240,217,140,.8);box-shadow:0 0 0 1px rgba(240,217,140,.35);}
+.gong.ghost{border-style:dashed;border-color:rgba(138,123,92,.65);}
+.gong .tnum{position:absolute;top:-7px;left:-7px;width:17px;height:17px;line-height:17px;text-align:center;background:var(--gold);color:#1A1410;border-radius:999px;font-size:10px;font-weight:700;}
+.gong.ghost .tnum{background:#8A7B5C;color:#14120F;}
+.traces{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.tchip{border:1px solid rgba(240,217,140,.35);background:rgba(240,217,140,.10);color:#E6DFD0;border-radius:999px;padding:4px 9px;font-size:11px;}
+.tchip.ghost{border-style:dashed;border-color:rgba(138,123,92,.6);background:transparent;color:#9c8f74;}
+.tsub{width:100%;color:var(--dim);font-size:11px;margin-top:6px;}
+.tsep{width:100%;height:1px;background:var(--line);margin:8px 0 2px;}
 </style>
 </head>
 <body>
@@ -48,7 +64,7 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 <aside class="card"><h2>案例库</h2><div class="muted">已同步 APP 案例数据；标「剧情」的案例可作一局多占推演</div><div class="chips" id="topicChips"></div><div id="caseList"></div></aside>
 <main class="layout">
 <section class="card"><h2>卷宗与推演</h2><div id="briefBox" class="brief">请选择案例。左侧点「剧情」档可只看有「一局多占」剧情的案例（现有 8 案），建议先点「徐次宾占来意」体验。</div><div class="asks" id="askBox"></div><div class="toolbar"><button class="btn" id="startBtn">起盘窥天</button><button class="btn ghost" id="thinkBtn" disabled>沉思</button><button class="btn ghost" id="restartBtn" disabled>重开此案</button></div><div id="clueBox" class="clue-list"></div><div id="logBox" class="log"></div><div id="judgeBox" style="margin-top:12px;"></div><div id="revealBox"></div></section>
-<section class="card"><h2>推演盘</h2><div class="muted" id="caseMeta">未起盘</div><div class="facts" id="factBox"></div><div id="methodBox"></div><div class="chuans" id="chuanBox" style="margin-top:10px;"></div><div class="kegs" id="kegBox"></div><div class="pan" id="panBox"></div></section>
+<section class="card"><h2>推演盘</h2><div class="muted" id="caseMeta">未起盘</div><div class="facts" id="factBox"></div><div id="methodBox"></div><div class="chuans" id="chuanBox" style="margin-top:10px;"></div><div class="kegs" id="kegBox"></div><div class="pan" id="panBox"></div><div class="traces" id="traceBar"></div><div class="muted" id="traceDiff" style="margin-top:6px;"></div></section>
 <section class="card paper" style="grid-column:1/-1;"><h2>证据与规则 <button class="chip" id="reasonToggle" style="margin-left:8px;">展开</button></h2><div id="noticeBox"></div><div id="reasonBox" style="display:none"></div><div class="compliance">本原型仅作传统文化研习与推理练习；剧情内容不用于现实疾病、官讼、投资、气象等判断。</div></section>
 </main>
 </div>
@@ -68,13 +84,19 @@ const DEFAULT_ENDINGS=['藏机','窥豹','得梗','贯通'];
    见 _tests/_test_case_story_web.js */
 let SURFACES=[];
 let topic='全部',cur=null,chart=null,started=false,askIdx=0,found={},thinkIdx=0,submitted=false;
+/* 盘上留痕：trace = 当前方向的证据痕迹（只记"落在哪一格 + 该线索的问句"，不记结论）；
+   ghost = 上一方向的痕迹快照，用于「一占多断」的并置对照。二者都不参与 found 判定，
+   故切换支线时 found 照样清空（无头反验断言这一点）。 */
+let trace=[],ghost=null;
+/* 十二宫在盘上的角度（度）——留痕连线与格位共用同一套坐标，避免两处漂移 */
+const PAN_ANGLE={午:-90,未:-60,申:-30,酉:0,戌:30,亥:60,子:90,丑:120,寅:150,卯:180,辰:210,巳:240};
 function $(id){return document.getElementById(id);}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function surface(label,cands){SURFACES.push({label:label,cands:cands});return SURFACES.length-1;}
 /* 测试钩子：暴露可点位与运行状态，供 _tests/_test_case_story_web.js 无头反验
    （顶层 let 绑定不挂到 window 上，故用函数暴露） */
 function protoSurfaces(){return SURFACES;}
-function protoState(){const a=askOf();return {caseId:cur?cur.id:'',started:started,askIdx:askIdx,submitted:submitted,found:Object.keys(found),clueTotal:a?a.clues.length:0,hasChart:!!chart};}
+function protoState(){const a=askOf();return {caseId:cur?cur.id:'',started:started,askIdx:askIdx,submitted:submitted,found:Object.keys(found),clueTotal:a?a.clues.length:0,hasChart:!!chart,traced:trace.length,tracedCells:traceCellsOrdered(),ghostCells:ghostCells()};}
 function storyOf(c){return c?STORY[c.id]||null:null;}
 function asksOf(c){const st=storyOf(c);return st&&st.asks?st.asks:[];}
 function askOf(){const a=asksOf(cur);return a.length?a[Math.min(askIdx,a.length-1)]:null;}
@@ -88,14 +110,71 @@ function jiangOf(z){return chart?(chart.jiangMap[zhiOf(z)]||''):'';}
 function ssList(z){const b=chart&&chart.dx&&chart.dx.shensha?chart.dx.shensha.byZhi:null;const arr=b&&b[z]?b[z]:[];return arr.map(n=>({kind:'shensha',ref:z+'/'+n}));}
 function renderTopics(){$('topicChips').innerHTML=['全部','剧情'].concat(TOPICS.filter(x=>x!=='全部')).map(t=>`<button class="chip ${topic===t?'on':''}" data-t="${t}">${t}</button>`).join('');$('topicChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{topic=b.dataset.t;renderTopics();renderList();});}
 function renderList(){const list=CASES.filter(c=>topic==='全部'||(topic==='剧情'?!!storyOf(c):(c.topics||[]).indexOf(topic)>=0));let html='';groups().forEach(g=>{const arr=list.filter(c=>groupOf(c)===g);if(!arr.length)return;html+=`<div class="group">${g}</div>`;arr.forEach(c=>{const has=!!storyOf(c);html+=`<div class="case-item ${cur&&cur.id===c.id?'on':''}" data-id="${esc(c.id)}"><b>${esc(c.title)}</b><small>${(c.topics||[]).join(' / ')} · ${esc(c.chapter)}${has?' · <span class="bd orig">剧情</span>':''}</small></div>`;});});$('caseList').innerHTML=html||'<div class="muted">此占类暂无案例</div>';$('caseList').querySelectorAll('.case-item').forEach(el=>el.onclick=()=>selectCase(el.dataset.id));}
-function selectCase(id){cur=CASES.find(c=>c.id===id)||null;chart=null;started=false;askIdx=0;found={};thinkIdx=0;submitted=false;if(cur){const inp=cur.input;chart=LiurenCore.buildChartAncient(inp.mj,inp.dg,inp.dz,inp.hour,inp.yearGan||inp.yg||'',inp.yearZhi||inp.yz||'',inp.monthZhi||'');}renderList();renderAll();}
-function pickAsk(i){if(!cur)return;const a=asksOf(cur);if(!a.length||i===askIdx)return;askIdx=i;found={};thinkIdx=0;submitted=false;$('logBox').innerHTML='';if(started)log('换了个占问方向：'+a[i].title+'。同一课，取象随之而变。','good');renderAll();}
+function selectCase(id){cur=CASES.find(c=>c.id===id)||null;chart=null;started=false;askIdx=0;found={};thinkIdx=0;submitted=false;trace=[];ghost=null;if(cur){const inp=cur.input;chart=LiurenCore.buildChartAncient(inp.mj,inp.dg,inp.dz,inp.hour,inp.yearGan||inp.yg||'',inp.yearZhi||inp.yz||'',inp.monthZhi||'');}renderList();renderAll();}
+function pickAsk(i){if(!cur)return;const a=asksOf(cur);if(!a.length||i===askIdx)return;
+  /* 并置层：把当前方向的痕迹留给下一方向作对照（只留位置与问句，不含任何结论） */
+  if(trace.length)ghost={title:(a[askIdx]&&a[askIdx].title)||'',items:trace.slice()};
+  askIdx=i;found={};thinkIdx=0;submitted=false;trace=[];$('logBox').innerHTML='';if(started)log('换了个占问方向：'+a[i].title+'。同一课，取象随之而变。','good');renderAll();}
 function renderBrief(){if(!cur){$('briefBox').innerHTML='请选择案例。左侧点「剧情」档可只看有「一局多占」剧情的案例，建议先点「徐次宾占来意」体验。';$('askBox').innerHTML='';return;}const st=storyOf(cur);$('briefBox').innerHTML=st?esc(st.brief)+(st.note?`<div class="muted" style="margin-top:6px;">${esc(st.note)}</div>`:''):(esc(cur.summary||cur.title)+'<div class="notice diff">本案例暂无「一局多占」剧情（当前 '+Object.keys(STORY).length+' 案有剧情——左侧点「剧情」档即可只看它们）。下面仍可起盘、读证据链与点盘位。</div>');const a=asksOf(cur);$('askBox').innerHTML=a.length?a.map((x,i)=>{const cls=x.role==='derived'?'der':'orig';const bd=x.badge||(x.role==='derived'?'异占支线':'古籍原占');return `<div class="ask ${i===askIdx?'on':''}" data-i="${i}"><span class="bd ${cls}">${esc(bd)}</span><b>${esc(x.title)}</b><div class="q">问：${esc(x.question||'')}</div></div>`;}).join(''):'';$('askBox').querySelectorAll('.ask').forEach(el=>el.onclick=()=>pickAsk(Number(el.dataset.i)));}
 function clueFoundCount(){const a=askOf();return a?a.clues.filter(c=>found[c.id]).length:0;}
 function renderClues(){const box=$('clueBox'),a=askOf();if(!cur||!started||!a){box.innerHTML='';return;}const next=a.clues.find(c=>!found[c.id]);box.innerHTML=`<div class="muted">疑点清单 · ${esc(a.title)}（${a.role==='derived'?'只取证与规则，不给断语':'取证后再立断语'}）</div>`+a.clues.map(c=>`<div class="clue ${found[c.id]?'found':''} ${next&&next.id===c.id?'next':''}">${found[c.id]?'✓ ':'○ '}${esc(c.label)}<small>${found[c.id]?esc(c.hint):esc(c.small||'')}</small></div>`).join('');}
 function log(text,kind){const div=document.createElement('div');div.className='logline '+(kind||'');div.textContent=text;$('logBox').prepend(div);}
 function anchorMatch(an,cd){if(an.kind!==cd.kind)return false;if(an.kind==='method')return !an.ref||an.ref===chart.sanchuan.method;if(an.ref!==cd.ref)return false;if(an.pos&&cd.pos&&an.pos!==cd.pos)return false;return true;}
-function tryDiscover(cands,label){if(!cur||!started)return false;const a=askOf();if(!a)return false;const arr=Array.isArray(cands)?cands:[cands];let hit=null;a.clues.forEach(c=>{if(hit||found[c.id])return;(c.anchors||[]).forEach(an=>{if(!hit&&arr.some(cd=>anchorMatch(an,cd)))hit=c;});});if(hit){found[hit.id]=true;log('灵光一现：'+hit.hint,'good');if(clueFoundCount()===a.clues.length)log(a.role==='derived'?'线索已集。此支线到此为止——取象清单在下方「证据与规则」，古籍原断请切回原占方向。':'线索已集，宜先立断语，再揭古断。','good');renderAll();return true;}log('你点的是「'+label+'」——此线索要的不是它（换个位置想想；若卡住可点「沉思」两次）。','bad');return false;}
+function tryDiscover(cands,label){if(!cur||!started)return false;const a=askOf();if(!a)return false;const arr=Array.isArray(cands)?cands:[cands];let hit=null;a.clues.forEach(c=>{if(hit||found[c.id])return;(c.anchors||[]).forEach(an=>{if(!hit&&arr.some(cd=>anchorMatch(an,cd)))hit=c;});});if(hit){const matched=(hit.anchors||[]).filter(an=>arr.some(cd=>anchorMatch(an,cd)));found[hit.id]=true;tracePush(hit,matched,label);log('灵光一现：'+hit.hint,'good');if(clueFoundCount()===a.clues.length)log(a.role==='derived'?'线索已集。此支线到此为止——取象清单在下方「证据与规则」，古籍原断请切回原占方向。':'线索已集，宜先立断语，再揭古断。','good');renderAll();return true;}log('你点的是「'+label+'」——此线索要的不是它（换个位置想想；若卡住可点「沉思」两次）。','bad');return false;}
+/* ---- 盘上留痕（数据侧）：锚点 → 盘上格 ----
+   返回 '' 表示该锚点不在盘上（课名、日干旺衰、时支等属"事实栏"或中心信息），只在证据签里出现。
+   映射口径与 SURFACES 的登记口径严格一致（格 = 天盘支所在的宫位）：
+     chuan/jiang/keg/shensha/xunkong/zhi 的 ref 首段 = 天盘支 → 直接就是格；
+     gong/hour 的 ref = 地支 → 反查"地盘为该支"的那一格（占时亦作起点格）。 */
+function cellOfAnchor(an){
+  const k=an.kind,ref=String(an.ref||'').split('/')[0].trim();
+  if(!ref)return '';
+  if(k==='chuan'||k==='jiang'||k==='keg'||k==='shensha'||k==='xunkong'||k==='zhi')return ref;
+  if(k==='gong'||k==='hour'){const z=LiurenCore.ZHI.filter(x=>zhiOf(x)===ref)[0];return z||'';}
+  return '';
+}
+function tracePush(clue,matched,label){
+  const cells=[],kinds=[];
+  (matched||[]).forEach(an=>{const z=cellOfAnchor(an);if(z&&cells.indexOf(z)<0)cells.push(z);if(kinds.indexOf(an.kind)<0)kinds.push(an.kind);});
+  trace.push({id:clue.id,label:clue.label,cells:cells,kinds:kinds,via:label||''});
+}
+/* 留痕顺序：若占时那一格也在痕迹里，从它起画（"月将加时"的入局处），随后按取证先后。 */
+function traceCellsOrdered(){
+  const out=[];
+  const hz=(cur&&cur.input)?(LiurenCore.ZHI.filter(x=>zhiOf(x)===cur.input.hour)[0]||''):'';
+  if(hz&&trace.some(t=>t.cells.indexOf(hz)>=0))out.push(hz);
+  trace.forEach(t=>t.cells.forEach(z=>{if(out.indexOf(z)<0)out.push(z);}));
+  return out;
+}
+function ghostCells(){const s={};if(ghost)ghost.items.forEach(t=>t.cells.forEach(z=>{s[z]=1;}));return Object.keys(s);}
+function traceOverlay(){
+  /* 只画"连线"、不画圈：圈会被宫格卡片盖住；连线在盘心区域可见，格上的序号徽章另标（见 renderChart）。
+     SVG 放在宫格**之前**（在底层），故不会挡点击；pointer-events:none 再兜一层。 */
+  const pt=z=>({x:(50+42*Math.cos((PAN_ANGLE[z]||0)*Math.PI/180)).toFixed(2),y:(50+42*Math.sin((PAN_ANGLE[z]||0)*Math.PI/180)).toFixed(2)});
+  const line=(cells,cls)=>{const p=cells.filter(z=>PAN_ANGLE[z]!==undefined).map(pt);return p.length<2?'':`<polyline class="${cls}" points="${p.map(q=>q.x+','+q.y).join(' ')}"/>`;};
+  const tC=traceCellsOrdered(),gC=ghostCells();
+  if(tC.length<2&&gC.length<2)return '';
+  return '<svg class="tlay" viewBox="0 0 100 100" preserveAspectRatio="none">'
+    +(gC.length>1?line(gC,'gline'):'')+(tC.length>1?line(tC,'tline'):'')+'</svg>';
+}
+/* 证据签 + 一占多断对照：只写"点亮了哪几格"，不给任何结论 */
+function renderTraces(has){
+  const bar=$('traceBar'),diff=$('traceDiff');
+  if(!bar)return;
+  if(!has||(!trace.length&&!(ghost&&ghost.items.length))){bar.innerHTML='';if(diff)diff.innerHTML='';return;}
+  const chip=(t,n,cls)=>`<span class="tchip ${cls||''}">${n} · ${esc(t.cells.length?t.cells.join('/'):'事实栏')} · ${esc(t.label)}</span>`;
+  let html=trace.length?trace.map((t,i)=>chip(t,i+1,'')).join(''):'<span class="muted">本方向尚未取证——每点对一处，盘上就多一枚证据签。</span>';
+  if(ghost&&ghost.items.length){html+=`<div class="tsep"></div><div class="tsub">上一方向（${esc(ghost.title)}）的痕迹以淡色虚线留在盘上：</div>`+ghost.items.map((t,i)=>chip(t,i+1,'ghost')).join('');}
+  bar.innerHTML=html;
+  if(!diff)return;
+  if(!(trace.length&&ghost&&ghost.items.length)){diff.innerHTML='';return;}
+  const now=[...new Set(trace.reduce((a,t)=>a.concat(t.cells),[]))];
+  const prev=ghostCells();
+  const both=now.filter(z=>prev.indexOf(z)>=0),onlyNow=now.filter(z=>prev.indexOf(z)<0),onlyPrev=prev.filter(z=>now.indexOf(z)<0);
+  diff.innerHTML='两方向取证对照（只看位置，不含结论）：本方向点亮 '+now.length+' 格'+(now.length?'（'+esc(now.join('/'))+'）':'')
+    +'；上一方向 '+prev.length+' 格'+(prev.length?'（'+esc(prev.join('/'))+'）':'')
+    +(both.length?'；重合 '+esc(both.join('/')):'')+(onlyNow.length?'；仅本方向 '+esc(onlyNow.join('/')):'')+(onlyPrev.length?'；仅上一方向 '+esc(onlyPrev.join('/')):'');
+}
 function renderJudge(){const box=$('judgeBox'),a=askOf();if(!cur||!started||!a||submitted||clueFoundCount()<a.clues.length){if(!submitted)box.innerHTML='';return;}box.innerHTML=`<div class="muted">线索已集。请先立断语，再揭${a.role==='derived'?'取象小结':'古断'}。</div><textarea id="userVerdict" placeholder="例：铸印冬占主雪，初传巳临子被克乘玄武主风，末传卯乘白虎、申空为空中降下……"></textarea><div class="toolbar"><button class="btn" id="submitBtn">呈上断语</button></div>`;$('submitBtn').onclick=submitVerdict;}
 function submitVerdict(){const a=askOf();if(!cur||!a||submitted)return;const ta=$('userVerdict');const text=(ta?ta.value:'').trim();let score=clueFoundCount();(a.goodWords||[]).forEach(w=>{if(text.indexOf(w)>=0)score+=0.5;});const max=a.clues.length+(a.goodWords||[]).length*0.5,ratio=max?score/max:0;let level=0;if(ratio>=0.85)level=3;else if(ratio>=0.6)level=2;else if(ratio>=0.35)level=1;const endings=a.endings&&a.endings.length?a.endings:DEFAULT_ENDINGS;submitted=true;$('judgeBox').innerHTML='';let body='';if(a.role==='derived'){body=`<div style="margin-top:6px;">${esc(a.ending&&a.ending.text||'')}</div><div class="notice diff">${esc(a.ending&&a.ending.note||'')}</div><div class="muted">此支线不揭古籍原断。想看原占的断法与应验，可切回「古籍原占」方向。</div>`;}else{body=`<div style="margin-top:6px;">${esc(cur.original||'')}</div><div class="muted" style="margin-top:8px;">复盘：${esc(cur.summary||'')}</div>`;}$('revealBox').innerHTML=`<div class="reveal"><b style="color:#F0D98C">结局 · ${esc(endings[level])}</b><div class="muted">${esc(cur.title)} · ${esc(a.title)}</div>${body}<div class="muted" style="margin-top:8px;">你的断语：${esc(text)||'（未书）'}</div></div>`;}
 function renderFacts(){const box=$('factBox');if(!(cur&&started&&chart)){box.innerHTML='';return;}const xk=chart.dx.xunkong||[];const gr=Object.keys(chart.jiangMap).find(g=>chart.jiangMap[g]==='贵人')||'';const items=[['旬空'+(xk.length?xk.join(''):'无'),xk.map(z=>({kind:'xunkong',ref:z})),'旬空'],[('日干旺衰'+(chart.dx.dayWangShuai||'—')),chart.dx.dayWangShuai?[{kind:'dayWangShuai',ref:chart.dx.dayWangShuai}]:[],'日干旺衰'],['月令'+(chart.dx.monthZhi||'—'),[],'月令'],['贵人临'+(gr||'—'),gr?[{kind:'gong',ref:gr}]:[],'贵人'],['时支'+cur.input.hour,[{kind:'hour',ref:cur.input.hour}],'时支']];
@@ -103,7 +182,7 @@ function renderFacts(){const box=$('factBox');if(!(cur&&started&&chart)){box.inn
 const sIdx=items.map(it=>it[1].length?surface(it[2],it[1]):-1);
 box.innerHTML=items.map((it,i)=>`<span class="chip" data-i="${i}">${esc(it[0])}</span>`).join('');
 box.querySelectorAll('.chip').forEach(el=>{const i=Number(el.dataset.i);if(sIdx[i]<0)return;el.onclick=()=>tryDiscover(SURFACES[sIdx[i]].cands,items[i][2]);});}
-function renderChart(){const has=!!cur&&started&&!!chart;SURFACES=[];$('caseMeta').textContent=has?(cur.title+' · '+cur.input.mj+'将 '+cur.input.dg+cur.input.dz+'日 '+cur.input.hour+'时 · 旬空'+((chart.dx.xunkong||[]).length?chart.dx.xunkong.join(''):'无')):'未起盘';renderFacts();if(!has){$('methodBox').innerHTML='';$('panBox').innerHTML='';$('kegBox').innerHTML='';$('chuanBox').innerHTML='';return;}
+function renderChart(){const has=!!cur&&started&&!!chart;SURFACES=[];$('caseMeta').textContent=has?(cur.title+' · '+cur.input.mj+'将 '+cur.input.dg+cur.input.dz+'日 '+cur.input.hour+'时 · 旬空'+((chart.dx.xunkong||[]).length?chart.dx.xunkong.join(''):'无')):'未起盘';renderFacts();if(!has){$('methodBox').innerHTML='';$('panBox').innerHTML='';$('kegBox').innerHTML='';$('chuanBox').innerHTML='';renderTraces(false);return;}
 const marks=keyMarks(cur),posName=['初传','中传','末传'],chuans=chart.sanchuan.chuans,xk=chart.dx.xunkong||[];
 /* ① 先登记可点位（不依赖 DOM，便于自动化遍历） */
 const mIdx=surface('课名',[{kind:'method',ref:chart.sanchuan.method}]);
@@ -117,9 +196,11 @@ $('chuanBox').innerHTML=[2,1,0].map(i=>{const q=chuans[i],mk=marks[q.z]?`<span c
 $('chuanBox').querySelectorAll('.mini').forEach(el=>{const i=Number(el.dataset.i);el.querySelector('[data-hit="zhi"]').onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sChuan[i]].cands,'三传'+posName[i]);};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sChuanJ[i]].cands,'三传'+posName[i]+'之将');};});
 $('kegBox').innerHTML=[3,2,1,0].map(i=>{const k=chart.kegs[i],key=k.x+'/'+k.s;return `<div class="mini" data-i="${i}"><div class="t">第${['一','二','三','四'][i]}课</div><div class="z" data-hit="keg">${esc(key)}</div><div class="j" data-hit="jiang">${esc(jiangOf(k.x))}</div></div>`;}).join('');
 $('kegBox').querySelectorAll('.mini').forEach(el=>{const i=Number(el.dataset.i);el.querySelector('[data-hit="keg"]').onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sKeg[i]].cands,'四课'+chart.kegs[i].x+'/'+chart.kegs[i].s);};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sKegJ[i]].cands,'四课'+chart.kegs[i].x+'之将');};});
-const angle={午:-90,未:-60,申:-30,酉:0,戌:30,亥:60,子:90,丑:120,寅:150,卯:180,辰:210,巳:240};
-$('panBox').innerHTML=LiurenCore.ZHI.map(z=>{const g=zhiOf(z),j=chart.jiangMap[g]||'',ss=(chart.dx.shensha&&chart.dx.shensha.byZhi&&chart.dx.shensha.byZhi[z])||[],focus=marks[z]?' focus':'',a=(angle[z]||0)*Math.PI/180,left=(50+42*Math.cos(a)).toFixed(2),top=(50+42*Math.sin(a)).toFixed(2);return `<div class="gong${focus}" style="left:${left}%;top:${top}%" data-z="${esc(z)}"><div class="tian" data-hit="tian">${esc(z)}</div><div class="di" data-hit="di">地盘 ${esc(g)}</div><div class="jiang" data-hit="jiang">${esc(j)}</div><div class="ss" data-hit="ss">${esc(ss.join(' '))}</div></div>`;}).join('');
-$('panBox').querySelectorAll('.gong').forEach(el=>{const z=el.dataset.z;el.querySelector('[data-hit="tian"]').onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sTian[z]].cands,'天地盘'+z);};el.querySelector('[data-hit="di"]').onclick=(e)=>{e.stopPropagation();const g=zhiOf(z);tryDiscover(SURFACES[sDi[z]].cands,'地盘'+g+'宫');};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sPanJ[z]].cands,'天地盘'+z+'之将');};const ssel=el.querySelector('[data-hit="ss"]');if(ssel)ssel.onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sTian[z]].cands,'天地盘'+z+'（神煞）');};});}
+/* 盘上留痕：连线画在底层（traceOverlay 先输出），格上加序号徽章 */
+const tIdx={};traceCellsOrdered().forEach((z,i)=>{tIdx[z]=i+1;});
+const gSet={};ghostCells().forEach(z=>{gSet[z]=1;});
+$('panBox').innerHTML=traceOverlay()+LiurenCore.ZHI.map(z=>{const g=zhiOf(z),j=chart.jiangMap[g]||'',ss=(chart.dx.shensha&&chart.dx.shensha.byZhi&&chart.dx.shensha.byZhi[z])||[],focus=marks[z]?' focus':'',tc=tIdx[z]?' traced':'',gc=gSet[z]?' ghost':'',badge=tIdx[z]?`<span class="tnum">${tIdx[z]}</span>`:(gSet[z]?'<span class="tnum">·</span>':''),a=(PAN_ANGLE[z]||0)*Math.PI/180,left=(50+42*Math.cos(a)).toFixed(2),top=(50+42*Math.sin(a)).toFixed(2);return `<div class="gong${focus}${tc}${gc}" style="left:${left}%;top:${top}%" data-z="${esc(z)}">${badge}<div class="tian" data-hit="tian">${esc(z)}</div><div class="di" data-hit="di">地盘 ${esc(g)}</div><div class="jiang" data-hit="jiang">${esc(j)}</div><div class="ss" data-hit="ss">${esc(ss.join(' '))}</div></div>`;}).join('');
+$('panBox').querySelectorAll('.gong').forEach(el=>{const z=el.dataset.z;el.querySelector('[data-hit="tian"]').onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sTian[z]].cands,'天地盘'+z);};el.querySelector('[data-hit="di"]').onclick=(e)=>{e.stopPropagation();const g=zhiOf(z);tryDiscover(SURFACES[sDi[z]].cands,'地盘'+g+'宫');};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sPanJ[z]].cands,'天地盘'+z+'之将');};const ssel=el.querySelector('[data-hit="ss"]');if(ssel)ssel.onclick=(e)=>{e.stopPropagation();tryDiscover(SURFACES[sTian[z]].cands,'天地盘'+z+'（神煞）');};});renderTraces(true);}
 function renderReasons(){const nb=$('noticeBox'),rb=$('reasonBox'),a=askOf();if(!cur){nb.innerHTML='';rb.innerHTML='<div class="muted">请选择案例。</div>';return;}if(a&&a.role==='derived'){nb.innerHTML='<div class="notice same">异占支线：只给取象与规则依据，不给断语</div>';const hs=a.clues.filter(c=>found[c.id]).map(c=>`<div class="ev">· ${esc(c.hint)}</div>`).join('');rb.innerHTML=`<div class="reason main"><span class="role cross">取象</span><span class="claim">${esc(a.title)}</span><div class="muted">${esc(a.intro||'')}</div>${hs||'<div class="ev">· 尚未点盘取证。</div>'}<div class="muted">${esc(a.ending&&a.ending.note||'')}</div></div>`;return;}nb.innerHTML='';if(!cur.reasoning||!cur.reasoning.length){rb.innerHTML='<div class="muted">此案尚未补证据链。</div>';return;}const mk=keywordOf(mainReasoning(cur).claim),same=mk?cur.reasoning.filter(r=>r.role!=='main'&&(r.claim||'').indexOf(mk)>=0).length:0,diff=mk?cur.reasoning.filter(r=>r.role!=='main'&&keywordOf(r.claim)&&keywordOf(r.claim)!==mk):[];let nh='';if(same)nh+=`<div class="notice same">多链同断：${esc(mk)} · 主链外另有 ${same} 条佐证</div>`;if(diff.length)nh+=`<div class="notice diff">异断对读：主断为「${esc(mk)}」，另有 ${diff.length} 条落在其他占类，宜分列参看</div>`;nb.innerHTML=nh;rb.innerHTML=cur.reasoning.map(r=>{const role=r.role||'support',divergent=diff.some(x=>x.claim===r.claim)?'<span class="role timing">异断</span>':'',ev=(r.evidence||[]).map(e=>`<div class="ev">· ${esc(e.why)}${e.mark&&e.key===true?` <b style="color:#A63A2B">[${esc(e.mark)}]</b>`:''}</div>`).join('');return `<div class="reason ${role==='main'?'main':''}"><span class="role ${role}">${ROLE_LABEL[role]||'旁证'}</span>${divergent}<span class="claim">${esc(r.claim)}</span><div class="muted">${esc(r.ruleRef||'')}</div>${ev}${r.note?`<div class="muted">${esc(r.note)}</div>`:''}</div>`;}).join('');}
 function renderAll(){renderBrief();renderClues();renderChart();renderReasons();$('startBtn').disabled=!cur||started;const a=askOf();$('thinkBtn').disabled=!cur||!started||!a||clueFoundCount()>=a.clues.length;$('restartBtn').disabled=!cur||!started;if(!submitted){$('revealBox').innerHTML='';renderJudge();}}
 $('startBtn').onclick=()=>{if(!cur||started)return;started=true;const a=askOf();log('盘已起。'+(a?'今问「'+a.question+'」——先观课体，再察四课三传；不明处可点「沉思」。':'先观课体，再察四课三传。'),'good');renderAll();};
@@ -127,7 +208,7 @@ $('startBtn').onclick=()=>{if(!cur||started)return;started=true;const a=askOf();
 function whereOf(an){const z=an.ref||'';if(an.kind==='method')return '点盘面上方的「课名」';if(an.kind==='chuan')return '点三传卡片中的「'+(z||'')+'」那一支'+(an.pos?'（'+an.pos+'）':'');if(an.kind==='keg')return '点四课里的「'+z+'」';if(an.kind==='jiang')return '点三传或天地盘上「'+(z.split('/')[0]||'')+'」的乘将那行';if(an.kind==='shensha'){const q=z.split('/');return '点天地盘上「'+q[0]+'」那一格的**神煞**那行（找「'+q[1]+'」；格子四行是天支/地盘/乘将/神煞）';}if(an.kind==='xunkong')return '点下方事实栏的「旬空'+z+'」';if(an.kind==='dayWangShuai')return '点下方事实栏的「日干旺衰'+z+'」';if(an.kind==='hour')return '点下方事实栏的「时支'+z+'」';if(an.kind==='gong'||an.kind==='zhi')return '点天地盘上「'+z+'」那一格（要点它的**天支**那一行，不是地盘那行）';return '点「'+(z||'相关位置')+'」';}
 const thinkStage={};
 $('thinkBtn').onclick=()=>{const a=askOf();if(!a)return;const rest=a.clues.filter(c=>!found[c.id]);if(!rest.length)return;const c=rest[thinkIdx%rest.length];thinkIdx++;const st=(thinkStage[c.id]||0);thinkStage[c.id]=st+1;if(st===0){log('沉思：'+c.small+'（'+c.label+'）','');}else{const spots=(c.anchors||[]).map(whereOf);log('再想一层——'+c.label+' 的取处：'+spots.join('；')+'。','');}};
-$('restartBtn').onclick=()=>{found={};thinkIdx=0;submitted=false;$('logBox').innerHTML='';$('revealBox').innerHTML='';log('重开此案：线索已清，占问方向与盘面保留。','good');renderAll();};
+$('restartBtn').onclick=()=>{found={};thinkIdx=0;submitted=false;trace=[];$('logBox').innerHTML='';$('revealBox').innerHTML='';log('重开此案：线索已清（上一方向的对照痕迹保留），占问方向与盘面保留。','good');renderAll();};
 $('reasonToggle').onclick=()=>{const b=$('reasonBox');const open=b.style.display!=='none';b.style.display=open?'none':'';$('reasonToggle').textContent=open?'展开':'收起';};
 renderTopics();renderList();renderAll();
 </script>
