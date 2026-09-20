@@ -123,7 +123,10 @@ core/liuren/**  ──(build_core.js / rebuild_core.js)──►  core/liuren-co
 | `ancient/case_story.json` | 案例**剧情**（一局多占推演） | `_test_case_story.js`、`case_story_audit.js` |
 
 剧情数据的契约、坑位、硬规则住在 `大六壬文档/案例剧情/剧情补录方案与样张.md`（§2 契约 / §9 坑 / §10 硬规则）——
-**写剧情前必读**。剧情也会导出给 Web 原型：`_tools/export_case_story_web.py` → `UI/_data/case_story.js`，
+**写剧情前必读**；这一块的**进度实况、设计动因、两侧 UI 展示、收费边界、下一步**住在
+`大六壬文档/案例剧情/古籍案例鉴赏-设计与进度.md`（**收费块专文**，每补完一批更新其快照）。
+剧情也会导出给 Web 原型：`_tools/export_case_story_web.py` → `UI/_data/case_story.js`（案例库另有
+`export_case_gallery_web.py` → `UI/_data/ancient_case_gallery.js`），
 两个测试（`_test_case_story.js` 与 `_test_case_story_web.js`）会校验"数据与导出产物同步"。
 
 ### 2.3 视觉真源 = `resources/{base,dark}/element/{color,float}.json`
@@ -433,6 +436,8 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 | `鸿蒙规范文档/视觉风格/*` | 色彩/字体/图标/圆角/间隔规范 ＋ 本项目令牌清单、实现方式决定、剩余色值分类 | 改配色/主题时同步 |
 | `鸿蒙规范文档/商店页文案与截图清单.md` | 商店文案与截图素材 ＋ 历次发布记录（§11–§18） | 每次上架前更新 |
 | `大六壬文档/**` | 六壬内容：案例剧情方案与样张、各批审阅清单、速查表、口径对读 | 补内容时同步 |
+| `大六壬文档/案例剧情/剧情补录方案与样张.md` | **写案契约**：字段与硬校验、六步写法、七法、四个坑、锚点可点可达规则 | 改契约时同步（写剧情前必读） |
+| `大六壬文档/案例剧情/古籍案例鉴赏-设计与进度.md` | **收费块专文**：设计动因与已定口径、数据结构、剧情进度快照、App/原型两侧 UI、收费边界、门禁、下一步 | 每补完一批剧情更新其快照与批次表 |
 | `_tools/*.js` 头部注释 | 每个工具的口径、用法与踩坑记录（含"一次性迁移脚本"标记） | 改工具时同步 |
 
 > 调色板的**唯一真源是 `resources/{base,dark}/element/color.json` 本身**。
