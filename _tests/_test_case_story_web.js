@@ -189,5 +189,43 @@ console.log('\n=== 案例库筛选 ===');
   if (fail === failBefore) ok('筛选：' + topics.length + ' 个占类标签计数与筛选结果全部与数据一致，搜索可用');
 }
 
+/* ---- 偶占并入筛选区 + 未选案例时不显示占位块 ----
+   用户实测反馈两点：①「证据与规则」在没选案例时只有一句"请选择案例"＋一行免责，没必要存在；
+   ② 偶遇实盘不在筛选标签里。两者都要防回退。 */
+console.log('\n=== 偶占入筛选 + 未选案例的占位 ===');
+{
+  const failBefore = fail;
+  const oyuCases = sandbox.window.OUYU_CASES || [];
+  const topics2 = sandbox.protoState().topics || [];
+  if (oyuCases.length && topics2.some((x) => x.t === '偶占')) bad('「偶占」与占类混在同一批标签里（偶占没有占类，会让占类条数混算）');
+
+  /* 未选案例时，「证据与规则」整块收起。
+     注意：前面的演练已经选过案例，故这里显式回到"未选"状态再验（否则测的是残留状态）。 */
+  sandbox.selectCase('');
+  sandbox.renderAll();
+  const card = sandbox.document.getElementById('reasonCard');
+  if (card.style.display !== 'none') bad('未选案例时「证据与规则」未收起（占位块）', String(card.style.display));
+  const rb = sandbox.document.getElementById('reasonBox').innerHTML || '';
+  if (rb.indexOf('请选择案例') >= 0) bad('未选案例时仍在渲染"请选择案例"占位');
+
+  /* 偶占列表并进左侧筛选区，且「偶占」档只显示偶占 */
+  sandbox.setTopic('全部');
+  let listHtml = sandbox.document.getElementById('caseList').innerHTML || '';
+  if (oyuCases.length && listHtml.indexOf('偶遇实盘') < 0) bad('「全部」档下未列出偶占');
+  sandbox.setTopic('偶占');
+  listHtml = sandbox.document.getElementById('caseList').innerHTML || '';
+  if (listHtml.indexOf('偶遇实盘') < 0) bad('「偶占」档下未列出偶占');
+  if (listHtml.indexOf('古籍') >= 0 && listHtml.indexOf('group') >= 0) bad('「偶占」档下混入了古籍案例分组');
+  sandbox.setTopic('仕宦');
+  listHtml = sandbox.document.getElementById('caseList').innerHTML || '';
+  if (listHtml.indexOf('偶遇实盘') >= 0) bad('选具体占类时不该显示偶占（两类混算）');
+  sandbox.setTopic('全部');
+
+  /* 选中案例后，证据与规则才出现 */
+  sandbox.selectCase(cases[0].id);
+  if (sandbox.document.getElementById('reasonCard').style.display === 'none') bad('选中案例后「证据与规则」仍未出现');
+  if (fail === failBefore) ok('偶占并入筛选区（不与占类混算）；未选案例时不渲染占位块');
+}
+
 console.log(fail === 0 ? '\nALL PASS (web prototype)' : '\nFAILED: ' + fail);
 process.exit(fail === 0 ? 0 : 1);
