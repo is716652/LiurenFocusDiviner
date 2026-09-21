@@ -30,7 +30,13 @@ for (const f of ['duxiang_rules.js', 'duxiang_leixiang.js', 'shensha_rules.js', 
   if (!fs.existsSync(p)) continue;
   vm.runInContext(fs.readFileSync(p, 'utf-8'), sandbox, { filename: f });
 }
-for (const f of ['yj_all.js'].concat(fs.readdirSync(path.join(UI, '_data')).filter((x) => /^cal_\d0s\.js$/.test(x)))) {
+/* 日历数据：文件名形如 cal_2020s.js（**四位**年代数字）。
+ * ⚠️ 这里原写作 /^cal_\d0s\.js$/ —— `\d0` 只匹配"数字+0"，17 个 cal 文件**一个都匹配不到**，
+ * 于是 CAL 恒为空对象，buildChart({calData:{}}) 逐条返回 null：
+ * 「buildChart历法」分区那 72 条 buildChart 记录**全部是 "null"**，该分区实际只覆盖
+ * findYuejiang 的 72 条（2026-09-21 用同构探针复现：空 CAL 的 hash 与旧基线逐位一致）。
+ * 修正后（见同日重建的基线）该分区才真正覆盖历法入口。 */
+for (const f of ['yj_all.js'].concat(fs.readdirSync(path.join(UI, '_data')).filter((x) => /^cal_\d{4}s\.js$/.test(x)))) {
   vm.runInContext(fs.readFileSync(path.join(UI, '_data', f), 'utf-8'), sandbox, { filename: f });
 }
 vm.runInContext(fs.readFileSync(path.join(ROOT, 'core', 'liuren-core.js'), 'utf-8')

@@ -1,18 +1,18 @@
 {
- "生成时间": "2026-09-18T15:18:07.274Z",
+ "生成时间": "2026-09-21T09:18:09.879Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
-  ".ets（主版）": 54,
-  ".ets（免费版）": 54,
+  ".ets（主版）": 56,
+  ".ets（免费版）": 56,
   "core（真源 .ts）": 16,
   "core（产物 .js）": 1,
   "core 合计": 17,
-  "_tools/*.py": 110
+  "_tools/*.py": 111
  },
  "结论": {
   "B4耦合判定": "脆链接（fragile）：改 JSON 键会**静默改变排盘结果**而无人察觉——4/5 个实验里引擎不报错但输出变了",
   "A组件写死": {
-   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 12 处、注释出处 60 处、_tools 脚本字面量 24 处，均只计数不计失败）",
+   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 12 处、注释出处 68 处、_tools 脚本字面量 24 处，均只计数不计失败）",
    "A2按课特判": "0 处（静态）",
    "A2维度敏感性": "日干 500/500，日支 231/231，月将 500/500，占时 500/500",
    "A3盘面事实硬编码": "0 处",
@@ -205,42 +205,42 @@
      "line": 246,
      "what": "展示文案引用书名",
      "lit": "断案",
-     "ctx": "') >= 0) {\r\n      return '中黄五变经';\r\n    }\r\n    if (c.source.indexOf('六壬断案') >= 0) {\r\n      return '六壬"
+     "ctx": "五变经') >= 0) {\n      return '中黄五变经';\n    }\n    if (c.source.indexOf('六壬断案') >= 0) {\n      return '六壬断"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 247,
      "what": "展示文案引用书名",
      "lit": "断案",
-     "ctx": "经';\r\n    }\r\n    if (c.source.indexOf('六壬断案') >= 0) {\r\n      return '六壬断案';\r\n    }\r\n    if (c.source."
+     "ctx": "黄五变经';\n    }\n    if (c.source.indexOf('六壬断案') >= 0) {\n      return '六壬断案';\n    }\n    if (c.source.in"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 249,
      "what": "展示文案引用书名",
      "lit": "汇选",
-     "ctx": "案') >= 0) {\r\n      return '六壬断案';\r\n    }\r\n    if (c.source.indexOf('壬占汇选') >= 0) {\r\n      return '壬占"
+     "ctx": "六壬断案') >= 0) {\n      return '六壬断案';\n    }\n    if (c.source.indexOf('壬占汇选') >= 0) {\n      return '壬占汇"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 250,
      "what": "展示文案引用书名",
      "lit": "汇选",
-     "ctx": "案';\r\n    }\r\n    if (c.source.indexOf('壬占汇选') >= 0) {\r\n      return '壬占汇选·' + this.dayMarkOf(c);\r\n   "
+     "ctx": "六壬断案';\n    }\n    if (c.source.indexOf('壬占汇选') >= 0) {\n      return '壬占汇选·' + this.dayMarkOf(c);\n    "
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 249,
      "what": "按数据自带书目字段分流（非写死个案）",
      "lit": "壬占",
-     "ctx": "壬断案') >= 0) {\r\n      return '六壬断案';\r\n    }\r\n    if (c.source.indexOf('壬占汇选') >= 0) {\r\n      return '"
+     "ctx": "('六壬断案') >= 0) {\n      return '六壬断案';\n    }\n    if (c.source.indexOf('壬占汇选') >= 0) {\n      return '壬"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 250,
      "what": "展示文案引用书名",
      "lit": "壬占",
-     "ctx": "壬断案';\r\n    }\r\n    if (c.source.indexOf('壬占汇选') >= 0) {\r\n      return '壬占汇选·' + this.dayMarkOf(c);\r\n "
+     "ctx": "'六壬断案';\n    }\n    if (c.source.indexOf('壬占汇选') >= 0) {\n      return '壬占汇选·' + this.dayMarkOf(c);\n   "
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/DuyuCard.ets",
@@ -279,59 +279,59 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 1793,
+     "line": 1801,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
-     "ctx": "ight(18)\r\n                .width('100%')\r\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\r\n      "
+     "ctx": "Height(18)\n                .width('100%')\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\n       "
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Splash.ets",
-     "line": 82,
+     "line": 93,
      "what": "展示文案引用书名",
      "lit": "管辂",
-     "ctx": "app.color.overlay_gold_strong'), offsetY: 2 })\r\n        Text('读象工作台 · 管辂一系')\r\n          .fontSize($r"
+     "ctx": "'app.color.overlay_gold_strong'), offsetY: 2 })\n        Text('读象工作台 · 管辂一系')\n          .fontSize($r("
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 246,
      "what": "展示文案引用书名",
      "lit": "断案",
-     "ctx": "') >= 0) {\r\n      return '中黄五变经';\r\n    }\r\n    if (c.source.indexOf('六壬断案') >= 0) {\r\n      return '六壬"
+     "ctx": "五变经') >= 0) {\n      return '中黄五变经';\n    }\n    if (c.source.indexOf('六壬断案') >= 0) {\n      return '六壬断"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 247,
      "what": "展示文案引用书名",
      "lit": "断案",
-     "ctx": "经';\r\n    }\r\n    if (c.source.indexOf('六壬断案') >= 0) {\r\n      return '六壬断案';\r\n    }\r\n    if (c.source."
+     "ctx": "黄五变经';\n    }\n    if (c.source.indexOf('六壬断案') >= 0) {\n      return '六壬断案';\n    }\n    if (c.source.in"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 249,
      "what": "展示文案引用书名",
      "lit": "汇选",
-     "ctx": "案') >= 0) {\r\n      return '六壬断案';\r\n    }\r\n    if (c.source.indexOf('壬占汇选') >= 0) {\r\n      return '壬占"
+     "ctx": "六壬断案') >= 0) {\n      return '六壬断案';\n    }\n    if (c.source.indexOf('壬占汇选') >= 0) {\n      return '壬占汇"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 250,
      "what": "展示文案引用书名",
      "lit": "汇选",
-     "ctx": "案';\r\n    }\r\n    if (c.source.indexOf('壬占汇选') >= 0) {\r\n      return '壬占汇选·' + this.dayMarkOf(c);\r\n   "
+     "ctx": "六壬断案';\n    }\n    if (c.source.indexOf('壬占汇选') >= 0) {\n      return '壬占汇选·' + this.dayMarkOf(c);\n    "
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 249,
      "what": "按数据自带书目字段分流（非写死个案）",
      "lit": "壬占",
-     "ctx": "壬断案') >= 0) {\r\n      return '六壬断案';\r\n    }\r\n    if (c.source.indexOf('壬占汇选') >= 0) {\r\n      return '"
+     "ctx": "('六壬断案') >= 0) {\n      return '六壬断案';\n    }\n    if (c.source.indexOf('壬占汇选') >= 0) {\n      return '壬"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/AncientCaseGallery.ets",
      "line": 250,
      "what": "展示文案引用书名",
      "lit": "壬占",
-     "ctx": "壬断案';\r\n    }\r\n    if (c.source.indexOf('壬占汇选') >= 0) {\r\n      return '壬占汇选·' + this.dayMarkOf(c);\r\n "
+     "ctx": "'六壬断案';\n    }\n    if (c.source.indexOf('壬占汇选') >= 0) {\n      return '壬占汇选·' + this.dayMarkOf(c);\n   "
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/DuyuCard.ets",
@@ -370,22 +370,28 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 1793,
+     "line": 1801,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
-     "ctx": "ight(18)\r\n                .width('100%')\r\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\r\n      "
+     "ctx": "Height(18)\n                .width('100%')\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\n       "
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Splash.ets",
-     "line": 82,
+     "line": 93,
      "what": "展示文案引用书名",
      "lit": "管辂",
-     "ctx": "app.color.overlay_gold_strong'), offsetY: 2 })\r\n        Text('读象工作台 · 管辂一系')\r\n          .fontSize($r"
+     "ctx": "'app.color.overlay_gold_strong'), offsetY: 2 })\n        Text('读象工作台 · 管辂一系')\n          .fontSize($r("
     }
    ],
    "数据路径引用计数": 12,
-   "注释计数": 60,
+   "注释计数": 68,
    "注释明细": [
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/ChuanCard.ets",
+     "line": 1,
+     "lit": "2026-09-18",
+     "text": "/** * ChuanCard —— 三传单卡 * pos=初/中/末；gz=遁干+地支；jiang=天将；lq=六亲；color=主色 * 四张三传卡**外观统一**（2026-"
+    },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/DuyuCard.ets",
      "line": 1,
@@ -421,6 +427,18 @@
      "line": 1,
      "lit": "2026-09-12",
      "text": "/** * InfoRow —— 一行信息（盘态/神煞明细用） * tone: 'gold' | 'cinnabar' | 'plain' * stack: false（默认）= "
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/KegCard.ets",
+     "line": 1,
+     "lit": "2026-09-18",
+     "text": "/** * KegCard —— 四课单卡 * kn=课序；shang=上神（大）；xia=下神（次）；jiang=天将（小） * 四张课卡**外观统一**（2026-09-18 "
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/KegCard.ets",
+     "line": 12,
+     "lit": "2026-09-18",
+     "text": "/* 交互高亮：案卷页点用神时高亮对应课（2026-09-18 起不再换底色）—— 原先的「金色淡底」会把凶将朱砂文字压到 3.1:1，只保留标题加粗与加粗金边这两个提示。 */"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/PalaceCard.ets",
@@ -550,21 +568,33 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 112,
+     "line": 114,
      "lit": "2026-09-13",
      "text": "/* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片。同一次点击仍照旧取用神，但**不再自动弹出** 「抓用神」半模态（2026-09-13 用户决定 A：半模态会盖住卡片）。"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 282,
+     "line": 284,
      "lit": "管辂",
      "text": "/* 类象库/管辂象意缺失：节点卡与选句兜底为空 */"
     },
     {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
+     "line": 418,
+     "lit": "2026-09-20",
+     "text": "/* 打开宫情速查卡（§14.4）：引擎出数并装配（LiurenCore.readXiangCard）、卡片呈现。 入参口径（2026-09-20 用户实测 Bug 后订正）：引擎"
+    },
+    {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Splash.ets",
-     "line": 20,
+     "line": 21,
      "lit": "2026-09-10",
      "text": "/* 底部合规链接开关（2026-09-10）：华为已由平台托管隐私政策，用户协议非必填， 故暂不显示「隐私政策 / 用户协议」两个链接入口；页面 pages/Legal/* 与下"
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/ChuanCard.ets",
+     "line": 1,
+     "lit": "2026-09-18",
+     "text": "/** * ChuanCard —— 三传单卡 * pos=初/中/末；gz=遁干+地支；jiang=天将；lq=六亲；color=主色 * 四张三传卡**外观统一**（2026-"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/DuyuCard.ets",
@@ -601,6 +631,18 @@
      "line": 1,
      "lit": "2026-09-12",
      "text": "/** * InfoRow —— 一行信息（盘态/神煞明细用） * tone: 'gold' | 'cinnabar' | 'plain' * stack: false（默认）= "
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/KegCard.ets",
+     "line": 1,
+     "lit": "2026-09-18",
+     "text": "/** * KegCard —— 四课单卡 * kn=课序；shang=上神（大）；xia=下神（次）；jiang=天将（小） * 四张课卡**外观统一**（2026-09-18 "
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/KegCard.ets",
+     "line": 12,
+     "lit": "2026-09-18",
+     "text": "/* 交互高亮：案卷页点用神时高亮对应课（2026-09-18 起不再换底色）—— 原先的「金色淡底」会把凶将朱砂文字压到 3.1:1，只保留标题加粗与加粗金边这两个提示。 */"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/PalaceCard.ets",
@@ -730,26 +772,32 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 112,
+     "line": 114,
      "lit": "2026-09-13",
      "text": "/* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片。同一次点击仍照旧取用神，但**不再自动弹出** 「抓用神」半模态（2026-09-13 用户决定 A：半模态会盖住卡片）。"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 282,
+     "line": 284,
      "lit": "管辂",
      "text": "/* 类象库/管辂象意缺失：节点卡与选句兜底为空 */"
     },
     {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
+     "line": 418,
+     "lit": "2026-09-20",
+     "text": "/* 打开宫情速查卡（§14.4）：引擎出数并装配（LiurenCore.readXiangCard）、卡片呈现。 入参口径（2026-09-20 用户实测 Bug 后订正）：引擎"
+    },
+    {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Splash.ets",
-     "line": 20,
+     "line": 21,
      "lit": "2026-09-10",
      "text": "/* 底部合规链接开关（2026-09-10）：华为已由平台托管隐私政策，用户协议非必填， 故暂不显示「隐私政策 / 用户协议」两个链接入口；页面 pages/Legal/* 与下"
     }
    ]
   },
   "A2静态": {
-   "条件数": 4093,
+   "条件数": 4121,
    "可疑": []
   },
   "A2运行期": {
@@ -776,7 +824,7 @@
   },
   "A3": [],
   "A4": {
-   "常量数": 244,
+   "常量数": 262,
    "死常量": []
   },
   "B1": {

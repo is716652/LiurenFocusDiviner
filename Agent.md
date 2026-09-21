@@ -118,7 +118,11 @@ core/liuren/**  ──(build_core.js / rebuild_core.js)──►  core/liuren-co
 - `_test_no_hardcode.js`：A1–A6 —— 引擎内不得有个案标识 / I/O / 输入特判 / 死常量 / 个案口径只能进数据且带出处 /
   **三端同构**（`resolveSanchuan`、`buildJiang`、`xunDun` 在 `.ts`、主版 `.ets`、免费版 `.ets` 归一化后逐行相同）
 - `_api_parity.js`：对外 API **只增不改**（改签名会让界面静默失效）
-- `_core_snapshot.js`：**185,981 条行为快照**逐条比对（引擎行为回归的最后一道网）
+- `_core_snapshot.js`：**185,981 条行为快照**逐条比对（引擎行为回归的最后一道网）。
+  ⚠️ 2026-09-21 修复：其日历过滤正则原写 `/^cal_\d0s\.js$/`（匹配不到任何 `cal_XXXXs.js`），
+  导致 `CAL` 恒为空、「buildChart历法」分区那 72 条 `buildChart` **全是 `null`** ——
+  该分区此前**只覆盖 `findYuejiang` 的 72 条**。已改为 `/^cal_\d{4}s\.js$/` 并**重建基线**
+  （总哈希 `f2a02d13…` → `e566dc05…`，**仅此一个分区变化**，其余 8 个分区逐位不变 ⇒ 引擎行为无漂移）
 - `_test_core_regress.js`：回归矩阵
 
 ### 2.2 数据真源 = `APP/.../rawfile/{rule,cal,ancient}/**.json`
@@ -455,6 +459,7 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 | **免费版同步"清空后崩"** | `python _tools/sync_free_edition.py` 直接跑：`remove_internet()` 里 `import remove_request_permissions` 抛 `ModuleNotFoundError`（本机 python 以 safe-path 运行，脚本目录不在 `sys.path[0]`；`verify_free_edition.py` 自己能过是因为它先补了 sys.path）→ 而 `sync(clean=True)` **已经清空免费版**，于是免费版停在半成品（`module.json5` 的 INTERNET 权限、`string.json` 的权限文案均未处理），`verify_free_edition` 报"源码树不一致" | **已修**（2026-09-20）：脚本顶部显式补 `sys.path` + 把该依赖改为**加载期** import（缺依赖会在清空之前就报错，不再毁树）。仍须注意：① 直接跑过同步后**必跑** `verify_free_edition`；② 真被清空时重跑一次 `sync_free_edition.py` 即可重建（它是幂等的） |
 | **把 `r.ld` 当占时读**（2026-09-21） | 断课工具把 `c.r.ld`（**农历日**，如十一）打印成 `占时=11`，被读成"地支序号 11＝戌" → 月将巳加**戌**（真值是加**午**）；而巳加戌**恰好让天盘逐宫重合**，于是得到一张**看不出破绽的"伏吟课"**，并据此写了整轮断语（该轮分析与样张 v1 稿**全部作废**） | 三条：① `chart` **不存占时**（占时只是 `buildChart` 的入参），`r.ld`＝农历日、`r.lg`＝用事月将序号，**二者都不是占时**；② 用 `_tools/case_facts.js`——它打印**入参占时**并附提醒，且**自己算天地盘是否重合再判课体**；③ 出稿前**换一个相邻占时再跑一次**，盘不动就说明工具坏了 |
 | **与基线不一致时先怀疑自己** | `_tests/_data/sanchuan_baseline.json` 的 `戊戌午午 = 伏吟/巳申寅` 与自己的复算 `卯寅丑` 冲突 | 先核**签名是否同一课**（基线键＝日干+日支+月将+占时；该实盘签名是 `戊戌巳午`，**基线里本就没有这个键**，不是"引擎不符基线"）。**默认自己错，去查工具** —— 本次正是这条不一致把错误逼出来的 |
+| **快照工具的日历加载静默失效**（2026-09-21，**同类**：工具坏了 ⇒ 验证形同虚设） | `_tools/_core_snapshot.js:33` 的过滤正则写成 `/^cal_\d0s\.js$/`（`\d0` 只匹配"数字+0"），17 个 `cal_XXXXs.js` **一个都匹配不到** ⇒ `CAL` 恒为 `{}` ⇒ `buildChart({calData:{}})` 逐条返回 `null`（注意：传 `undefined` 会**抛 TypeError**，正是 `|| {}` 兜底把它变成静默 `null`）。于是「buildChart历法」分区那 72 条 `buildChart` 全是 `"null"`，该分区**实际只覆盖 `findYuejiang` 的 72 条** | **已修**（2026-09-21）：正则改 `/^cal_\d{4}s\.js$/` + **重建基线**（`--freeze`）。铁证做法：写同构探针分别用旧/新正则复算该分区 hash —— **旧正则的 hash 与旧基线逐位相同**（`94b199b8…`）、新正则不同（`559f051d…`），这才叫"确证"而非"看代码像"。重建后**仅该分区变化**（其余 8 个分区逐位不变 ⇒ 引擎行为无漂移）；全量 `check_all` **46/46 PASS**。教训：**验证工具的加载逻辑本身也要能被验证** —— 看到"全绿"先问一句"它到底加载到了什么" |
 
 ---
 
