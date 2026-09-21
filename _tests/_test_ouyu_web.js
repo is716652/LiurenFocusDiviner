@@ -47,7 +47,10 @@ const sandbox = {
   window: {}, document: documentStub,
   console: { log: () => {}, warn: () => {}, error: () => {} },
   Math: Math, JSON: JSON, Object: Object, Array: Array, String: String, Number: Number,
-  RegExp: RegExp, Date: Date, isNaN: isNaN, parseInt: parseInt, parseFloat: parseFloat, Set: Set
+  RegExp: RegExp, Date: Date, isNaN: isNaN, parseInt: parseInt, parseFloat: parseFloat, Set: Set,
+  /* 原型里「一闪」用 setTimeout 在重渲染后补动画类（浏览器里才有）。
+     无头环境同步执行即可 —— 断言只关心类标记是否就位，不关心动画时序。 */
+  setTimeout: (fn) => { try { fn(); } catch (e) { /* 桩件下 DOM 操作可能不可用，忽略 */ } }
 };
 sandbox.window.document = documentStub;
 vm.createContext(sandbox);
@@ -179,7 +182,11 @@ for (const c of cases) {
 
   const box = sandbox.document.getElementById('ouyuBox').innerHTML || '';
   if (box.indexOf(sandbox.esc(c.ending.text)) < 0) bad('集齐后未显示取象小结', c.id);
-  if (box.indexOf('不构成') < 0) bad('小结缺合规口径', c.id);
+  /* 合规口径挂**一次**即可：要的是"有声明、可追溯"，不是"每句后面都念一遍"。
+     故断言：① 落款在（含"不作现实判断"）；② 全集里"不构成"这类免责词不超过 1 处。 */
+  if (box.indexOf('不作现实判断') < 0) bad('缺合规落款（不作现实判断）', c.id);
+  const signHits = (box.match(/不作现实判断|不构成建议|仅供参考/g) || []).length;
+  if (signHits > 1) bad('免责声明重复出现（应挂一次，多了反把话废掉）', c.id + ' 出现 ' + signHits + ' 处');
   for (const r of c.refuse) {
     if (box.indexOf(sandbox.esc(r.title)) < 0) bad('「不取项」未呈现', c.id + ':' + r.title.slice(0, 24));
     if (box.indexOf(sandbox.esc(r.why)) < 0) bad('「不取项」缺理由', c.id + ':' + r.title.slice(0, 24));
@@ -245,6 +252,24 @@ for (const c of cases) {
   } else {
     ok('分档只收窄引导：课体/旬空全程未变；不限=' + allLinks + ' 条，单类最多=' + maxOne + ' 条');
   }
+
+  /* ---- 「一闪」效果集：只动体量与亮度，不动盘面事实 ----
+     三层：① 初传那一格/卡片抬头（key）② 盘盒微光（oyu-flash）③ 四课三传提亮（CSS 层，无头不可测）。
+     这里能守的是前两层"标记在位"，以及**效果集不许改盘面事实**。 */
+  const st0 = sandbox.oyuState();
+  if (st0.flash) bad('效果集默认应为关闭', c.id);
+  if (st0.chuanHtml.indexOf('class="mini key"') < 0) bad('初传未标 key（当下之象应抬头）', c.id);
+  if ((st0.chuanHtml.match(/mini key/g) || []).length !== 1) bad('key 应只标在初传一处', c.id);
+  sandbox.oyuToggleFlash();
+  const st1 = sandbox.oyuState();
+  if (!st1.flash) bad('「一闪」开关未生效', c.id);
+  if (st1.method !== st0.method || JSON.stringify(st1.xunkong) !== JSON.stringify(st0.xunkong)) {
+    bad('「一闪」动了盘面事实（效果集只该动体量与亮度）', c.id);
+  } else {
+    ok('「一闪」效果集：初传抬头 + 微光类就位，盘面事实未变');
+  }
+  sandbox.oyuToggleFlash();
+  if (sandbox.oyuState().flash) bad('「一闪」开关关不掉', c.id);
 }
 
 /* ---- 与案例模式互斥 ---- */

@@ -79,9 +79,18 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 .oyu-link .site{color:var(--dim);}
 .oyu-link.found{border-color:rgba(63,122,112,.7);background:rgba(63,122,112,.14);color:#DFF3EA;}
 .oyu-link.next{border-color:rgba(240,217,140,.45);}
-.oyu-link .hit{margin-top:6px;color:#DFF3EA;}
+.oyu-link .hit{margin-top:6px;color:#DFF3EA;white-space:pre-line;}
+/* 断语要能"斩钉截铁"，依据要能"随时查证" —— 二者分层，不混在同一段里：
+   正文（.hit）只写人话与行话；依据／前提收进 <details>，默认收起。
+   这样既不牺牲观感，也不丢可追溯性（合规要的是"能查"，不是"每句都念一遍"）。 */
+.oyu-link details{margin-top:6px;}
+.oyu-link summary{cursor:pointer;color:var(--dim);font-size:11px;list-style:none;}
+.oyu-link summary::-webkit-details-marker{display:none;}
+.oyu-link summary::before{content:'▸ ';color:var(--gold-d);}
+.oyu-link details[open] summary::before{content:'▾ ';}
 .oyu-link .cite{margin-top:4px;color:var(--gold-d);font-size:11px;}
-.oyu-link .premise{margin-top:3px;font-size:11px;}
+.oyu-link .premise{margin-top:3px;font-size:11px;color:#C4B183;}
+.oyu-sign{width:100%;color:var(--dim);font-size:11px;margin-top:8px;border-top:1px solid var(--line);padding-top:6px;}
 .lvl{display:inline-block;border-radius:6px;padding:0 5px;font-size:10px;margin-right:5px;background:#3E5C76;color:#F5EFE2;}
 .lvl.L1{background:var(--green);}
 .lvl.L2{background:var(--navy);}
@@ -91,6 +100,26 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 .oyu-refuse .why{color:#C4B183;font-size:12px;margin-top:3px;}
 .oyu-done{border:1px dashed rgba(240,217,140,.5);background:rgba(240,217,140,.07);border-radius:10px;padding:10px;margin-top:10px;}
 .oyu-done .ot{color:var(--gold);font-weight:700;font-size:13px;}
+/* ---- 偶占「一闪」效果集（2026-09-21）----
+   偶占起于"忽然心里一动"，盘面要立刻把这份"动"显出来。三层：
+     ① 盘心微光一动（盘盒加 .flash，金色脉动一次，1.1s）
+     ② 当下之象抬头 —— 初传那一格加大（.mini.key .z、.gong.key .tian）
+     ③ 四课三传整体提亮一档（.pan.flash 下字号上抬）
+   纪律：**只动体量与亮度，不动配色、不改盘面事实**（专文 §5.3：盘内一律是同一张传统盘）。 */
+@keyframes oyu-flash{from{box-shadow:inset 0 0 0 1px rgba(233,200,120,.08),0 0 0 0 rgba(240,217,140,0);}
+ 35%{box-shadow:inset 0 0 0 1px rgba(240,217,140,.5),0 0 44px 8px rgba(240,217,140,.24);}
+ to{box-shadow:inset 0 0 0 1px rgba(233,200,120,.08),0 0 0 0 rgba(240,217,140,0);}}
+.pan.oyu-flash{animation:oyu-flash 1.1s ease-out 1;}
+/* ② 当下之象：初传（三传卡片 + 盘上那一格）抬头 */
+.mini.key{border-color:rgba(240,217,140,.75);background:#26221A;box-shadow:0 0 0 1px rgba(240,217,140,.22);}
+.mini.key .z{font-size:30px;}
+.mini.key .t{color:var(--gold);}
+.gong.key{border-color:rgba(240,217,140,.75);box-shadow:0 0 0 1px rgba(240,217,140,.25);}
+.gong.key .tian{font-size:26px;}
+/* ③ 提亮一档：四课三传字号、乘将与地支颜色各深一度（不动背景与主题令牌） */
+.pan.oyu-flash .mini .z{font-size:26px;}
+.pan.oyu-flash .chuans .mini .z,.pan.oyu-flash .kegs .mini .z{font-size:26px;}
+.pan.oyu-flash .gong .tian{font-size:23px;}
 /* 起盘所因（现场类型）选择：与左侧占类 chips 同形制，但语义是"这次为什么起"，不是显示偏好。
    它只收窄引导范围 —— 盘面配色一字不动（详见专文 §7 与讨论记录）。 */
 .oyu-types{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;}
@@ -138,6 +167,10 @@ let OUYU_FACT_SURFACES=[];
    对应案例侧的"选占问方向"；不改盘面、不落库、不进数据文件。
    纪律：类型只用来筛选引导清单，**绝不能**用来给结论式暗示（那等于把占类偷偷塞回来）。 */
 let oyuSceneType='';
+/* 「一闪」效果集开关：只改体量与亮度（见 CSS oyu-flash 段），不改配色、不改盘面事实。 */
+let oyuFlash=false;
+function oyuToggleFlash(){oyuFlash=!oyuFlash;renderAll();if(oyuFlash)setTimeout(function(){$('panBox').classList.add('oyu-flash');},30);}
+function oyuInitFlash(){const b=$('oyuFlashBtn');if(b)b.onclick=oyuToggleFlash;const p=$('panBox');if(p&&p.classList)p.classList.remove('oyu-flash');}
 /* 取象链命中候选 = 锚点(DOM 位置与匹配口径两用) + clueId（锚点里不含线索 id）。
    锚点 key 与 OUYU_SURFACES 的 JSON.stringify 口径必须一致，否则永远点不中。 */
 function anOf(a,id){return {kind:a.kind,ref:a.ref,pos:a.pos,clueId:id};}
@@ -278,12 +311,17 @@ function renderOuyu(){
       })()+'</div>'
     +'<div class="oline" style="margin-top:6px;">'+esc(c.note||'')+'</div>'
     +'<div class="toolbar"><button class="btn" id="oyuResetBtn">重开此实盘</button>'
+    +'<button class="btn ghost" id="oyuFlashBtn">'+(oyuFlash?'收起「一闪」':'起盘「一闪」')+'</button>'
     +'<span class="muted" style="align-self:center;">'+(oyuSceneType?'「'+esc(oyuTypeLabel(oyuSceneType))+'」可取之象 ':'可取之象（不限）')+n+'/'+total+'</span></div>'
     +(curLink?'<div class="oyu-chain"><div class="oyu-link next"><div class="ask">'+esc(curLink.ask)+'</div><div class="site">在盘上或卡片中点亮这条象的出处（'+esc((curLink.anchors||[]).map(oyuWhere).join('；'))+'）</div></div></div>':'')
     +'<div class="oyu-chain">'+links.map(k=>{
         const got=!!oyuFound[k.id];
         return '<div class="oyu-link '+(got?'found':'')+'"><span class="lvl '+esc(k.level||'')+'">'+esc(k.level||'')+'</span>'+esc(k.onSite)
-          +(got?'<div class="hit">'+esc(k.hint)+'</div><div class="cite">'+esc(k.cite)+'</div><div class="premise">前提：'+esc(k.premise)+'</div>'
+          +(got?'<div class="hit">'+esc(k.hint)+'</div>'
+                +'<details><summary>依据与前提</summary>'
+                +'<div class="cite">'+esc(k.cite)+'</div>'
+                +'<div class="premise">前提：'+esc(k.premise)+'</div>'
+                +'</details>'
                 :'<div class="site">（未取）</div>')+'</div>';
       }).join('')+'</div>';
   if(oyuDone()&&c.ending){
@@ -294,8 +332,12 @@ function renderOuyu(){
     html+='<div class="oyu-refuse"><b>看见但决定不取（本类必写）</b>'
       +c.refuse.map(r=>'<div class="why">✗ '+esc(r.title)+' —— '+esc(r.why)+'</div>').join('')+'</div>';
   }
+  /* 免责挂一次（顶部那张卡上），不逐句重复 ——
+     合规要的是"有声明、可追溯"，不是"每句话后面都念一遍"；后者只会把话说废。 */
+  html+='<div class="oyu-sign">偶遇之占只取象、不下断；所据为古籍整理，不作现实判断或建议。</div>';
   box.innerHTML=html+'</div>';
   const rb=$('oyuResetBtn');if(rb)rb.onclick=oyuReset;
+  oyuInitFlash();
   box.querySelectorAll('.oyu-types .chip').forEach(el=>{el.onclick=()=>oyuSetSceneType(el.dataset.t||'');});
 }
 function pickAsk(i){if(!cur)return;const a=asksOf(cur);if(!a.length||i===askIdx)return;
@@ -427,14 +469,17 @@ function renderChartOuyu(){
      末尾收口时统一并入 OUYU_SURFACES。 */
   $('methodBox').innerHTML='<span class="method-chip" id="methodChip">课名 '+esc(chart.sanchuan.method)+'</span><span class="muted" style="margin-left:8px;">点课名取象</span>';
   $('methodChip').onclick=()=>tryOuyuPick([{kind:'method',ref:chart.sanchuan.method}],'课名');
-  $('chuanBox').innerHTML=[2,1,0].map(i=>`<div class="mini" data-i="${i}"><div class="t">${P[i]}</div><div class="z" data-hit="zhi">${esc(chuans[i].gz)}</div><div class="j" data-hit="jiang">${esc(jiangOf(chuans[i].z))}</div></div>`).join('');
+  /* 「一闪」效果集：初传 = 当下之象，抬头加大；四课三传整体在 oyuFlash 下提亮一档。
+     只动体量与亮度，盘面配色与事实一律不动（见 CSS oyu-flash 段与专文 §5.3）。 */
+  const keyZhi=chuans[0].z, keyGong=(typeof zhiOf==='function')?zhiOf(keyZhi):'';
+  $('chuanBox').innerHTML=[2,1,0].map(i=>`<div class="mini${i===0?' key':''}" data-i="${i}"><div class="t">${P[i]}</div><div class="z" data-hit="zhi">${esc(chuans[i].gz)}</div><div class="j" data-hit="jiang">${esc(jiangOf(chuans[i].z))}</div></div>`).join('');
   $('chuanBox').querySelectorAll('.mini').forEach(el=>{const i=Number(el.dataset.i);el.querySelector('[data-hit="zhi"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'chuan',ref:chuans[i].z,pos:P[i]}],'三传'+P[i]);};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'jiang',ref:chuans[i].z+'/'+jiangOf(chuans[i].z)}],'三传'+P[i]+'之将');};});
   $('kegBox').innerHTML=[3,2,1,0].map(i=>{const k=chart.kegs[i];return `<div class="mini" data-i="${i}"><div class="t">第${['一','二','三','四'][i]}课</div><div class="z" data-hit="keg">${esc(k.x+'/'+k.s)}</div><div class="j" data-hit="jiang">${esc(jiangOf(k.x))}</div></div>`;}).join('');
   $('kegBox').querySelectorAll('.mini').forEach(el=>{const i=Number(el.dataset.i);el.querySelector('[data-hit="keg"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'keg',ref:chart.kegs[i].x+'/'+chart.kegs[i].s}],'四课'+chart.kegs[i].x+'/'+chart.kegs[i].s);};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'jiang',ref:chart.kegs[i].x+'/'+jiangOf(chart.kegs[i].x)}],'四课'+chart.kegs[i].x+'之将');};});
   const tIdx={};traceCellsOrdered().forEach((z,i)=>{tIdx[z]=i+1;});
-  $('panBox').innerHTML=traceOverlay()+LiurenCore.ZHI.map(G=>{const T=chart.tp[G]||G,j=chart.jiangMap[G]||'',ss=(chart.dx.shensha&&chart.dx.shensha.byZhi&&chart.dx.shensha.byZhi[T])||[],tc=tIdx[G]?' traced':'',badge=tIdx[G]?`<span class="tnum">${tIdx[G]}</span>`:'',a=(PAN_ANGLE[G]||0)*Math.PI/180,left=(50+42*Math.cos(a)).toFixed(2),top=(50+42*Math.sin(a)).toFixed(2);return `<div class="gong${tc}" style="left:${left}%;top:${top}%" data-g="${esc(G)}" data-t="${esc(T)}">${badge}<div class="di" data-hit="di">地盘 ${esc(G)}</div><div class="tian" data-hit="tian">${esc(T)}</div><div class="jiang" data-hit="jiang">${esc(j)}</div><div class="ss" data-hit="ss">${esc(ss.join(' '))}</div></div>`;}).join('');
+  $('panBox').innerHTML=traceOverlay()+LiurenCore.ZHI.map(G=>{const T=chart.tp[G]||G,j=chart.jiangMap[G]||'',ss=(chart.dx.shensha&&chart.dx.shensha.byZhi&&chart.dx.shensha.byZhi[T])||[],tc=tIdx[G]?' traced':'',kc=(G===keyGong)?' key':'',badge=tIdx[G]?`<span class="tnum">${tIdx[G]}</span>`:'',a=(PAN_ANGLE[G]||0)*Math.PI/180,left=(50+42*Math.cos(a)).toFixed(2),top=(50+42*Math.sin(a)).toFixed(2);return `<div class="gong${tc}${kc}" style="left:${left}%;top:${top}%" data-g="${esc(G)}" data-t="${esc(T)}">${badge}<div class="di" data-hit="di">地盘 ${esc(G)}</div><div class="tian" data-hit="tian">${esc(T)}</div><div class="jiang" data-hit="jiang">${esc(j)}</div><div class="ss" data-hit="ss">${esc(ss.join(' '))}</div></div>`;}).join('');
   $('panBox').querySelectorAll('.gong').forEach(el=>{const G=el.dataset.g;const T=chart.tp[G]||G;el.querySelector('[data-hit="tian"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'zhi',ref:T}],'天地盘'+G+'宫');};el.querySelector('[data-hit="di"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'gong',ref:G},{kind:'zhi',ref:G}],'地盘'+G+'宫');};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'jiang',ref:T+'/'+(chart.jiangMap[G]||'')}],'天地盘'+G+'宫之将');};const ssel=el.querySelector('[data-hit="ss"]');if(ssel)ssel.onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'zhi',ref:T}].concat(ssList(T)),'天地盘'+G+'宫（神煞）');};});
-  renderTraces(true);renderOuyu();
+  renderTraces(true);renderOuyu();oyuInitFlash();
   /* 收口：可点位在**渲染完成后**统一重建 ——
      SURFACES 此时已含课名/三传/四课/十二宫；事实栏候选在 OUYU_FACT_SURFACES（由 renderFacts 累积）。
      两者分开存，是为了避免"早期登记被末尾重建覆盖"（这一处曾导致取象链永远点不亮）。 */
@@ -482,7 +527,9 @@ function oyuState(){return {id:oyuCur?oyuCur.id:'',started:started,hasChart:!!ch
   links:oyuLinks().length,found:Object.keys(oyuFound),done:oyuDone(),
   traced:trace.length,tracedCells:traceCellsOrdered(),
   method:chart?chart.sanchuan.method:'',xunkong:chart?(chart.dx.xunkong||[]):[],
-  sceneType:oyuSceneType,sceneTypes:oyuSceneTypes().map(t=>t.id),lanes:oyuVisibleLanes().length};}
+  sceneType:oyuSceneType,sceneTypes:oyuSceneTypes().map(t=>t.id),lanes:oyuVisibleLanes().length,
+  flash:oyuFlash,panClass:(($('panBox')||{}).className||''),
+  chuanHtml:(($('chuanBox')||{}).innerHTML||'')};}
 function oyuWhereList(){return oyuLinks().length?oyuLinks().map(k=>({id:k.id,onSite:k.onSite,spots:(k.anchors||[]).map(oyuWhere)})):[];}
 function oyuSetType(id){oyuSetSceneType(id);}
 renderTopics();renderList();renderOuyuPick();renderAll();
