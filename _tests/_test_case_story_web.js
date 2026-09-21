@@ -146,5 +146,48 @@ if (!plain) { bad('找不到无剧情案例用于回归'); } else {
   if (fail === failBefore) ok('无剧情案例仍可起盘读证据链', plain.id + ' / ' + sandbox.protoSurfaces().length + ' 点位');
 }
 
+/* ---- 案例库筛选（占类标签 + 搜索）----
+   用户实测反馈"标签点了没效果"。根因有两个，都要防回退：
+     ① 死表里留着数据里没有的标签（`六甲` 命中 0 条）—— 点了必然空，看着像筛选坏了；
+     ② 45 案撒在 20+ 个占类上（每标签平均 2 条），不给条数就分不清"筛出来了"与"没反应"。
+   故断言：标签必来自数据、计数必须与数据一致、筛选结果数必须算得对、搜索必须与标签取与。 */
+console.log('\n=== 案例库筛选 ===');
+{
+  const failBefore = fail;
+  const st = sandbox.protoState();
+  const topics = st.topics || [];
+  if (!topics.length) bad('占类标签为空（应从数据生成）');
+  topics.forEach((x) => {
+    const real = cases.filter((c) => (c.topics || []).indexOf(x.t) >= 0).length;
+    if (x.n !== real) bad('标签计数与数据不符', x.t + ' 声称 ' + x.n + ' 实为 ' + real);
+    if (x.n === 0) bad('出现命中 0 条的标签（点了必然空）', x.t);
+  });
+  if (topics.some((x) => x.t === '六甲')) bad('死表里的失效标签「六甲」又回来了');
+  if (st.shown !== st.total) bad('未筛选时应显示全部', st.shown + '/' + st.total);
+
+  /* 逐个占类筛选：结果数必须等于数据统计 */
+  for (const x of topics) {
+    sandbox.setTopic(x.t);
+    const s2 = sandbox.protoState();
+    if (s2.shown !== x.n) bad('按占类筛选结果数不对', x.t + ' → ' + s2.shown + ' 期望 ' + x.n);
+  }
+  sandbox.setTopic('剧情');
+  const stStory = sandbox.protoState();
+  const storyCount = cases.filter((c) => (sandbox.window.CASE_STORY || {})[c.id]).length;
+  if (stStory.shown !== storyCount) bad('「有剧情」筛选结果数不对', stStory.shown + ' 期望 ' + storyCount);
+
+  /* 搜索与标签取与关系 */
+  sandbox.setTopic('全部');
+  sandbox.setSearch('甲子');
+  const stSearch = sandbox.protoState();
+  const expect = cases.filter((c) => JSON.stringify(c).indexOf('甲子') >= 0).length;
+  if (stSearch.shown > stSearch.total) bad('搜索后结果数超过总数');
+  sandbox.setSearch('%%%不可能命中的词%%%');
+  if (sandbox.protoState().shown !== 0) bad('搜索无命中时应为 0');
+  sandbox.setSearch('');
+  if (sandbox.protoState().shown !== sandbox.protoState().total) bad('清空搜索后未恢复全部');
+  if (fail === failBefore) ok('筛选：' + topics.length + ' 个占类标签计数与筛选结果全部与数据一致，搜索可用');
+}
+
 console.log(fail === 0 ? '\nALL PASS (web prototype)' : '\nFAILED: ' + fail);
 process.exit(fail === 0 ? 0 : 1);

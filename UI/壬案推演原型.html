@@ -19,6 +19,16 @@ h1{color:var(--gold);font-size:28px;letter-spacing:5px;}
 .card h2{color:var(--gold);font-size:18px;margin-bottom:8px;letter-spacing:2px;} .card.paper h2{color:var(--cinnabar);}
 .muted{color:var(--dim);font-size:12px;} .paper .muted{color:#6A5F4B;}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px;} .chip{border:1px solid var(--line);background:#211E18;color:#C4B183;border-radius:999px;padding:5px 10px;font-size:12px;cursor:pointer;} .chip.on{background:#E9C878;color:#1A1410;font-weight:700;}
+/* 案例库筛选（2026-09-21）：标签从数据生成并带条数 —— 45 案撒在 20+ 个占类上，
+   不给数字就分不清"筛出来了"和"点了没反应"；筛选结果也一律写明"筛出几条"。
+   注：旧死表里的 `六甲` 命中 0 条，点了必然空，已随死表一起废掉。 */
+.case-search{width:100%;margin-top:8px;border:1px solid var(--line);background:#100E0B;color:var(--ink);border-radius:10px;padding:7px 10px;font-family:inherit;font-size:13px;}
+.case-search::placeholder{color:#6B5F45;}
+.chip .cnt{display:inline-block;margin-left:5px;padding:0 5px;border-radius:999px;background:rgba(0,0,0,.35);color:#E9C878;font-size:10px;}
+.chip.on .cnt{background:rgba(0,0,0,.22);color:#2B241B;}
+.list-info{color:var(--dim);font-size:11px;margin:2px 0 8px;}
+.list-info b{color:var(--gold);}
+.group .gn{float:right;color:var(--dim);font-size:11px;font-weight:400;}
 .group{color:var(--gold-d);font-size:12px;margin:12px 0 6px;letter-spacing:1px;}
 .case-item{border:1px solid var(--line);background:#1C1A16;border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer;} .case-item:hover{border-color:rgba(233,200,120,.45);} .case-item.on{border-color:var(--cinnabar);box-shadow:inset 0 0 0 1px rgba(166,58,43,.55);} .case-item b{display:block;color:#F0E6C8;font-size:14px;} .case-item small{color:var(--dim);display:block;margin-top:3px;}
 .layout{display:grid;grid-template-columns:1.02fr .98fr;gap:16px;align-items:start;} @media(max-width:1100px){.layout{grid-template-columns:1fr;}}
@@ -131,7 +141,7 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 <div class="wrap">
 <header><div><h1>壬案推演原型</h1><div class="sub">一局多占版（古籍案例） ＋ 偶遇实盘版（触机取象）</div></div><span class="badge">网页版原型 · 传统文化研习参考 · 不构成现实判断</span></header>
 <div class="grid">
-<aside class="card"><h2>案例库</h2><div class="muted">已同步 APP 案例数据；标「剧情」的案例可作一局多占推演</div><div class="chips" id="topicChips"></div><div id="caseList"></div><div id="oyuPick"></div></aside>
+<aside class="card"><h2>案例库</h2><div class="muted">已同步 APP 案例数据；标「剧情」的案例可作一局多占推演</div><input id="caseSearch" class="case-search" type="search" placeholder="搜占类 / 日干支 / 书名…" autocomplete="off"><div class="chips" id="topicChips"></div><div id="caseList"></div><div id="oyuPick"></div></aside>
 <main class="layout">
 <section class="card"><h2>卷宗与推演</h2><div id="briefBox" class="brief">请选择案例。左侧点「剧情」档可只看有「一局多占」剧情的案例（现有 8 案），建议先点「徐次宾占来意」体验。</div><div class="asks" id="askBox"></div><div class="toolbar"><button class="btn" id="startBtn">起盘窥天</button><button class="btn ghost" id="thinkBtn" disabled>沉思</button><button class="btn ghost" id="restartBtn" disabled>重开此案</button></div><div id="clueBox" class="clue-list"></div><div id="logBox" class="log"></div><div id="judgeBox" style="margin-top:12px;"></div><div id="revealBox"></div></section>
 <section class="card"><h2>推演盘</h2><div class="muted" id="caseMeta">未起盘</div><div class="facts" id="factBox"></div><div id="methodBox"></div><div class="chuans" id="chuanBox" style="margin-top:10px;"></div><div class="kegs" id="kegBox"></div><div class="pan" id="panBox"></div><div class="traces" id="traceBar"></div><div class="muted" id="traceDiff" style="margin-top:6px;"></div><div id="ouyuBox"></div></section>
@@ -145,7 +155,6 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 LiurenCore.init({duxiang:window.DUXIANG_RULES,shensha:window.SHENSHA_RULES,bifa:window.BIFA,xingnian:window.XN_SCORE});
 const CASES=window.ANCIENT_CASES||[];
 const STORY=window.CASE_STORY||{};
-const TOPICS=['全部','来意','疾病','官讼','行人','仕宦','生产','风水','应候','役事','终身','省试','会试','流年','前程','己身','复建','亡盗','远行','索债','赴任','复任','补官','六甲'];
 const ROLE_LABEL={main:'主断',support:'旁证',timing:'应期',risk:'风险',cross:'参证'};
 const KEYWORDS=['行人','疾病','官讼','来意','失物','赴任','仕宦','生产','应试','流年','风水','复任','补官','役事','省试','会试'];
 const DEFAULT_ENDINGS=['藏机','窥豹','得梗','贯通'];
@@ -191,8 +200,22 @@ function surface(label,cands){SURFACES.push({label:label,cands:cands});return SU
 /* 测试钩子：暴露可点位与运行状态，供 _tests/_test_case_story_web.js 无头反验
    （顶层 let 绑定不挂到 window 上，故用函数暴露） */
 function protoSurfaces(){return SURFACES;}
-function protoState(){const a=askOf();return {caseId:cur?cur.id:'',started:started,askIdx:askIdx,submitted:submitted,found:Object.keys(found),clueTotal:a?a.clues.length:0,hasChart:!!chart,traced:trace.length,tracedCells:traceCellsOrdered(),ghostCells:ghostCells(),patternCells:patternCells()};}
+function protoState(){const a=askOf();return {caseId:cur?cur.id:'',started:started,askIdx:askIdx,submitted:submitted,found:Object.keys(found),clueTotal:a?a.clues.length:0,hasChart:!!chart,traced:trace.length,tracedCells:traceCellsOrdered(),ghostCells:ghostCells(),patternCells:patternCells(),topic:topic,search:searchText,shown:filterCases().length,total:CASES.length,topics:allTopics()};}
 function storyOf(c){return c?STORY[c.id]||null:null;}
+/* 无头反验用的筛选入口（与页面上的点击同一条路径） */
+function setTopic(t){topic=t;renderTopics();renderList();}
+function setSearch(s){searchText=s;const el=$('caseSearch');if(el)el.value=s;renderList();}
+/* 占类标签**从数据生成**，不再手写死表 ——
+   死表的毛病：① 会留下数据里根本没有的标签（`六甲` 命中 0 条），点了必然空，看着像"筛选坏了"；
+   ② 数据里新出现的占类不在表里，用户根本点不到。核对见 _tools/_chk_tags.py。
+   计数一并带上：45 案撒在 20+ 个占类上，不给数字就分不清"筛出来了"和"没反应"。 */
+function allTopics(){
+  const n={};
+  CASES.forEach(c=>(c.topics||[]).forEach(t=>{n[t]=(n[t]||0)+1;}));
+  return Object.keys(n).sort((a,b)=>n[b]-n[a]||(a<b?-1:a>b?1:0)).map(t=>({t:t,n:n[t]}));
+}
+function storyCount(){return CASES.filter(c=>!!storyOf(c)).length;}
+let searchText='';
 function asksOf(c){const st=storyOf(c);return st&&st.asks?st.asks:[];}
 function askOf(){const a=asksOf(cur);return a.length?a[Math.min(askIdx,a.length-1)]:null;}
 function groupOf(c){if((c.source||'').indexOf('中黄五变经')>=0)return '中黄五变经';if((c.source||'').indexOf('六壬断案')>=0||(c.id||'').indexOf('duanan_')>=0)return '六壬断案';if((c.id||'').indexOf('_yichou_')>=0||(c.title||'').indexOf('乙丑日')>=0||c.chapter==='乙丑日')return '壬占汇选·乙丑日';if((c.id||'').indexOf('_bingyin_')>=0||(c.title||'').indexOf('丙寅日')>=0||c.chapter==='丙寅日')return '壬占汇选·丙寅日';if((c.id||'').indexOf('_dingmao_')>=0||(c.title||'').indexOf('丁卯日')>=0||c.chapter==='丁卯日')return '壬占汇选·丁卯日';if((c.id||'').indexOf('_wuchen_')>=0||(c.title||'').indexOf('戊辰日')>=0||c.chapter==='戊辰日')return '壬占汇选·戊辰日';return '壬占汇选·甲子日';}
@@ -203,8 +226,46 @@ function keyMarks(c){const m=mainReasoning(c),out={};if(!m)return out;(m.evidenc
 function zhiOf(z){return chart?LiurenCore.gongOf(chart.tp,z):'';}
 function jiangOf(z){return chart?(chart.jiangMap[zhiOf(z)]||''):'';}
 function ssList(z){const b=chart&&chart.dx&&chart.dx.shensha?chart.dx.shensha.byZhi:null;const arr=b&&b[z]?b[z]:[];return arr.map(n=>({kind:'shensha',ref:z+'/'+n}));}
-function renderTopics(){$('topicChips').innerHTML=['全部','剧情'].concat(TOPICS.filter(x=>x!=='全部')).map(t=>`<button class="chip ${topic===t?'on':''}" data-t="${t}">${t}</button>`).join('');$('topicChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{topic=b.dataset.t;renderTopics();renderList();});}
-function renderList(){const list=CASES.filter(c=>topic==='全部'||(topic==='剧情'?!!storyOf(c):(c.topics||[]).indexOf(topic)>=0));let html='';groups().forEach(g=>{const arr=list.filter(c=>groupOf(c)===g);if(!arr.length)return;html+=`<div class="group">${g}</div>`;arr.forEach(c=>{const has=!!storyOf(c);html+=`<div class="case-item ${cur&&cur.id===c.id?'on':''}" data-id="${esc(c.id)}"><b>${esc(c.title)}</b><small>${(c.topics||[]).join(' / ')} · ${esc(c.chapter)}${has?' · <span class="bd orig">剧情</span>':''}</small></div>`;});});$('caseList').innerHTML=html||'<div class="muted">此占类暂无案例</div>';$('caseList').querySelectorAll('.case-item').forEach(el=>el.onclick=()=>selectCase(el.dataset.id));}
+/* 占类筛选（标签从数据生成，带条数）＋ 关键词搜索。
+   两个筛选条件是**与**关系；任何筛选都必须在列表上方写明"筛出了几条 / 凭什么"，
+   否则用户点了标签只看到列表变短，无法判断是筛出来了还是没反应。 */
+function topicChipsHtml(){
+  const ts=allTopics();
+  const chip=(t,label,n,on)=>`<button class="chip ${on?'on':''}" data-t="${esc(t)}">${esc(label)}${n==null?'':`<span class="cnt">${n}</span>`}</button>`;
+  let h=chip('全部','全部',CASES.length,topic==='全部');
+  h+=chip('剧情','有剧情',storyCount(),topic==='剧情');
+  h+=ts.map(x=>chip(x.t,x.t,x.n,topic===x.t)).join('');
+  return h;
+}
+function renderTopics(){
+  $('topicChips').innerHTML=topicChipsHtml();
+  $('topicChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{topic=b.dataset.t;renderTopics();renderList();});
+  const sb=$('caseSearch');
+  if(sb&&sb.value!==searchText)sb.value=searchText;
+  if(sb&&!sb.oninput)sb.oninput=()=>{searchText=sb.value||'';renderList();};
+}
+function filterCases(){
+  const kw=(searchText||'').trim().toLowerCase();
+  return CASES.filter(c=>{
+    if(topic==='剧情'){if(!storyOf(c))return false;}
+    else if(topic!=='全部'){if((c.topics||[]).indexOf(topic)<0)return false;}
+    if(kw){
+      const hay=((c.title||'')+' '+(c.id||'')+' '+(c.chapter||'')+' '+((c.topics||[]).join(' '))+' '+(c.source||'')+' '+(c.summary||'')).toLowerCase();
+      if(hay.indexOf(kw)<0)return false;
+    }
+    return true;
+  });
+}
+function renderList(){
+  const list=filterCases();
+  const kw=(searchText||'').trim();
+  const why=(topic==='全部'?'全部案例':(topic==='剧情'?'只看有一局多占剧情的案例':('占类「'+topic+'」')))+(kw?('＋关键词「'+kw+'」'):'');
+  let html=`<div class="list-info">${why} · 筛出 <b>${list.length}</b> / ${CASES.length} 案</div>`;
+  groups().forEach(g=>{const arr=list.filter(c=>groupOf(c)===g);if(!arr.length)return;html+=`<div class="group">${g}<span class="gn">${arr.length}</span></div>`;arr.forEach(c=>{const has=!!storyOf(c);html+=`<div class="case-item ${cur&&cur.id===c.id?'on':''}" data-id="${esc(c.id)}"><b>${esc(c.title)}</b><small>${(c.topics||[]).join(' / ')} · ${esc(c.chapter)}${has?' · <span class="bd orig">剧情</span>':''}</small></div>`;});});
+  if(!list.length)html+='<div class="muted">没有符合条件的案例 —— 换个占类，或清空搜索词。</div>';
+  $('caseList').innerHTML=html;
+  $('caseList').querySelectorAll('.case-item').forEach(el=>el.onclick=()=>selectCase(el.dataset.id));
+}
 function selectCase(id){oyuCur=null;oyuFound={};OUYU_SURFACES=[];OUYU_FACT_SURFACES=[];cur=CASES.find(c=>c.id===id)||null;chart=null;started=false;askIdx=0;found={};thinkIdx=0;submitted=false;trace=[];ghost=null;if(cur){const inp=cur.input;chart=LiurenCore.buildChartAncient(inp.mj,inp.dg,inp.dz,inp.hour,inp.yearGan||inp.yg||'',inp.yearZhi||inp.yz||'',inp.monthZhi||'');}renderList();renderAll();}
 /* ==================== 偶遇实盘（encounter）视图 ====================
    体例：大六壬文档/案例剧情/偶遇之占-体例与首个实盘.md
