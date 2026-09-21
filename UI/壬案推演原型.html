@@ -90,16 +90,16 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 .oyu-link.found{border-color:rgba(63,122,112,.7);background:rgba(63,122,112,.14);color:#DFF3EA;}
 .oyu-link.next{border-color:rgba(240,217,140,.45);}
 .oyu-link .hit{margin-top:6px;color:#DFF3EA;white-space:pre-line;}
-/* 断语要能"斩钉截铁"，依据要能"随时查证" —— 二者分层，不混在同一段里：
-   正文（.hit）只写人话与行话；依据／前提收进 <details>，默认收起。
-   这样既不牺牲观感，也不丢可追溯性（合规要的是"能查"，不是"每句都念一遍"）。 */
-.oyu-link details{margin-top:6px;}
-.oyu-link summary{cursor:pointer;color:var(--dim);font-size:11px;list-style:none;}
-.oyu-link summary::-webkit-details-marker{display:none;}
-.oyu-link summary::before{content:'▸ ';color:var(--gold-d);}
-.oyu-link details[open] summary::before{content:'▾ ';}
-.oyu-link .cite{margin-top:4px;color:var(--gold-d);font-size:11px;}
-.oyu-link .premise{margin-top:3px;font-size:11px;color:#C4B183;}
+/* 断语要能"斩钉截铁"，依据要能"随时查证" —— 但二者**分层且分处**：
+   断语（.hit）后面零尾巴；全案的依据与前提收进**一处** <details>（默认收起）。
+   合规要的是"能查得到"，不是"每句都念一遍"（Agent.md §7.5）。 */
+.oyu-cites{margin-top:10px;border-top:1px solid var(--line);padding-top:6px;}
+.oyu-cites summary{cursor:pointer;color:var(--dim);font-size:11px;list-style:none;}
+.oyu-cites summary::-webkit-details-marker{display:none;}
+.oyu-cites summary::before{content:'▸ ';color:var(--gold-d);}
+.oyu-cites[open] summary::before{content:'▾ ';}
+.oyu-cites .crow{color:var(--gold-d);font-size:11px;margin-top:5px;line-height:1.6;}
+.oyu-cites .crow b{color:#C4B183;font-weight:600;}
 .oyu-sign{width:100%;color:var(--dim);font-size:11px;margin-top:8px;border-top:1px solid var(--line);padding-top:6px;}
 .lvl{display:inline-block;border-radius:6px;padding:0 5px;font-size:10px;margin-right:5px;background:#3E5C76;color:#F5EFE2;}
 .lvl.L1{background:var(--green);}
@@ -398,25 +398,28 @@ function renderOuyu(){
     +(curLink?'<div class="oyu-chain"><div class="oyu-link next"><div class="ask">'+esc(curLink.ask)+'</div><div class="site">在盘上或卡片中点亮这条象的出处（'+esc((curLink.anchors||[]).map(oyuWhere).join('；'))+'）</div></div></div>':'')
     +'<div class="oyu-chain">'+links.map(k=>{
         const got=!!oyuFound[k.id];
+        /* 断语后面**零尾巴**：不挂免责、不挂出处、不挂"（仅供参考）"。
+           断语就是断语 —— 每句后跟一句声明，等于每三步打断读者一次（见 Agent.md §7.5）。 */
         return '<div class="oyu-link '+(got?'found':'')+'"><span class="lvl '+esc(k.level||'')+'">'+esc(k.level||'')+'</span>'+esc(k.onSite)
-          +(got?'<div class="hit">'+esc(k.hint)+'</div>'
-                +'<details><summary>依据与前提</summary>'
-                +'<div class="cite">'+esc(k.cite)+'</div>'
-                +'<div class="premise">前提：'+esc(k.premise)+'</div>'
-                +'</details>'
+          +(got?('<div class="hit">'+esc(k.hint)+'</div>')
                 :'<div class="site">（未取）</div>')+'</div>';
       }).join('')+'</div>';
   if(oyuDone()&&c.ending){
-    html+='<div class="oyu-done"><div class="ot">'+esc(c.ending.title||'取象小结')+'</div><div style="margin-top:6px;">'+esc(c.ending.text)+'</div>'
-      +'<div class="notice diff" style="margin-top:8px;">'+esc(c.ending.note)+'</div></div>';
+    html+='<div class="oyu-done"><div class="ot">'+esc(c.ending.title||'取象小结')+'</div><div style="margin-top:6px;">'+esc(c.ending.text)+'</div></div>';
   }
+  /* 断语正文若混入 HTML 标签（= 有人把依据块塞进了断语），生成期就报出来，别让它伪装成文字 */
+  links.forEach(k=>{if(!oyuHintClean(k.hint))log('（内部检查）断语正文混入了 HTML 标签：'+k.id+' —— 依据应放到「依据与前提」清单里。','bad');});
   if(c.refuse&&c.refuse.length){
     html+='<div class="oyu-refuse"><b>看见但决定不取（本类必写）</b>'
       +c.refuse.map(r=>'<div class="why">✗ '+esc(r.title)+' —— '+esc(r.why)+'</div>').join('')+'</div>';
   }
-  /* 免责挂一次（顶部那张卡上），不逐句重复 ——
-     合规要的是"有声明、可追溯"，不是"每句话后面都念一遍"；后者只会把话说废。 */
-  html+='<div class="oyu-sign">偶遇之占只取象、不下断；所据为古籍整理，不作现实判断或建议。</div>';
+  /* 依据与免责各挂**一处**（可折叠的清单 + 一句落款），不再逐条重复 ——
+     合规要的是"有声明、能查得到"，不是"每句话后面都念一遍"；后者只会把话说废。 */
+  const cites=links.map(k=>({site:k.onSite,cite:k.cite,premise:k.premise}));
+  html+='<details class="oyu-cites"><summary>依据与前提（可查证）</summary>'
+    +cites.map(x=>'<div class="crow"><b>'+esc(x.site)+'</b> · '+esc(x.cite)+' · 前提：'+esc(x.premise)+'</div>').join('')
+    +'</details>';
+  html+='<div class="oyu-sign">偶遇之占只取象、不下断；所据为古籍与规则表整理，不作现实判断或建议。</div>';
   box.innerHTML=html+'</div>';
   const rb=$('oyuResetBtn');if(rb)rb.onclick=oyuReset;
   oyuInitFlash();
@@ -611,6 +614,19 @@ $('restartBtn').onclick=()=>{found={};thinkIdx=0;submitted=false;trace=[];$('log
 $('reasonToggle').onclick=()=>{const b=$('reasonBox');const open=b.style.display!=='none';b.style.display=open?'none':'';$('reasonToggle').textContent=open?'展开':'收起';};
 /* 无头反验钩子（偶遇实盘）：与 protoSurfaces/protoState 同用途，供 _tests/_test_ouyu_web.js 遍历 */
 function oyuSurfaces(){return OUYU_SURFACES;}
+/* 「断语尾巴」的识别清单 —— **单一出处**（原型这里）：
+   反验测试与变异探针都从本函数取，避免两处维护清单而漂移
+   （2026-09-21 变异验证时踩过：探针的清单没跟上，误判成"断言失效"）。
+   口径见 Agent.md §7.5：断语后不挂免责/出处；这些形态只许出现在落款与依据清单里。 */
+/* 断语正文（hint）**只许是文字**：出现任何 HTML 标签即视为"把依据/结构塞进了断语"。
+   为什么要在源头拦：渲染时 esc() 会把 `<details>` 转成 `&lt;details&gt;`，
+   于是一条"断语里塞了依据块"的坏数据在正文里看起来**像正常文字**，反而更难发现
+   （2026-09-21 变异验证时踩到：注入 <details> 后"零尾巴"断言搜不到 '<details'，误判为断言失效）。 */
+function oyuHintClean(h){return String(h==null?'':h).indexOf('<')<0;}
+function oyuTailPatterns(){
+  return ['<details', 'class="cite"', 'class="premise"',
+    '（出自', '（按', '（见', '（仅供参考', '（非古籍原断', '（古籍研习参考', '（古籍', '（原文'];
+}
 function oyuState(){return {id:oyuCur?oyuCur.id:'',started:started,hasChart:!!chart,
   links:oyuLinks().length,found:Object.keys(oyuFound),done:oyuDone(),
   traced:trace.length,tracedCells:traceCellsOrdered(),

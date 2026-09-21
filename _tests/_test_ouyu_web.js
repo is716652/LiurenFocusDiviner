@@ -182,17 +182,44 @@ for (const c of cases) {
 
   const box = sandbox.document.getElementById('ouyuBox').innerHTML || '';
   if (box.indexOf(sandbox.esc(c.ending.text)) < 0) bad('集齐后未显示取象小结', c.id);
-  /* 合规口径挂**一次**即可：要的是"有声明、可追溯"，不是"每句后面都念一遍"。
-     故断言：① 落款在（含"不作现实判断"）；② 全集里"不构成"这类免责词不超过 1 处。 */
+  /* 合规口径挂**一次**即可：要的是"有声明、能查得到"，不是"每句后面都念一遍"。
+     故断言：① 落款在（含"不作现实判断"）；② 全集里免责词不超过 1 处；
+     ③ **断语主体里不得有尾巴**（不含出处、依据、免责、"古籍"等字样）——即"不把使用者当审核者"；
+     ④ 依据与前提集中在**一处**折叠清单里（能查得到，但不打断阅读）。 */
   if (box.indexOf('不作现实判断') < 0) bad('缺合规落款（不作现实判断）', c.id);
   const signHits = (box.match(/不作现实判断|不构成建议|仅供参考/g) || []).length;
   if (signHits > 1) bad('免责声明重复出现（应挂一次，多了反把话废掉）', c.id + ' 出现 ' + signHits + ' 处');
+  {
+    const m = box.match(/<div class="oyu-chain">([\s\S]*?)<\/div>\s*<div class="oyu-done"/);
+    const chainHtml = m ? m[1] : '';
+    if (!chainHtml) bad('取不到取象链区块（断言无法生效）', c.id);
+    else {
+      /* 两条独立断言，各抓一类坏形态：
+         ① **数据层**：每条断语（hint）必须是纯文本 —— 出现任何 HTML 标签即违规。
+            注意不能拿"生成的 HTML"去判（它本身含 div），必须判数据。
+         ② **渲染层**：链区块里不得出现依据块与括号式尾巴（只许出现在落款与依据清单）。
+         清单取自原型 oyuTailPatterns()（单一出处）；本条已做变异验证（_tools/_mut_tail4.js）：
+         注入「（出自《X》）」「（古籍研习参考）」「（仅供参考）」「<details>」「<b>」五形全被抓。 */
+      const allLinks = [];
+      c.lanes.forEach((L) => (L.chain || []).forEach((k) => allLinks.push(k)));
+      allLinks.forEach((k) => {
+        if (!sandbox.oyuHintClean(k.hint)) bad('断语正文混入 HTML 标签（依据应放「依据与前提」清单）', k.id);
+      });
+      sandbox.oyuTailPatterns().forEach((t) => {
+        if (chainHtml.indexOf(t) >= 0) bad('断语区挂了尾巴：' + t + '…（应只在落款/依据清单里出现一次）', c.id);
+      });
+    }
+    if (box.indexOf('class="oyu-cites"') < 0) bad('缺「依据与前提」统一清单（出处要能查得到）', c.id);
+    const cardBlocks = (box.match(/class="oyu-cites"/g) || []).length;
+    if (cardBlocks !== 1) bad('依据清单应只挂一处', c.id + ' 出现 ' + cardBlocks + ' 处');
+  }
   for (const r of c.refuse) {
     if (box.indexOf(sandbox.esc(r.title)) < 0) bad('「不取项」未呈现', c.id + ':' + r.title.slice(0, 24));
     if (box.indexOf(sandbox.esc(r.why)) < 0) bad('「不取项」缺理由', c.id + ':' + r.title.slice(0, 24));
   }
-  /* 本类不揭古断：不得出现 any 古籍原断式措辞 */
-  if (box.indexOf('古籍原断') < 0) bad('小结未声明「非古籍原断」', c.id);
+  /* 本类不揭古断：**标题级**的"非古籍原断"是内容性质标记（与古籍案例的"古籍原占"相对），
+     必须留；但"免责"本身只在落款里出现一次，不逐条挂（见 Agent.md §7.5）。 */
+  if (box.indexOf('古籍原断') < 0) bad('小结标题未标明「非古籍原断」（内容性质标记，须留）', c.id);
 
   /* 重开：只清取象与留痕，盘面与触机记录保留 */
   sandbox.oyuReset();
