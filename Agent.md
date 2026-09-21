@@ -156,6 +156,19 @@ core/liuren/**  ──(build_core.js / rebuild_core.js)──►  core/liuren-co
 原型用于在改 App 之前试玩法与视觉（数据由 App 的 rawfile 导出，见 §2.2）。
 原型是**独立 HTML**（无构建、无框架），改动不影响 App 包体。
 
+原型现有两条线：
+
+| 线 | 数据 | 读法 |
+|:--|:--|:--|
+| **古籍案例**（一局多占） | `_tools/export_case_gallery_web.py` + `export_case_story_web.py` → `UI/_data/{ancient_case_gallery,case_story}.js` | 取用神、判吉凶、揭古断 |
+| **偶遇实盘**（触机取象） | `_tools/export_ouyu_web.py` → `UI/_data/ouyu_cases.js`（真源 `UI/_data/ouyu_cases.json`） | **不取用神、不判吉凶**；只取象，末传即心念落点 |
+
+偶遇实盘（encounter）是「无占类、无可抓用神」的一类占法 —— 路上见人、车中偶遇、心动一瞥。
+体例与首个实盘见 `大六壬文档/案例剧情/偶遇之占-体例与首个实盘.md`；
+盘面**不入库**，由 `LiurenCore.buildChart({date,hourZhi,calData,yjAll})` 现场复算
+（故原型需加载 `UI/_data/cal_*s.js` 与 `yj_all.js`；App 侧数据仍走自己的 rawfile，见 §2.2）。
+锚点字段与 `case_story.json` 同构（`kind/ref/pos`），不需要扩展数据契约。
+
 ---
 
 ## 3. 门禁体系
@@ -163,8 +176,8 @@ core/liuren/**  ──(build_core.js / rebuild_core.js)──►  core/liuren-co
 ### 3.1 唯一入口
 
 ```powershell
-node _tools/check_all.js            # 全量 46 项，实测 ≈ 415 s（含 349 s 变异自检）
-node _tools/check_all.js --fast     # 快档 42 项，实测 ≈ 11 s —— 改完随手跑
+node _tools/check_all.js            # 全量 47 项，实测 ≈ 415 s（含 349 s 变异自检）
+node _tools/check_all.js --fast     # 快档 43 项，实测 ≈ 11 s —— 改完随手跑
 node _tools/check_all.js --only component_audit   # 只跑名字含该子串的项
 node _tools/check_all.js --list     # 打印清单（含慢档标记）
 ```
@@ -179,7 +192,7 @@ node _tools/check_all.js --list     # 打印清单（含慢档标记）
 | 保护面 | 门禁 |
 |:--|:--|
 | **引擎**（`core/liuren/**`） | `_test_core_smoke` `_test_core_regress` `_core_snapshot` `_api_parity` `build_core --check` `_test_no_hardcode` `_test_sanchuan_spec` `_test_keti` `_test_jiangpan` `_test_jiangpan_all` `_test_jiangpan_rules` `_test_dungan` `_test_palace` `_test_readxiang` `_test_readxiang_single_source` `_test_zhonghuang` `_test_zhonghuang_analyze` `_test_zhonghuang_dun` `_test_xingnian` `_test_nianming2` `_test_selectDuyu` `_test_bifa_keti` `_test_bifa_coach` `_test_coach2` |
-| **数据**（rawfile） | `_test_rule_health` `_test_ancient_case` `_test_ancient_gallery` `_test_case_story` `_test_case_story_web` `_test_case_xu_cibin` `case_story_audit` |
+| **数据**（rawfile） | `_test_rule_health` `_test_ancient_case` `_test_ancient_gallery` `_test_case_story` `_test_case_story_web` `_test_ouyu_web`（偶遇实盘网页反验：锚点可达 + 层级 + 不取项） `_test_case_xu_cibin` `case_story_audit` |
 | **UI / 组件** | `_test_component_audit`（慢） `_test_ui_layout` `_test_ui_foreach_key` `_test_ui_empty_state` `_test_empty_state` `_test_navutil` |
 | **转场 / 动效** | `_test_page_transition`（系统转场 + 淡入淡出 + 无位移 + 弹簧曲线 + 时长按设备尺寸分档，见 §7.6） |
 | **颜色 / 主题** | `_test_color_tokens`（**七条**规则，见 §7.3） `contrast_audit`（浅/深双跑） |

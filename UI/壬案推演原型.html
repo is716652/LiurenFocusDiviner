@@ -57,22 +57,56 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 .tchip.ghost{border-style:dashed;border-color:rgba(138,123,92,.6);background:transparent;color:#9c8f74;}
 .tsub{width:100%;color:var(--dim);font-size:11px;margin-top:6px;}
 .tsep{width:100%;height:1px;background:var(--line);margin:8px 0 2px;}
+/* ---- 偶遇实盘（encounter）视图（2026-09-21）----
+   一类「无占类、无可抓用神」的占法：路上见人、车中偶遇、心动一瞥。
+   与古籍案例同盘、同锚点口径，但读法不同：不取用神、不判吉凶、末传即心念落点。
+   故本视图只做三件事：记「触机」（为什么起这一课）、点「取象」（现场细节↔盘面锚点）、
+   写「不取」（看见但决定不取的部分，本类必须明列）。
+   见 大六壬文档/案例剧情/偶遇之占-体例与首个实盘.md */
+.oyu-pick{margin-top:10px;}
+.oyu-btn{display:block;width:100%;text-align:left;border:1px dashed rgba(166,58,43,.5);background:rgba(166,58,43,.07);border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer;color:#E9D2C9;font-size:13px;}
+.oyu-btn:hover{border-color:var(--cinnabar);}
+.oyu-btn.on{border-style:solid;border-color:var(--cinnabar);background:rgba(166,58,43,.14);}
+.oyu-btn small{display:block;color:var(--dim);margin-top:3px;}
+.oyu-mark{display:inline-block;border-radius:999px;padding:1px 7px;font-size:10px;background:var(--cinnabar);color:#F5EFE2;margin-bottom:5px;}
+.ouyu{border:1px solid rgba(166,58,43,.28);background:rgba(166,58,43,.05);border-radius:12px;padding:12px;margin-top:12px;}
+.ouyu .otitle{color:#F0E6C8;font-weight:700;font-size:14px;}
+.ouyu .oline{color:#C4B183;font-size:12px;margin-top:4px;}
+.ouyu .oscene{margin:8px 0 0 16px;color:#C4B183;font-size:12px;}
+.oyu-chain{margin-top:8px;display:grid;gap:6px;}
+.oyu-link{border:1px solid var(--line);background:#211E18;border-radius:10px;padding:8px 10px;font-size:12px;color:#C4B183;}
+.oyu-link .ask{color:#F0E6C8;font-size:13px;}
+.oyu-link .site{color:var(--dim);}
+.oyu-link.found{border-color:rgba(63,122,112,.7);background:rgba(63,122,112,.14);color:#DFF3EA;}
+.oyu-link.next{border-color:rgba(240,217,140,.45);}
+.oyu-link .hit{margin-top:6px;color:#DFF3EA;}
+.oyu-link .cite{margin-top:4px;color:var(--gold-d);font-size:11px;}
+.oyu-link .premise{margin-top:3px;font-size:11px;}
+.lvl{display:inline-block;border-radius:6px;padding:0 5px;font-size:10px;margin-right:5px;background:#3E5C76;color:#F5EFE2;}
+.lvl.L1{background:var(--green);}
+.lvl.L2{background:var(--navy);}
+.lvl.L3{background:#8A7B5C;}
+.oyu-refuse{border:1px solid rgba(166,58,43,.35);background:rgba(166,58,43,.06);border-radius:10px;padding:10px;margin-top:12px;}
+.oyu-refuse b{color:#E9D2C9;font-size:12px;display:block;}
+.oyu-refuse .why{color:#C4B183;font-size:12px;margin-top:3px;}
+.oyu-done{border:1px dashed rgba(240,217,140,.5);background:rgba(240,217,140,.07);border-radius:10px;padding:10px;margin-top:10px;}
+.oyu-done .ot{color:var(--gold);font-weight:700;font-size:13px;}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header><div><h1>壬案推演原型</h1><div class="sub">一局多占版：卷宗 → 选占问方向 → 起盘 → 点盘取证 → 先断后揭</div></div><span class="badge">网页版原型 · 古籍研习参考 · 不构成现实判断</span></header>
+<header><div><h1>壬案推演原型</h1><div class="sub">一局多占版（古籍案例） ＋ 偶遇实盘版（触机取象）</div></div><span class="badge">网页版原型 · 传统文化研习参考 · 不构成现实判断</span></header>
 <div class="grid">
-<aside class="card"><h2>案例库</h2><div class="muted">已同步 APP 案例数据；标「剧情」的案例可作一局多占推演</div><div class="chips" id="topicChips"></div><div id="caseList"></div></aside>
+<aside class="card"><h2>案例库</h2><div class="muted">已同步 APP 案例数据；标「剧情」的案例可作一局多占推演</div><div class="chips" id="topicChips"></div><div id="caseList"></div><div id="oyuPick"></div></aside>
 <main class="layout">
 <section class="card"><h2>卷宗与推演</h2><div id="briefBox" class="brief">请选择案例。左侧点「剧情」档可只看有「一局多占」剧情的案例（现有 8 案），建议先点「徐次宾占来意」体验。</div><div class="asks" id="askBox"></div><div class="toolbar"><button class="btn" id="startBtn">起盘窥天</button><button class="btn ghost" id="thinkBtn" disabled>沉思</button><button class="btn ghost" id="restartBtn" disabled>重开此案</button></div><div id="clueBox" class="clue-list"></div><div id="logBox" class="log"></div><div id="judgeBox" style="margin-top:12px;"></div><div id="revealBox"></div></section>
-<section class="card"><h2>推演盘</h2><div class="muted" id="caseMeta">未起盘</div><div class="facts" id="factBox"></div><div id="methodBox"></div><div class="chuans" id="chuanBox" style="margin-top:10px;"></div><div class="kegs" id="kegBox"></div><div class="pan" id="panBox"></div><div class="traces" id="traceBar"></div><div class="muted" id="traceDiff" style="margin-top:6px;"></div></section>
+<section class="card"><h2>推演盘</h2><div class="muted" id="caseMeta">未起盘</div><div class="facts" id="factBox"></div><div id="methodBox"></div><div class="chuans" id="chuanBox" style="margin-top:10px;"></div><div class="kegs" id="kegBox"></div><div class="pan" id="panBox"></div><div class="traces" id="traceBar"></div><div class="muted" id="traceDiff" style="margin-top:6px;"></div><div id="ouyuBox"></div></section>
 <section class="card paper" style="grid-column:1/-1;"><h2>证据与规则 <button class="chip" id="reasonToggle" style="margin-left:8px;">展开</button></h2><div id="noticeBox"></div><div id="reasonBox" style="display:none"></div><div class="compliance">本原型仅作传统文化研习与推理练习；剧情内容不用于现实疾病、官讼、投资、气象等判断。</div></section>
 </main>
 </div>
 <footer>LargeLiuRen-Design · UI prototype</footer>
 </div>
-<script src="_data/duxiang_rules.js"></script><script src="_data/duxiang_leixiang.js"></script><script src="_data/shensha_rules.js"></script><script src="_data/bifa.js"></script><script src="_data/bifa_coach.js"></script><script src="_data/xingnian_score.js"></script><script src="../core/liuren-core.js?v=20260916-batch2"></script><script src="_data/ancient_case_gallery.js?v=20260916-batch2"></script><script src="_data/case_story.js?v=20260916-batch2"></script>
+<script src="_data/duxiang_rules.js"></script><script src="_data/duxiang_leixiang.js"></script><script src="_data/shensha_rules.js"></script><script src="_data/bifa.js"></script><script src="_data/bifa_coach.js"></script><script src="_data/xingnian_score.js"></script><script src="_data/cal_1900s.js"></script><script src="_data/cal_1910s.js"></script><script src="_data/cal_1920s.js"></script><script src="_data/cal_1930s.js"></script><script src="_data/cal_1940s.js"></script><script src="_data/cal_1950s.js"></script><script src="_data/cal_1960s.js"></script><script src="_data/cal_1970s.js"></script><script src="_data/cal_1980s.js"></script><script src="_data/cal_1990s.js"></script><script src="_data/cal_2000s.js"></script><script src="_data/cal_2010s.js"></script><script src="_data/cal_2020s.js"></script><script src="_data/cal_2030s.js"></script><script src="_data/cal_2040s.js"></script><script src="_data/cal_2050s.js"></script><script src="_data/cal_2060s.js"></script><script src="_data/yj_all.js"></script><script src="../core/liuren-core.js?v=20260916-batch2"></script><script src="_data/ancient_case_gallery.js?v=20260916-batch2"></script><script src="_data/case_story.js?v=20260916-batch2"></script><script src="_data/ouyu_cases.js?v=20260921-ouyu"></script>
 <script>
 LiurenCore.init({duxiang:window.DUXIANG_RULES,shensha:window.SHENSHA_RULES,bifa:window.BIFA,xingnian:window.XN_SCORE});
 const CASES=window.ANCIENT_CASES||[];
@@ -86,6 +120,23 @@ const DEFAULT_ENDINGS=['藏机','窥豹','得梗','贯通'];
    见 _tests/_test_case_story_web.js */
 let SURFACES=[];
 let topic='全部',cur=null,chart=null,started=false,askIdx=0,found={},thinkIdx=0,submitted=false;
+/* 偶遇实盘（encounter）状态 —— 与古籍案例并列、互斥：
+     oyuCur=当前实盘 / oyuFound=已取到的取象链 id / OUYU_SURFACES=可点位（登记制，与 SURFACES 同纪律）
+   它与案例模式的差别只在"读法"：不取用神、不判吉凶、末传即心念落点。
+   盘面一律现场复算（LiurenCore.buildChart），数据文件里一行盘面都不存。 */
+let oyuCur=null,oyuFound={},OUYU_SURFACES=[];
+/* 事实栏候选（旬空等）单独累积：renderFacts 在渲染早期就会 push，
+   而 OUYU_SURFACES 在渲染末尾统一重建（见 renderChartOuyu 收口处），
+   两者若共用一个数组，早期的 push 会被重建覆盖 —— 取象链就会有一条永远点不亮。 */
+let OUYU_FACT_SURFACES=[];
+/* 取象链命中候选 = 锚点(DOM 位置与匹配口径两用) + clueId（锚点里不含线索 id）。
+   锚点 key 与 OUYU_SURFACES 的 JSON.stringify 口径必须一致，否则永远点不中。 */
+function anOf(a,id){return {kind:a.kind,ref:a.ref,pos:a.pos,clueId:id};}
+function oyuAnchors(){
+  const out=[];
+  if(oyuCur)oyuCur.lanes.forEach(L=>(L.chain||[]).forEach(k=>(k.anchors||[]).forEach(a=>out.push(a))));
+  return out;
+}
 /* 盘上留痕：trace = 当前方向的证据痕迹（只记"落在哪一格 + 该线索的问句"，不记结论）；
    ghost = 上一方向的痕迹快照，用于「一占多断」的并置对照。二者都不参与 found 判定，
    故切换支线时 found 照样清空（无头反验断言这一点）。 */
@@ -112,7 +163,110 @@ function jiangOf(z){return chart?(chart.jiangMap[zhiOf(z)]||''):'';}
 function ssList(z){const b=chart&&chart.dx&&chart.dx.shensha?chart.dx.shensha.byZhi:null;const arr=b&&b[z]?b[z]:[];return arr.map(n=>({kind:'shensha',ref:z+'/'+n}));}
 function renderTopics(){$('topicChips').innerHTML=['全部','剧情'].concat(TOPICS.filter(x=>x!=='全部')).map(t=>`<button class="chip ${topic===t?'on':''}" data-t="${t}">${t}</button>`).join('');$('topicChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{topic=b.dataset.t;renderTopics();renderList();});}
 function renderList(){const list=CASES.filter(c=>topic==='全部'||(topic==='剧情'?!!storyOf(c):(c.topics||[]).indexOf(topic)>=0));let html='';groups().forEach(g=>{const arr=list.filter(c=>groupOf(c)===g);if(!arr.length)return;html+=`<div class="group">${g}</div>`;arr.forEach(c=>{const has=!!storyOf(c);html+=`<div class="case-item ${cur&&cur.id===c.id?'on':''}" data-id="${esc(c.id)}"><b>${esc(c.title)}</b><small>${(c.topics||[]).join(' / ')} · ${esc(c.chapter)}${has?' · <span class="bd orig">剧情</span>':''}</small></div>`;});});$('caseList').innerHTML=html||'<div class="muted">此占类暂无案例</div>';$('caseList').querySelectorAll('.case-item').forEach(el=>el.onclick=()=>selectCase(el.dataset.id));}
-function selectCase(id){cur=CASES.find(c=>c.id===id)||null;chart=null;started=false;askIdx=0;found={};thinkIdx=0;submitted=false;trace=[];ghost=null;if(cur){const inp=cur.input;chart=LiurenCore.buildChartAncient(inp.mj,inp.dg,inp.dz,inp.hour,inp.yearGan||inp.yg||'',inp.yearZhi||inp.yz||'',inp.monthZhi||'');}renderList();renderAll();}
+function selectCase(id){oyuCur=null;oyuFound={};OUYU_SURFACES=[];OUYU_FACT_SURFACES=[];cur=CASES.find(c=>c.id===id)||null;chart=null;started=false;askIdx=0;found={};thinkIdx=0;submitted=false;trace=[];ghost=null;if(cur){const inp=cur.input;chart=LiurenCore.buildChartAncient(inp.mj,inp.dg,inp.dz,inp.hour,inp.yearGan||inp.yg||'',inp.yearZhi||inp.yz||'',inp.monthZhi||'');}renderList();renderAll();}
+/* ==================== 偶遇实盘（encounter）视图 ====================
+   体例：大六壬文档/案例剧情/偶遇之占-体例与首个实盘.md
+   与古籍案例共用同一张盘、同一套锚点口径；差别只在读法（不取用神、不判吉凶）。
+   数据源：UI/_data/ouyu_cases.js（由 _tools/export_ouyu_web.py 从同名 .json 生成）。 */
+function oyuCases(){return window.OUYU_CASES||[];}
+function oyuMode(){return !!oyuCur;}
+function oyuLinks(){const out=[];if(oyuCur)oyuCur.lanes.forEach(L=>(L.chain||[]).forEach(k=>out.push(k)));return out;}
+function oyuFoundCount(){return oyuLinks().filter(k=>oyuFound[k.id]).length;}
+function oyuDone(){const n=oyuLinks().length;return n>0&&oyuFoundCount()===n;}
+function anKey(a){return JSON.stringify([a.kind,a.ref||'',a.pos||'']);}
+/* 与案例侧 cellOfAnchor 同口径：把锚点落到盘上格（'' = 属"事实栏"，不在盘上） */
+function oyuCell(an){return cellOfAnchor(an);}
+/* 锚点 → 人话位置（偶占链路文案用，不依赖 cur.input） */
+function oyuWhere(an){
+  const k=an.kind,ref=String(an.ref||''),head=ref.split('/')[0];
+  if(k==='method')return '课名';
+  if(k==='chuan')return (an.pos||'')+' '+head;
+  if(k==='keg')return '第'+['一','二','三','四'][chart.kegs.findIndex(x=>x.x+'/'+x.s===ref)]+'课 '+ref;
+  if(k==='jiang')return head+' 乘 '+ref.split('/')[1];
+  if(k==='shensha')return head+' 神煞 '+ref.split('/')[1];
+  if(k==='xunkong')return '旬空 '+head;
+  if(k==='zhi')return '支 '+head;
+  if(k==='gong')return '宫 '+head;
+  if(k==='hour')return '占时 '+head;
+  if(k==='dayWangShuai')return '日干旺衰 '+head;
+  return head;
+}
+/* 触机记录：偶占最珍贵的是现场，可复算的锚点全靠它 */
+function renderOuyuPick(){
+  const box=$('oyuPick');if(!box)return;
+  const list=oyuCases();
+  if(!list.length){box.innerHTML='';return;}
+  box.innerHTML='<div class="group">偶遇实盘 · 触机取象</div>'
+    +'<div class="muted">无占类、无可抓用神的一类占法：路上见人、车中偶遇、心动一瞥。点进去记「为什么起这一课」，再逐条把现场细节落到盘上。</div>'
+    +'<div class="oyu-pick">'+list.map(c=>`<button class="oyu-btn ${oyuCur&&oyuCur.id===c.id?'on':''}" data-id="${esc(c.id)}"><span class="oyu-mark">偶遇实盘</span><b>${esc(c.title)}</b><small>${esc(c.when)} · ${esc(c.place)} · 取象链 ${oyuLinksOf(c).length} 条</small></button>`).join('')+'</div>';
+  box.querySelectorAll('.oyu-btn').forEach(el=>el.onclick=()=>oyuOpen(el.dataset.id));
+}
+function oyuLinksOf(c){const out=[];(c.lanes||[]).forEach(L=>(L.chain||[]).forEach(k=>out.push(k)));return out;}
+function oyuOpen(id){
+  const c=oyuCases().find(x=>x.id===id);if(!c)return;
+  cur=null;found={};trace=[];ghost=null;submitted=false;askIdx=0;thinkIdx=0;
+  oyuCur=c;oyuFound={};OUYU_SURFACES=[];OUYU_FACT_SURFACES=[];
+  chart=LiurenCore.buildChart({date:c.date,hourZhi:c.hour,calData:window.CAL,yjAll:window.YJ_ALL})||null;
+  started=!!chart;
+  $('logBox').innerHTML='';
+  if(!chart){log('该实盘无法复算：'+c.date+' '+c.hour+'时（检查日期是否在历法表内、占时是否为十二支）。','bad');}
+  else{log('触机立课：'+c.when+'『'+c.why+'』。偶遇之占不设占类、不判吉凶——初传即当下，末传即心念落点。','good');}
+  renderAll();
+}
+/* 点盘/点卡片：先在偶占的可点位里找，命中即记一条取象链 */
+function tryOuyuPick(cands,label){
+  if(!oyuCur||!started)return false;
+  const arr=Array.isArray(cands)?cands:[cands];
+  const keys=arr.map(cd=>anKey(cd));
+  const links=oyuLinks();
+  /* 同一个锚点可以属多条取象链（例：初传卯同属「L1 事实层」与「当下正在发生什么」）。
+     若直接 find 第一条匹配，后面的链**永远轮不上**（穷举也点不亮）。
+     故优先落到「尚未取到」的链上；都已取到则回落到首条匹配（用于"已取过"的回执）。 */
+  const hit=k=>(k.anchors||[]).some(a=>keys.indexOf(anKey(a))>=0);
+  const link=links.find(k=>!oyuFound[k.id]&&hit(k))||links.find(hit);
+  if(!link){log('这一处不在本次触机的取象链上。偶遇之占只取与现场细节对得上的那几处——别的都可以不取。','bad');return false;}
+  if(oyuFound[link.id]){log('这一条已取过了：'+link.onSite,'');return true;}
+  oyuFound[link.id]=true;
+  tracePush({id:link.id,label:link.onSite},link.anchors,label);
+  log('取象既得：'+link.onSite+' → '+link.hint,'good');
+  if(oyuDone())log('取象链已集齐。末传即心念落点——「她是谁」本课不回答，本课回答的是「这一眼停在哪个象上」。','good');
+  renderAll();return true;
+}
+function oyuReset(){
+  oyuFound={};trace=[];$('logBox').innerHTML='';log('重开此实盘：取象链已清，盘面与触机记录保留。','good');renderAll();
+}
+function renderOuyu(){
+  const box=$('ouyuBox');if(!box)return;
+  if(!oyuCur){box.innerHTML='';return;}
+  const c=oyuCur;
+  if(!started||!chart){box.innerHTML='<div class="ouyu"><div class="otitle">'+esc(c.title)+'</div><div class="notice diff">盘面未能复算，取象链不可用。</div></div>';return;}
+  const links=oyuLinks(),n=oyuFoundCount(),total=links.length;
+  const curLink=links.find(k=>!oyuFound[k.id]);
+  let html='<div class="ouyu"><div class="otitle">偶遇实盘 · '+esc(c.title)+'</div>'
+    +'<div class="oline">'+esc(c.when)+' · '+esc(c.place)+' · 盘面由引擎现场复算：'+esc(c.verify||'')+'</div>'
+    +'<div class="oline"><b>触机</b>（为什么起这一课）：'+esc(c.why)+'</div>'
+    +'<ul class="oscene">'+(c.scene||[]).map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>'
+    +'<div class="oline" style="margin-top:6px;">'+esc(c.note||'')+'</div>'
+    +'<div class="toolbar"><button class="btn" id="oyuResetBtn">重开此实盘</button>'
+    +'<span class="muted" style="align-self:center;">取象链 '+n+'/'+total+'</span></div>'
+    +(curLink?'<div class="oyu-chain"><div class="oyu-link next"><div class="ask">'+esc(curLink.ask)+'</div><div class="site">在盘上或卡片中点亮这条象的出处（'+esc((curLink.anchors||[]).map(oyuWhere).join('；'))+'）</div></div></div>':'')
+    +'<div class="oyu-chain">'+links.map(k=>{
+        const got=!!oyuFound[k.id];
+        return '<div class="oyu-link '+(got?'found':'')+'"><span class="lvl '+esc(k.level||'')+'">'+esc(k.level||'')+'</span>'+esc(k.onSite)
+          +(got?'<div class="hit">'+esc(k.hint)+'</div><div class="cite">'+esc(k.cite)+'</div><div class="premise">前提：'+esc(k.premise)+'</div>'
+                :'<div class="site">（未取）</div>')+'</div>';
+      }).join('')+'</div>';
+  if(oyuDone()&&c.ending){
+    html+='<div class="oyu-done"><div class="ot">'+esc(c.ending.title||'取象小结')+'</div><div style="margin-top:6px;">'+esc(c.ending.text)+'</div>'
+      +'<div class="notice diff" style="margin-top:8px;">'+esc(c.ending.note)+'</div></div>';
+  }
+  if(c.refuse&&c.refuse.length){
+    html+='<div class="oyu-refuse"><b>看见但决定不取（本类必写）</b>'
+      +c.refuse.map(r=>'<div class="why">✗ '+esc(r.title)+' —— '+esc(r.why)+'</div>').join('')+'</div>';
+  }
+  box.innerHTML=html+'</div>';
+  const rb=$('oyuResetBtn');if(rb)rb.onclick=oyuReset;
+}
 function pickAsk(i){if(!cur)return;const a=asksOf(cur);if(!a.length||i===askIdx)return;
   /* 并置层：把当前方向的痕迹留给下一方向作对照（只留位置与问句，不含任何结论） */
   if(trace.length)ghost={title:(a[askIdx]&&a[askIdx].title)||'',items:trace.slice()};
@@ -122,7 +276,7 @@ function clueFoundCount(){const a=askOf();return a?a.clues.filter(c=>found[c.id]
 function renderClues(){const box=$('clueBox'),a=askOf();if(!cur||!started||!a){box.innerHTML='';return;}const next=a.clues.find(c=>!found[c.id]);box.innerHTML=`<div class="muted">疑点清单 · ${esc(a.title)}（${a.role==='derived'?'只取证与规则，不给断语':'取证后再立断语'}）</div>`+a.clues.map(c=>`<div class="clue ${found[c.id]?'found':''} ${next&&next.id===c.id?'next':''}">${found[c.id]?'✓ ':'○ '}${esc(c.label)}<small>${found[c.id]?esc(c.hint):esc(c.small||'')}</small></div>`).join('');}
 function log(text,kind){const div=document.createElement('div');div.className='logline '+(kind||'');div.textContent=text;$('logBox').prepend(div);}
 function anchorMatch(an,cd){if(an.kind!==cd.kind)return false;if(an.kind==='method')return !an.ref||an.ref===chart.sanchuan.method;if(an.ref!==cd.ref)return false;if(an.pos&&cd.pos&&an.pos!==cd.pos)return false;return true;}
-function tryDiscover(cands,label){if(!cur||!started)return false;const a=askOf();if(!a)return false;const arr=Array.isArray(cands)?cands:[cands];let hit=null;a.clues.forEach(c=>{if(hit||found[c.id])return;(c.anchors||[]).forEach(an=>{if(!hit&&arr.some(cd=>anchorMatch(an,cd)))hit=c;});});if(hit){const matched=(hit.anchors||[]).filter(an=>arr.some(cd=>anchorMatch(an,cd)));found[hit.id]=true;tracePush(hit,matched,label);log('灵光一现：'+hit.hint,'good');if(clueFoundCount()===a.clues.length)log(a.role==='derived'?'线索已集。此支线到此为止——取象清单在下方「证据与规则」，古籍原断请切回原占方向。':'线索已集，宜先立断语，再揭古断。','good');renderAll();return true;}log('你点的是「'+label+'」——此线索要的不是它（换个位置想想；若卡住可点「沉思」两次）。','bad');return false;}
+function tryDiscover(cands,label){if(oyuMode())return tryOuyuPick(cands,label);if(!cur||!started)return false;const a=askOf();if(!a)return false;const arr=Array.isArray(cands)?cands:[cands];let hit=null;a.clues.forEach(c=>{if(hit||found[c.id])return;(c.anchors||[]).forEach(an=>{if(!hit&&arr.some(cd=>anchorMatch(an,cd)))hit=c;});});if(hit){const matched=(hit.anchors||[]).filter(an=>arr.some(cd=>anchorMatch(an,cd)));found[hit.id]=true;tracePush(hit,matched,label);log('灵光一现：'+hit.hint,'good');if(clueFoundCount()===a.clues.length)log(a.role==='derived'?'线索已集。此支线到此为止——取象清单在下方「证据与规则」，古籍原断请切回原占方向。':'线索已集，宜先立断语，再揭古断。','good');renderAll();return true;}log('你点的是「'+label+'」——此线索要的不是它（换个位置想想；若卡住可点「沉思」两次）。','bad');return false;}
 /* ---- 盘上留痕（数据侧）：锚点 → 盘上格 ----
    盘面按**地盘宫**定位，故"格"= 地盘宫名。口径：
      gong（宫）/ hour（占时）：ref 本身就是地盘宫 → 直接取；
@@ -192,12 +346,74 @@ function renderTraces(has){
 }
 function renderJudge(){const box=$('judgeBox'),a=askOf();if(!cur||!started||!a||submitted||clueFoundCount()<a.clues.length){if(!submitted)box.innerHTML='';return;}box.innerHTML=`<div class="muted">线索已集。请先立断语，再揭${a.role==='derived'?'取象小结':'古断'}。</div><textarea id="userVerdict" placeholder="例：铸印冬占主雪，初传巳临子被克乘玄武主风，末传卯乘白虎、申空为空中降下……"></textarea><div class="toolbar"><button class="btn" id="submitBtn">呈上断语</button></div>`;$('submitBtn').onclick=submitVerdict;}
 function submitVerdict(){const a=askOf();if(!cur||!a||submitted)return;const ta=$('userVerdict');const text=(ta?ta.value:'').trim();let score=clueFoundCount();(a.goodWords||[]).forEach(w=>{if(text.indexOf(w)>=0)score+=0.5;});const max=a.clues.length+(a.goodWords||[]).length*0.5,ratio=max?score/max:0;let level=0;if(ratio>=0.85)level=3;else if(ratio>=0.6)level=2;else if(ratio>=0.35)level=1;const endings=a.endings&&a.endings.length?a.endings:DEFAULT_ENDINGS;submitted=true;$('judgeBox').innerHTML='';let body='';if(a.role==='derived'){body=`<div style="margin-top:6px;">${esc(a.ending&&a.ending.text||'')}</div><div class="notice diff">${esc(a.ending&&a.ending.note||'')}</div><div class="muted">此支线不揭古籍原断。想看原占的断法与应验，可切回「古籍原占」方向。</div>`;}else{body=`<div style="margin-top:6px;">${esc(cur.original||'')}</div><div class="muted" style="margin-top:8px;">复盘：${esc(cur.summary||'')}</div>`;}$('revealBox').innerHTML=`<div class="reveal"><b style="color:#F0D98C">结局 · ${esc(endings[level])}</b><div class="muted">${esc(cur.title)} · ${esc(a.title)}</div>${body}<div class="muted" style="margin-top:8px;">你的断语：${esc(text)||'（未书）'}</div></div>`;}
-function renderFacts(){const box=$('factBox');if(!(cur&&started&&chart)){box.innerHTML='';return;}const xk=chart.dx.xunkong||[];const gr=Object.keys(chart.jiangMap).find(g=>chart.jiangMap[g]==='贵人')||'';const items=[['旬空'+(xk.length?xk.join(''):'无'),xk.map(z=>({kind:'xunkong',ref:z})),'旬空'],[('日干旺衰'+(chart.dx.dayWangShuai||'—')),chart.dx.dayWangShuai?[{kind:'dayWangShuai',ref:chart.dx.dayWangShuai}]:[],'日干旺衰'],['月令'+(chart.dx.monthZhi||'—'),[],'月令'],['贵人临'+(gr||'—'),gr?[{kind:'gong',ref:gr}]:[],'贵人'],['时支'+cur.input.hour,[{kind:'hour',ref:cur.input.hour}],'时支']];
+/* 事实栏文字（偶占用）。候选口径：偶占链路只用到 xunkong 这一种事实锚点；
+   其余项登记成 xunkong 只为让「点事实栏」有回执（点错会被 tryOuyuPick 拒），
+   且它们本就不会命中任何取象链 —— 不在此引入案例侧不支持的 kind。 */
+function oyuFactItems(){
+  if(!chart)return [];
+  const xk=chart.dx.xunkong||[],gr=Object.keys(chart.jiangMap).find(g=>chart.jiangMap[g]==='贵人')||'',hz=(oyuCur&&oyuCur.hour)||'';
+  return [
+    {label:'旬空',text:'旬空'+(xk.length?xk.join(''):'无'),cands:xk.map(z=>({kind:'xunkong',ref:z}))},
+    {label:'日干旺衰',text:'日干旺衰'+(chart.dx.dayWangShuai||'—'),cands:[{kind:'xunkong',ref:'__旺衰栏__'}]},
+    {label:'月令',text:'月令'+(chart.dx.monthZhi||'—'),cands:[]},
+    {label:'贵人',text:'贵人临'+(gr||'—'),cands:[{kind:'xunkong',ref:'__贵人栏__'}]},
+    {label:'时支',text:'时支'+hz,cands:hz?[{kind:'hour',ref:hz}]:[]}
+  ];
+}
+function oyuFactSurfaceList(){return oyuFactItems().filter(it=>it.cands.length).map(it=>({label:it.label,cands:it.cands}));}
+function renderFacts(){
+  const box=$('factBox');
+  if(oyuMode()){                                   /* 偶占：同一事实栏，命中判定走取象链 */
+    if(!(started&&chart)){box.innerHTML='';OUYU_FACT_SURFACES=[];return;}
+    const fItems=oyuFactItems();
+    box.innerHTML=fItems.map(it=>`<span class="chip">${esc(it.text)}</span>`).join('');
+    box.querySelectorAll('.chip').forEach((el,i)=>{const it=fItems[i];if(!it||!it.cands.length)return;el.onclick=()=>tryOuyuPick(it.cands,it.label);});
+    OUYU_FACT_SURFACES=oyuFactSurfaceList();        /* 累积到专用数组，末尾统一并入（见 renderChartOuyu 收口） */
+    return;
+  }
+  if(!(cur&&started&&chart)){box.innerHTML='';return;}const xk=chart.dx.xunkong||[];const gr=Object.keys(chart.jiangMap).find(g=>chart.jiangMap[g]==='贵人')||'';const items=[['旬空'+(xk.length?xk.join(''):'无'),xk.map(z=>({kind:'xunkong',ref:z})),'旬空'],[('日干旺衰'+(chart.dx.dayWangShuai||'—')),chart.dx.dayWangShuai?[{kind:'dayWangShuai',ref:chart.dx.dayWangShuai}]:[],'日干旺衰'],['月令'+(chart.dx.monthZhi||'—'),[],'月令'],['贵人临'+(gr||'—'),gr?[{kind:'gong',ref:gr}]:[],'贵人'],['时支'+cur.input.hour,[{kind:'hour',ref:cur.input.hour}],'时支']];
 /* 先登记可点位，再挂事件（与三传/四课/天地盘同一纪律） */
 const sIdx=items.map(it=>it[1].length?surface(it[2],it[1]):-1);
 box.innerHTML=items.map((it,i)=>`<span class="chip" data-i="${i}">${esc(it[0])}</span>`).join('');
 box.querySelectorAll('.chip').forEach(el=>{const i=Number(el.dataset.i);if(sIdx[i]<0)return;el.onclick=()=>tryDiscover(SURFACES[sIdx[i]].cands,items[i][2]);});}
-function renderChart(){const has=!!cur&&started&&!!chart;SURFACES=[];$('caseMeta').textContent=has?(cur.title+' · '+cur.input.mj+'将 '+cur.input.dg+cur.input.dz+'日 '+cur.input.hour+'时 · 旬空'+((chart.dx.xunkong||[]).length?chart.dx.xunkong.join(''):'无')):'未起盘';renderFacts();if(!has){$('methodBox').innerHTML='';$('panBox').innerHTML='';$('kegBox').innerHTML='';$('chuanBox').innerHTML='';renderTraces(false);return;}
+/* 偶占的盘面渲染：与案例版**同一套候选构造**（同一张盘、同一锚点口径），
+   区别只在命中判定走 tryOuyuPick（取象链），而不是 clue 判定。
+   不预登记 SURFACES（偶占不走线索穷举），故 SURFACES 置空；
+   但候选先收进 OUYU_SURFACES，供无头反验遍历——与案例侧"先登记后挂事件"同纪律。 */
+function renderChartOuyu(){
+  SURFACES=[];OUYU_SURFACES=[];OUYU_FACT_SURFACES=[];
+  const has=!!oyuCur&&started&&!!chart;
+  $('caseMeta').textContent=has?(oyuCur.title+' · '+oyuCur.when+'时 · 偶遇实盘 · 旬空'+((chart.dx.xunkong||[]).length?chart.dx.xunkong.join(''):'无')):'未起盘';
+  renderFacts();
+  if(!has){$('methodBox').innerHTML='';$('panBox').innerHTML='';$('kegBox').innerHTML='';$('chuanBox').innerHTML='';renderTraces(false);renderOuyu();return;}
+  const P=['初传','中传','末传'],chuans=chart.sanchuan.chuans,xk=chart.dx.xunkong||[];
+  const sChuan=[],sKeg=[],sTian={},sDi={};
+  const mIdx=surface('课名',[{kind:'method',ref:chart.sanchuan.method}]);
+  [0,1,2].forEach(i=>{const q=chuans[i];sChuan[i]=surface('三传'+P[i]+'（支或乘将皆可）',[{kind:'chuan',ref:q.z,pos:P[i]},{kind:'jiang',ref:q.z+'/'+jiangOf(q.z)}]);});
+  chart.kegs.forEach((k,i)=>{sKeg[i]=surface('四课'+k.x+'/'+k.s+'（任一皆可）',[{kind:'keg',ref:k.x+'/'+k.s},{kind:'jiang',ref:k.x+'/'+jiangOf(k.x)}]);});
+  LiurenCore.ZHI.forEach(G=>{const T=chart.tp[G]||G,jm=chart.jiangMap[G]||'';const cands=[{kind:'gong',ref:G},{kind:'zhi',ref:G},{kind:'gong',ref:T},{kind:'zhi',ref:T}];if(xk.indexOf(T)>=0)cands.push({kind:'xunkong',ref:T});cands.push({kind:'jiang',ref:T+'/'+jm},...ssList(T));sTian[G]=surface('天地盘'+G+'宫整格（天支/地盘/乘将/神煞皆可）',cands);sDi[G]=surface('地盘'+G+'宫整格',cands);});
+  /* 事实栏由 renderFacts 渲染（内部会累积 OUYU_FACT_SURFACES），此处不再重复 push；
+     末尾收口时统一并入 OUYU_SURFACES。 */
+  $('methodBox').innerHTML='<span class="method-chip" id="methodChip">课名 '+esc(chart.sanchuan.method)+'</span><span class="muted" style="margin-left:8px;">点课名取象</span>';
+  $('methodChip').onclick=()=>tryOuyuPick([{kind:'method',ref:chart.sanchuan.method}],'课名');
+  $('chuanBox').innerHTML=[2,1,0].map(i=>`<div class="mini" data-i="${i}"><div class="t">${P[i]}</div><div class="z" data-hit="zhi">${esc(chuans[i].gz)}</div><div class="j" data-hit="jiang">${esc(jiangOf(chuans[i].z))}</div></div>`).join('');
+  $('chuanBox').querySelectorAll('.mini').forEach(el=>{const i=Number(el.dataset.i);el.querySelector('[data-hit="zhi"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'chuan',ref:chuans[i].z,pos:P[i]}],'三传'+P[i]);};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'jiang',ref:chuans[i].z+'/'+jiangOf(chuans[i].z)}],'三传'+P[i]+'之将');};});
+  $('kegBox').innerHTML=[3,2,1,0].map(i=>{const k=chart.kegs[i];return `<div class="mini" data-i="${i}"><div class="t">第${['一','二','三','四'][i]}课</div><div class="z" data-hit="keg">${esc(k.x+'/'+k.s)}</div><div class="j" data-hit="jiang">${esc(jiangOf(k.x))}</div></div>`;}).join('');
+  $('kegBox').querySelectorAll('.mini').forEach(el=>{const i=Number(el.dataset.i);el.querySelector('[data-hit="keg"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'keg',ref:chart.kegs[i].x+'/'+chart.kegs[i].s}],'四课'+chart.kegs[i].x+'/'+chart.kegs[i].s);};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'jiang',ref:chart.kegs[i].x+'/'+jiangOf(chart.kegs[i].x)}],'四课'+chart.kegs[i].x+'之将');};});
+  const tIdx={};traceCellsOrdered().forEach((z,i)=>{tIdx[z]=i+1;});
+  $('panBox').innerHTML=traceOverlay()+LiurenCore.ZHI.map(G=>{const T=chart.tp[G]||G,j=chart.jiangMap[G]||'',ss=(chart.dx.shensha&&chart.dx.shensha.byZhi&&chart.dx.shensha.byZhi[T])||[],tc=tIdx[G]?' traced':'',badge=tIdx[G]?`<span class="tnum">${tIdx[G]}</span>`:'',a=(PAN_ANGLE[G]||0)*Math.PI/180,left=(50+42*Math.cos(a)).toFixed(2),top=(50+42*Math.sin(a)).toFixed(2);return `<div class="gong${tc}" style="left:${left}%;top:${top}%" data-g="${esc(G)}" data-t="${esc(T)}">${badge}<div class="di" data-hit="di">地盘 ${esc(G)}</div><div class="tian" data-hit="tian">${esc(T)}</div><div class="jiang" data-hit="jiang">${esc(j)}</div><div class="ss" data-hit="ss">${esc(ss.join(' '))}</div></div>`;}).join('');
+  $('panBox').querySelectorAll('.gong').forEach(el=>{const G=el.dataset.g;const T=chart.tp[G]||G;el.querySelector('[data-hit="tian"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'zhi',ref:T}],'天地盘'+G+'宫');};el.querySelector('[data-hit="di"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'gong',ref:G},{kind:'zhi',ref:G}],'地盘'+G+'宫');};el.querySelector('[data-hit="jiang"]').onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'jiang',ref:T+'/'+(chart.jiangMap[G]||'')}],'天地盘'+G+'宫之将');};const ssel=el.querySelector('[data-hit="ss"]');if(ssel)ssel.onclick=(e)=>{e.stopPropagation();tryOuyuPick([{kind:'zhi',ref:T}].concat(ssList(T)),'天地盘'+G+'宫（神煞）');};});
+  renderTraces(true);renderOuyu();
+  /* 收口：可点位在**渲染完成后**统一重建 ——
+     SURFACES 此时已含课名/三传/四课/十二宫；事实栏候选在 OUYU_FACT_SURFACES（由 renderFacts 累积）。
+     两者分开存，是为了避免"早期登记被末尾重建覆盖"（这一处曾导致取象链永远点不亮）。 */
+  OUYU_SURFACES=[];
+  SURFACES.forEach(s=>OUYU_SURFACES.push({label:s.label,cands:s.cands}));
+  OUYU_FACT_SURFACES.forEach(s=>OUYU_SURFACES.push(s));
+}
+function renderChart(){
+ if(oyuMode())return renderChartOuyu();
+ const has=!!cur&&started&&!!chart;SURFACES=[];$('caseMeta').textContent=has?(cur.title+' · '+cur.input.mj+'将 '+cur.input.dg+cur.input.dz+'日 '+cur.input.hour+'时 · 旬空'+((chart.dx.xunkong||[]).length?chart.dx.xunkong.join(''):'无')):'未起盘';renderFacts();$('ouyuBox').innerHTML='';if(!has){$('methodBox').innerHTML='';$('panBox').innerHTML='';$('kegBox').innerHTML='';$('chuanBox').innerHTML='';renderTraces(false);return;}
 const marks=keyMarks(cur),posName=['初传','中传','末传'],chuans=chart.sanchuan.chuans,xk=chart.dx.xunkong||[];
 /* ① 先登记可点位（不依赖 DOM，便于自动化遍历） */
 const mIdx=surface('课名',[{kind:'method',ref:chart.sanchuan.method}]);
@@ -229,7 +445,14 @@ const thinkStage={};
 $('thinkBtn').onclick=()=>{const a=askOf();if(!a)return;const rest=a.clues.filter(c=>!found[c.id]);if(!rest.length)return;const c=rest[thinkIdx%rest.length];thinkIdx++;const st=(thinkStage[c.id]||0);thinkStage[c.id]=st+1;if(st===0){log('沉思：'+c.small+'（'+c.label+'）','');}else{const spots=(c.anchors||[]).map(whereOf);log('再想一层——'+c.label+' 的取处：'+spots.join('；')+'。','');}};
 $('restartBtn').onclick=()=>{found={};thinkIdx=0;submitted=false;trace=[];$('logBox').innerHTML='';$('revealBox').innerHTML='';log('重开此案：线索已清（上一方向的对照痕迹保留），占问方向与盘面保留。','good');renderAll();};
 $('reasonToggle').onclick=()=>{const b=$('reasonBox');const open=b.style.display!=='none';b.style.display=open?'none':'';$('reasonToggle').textContent=open?'展开':'收起';};
-renderTopics();renderList();renderAll();
+/* 无头反验钩子（偶遇实盘）：与 protoSurfaces/protoState 同用途，供 _tests/_test_ouyu_web.js 遍历 */
+function oyuSurfaces(){return OUYU_SURFACES;}
+function oyuState(){return {id:oyuCur?oyuCur.id:'',started:started,hasChart:!!chart,
+  links:oyuLinks().length,found:Object.keys(oyuFound),done:oyuDone(),
+  traced:trace.length,tracedCells:traceCellsOrdered(),
+  method:chart?chart.sanchuan.method:'',xunkong:chart?(chart.dx.xunkong||[]):[]};}
+function oyuWhereList(){return oyuLinks().length?oyuLinks().map(k=>({id:k.id,onSite:k.onSite,spots:(k.anchors||[]).map(oyuWhere)})):[];}
+renderTopics();renderList();renderOuyuPick();renderAll();
 </script>
 </body>
 </html>
