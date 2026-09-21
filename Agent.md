@@ -431,7 +431,9 @@ App 源码再改动就必须重新出包（否则"提审的包"与"仓库的代�
 | **pwsh 处理 CJK** | `Get-Content` 默认编码把中文读成乱码、`Set-Content` 写回就毁文件 | **不要用 shell 改源码**；用文件工具或 node 脚本 |
 | **文档整段替换** | 替换时顺手删掉相邻内容 | 整段替换后**必须回读** |
 | **手改生成物** | 改了 `model/pan/*.ets`，下次重建被覆盖 | 改 `core/liuren/**`，用 `_ets_pipeline.js` 重建 |
-| **手改剧情/案例数据** | 锚点写错、抄别案的事实、全库字符串替换、同案不同支线同名 `clue.id` 串改 | 改 `rawfile/ancient/{case_gallery,case_story}.json` 前先读**专文 §9.1 的十条纪律**；改完必跑 `_test_case_story.js` + `export_case_story_web.py`；作用域细到**案 id / 支线 id**；工具打印的字段路径要与引擎实际结构一致（如旬空在 `c.dx.xunkong`） |
+| **手改剧情/案例数据** | 锚点写错、抄别案的事实、全库字符串替换、同案不同支线同名 `clue.id` 串改 | 改 `rawfile/ancient/{case_gallery,case_story}.json` 前先读**专文 §9.1 的十条纪律**；改完必跑 `_test_case_story.js` + `export_case_story_web.js`；作用域细到**案 id / 支线 id**；工具打印的字段路径要与引擎实际结构一致（如旬空在 `c.dx.xunkong`） |
+| **拿天盘支当宫用** | 点天地盘**天盘**层的「卯」（它此刻画在地盘戌的位置上），宫情卡却弹出「地盘卯宫 · 天盘申」——与所点无关（用户 2026-09-20 实测） | 根因：`palaceLookup`/`readXiangCard` **只认地盘宫**；地盘宫与天盘支取值域同为十二支、`c.tp` 又是**全键**，所以传天盘支进去必被当成"同名地盘宫"，引擎注释里"按天盘支反查"那条分支**永不触发**（等于不可达）。做法：点「天盘」层先换算 `gongOf(tp, 支)` → 传宫（`Index.pickZhongGong` 一直是对的；`openPalaceCard` 已按此订正，卡标题也改成「天盘X加地盘Y宫」）。**新写点盘逻辑时按此口径** |
+| **免费版同步"清空后崩"** | `python _tools/sync_free_edition.py` 直接跑：`remove_internet()` 里 `import remove_request_permissions` 抛 `ModuleNotFoundError`（本机 python 以 safe-path 运行，脚本目录不在 `sys.path[0]`；`verify_free_edition.py` 自己能过是因为它先补了 sys.path）→ 而 `sync(clean=True)` **已经清空免费版**，于是免费版停在半成品（`module.json5` 的 INTERNET 权限、`string.json` 的权限文案均未处理），`verify_free_edition` 报"源码树不一致" | **已修**（2026-09-20）：脚本顶部显式补 `sys.path` + 把该依赖改为**加载期** import（缺依赖会在清空之前就报错，不再毁树）。仍须注意：① 直接跑过同步后**必跑** `verify_free_edition`；② 真被清空时重跑一次 `sync_free_edition.py` 即可重建（它是幂等的） |
 
 ---
 

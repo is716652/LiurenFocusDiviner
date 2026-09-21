@@ -415,14 +415,21 @@ struct Index {
     }
   }
 
-  /* 打开某支的宫情速查卡（§14.4）：引擎出数并装配（LiurenCore.readXiangCard）、卡片呈现 */
-  private openPalaceCard(z: string): void {
+  /* 打开宫情速查卡（§14.4）：引擎出数并装配（LiurenCore.readXiangCard）、卡片呈现。
+     入参口径（2026-09-20 用户实测 Bug 后订正）：引擎的 palaceLookup 只认**地盘宫** ——
+     地盘宫与天盘支取值域同为十二支，而 c.tp 又是全键，故传天盘支进去会被当成"同名地盘宫"，
+     于是点天盘卯却弹出"地盘卯宫 · 天盘申"（与所点无关）。
+     处置与 pickZhongGong 一致：点「天盘」层时先按 gongOf(tp, 支) 换算出它此刻所在的宫。 */
+  private openPalaceCard(z: string, layer: string): void {
     const c = this.chart;
     if (!c) {
       return;
     }
-    this.cardRows = LiurenCore.readXiangCard(c, z, this.yongShen);
-    this.cardTitle = '宫情 · ' + z;
+    const isTian: boolean = layer === '天盘';
+    const g0: string = isTian ? LiurenCore.gongOf(c.tp, z) : z;
+    const g: string = g0 !== '' ? g0 : z;
+    this.cardRows = LiurenCore.readXiangCard(c, g, this.yongShen);
+    this.cardTitle = isTian ? ('宫情 · 天盘' + z + '加地盘' + g + '宫') : ('宫情 · 地盘' + g + '宫');
     this.cardOpen = true;
   }
 
@@ -1086,7 +1093,7 @@ struct Index {
                 this.pickCustomZhi(z, layer, false);
               }
               /* 同一次点击顺带开宫情速查卡（取用行为不变） */
-              this.openPalaceCard(z);
+              this.openPalaceCard(z, layer);
             }
           })
           if (this.cardOpen && this.cardRows.length > 0) {

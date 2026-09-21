@@ -34,6 +34,18 @@ BASE = os.path.join(ROOT, 'APP')
 SRC = os.path.join(BASE, 'LiurenFocusDiviner')
 DST = os.path.join(BASE, 'LiurenFocusDivinerFree')
 
+# ---- 同目录辅助模块的 import 保障（2026-09-20 实测踩到的坑）-----------------------------
+# 本机 python 以 safe-path 方式运行（脚本目录不在 sys.path[0]），于是 `python _tools/sync_free_edition.py`
+# 直接跑时，`remove_internet()` 里的 `import remove_request_permissions` 会 ModuleNotFoundError；
+# 而 `verify_free_edition.py` 自己能过，是因为它先把 _tools 塞进了 sys.path —— 所以这条 latent bug
+# 只在"直接跑同步"时暴露，而它偏偏是**先 clean 清空免费版**再执行到那一步的路径。
+# 两道保险：① 显式补 sys.path；② 依赖在本模块**加载期**就 import，
+# 使缺依赖在"清空免费版"之前就炸，不会留下"已清空、未重建完"的半成品树。
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+import remove_request_permissions as _rrp      # noqa: E402  （故意提前，见上）
+
 # 排除项（构建产物 / IDE 状态）—— 同步与判定共用这一份
 SKIP_DIRS = {'.hvigor', '.idea', '.preview', 'build', 'oh_modules', '.cxx', '.clangd'}
 SKIP_EXT = {'.iml'}
@@ -111,8 +123,7 @@ def drop_paid_rawfile(dst):
 def remove_internet(dst):
     """免费版无 IAP：移除 module.json5 的 INTERNET 权限（保持零权限申报）"""
     p = os.path.join(dst, 'entry', 'src', 'main', 'module.json5')
-    import remove_request_permissions as rrp
-    rrp.remove_request_permissions(p)
+    _rrp.remove_request_permissions(p)      # 模块已在本文件顶部 import（缺依赖时提前失败，见那里注释）
 
 
 def remove_permission_reason_string(dst):
