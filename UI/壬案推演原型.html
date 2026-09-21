@@ -91,6 +91,11 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 .oyu-refuse .why{color:#C4B183;font-size:12px;margin-top:3px;}
 .oyu-done{border:1px dashed rgba(240,217,140,.5);background:rgba(240,217,140,.07);border-radius:10px;padding:10px;margin-top:10px;}
 .oyu-done .ot{color:var(--gold);font-weight:700;font-size:13px;}
+/* 起盘所因（现场类型）选择：与左侧占类 chips 同形制，但语义是"这次为什么起"，不是显示偏好。
+   它只收窄引导范围 —— 盘面配色一字不动（详见专文 §7 与讨论记录）。 */
+.oyu-types{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;}
+.oyu-types .chip{font-size:12px;}
+.oyu-types .chip.on{background:var(--cinnabar);color:#F5EFE2;border-color:var(--cinnabar);}
 </style>
 </head>
 <body>
@@ -129,6 +134,10 @@ let oyuCur=null,oyuFound={},OUYU_SURFACES=[];
    而 OUYU_SURFACES 在渲染末尾统一重建（见 renderChartOuyu 收口处），
    两者若共用一个数组，早期的 push 会被重建覆盖 —— 取象链就会有一条永远点不亮。 */
 let OUYU_FACT_SURFACES=[];
+/* 现场类型（见人／见物／见象／心动／说不好）：**只决定问哪些问题，不预设答案**。
+   对应案例侧的"选占问方向"；不改盘面、不落库、不进数据文件。
+   纪律：类型只用来筛选引导清单，**绝不能**用来给结论式暗示（那等于把占类偷偷塞回来）。 */
+let oyuSceneType='';
 /* 取象链命中候选 = 锚点(DOM 位置与匹配口径两用) + clueId（锚点里不含线索 id）。
    锚点 key 与 OUYU_SURFACES 的 JSON.stringify 口径必须一致，否则永远点不中。 */
 function anOf(a,id){return {kind:a.kind,ref:a.ref,pos:a.pos,clueId:id};}
@@ -170,7 +179,17 @@ function selectCase(id){oyuCur=null;oyuFound={};OUYU_SURFACES=[];OUYU_FACT_SURFA
    数据源：UI/_data/ouyu_cases.js（由 _tools/export_ouyu_web.py 从同名 .json 生成）。 */
 function oyuCases(){return window.OUYU_CASES||[];}
 function oyuMode(){return !!oyuCur;}
-function oyuLinks(){const out=[];if(oyuCur)oyuCur.lanes.forEach(L=>(L.chain||[]).forEach(k=>out.push(k)));return out;}
+/* 现场类型只在**选中之后**收窄引导范围；未选（''）时列出全部可取之象。 */
+function oyuSceneTypes(){return (oyuCur&&oyuCur.sceneTypes)||[];}
+function oyuTypeLabel(id){const t=oyuSceneTypes().find(x=>x.id===id);return t?t.label:'';}
+/* 「说不好」等价于不限：它的语义就是"把可取之象全列出来" ——
+   若按 forTypes 过滤，它就成了一条最窄的路，与自己的说明矛盾。 */
+function oyuAllTypes(){return oyuSceneType===''||oyuSceneType==='shuobujhao';}
+function oyuLaneVisible(L){if(oyuAllTypes())return true;const f=L.forTypes;return !f||!f.length||f.indexOf(oyuSceneType)>=0;}
+function oyuVisibleLanes(){return oyuCur?(oyuCur.lanes||[]).filter(oyuLaneVisible):[];}
+function oyuLinks(){const out=[];oyuVisibleLanes().forEach(L=>(L.chain||[]).forEach(k=>out.push(k)));return out;}
+function oyuSetSceneType(id){oyuSceneType=id;/* 收窄范围后，已取到的链可能不在新范围内：重置取证（与案例"换占问方向"同纪律） */
+  oyuFound={};trace=[];$('logBox').innerHTML='';log('起盘所因：'+(oyuTypeLabel(id)||id)+'。范围已按此收窄——只问这一类该问的问题，不给结论。','good');renderAll();}
 function oyuFoundCount(){return oyuLinks().filter(k=>oyuFound[k.id]).length;}
 function oyuDone(){const n=oyuLinks().length;return n>0&&oyuFoundCount()===n;}
 function anKey(a){return JSON.stringify([a.kind,a.ref||'',a.pos||'']);}
@@ -205,7 +224,7 @@ function oyuLinksOf(c){const out=[];(c.lanes||[]).forEach(L=>(L.chain||[]).forEa
 function oyuOpen(id){
   const c=oyuCases().find(x=>x.id===id);if(!c)return;
   cur=null;found={};trace=[];ghost=null;submitted=false;askIdx=0;thinkIdx=0;
-  oyuCur=c;oyuFound={};OUYU_SURFACES=[];OUYU_FACT_SURFACES=[];
+  oyuCur=c;oyuFound={};OUYU_SURFACES=[];OUYU_FACT_SURFACES=[];oyuSceneType='';
   chart=LiurenCore.buildChart({date:c.date,hourZhi:c.hour,calData:window.CAL,yjAll:window.YJ_ALL})||null;
   started=!!chart;
   $('logBox').innerHTML='';
@@ -246,9 +265,20 @@ function renderOuyu(){
     +'<div class="oline">'+esc(c.when)+' · '+esc(c.place)+' · 盘面由引擎现场复算：'+esc(c.verify||'')+'</div>'
     +'<div class="oline"><b>触机</b>（为什么起这一课）：'+esc(c.why)+'</div>'
     +'<ul class="oscene">'+(c.scene||[]).map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>'
+    /* 起盘所因（现场类型）：只决定"问哪些问题"，不预设答案、不改盘面。
+       与案例侧的「选占问方向」同位同义 —— 换一类就把引导范围收窄，已取的象随之清空。 */
+    +'<div class="oline" style="margin-top:8px;"><b>起盘所因</b>（现场是哪一类？只决定问哪些问题，不给结论）</div>'
+    +'<div class="oyu-types">'+(function(){
+        const ts=oyuSceneTypes();
+        if(!ts.length)return '';
+        let s='<button class="chip '+(oyuSceneType===''?'on':'')+'" data-t="">不限</button>';
+        s+=ts.map(t=>'<button class="chip '+(oyuSceneType===t.id?'on':'')+'" data-t="'+esc(t.id)+'" title="'+esc(t.desc||'')+'">'+esc(t.label)+'</button>').join('');
+        s+='<span class="muted" style="align-self:center;font-size:11px;">不选／「说不好」= 可取之象全列</span>';
+        return s;
+      })()+'</div>'
     +'<div class="oline" style="margin-top:6px;">'+esc(c.note||'')+'</div>'
     +'<div class="toolbar"><button class="btn" id="oyuResetBtn">重开此实盘</button>'
-    +'<span class="muted" style="align-self:center;">取象链 '+n+'/'+total+'</span></div>'
+    +'<span class="muted" style="align-self:center;">'+(oyuSceneType?'「'+esc(oyuTypeLabel(oyuSceneType))+'」可取之象 ':'可取之象（不限）')+n+'/'+total+'</span></div>'
     +(curLink?'<div class="oyu-chain"><div class="oyu-link next"><div class="ask">'+esc(curLink.ask)+'</div><div class="site">在盘上或卡片中点亮这条象的出处（'+esc((curLink.anchors||[]).map(oyuWhere).join('；'))+'）</div></div></div>':'')
     +'<div class="oyu-chain">'+links.map(k=>{
         const got=!!oyuFound[k.id];
@@ -266,6 +296,7 @@ function renderOuyu(){
   }
   box.innerHTML=html+'</div>';
   const rb=$('oyuResetBtn');if(rb)rb.onclick=oyuReset;
+  box.querySelectorAll('.oyu-types .chip').forEach(el=>{el.onclick=()=>oyuSetSceneType(el.dataset.t||'');});
 }
 function pickAsk(i){if(!cur)return;const a=asksOf(cur);if(!a.length||i===askIdx)return;
   /* 并置层：把当前方向的痕迹留给下一方向作对照（只留位置与问句，不含任何结论） */
@@ -450,8 +481,10 @@ function oyuSurfaces(){return OUYU_SURFACES;}
 function oyuState(){return {id:oyuCur?oyuCur.id:'',started:started,hasChart:!!chart,
   links:oyuLinks().length,found:Object.keys(oyuFound),done:oyuDone(),
   traced:trace.length,tracedCells:traceCellsOrdered(),
-  method:chart?chart.sanchuan.method:'',xunkong:chart?(chart.dx.xunkong||[]):[]};}
+  method:chart?chart.sanchuan.method:'',xunkong:chart?(chart.dx.xunkong||[]):[],
+  sceneType:oyuSceneType,sceneTypes:oyuSceneTypes().map(t=>t.id),lanes:oyuVisibleLanes().length};}
 function oyuWhereList(){return oyuLinks().length?oyuLinks().map(k=>({id:k.id,onSite:k.onSite,spots:(k.anchors||[]).map(oyuWhere)})):[];}
+function oyuSetType(id){oyuSetSceneType(id);}
 renderTopics();renderList();renderOuyuPick();renderAll();
 </script>
 </body>

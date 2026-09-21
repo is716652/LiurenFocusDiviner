@@ -85,6 +85,27 @@ for (const c of cases) {
   if (!c.boundary || !c.boundary.length) bad('缺边界声明', c.id);
   if (!c.ending || c.ending.type !== 'encounter') bad('小结类型应为 encounter（非古籍原断）', c.id);
   if (!c.refuse || !c.refuse.length) bad('缺「看见但决定不取」一节', c.id);
+  /* 现场类型分档（对应案例侧的"占问方向"）：类型只收窄引导范围，不预设答案。
+     契约：① 每案有 sceneTypes；② 每个类型都至少有一条可取之象（否则用户选了却被晾着）；
+     ③ lane.forTypes 里的 id 必须在 sceneTypes 内（防笔误导致该 lane 永不可见）。 */
+  const typeIds = (c.sceneTypes || []).map((t) => t.id);
+  if (!typeIds.length) bad('缺 sceneTypes（起盘所因分档）', c.id);
+  if (typeIds.length !== new Set(typeIds).size) bad('sceneTypes 有重复 id', c.id);
+  (c.sceneTypes || []).forEach((t) => { if (!t.label || !t.desc) bad('sceneTypes 缺 label/desc', c.id + '/' + t.id); });
+  const lanesPerType = {};
+  typeIds.forEach((t) => { lanesPerType[t] = 0; });
+  c.lanes.forEach((L) => {
+    const f = L.forTypes;
+    if (f && f.length) {
+      f.forEach((t) => {
+        if (typeIds.indexOf(t) < 0) bad('lane.forTypes 含未定义类型', c.id + '/' + L.id + '/' + t);
+        else lanesPerType[t] += (L.chain || []).length;
+      });
+    } else {
+      typeIds.forEach((t) => { lanesPerType[t] += (L.chain || []).length; });  /* 无 forTypes = 不限类型 */
+    }
+  });
+  typeIds.forEach((t) => { if (!lanesPerType[t]) bad('该现场类型下没有任何可取之象', c.id + '/' + t); });
   const levels = new Set();
   c.lanes.forEach((L) => {
     if (!L.ask) bad('lanes 缺 ask', c.id + '/' + L.id);
@@ -174,6 +195,56 @@ for (const c of cases) {
   const box2 = sandbox.document.getElementById('ouyuBox').innerHTML || '';
   if (box2.indexOf(sandbox.esc(c.why)) < 0) bad('重开后触机记录丢失', c.id);
   ok('重开：清取象留痕、保留盘面与触机记录');
+
+  /* ---- 起盘所因（现场类型）：只收窄引导范围，**盘面事实一字不动** ---- */
+  console.log('--- 起盘所因分档 ---');
+  const baseFacts = JSON.stringify([st.method, st.xunkong, st.lanes]);
+  const typeIds = (c.sceneTypes || []).map((t) => t.id);
+  if (!typeIds.length) bad('界面无现场类型可选', c.id);
+  const seen = {};
+  for (const t of typeIds) {
+    sandbox.oyuSetType(t);
+    const s2 = sandbox.oyuState();
+    if (s2.sceneType !== t) bad('选类型未生效', c.id + '/' + t);
+    if (!s2.links) { bad('该类型下没有可取之象（用户选了会被晾着）', c.id + '/' + t); continue; }
+    /* ① 类型不许改盘面：课体与旬空必须与"不限"时一致 */
+    if (s2.method !== st.method) bad('选现场类型改了课体（类型只该收窄引导）', c.id + '/' + t);
+    if (JSON.stringify(s2.xunkong) !== JSON.stringify(st.xunkong)) bad('选现场类型改了旬空', c.id + '/' + t);
+    /* ② 该类型下的每条链都必须点得出来 */
+    let rounds2 = 0;
+    const linksNow = sandbox.oyuWhereList();
+    while (sandbox.oyuState().found.length < linksNow.length && rounds2 < 6) {
+      const before2 = sandbox.oyuState().found.length;
+      for (const s of sandbox.oyuSurfaces()) sandbox.tryOuyuPick(s.cands, s.label);
+      rounds2++;
+      if (sandbox.oyuState().found.length === before2) break;
+    }
+    const s3 = sandbox.oyuState();
+    if (s3.found.length !== linksNow.length) {
+      bad('该类型下取象链点不齐', c.id + '/' + t + ' -> ' + s3.found.length + '/' + linksNow.length);
+    } else {
+      ok('「' + sandbox.oyuTypeLabel(t) + '」可取 ' + linksNow.length + ' 条，且全部可点出');
+    }
+    seen[t] = linksNow.length;
+    sandbox.oyuSetType('');
+  }
+  /* ③ 「不限」应不小于任一单类（筛选逻辑方向正确）；
+        且「说不好」的语义是"全列"，必须与"不限"等量 —— 否则它比谁都窄，与自身说明矛盾 */
+  sandbox.oyuSetType('');
+  const allLinks = sandbox.oyuState().links;
+  const maxOne = Math.max.apply(null, typeIds.map((t) => seen[t] || 0));
+  if (allLinks < maxOne) bad('「不限」反而比某一类更少（筛选逻辑反了）', c.id + ' all=' + allLinks + ' max=' + maxOne);
+  sandbox.oyuSetType('shuobujhao');
+  const unsureLinks = sandbox.oyuState().links;
+  if (unsureLinks !== allLinks) {
+    bad('「说不好」应与「不限」等量（它的语义是全列）', c.id + ' 说不好=' + unsureLinks + ' 不限=' + allLinks);
+  }
+  sandbox.oyuSetType('');
+  if (JSON.stringify([sandbox.oyuState().method, sandbox.oyuState().xunkong, sandbox.oyuState().lanes]) !== baseFacts) {
+    bad('分档演练后盘面事实被改动', c.id);
+  } else {
+    ok('分档只收窄引导：课体/旬空全程未变；不限=' + allLinks + ' 条，单类最多=' + maxOne + ' 条');
+  }
 }
 
 /* ---- 与案例模式互斥 ---- */

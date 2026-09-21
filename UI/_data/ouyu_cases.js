@@ -33,10 +33,38 @@ window.OUYU_CASES=[
       "末传是心念落点，不是对方的属性",
       "非古籍原断，不构成现实判断、法律或医疗建议"
     ],
+    "sceneTypes": [
+      {
+        "id": "jianren",
+        "label": "见人",
+        "desc": "遇见某个人 —— 取形貌、衣色、言动、他与我"
+      },
+      {
+        "id": "jianwu",
+        "label": "见物",
+        "desc": "看见某件东西 —— 取形色、来去、数目、所置"
+      },
+      {
+        "id": "jianxiang",
+        "label": "见象",
+        "desc": "天候天象、异响异色 —— 取方所、色与声、所感"
+      },
+      {
+        "id": "xindong",
+        "label": "心动",
+        "desc": "心里忽然一动、一凛 —— 取初传为当下、末传为心念"
+      },
+      {
+        "id": "shuobujhao",
+        "label": "说不好",
+        "desc": "说不清是哪一类 —— 就把可取之象全列出来"
+      }
+    ],
     "lanes": [
       {
         "id": "fact",
         "title": "先说事实：这一课是什么课",
+        "forTypes": [],
         "ask": "L1 事实层——不取象、只复算：课名为何？三传是哪三支、走势如何？",
         "chain": [
           {
@@ -73,6 +101,11 @@ window.OUYU_CASES=[
       {
         "id": "he",
         "title": "彼此之合落在哪里",
+        "forTypes": [
+          "jianren",
+          "jianxiang",
+          "xindong"
+        ],
         "ask": "对方主动留意他：这份「合」在盘上落在哪？",
         "chain": [
           {
@@ -116,6 +149,11 @@ window.OUYU_CASES=[
       {
         "id": "heJu",
         "title": "为何散：相应而不接",
+        "forTypes": [
+          "jianren",
+          "jianxiang",
+          "xindong"
+        ],
         "ask": "她看你、你看她就走 —— 盘上哪一处说这件事？",
         "chain": [
           {
@@ -146,6 +184,10 @@ window.OUYU_CASES=[
       {
         "id": "yan",
         "title": "当下正在发生什么",
+        "forTypes": [
+          "jianren",
+          "jianxiang"
+        ],
         "ask": "她「不停地说」：初传是哪一支、乘何将？",
         "chain": [
           {
@@ -195,6 +237,9 @@ window.OUYU_CASES=[
       {
         "id": "shen",
         "title": "「她像是有身份的人」这个印象从哪来",
+        "forTypes": [
+          "jianren"
+        ],
         "ask": "你的注意力最后停在哪个象上？（先点出来，再看它立不立得住）",
         "chain": [
           {
@@ -220,6 +265,9 @@ window.OUYU_CASES=[
       {
         "id": "xing",
         "title": "形貌可取之象",
+        "forTypes": [
+          "jianren"
+        ],
         "ask": "1.76 的细长身形：申酉在课否？旺否？",
         "chain": [
           {
@@ -245,6 +293,9 @@ window.OUYU_CASES=[
       {
         "id": "hei",
         "title": "衣色可取之象",
+        "forTypes": [
+          "jianren"
+        ],
         "ask": "黑衣：日支乘何将、临何宫？",
         "chain": [
           {
