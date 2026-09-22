@@ -761,9 +761,13 @@ export struct StoryPlay {
       }
       .width('100%')
       .padding(16)
+      /* 内容不足一屏时也必须靠上：Scroll 默认把不足一屏的内容垂直居中，
+         两张卡时就会"浮"在屏幕中间。故显式撑满高度 + 给 Scroll 置顶。 */
+      .constraintSize({ minHeight: '100%' })
     }
     .width('100%')
     .layoutWeight(1)
+    .align(Alignment.TopStart)
     .scrollBar(BarState.Off)
   }
 
@@ -921,9 +925,12 @@ export struct StoryPlay {
         }
         .width('100%')
         .padding(16)
+        /* 同列表页：内容不足一屏也靠上（Scroll 默认垂直居中） */
+        .constraintSize({ minHeight: '100%' })
       }
       .width('100%')
       .layoutWeight(1)
+      .align(Alignment.TopStart)
       .scrollBar(BarState.Off)
     }
   }
@@ -1140,9 +1147,12 @@ export struct StoryPlay {
         }
         .width('100%')
         .padding(16)
+        /* 同列表页：内容不足一屏也靠上（Scroll 默认垂直居中） */
+        .constraintSize({ minHeight: '100%' })
       }
       .width('100%')
       .layoutWeight(1)
+      .align(Alignment.TopStart)
       .scrollBar(BarState.Off)
     }
   }
