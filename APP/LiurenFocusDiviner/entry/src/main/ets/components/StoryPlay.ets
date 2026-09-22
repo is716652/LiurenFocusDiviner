@@ -60,6 +60,16 @@ export struct StoryPlay {
   @State private focusZhi: string = '';
   @State private focusLabel: string = '';
   @State private tip: string = '';
+  /* 盘面下方的「本次取证」：点盘 / 点三传 / 点四课命中的那一条，**就地**显示。
+     为什么需要：取证内容本来在页面上方的列表里展开，而用户此刻正在下面看盘 ——
+     只会看到屏幕因内容高度变化而跳动，却看不到那条内容。改为就地显示后，
+     点击不再改动上方列表的展开态，跳动也随之消失。
+     hitKind：'' 无 / 'clue' 古籍线索 / 'ouyu' 偶遇取象一步。 */
+  @State private hitKind: string = '';
+  @State private hitTitle: string = '';
+  @State private hitLevel: string = '';
+  @State private hitText: string = '';
+  @State private hitWhere: string = '';
   /* 古籍剧情态 */
   @State private caseId: string = '';
   @State private askIdx: number = 0;
@@ -204,6 +214,36 @@ export struct StoryPlay {
   private clearFocus(): void {
     this.focusZhi = '';
     this.focusLabel = '';
+    this.hitKind = '';
+    this.hitTitle = '';
+    this.hitLevel = '';
+    this.hitText = '';
+    this.hitWhere = '';
+  }
+
+  /* 记下"本次取证"（就地显示用） */
+  private setHit(kind: string, title: string, level: string, text: string, where: string): void {
+    this.hitKind = kind;
+    this.hitTitle = title;
+    this.hitLevel = level;
+    this.hitText = text;
+    this.hitWhere = where;
+  }
+
+  /* 该线索在本支线里的序号（1 起），用于"在上方第 N 条"的提示 */
+  private clueIndex(id: string): number {
+    const list = this.askClues();
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].id === id) {
+        return i + 1;
+      }
+    }
+    return 0;
+  }
+
+  /* 取证卡的类别标签（写成方法而不是内联三元：ArkTS 不接受三元结果直接当实参） */
+  private hitLabel(): string {
+    return this.hitKind === 'clue' ? '本次取证 · 线索' : '本次取证 · 取象';
   }
 
   /* ============================ 盘面复算 ============================ */
@@ -347,7 +387,17 @@ export struct StoryPlay {
       }
       const zs = this.anchorZhiList(cl.anchors ? cl.anchors : []);
       if (zs.indexOf(z) >= 0) {
-        this.pickClue(cl);
+        /* 记为已得；但**不**展开上方列表（那会让屏幕跳，而用户正在下面看盘）—— 改为就地显示 */
+        if (this.found.indexOf(cl.id) < 0) {
+          const next: string[] = this.found.slice();
+          next.push(cl.id);
+          this.found = next;
+        }
+        this.setFocus(z, cl.label);
+        const at: number = this.clueIndex(cl.id);
+        this.setHit('clue', cl.label, '', cl.hint ? cl.hint : '',
+          at > 0 ? '在上方线索列表第 ' + String(at) + ' 条' : '');
+        this.tip = '';
         return;
       }
     }
@@ -384,15 +434,34 @@ export struct StoryPlay {
           continue;
         }
         const label: string = step.onSite ? step.onSite : layer;
-        this.oyuOpen = l.id;
-        this.oyuStepOpen = i;
         this.setFocus(z, label);
+        /* 就地显示，**不**展开上方通道列表（否则屏幕跳、而用户在下面看盘看不到内容） */
+        this.setHit('ouyu', l.title, step.level ? step.level : '',
+          step.hint ? step.hint : '',
+          '在上方取象通道「' + l.title + '」第 ' + String(i + 1) + ' 步');
+        this.tip = '';
         return;
       }
     }
     if (fallbackLane !== '') {
-      this.oyuOpen = fallbackLane;
-      this.oyuStepOpen = fallbackStep;
+      /* 唯一的命中就是"当前已展开的那一处"—— 读出它的内容就地显示 */
+      const o2 = this.curOuyu();
+      const lanes: OuyuLane[] = o2 ? this.visibleLanes(o2) : [];
+      for (const l2 of lanes) {
+        if (l2.id !== fallbackLane) {
+          continue;
+        }
+        const ch2: OuyuStep[] = l2.chain ? l2.chain : [];
+        if (fallbackStep >= 0 && fallbackStep < ch2.length) {
+          const s2: OuyuStep = ch2[fallbackStep];
+          this.setFocus(z, s2.onSite ? s2.onSite : layer);
+          this.setHit('ouyu', l2.title, s2.level ? s2.level : '',
+            s2.hint ? s2.hint : '',
+            '在上方取象通道「' + l2.title + '」第 ' + String(fallbackStep + 1) + ' 步');
+          this.tip = '';
+          return;
+        }
+      }
       this.setFocus(z, layer);
       return;
     }
@@ -704,6 +773,49 @@ export struct StoryPlay {
           .width('100%')
         }
         .width('100%')
+
+        /* 本次取证：点盘 / 点三传 / 点四课命中的那一条，就地显示在盘面正下方 ——
+           用户此刻正是在这里看盘，不必再滚回上方列表去找
+           （那也正是"屏幕上下跳动、却跳不到那条证据上"的根源）。
+           配色：本块位于 chartBlock 的**浅纸底**内，故文字一律用纸底深色，
+           且**不另设深底背景** —— 否则门禁推断出的底色与实际不符，dark 主题会不达标。 */
+        if (this.hitKind !== '') {
+          Column({ space: 6 }) {
+            Row({ space: 6 }) {
+              Text(this.hitLabel())
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_paper_muted'))
+              if (this.hitLevel !== '') {
+                Text(this.levelLabel(this.hitLevel))
+                  .fontSize($r('app.float.font_caption_m'))
+                  .fontColor($r('app.color.ink_on_deep_text'))
+                  .backgroundColor(this.levelColor(this.hitLevel))
+                  .borderRadius(8)
+                  .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+              }
+            }
+            .width('100%')
+            Text(this.hitTitle)
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.case_blue_deep'))
+              .width('100%')
+            Text(this.cleanHint(this.hitText))
+              .fontSize($r('app.float.fs_caption'))
+              .fontColor($r('app.color.ink_sunken'))
+              .lineHeight(20)
+              .width('100%')
+            if (this.hitWhere !== '') {
+              Text(this.hitWhere)
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_paper_muted'))
+                .width('100%')
+            }
+          }
+          .width('100%')
+          .padding(10)
+          .borderRadius(10)
+          .border({ width: 2, color: $r('app.color.brand_gold') })
+        }
       }
       .width('100%')
       .padding(12)
