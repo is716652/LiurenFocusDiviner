@@ -327,8 +327,15 @@ export struct StoryPlay {
     this.tip = '';
   }
 
-  /* 点盘取证：点到某支时，若它命中某条尚未找到的线索，自动点亮该线索 */
+  /* 点盘 / 点四课 / 点三传取证 —— 分两种体裁走：
+     · 古籍剧情：命中某条**尚未找到**的线索 → 点亮它（展开提示 + 记入已得）；
+     · 偶遇实盘：命中**当前可见取象通道**某一步的锚点 → 展开那条通道与那一步。
+     都没命中就只移动焦点，并**明确告知"此处无可取之象"**（而不是静默无反应）。 */
   private onPickZhi(z: string, layer: string): void {
+    if (this.mode === 'ouyu') {
+      this.pickOuyuByZhi(z, layer);
+      return;
+    }
     const ask = this.curAsk();
     if (!ask || !ask.clues) {
       this.setFocus(z, layer);
@@ -345,6 +352,52 @@ export struct StoryPlay {
       }
     }
     this.setFocus(z, layer);
+    this.tip = '「' + z + '」上暂无可取之象（或该线索已取过）—— 换个位置，或直接点上方的线索。';
+  }
+
+  /* 偶遇：点盘/点三传命中的是「取象链的某一步」—— 展开该通道与该步，并把盘面焦点移过去。
+     只遍历**当前场景类型下可见**的通道，保证点到的就是屏幕上看得见的那几条。 */
+  private pickOuyuByZhi(z: string, layer: string): void {
+    const o = this.curOuyu();
+    if (!o) {
+      this.setFocus(z, layer);
+      return;
+    }
+    let fallbackLane: string = '';
+    let fallbackStep: number = -1;
+    for (const l of this.visibleLanes(o)) {
+      const chain = l.chain ? l.chain : [];
+      for (let i = 0; i < chain.length; i++) {
+        const step: OuyuStep = chain[i];
+        /* ArkTS 的类型收窄比 TS 严格：三元结果不能直接当实参，先落到带类型标注的局部变量 */
+        const stepAnchors: StoryAnchor[] = step.anchors ? step.anchors : [];
+        const zs: string[] = this.anchorZhiList(stepAnchors);
+        if (zs.indexOf(z) < 0) {
+          continue;
+        }
+        /* 已展开的那一处先跳过，优先打开"还没看过的那一处"，免得反复点同一支只见同一处 */
+        if (this.oyuOpen === l.id && this.oyuStepOpen === i) {
+          if (fallbackLane === '') {
+            fallbackLane = l.id;
+            fallbackStep = i;
+          }
+          continue;
+        }
+        const label: string = step.onSite ? step.onSite : layer;
+        this.oyuOpen = l.id;
+        this.oyuStepOpen = i;
+        this.setFocus(z, label);
+        return;
+      }
+    }
+    if (fallbackLane !== '') {
+      this.oyuOpen = fallbackLane;
+      this.oyuStepOpen = fallbackStep;
+      this.setFocus(z, layer);
+      return;
+    }
+    this.setFocus(z, layer);
+    this.tip = '「' + z + '」上暂无可取之象 —— 换个位置，或换一类再看。';
   }
 
   private askClues(): StoryClue[] {
@@ -592,19 +645,23 @@ export struct StoryPlay {
           Row({ space: 8 }) {
             KegCard({ kn: this.kegRows(this.chart as Chart)[0].kn, xia: this.kegRows(this.chart as Chart)[0].keg.s,
               shang: this.kegRows(this.chart as Chart)[0].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[0].keg.x),
-              highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[0].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[0].keg.s === this.focusZhi) })
+              highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[0].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[0].keg.s === this.focusZhi),
+              onTap: () => { this.onPickZhi(this.kegRows(this.chart as Chart)[0].keg.x, '四课'); } })
               .layoutWeight(1)
             KegCard({ kn: this.kegRows(this.chart as Chart)[1].kn, xia: this.kegRows(this.chart as Chart)[1].keg.s,
               shang: this.kegRows(this.chart as Chart)[1].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[1].keg.x),
-              highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[1].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[1].keg.s === this.focusZhi) })
+              highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[1].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[1].keg.s === this.focusZhi),
+              onTap: () => { this.onPickZhi(this.kegRows(this.chart as Chart)[1].keg.x, '四课'); } })
               .layoutWeight(1)
             KegCard({ kn: this.kegRows(this.chart as Chart)[2].kn, xia: this.kegRows(this.chart as Chart)[2].keg.s,
               shang: this.kegRows(this.chart as Chart)[2].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[2].keg.x),
-              highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[2].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[2].keg.s === this.focusZhi) })
+              highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[2].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[2].keg.s === this.focusZhi),
+              onTap: () => { this.onPickZhi(this.kegRows(this.chart as Chart)[2].keg.x, '四课'); } })
               .layoutWeight(1)
             KegCard({ kn: this.kegRows(this.chart as Chart)[3].kn, xia: this.kegRows(this.chart as Chart)[3].keg.s,
               shang: this.kegRows(this.chart as Chart)[3].keg.x, jiang: this.jiangOf(this.chart as Chart, this.kegRows(this.chart as Chart)[3].keg.x),
-              highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[3].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[3].keg.s === this.focusZhi) })
+              highlight: this.focusZhi !== '' && (this.kegRows(this.chart as Chart)[3].keg.x === this.focusZhi || this.kegRows(this.chart as Chart)[3].keg.s === this.focusZhi),
+              onTap: () => { this.onPickZhi(this.kegRows(this.chart as Chart)[3].keg.x, '四课'); } })
               .layoutWeight(1)
           }
           .width('100%')
@@ -628,17 +685,20 @@ export struct StoryPlay {
             ChuanCard({ pos: this.chuanRows(this.chart as Chart)[0].pos, gz: this.chuanRows(this.chart as Chart)[0].gz,
               jiang: this.chuanRows(this.chart as Chart)[0].jiang, lq: this.chuanRows(this.chart as Chart)[0].lq,
               color: this.chuanRows(this.chart as Chart)[0].color, mark: '',
-              highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[0].z === this.focusZhi })
+              highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[0].z === this.focusZhi,
+              onTap: () => { this.onPickZhi((this.chart as Chart).sanchuan.chuans[0].z, '三传'); } })
               .layoutWeight(1)
             ChuanCard({ pos: this.chuanRows(this.chart as Chart)[1].pos, gz: this.chuanRows(this.chart as Chart)[1].gz,
               jiang: this.chuanRows(this.chart as Chart)[1].jiang, lq: this.chuanRows(this.chart as Chart)[1].lq,
               color: this.chuanRows(this.chart as Chart)[1].color, mark: '',
-              highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[1].z === this.focusZhi })
+              highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[1].z === this.focusZhi,
+              onTap: () => { this.onPickZhi((this.chart as Chart).sanchuan.chuans[1].z, '三传'); } })
               .layoutWeight(1)
             ChuanCard({ pos: this.chuanRows(this.chart as Chart)[2].pos, gz: this.chuanRows(this.chart as Chart)[2].gz,
               jiang: this.chuanRows(this.chart as Chart)[2].jiang, lq: this.chuanRows(this.chart as Chart)[2].lq,
               color: this.chuanRows(this.chart as Chart)[2].color, mark: '',
-              highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[2].z === this.focusZhi })
+              highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[2].z === this.focusZhi,
+              onTap: () => { this.onPickZhi((this.chart as Chart).sanchuan.chuans[2].z, '三传'); } })
               .layoutWeight(1)
           }
           .width('100%')
@@ -1006,6 +1066,17 @@ export struct StoryPlay {
             }, (t: OuyuSceneType) => t.id)
           }
           .width('100%')
+
+          Text('点盘上某处、或点三传／四课，命中的取象会自动展开；也可直接点下面的通道。')
+            .fontSize($r('app.float.font_caption_m'))
+            .fontColor($r('app.color.ink_text_muted'))
+            .width('100%')
+          if (this.tip !== '') {
+            Text(this.tip)
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.brand_gold_bright'))
+              .width('100%')
+          }
 
           Column({ space: 10 }) {
             ForEach(this.visibleLanes(this.curOuyu() as OuyuCase), (l: OuyuLane) => {

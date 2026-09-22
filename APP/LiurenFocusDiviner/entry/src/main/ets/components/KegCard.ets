@@ -12,6 +12,9 @@ export struct KegCard {
   /* 交互高亮：案卷页点用神时高亮对应课（2026-09-18 起不再换底色）——
      原先的「金色淡底」会把凶将朱砂文字压到 3.1:1，只保留标题加粗与加粗金边这两个提示。 */
   @Prop highlight: boolean = false;
+  /* 点击回调（**可选**）：剧情演绎里点四课 = 取象；不传则无副作用（排盘页/旧鉴赏页照旧）。
+     注意**不能加 private** —— ArkUI 会静默忽略从构造函数传入的 private 成员。 */
+  onTap: () => void = () => { };
 
   build() {
     Column({ space: 3 }) {
@@ -40,5 +43,8 @@ export struct KegCard {
     .borderRadius(12)
     .backgroundColor($r('app.color.ink_surface'))
     .border({ width: this.highlight ? 1.5 : 1, color: this.highlight ? $r('app.color.brand_gold_bright') : $r('app.color.overlay_gold_mid') })
+    .onClick(() => {
+      this.onTap();
+    })
   }
 }
