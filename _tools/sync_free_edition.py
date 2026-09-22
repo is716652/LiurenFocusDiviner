@@ -51,7 +51,7 @@ SKIP_DIRS = {'.hvigor', '.idea', '.preview', 'build', 'oh_modules', '.cxx', '.cl
 SKIP_EXT = {'.iml'}
 SKIP_FILES = {'oh-package-lock.json5'}
 
-# 收费块数据（不随免费包分发）：案例鉴赏库 + 案例剧情
+# 收费块数据（不随免费包分发）：案例鉴赏库 + 案例剧情 + 偶遇实盘（剧情演绎页的数据源）
 # 依据：案例鉴赏是收费研习内容，HAP 即 zip，rawfile 内 JSON 为明文，随包发出等于公开收费数据；
 #       免费版只保留入口开关隐藏不够，必须在同步阶段物理剔除。
 # 白名单外一律不动：中黄经文 ancient/zhonghuang_jing.json（免费古籍功能）、
@@ -59,6 +59,7 @@ SKIP_FILES = {'oh-package-lock.json5'}
 PAID_RAWFILE = (
     'ancient/case_gallery.json',
     'ancient/case_story.json',
+    'ancient/ouyu_cases.json',
 )
 
 

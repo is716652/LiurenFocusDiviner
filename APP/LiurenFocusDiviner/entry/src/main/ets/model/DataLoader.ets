@@ -124,6 +124,126 @@ export interface AncientCase {
   reasoning?: AncientCaseReasoning[];
 }
 
+/* ============ 剧情演绎（古籍剧情 + 偶遇实盘）============
+ * 两种体裁共用一套锚点与盘面呈现：
+ *   古籍剧情（case_story.json）＝「一局多占」推演：卷宗 → 线索 → 点盘取证 → 呈断语 → 揭古断
+ *   偶遇实盘（ouyu_cases.json）＝无占类、无可抓用神：现场 → 取象通道 → 分层（L1 盘面事实／L2 古籍取象／L3 本人推断）
+ * 锚点字段两边同构（kind / ref / pos），故可共用同一套「锚点 → 盘面高亮」映射。
+ * 盘面一律**不入库**：页面按 input 现场复算（避免与引擎漂移）。 */
+
+/* 锚点：指向盘面上的一处可复算事实 */
+export interface StoryAnchor {
+  kind: string;
+  ref?: string;
+  pos?: string;
+}
+
+/* 古籍剧情：一条线索（问题 + 该点哪里 + 锚点 + 提示） */
+export interface StoryClue {
+  id: string;
+  label: string;
+  small?: string;
+  anchors?: StoryAnchor[];
+  hint?: string;
+}
+
+/* 剧情结局：original 只给 tip（揭古断），derived 给取象小结 text */
+export interface StoryEnding {
+  type?: string;
+  title?: string;
+  tip?: string;
+  text?: string;
+  note?: string;
+}
+
+/* 古籍剧情：一条支线（original 古籍原占 / derived 同课异占） */
+export interface StoryAsk {
+  id: string;
+  role?: string;
+  topic?: string;
+  title: string;
+  badge?: string;
+  intro?: string;
+  question?: string;
+  clues?: StoryClue[];
+  goodWords?: string[];
+  endings?: string[];
+  ending?: StoryEnding;
+}
+
+/* 古籍剧情：一案的剧情 */
+export interface StoryCase {
+  brief?: string;
+  note?: string;
+  asks: StoryAsk[];
+}
+
+/* case_story.json 文件根（stories 表：案 id → 剧情） */
+export interface StoryFile {
+  schema?: number;
+  note?: string;
+  discipline?: string[];
+  stories?: Record<string, StoryCase>;
+}
+
+/* 偶遇之占：取象链的一步 */
+export interface OuyuStep {
+  id: string;
+  onSite?: string;
+  level?: string;
+  anchors?: StoryAnchor[];
+  cite?: string;
+  premise?: string;
+  hint?: string;
+}
+
+/* 偶遇之占：一条取象通道 */
+export interface OuyuLane {
+  id: string;
+  title: string;
+  forTypes?: string[];
+  ask?: string;
+  chain?: OuyuStep[];
+}
+
+/* 偶遇之占：场景类型（见人／见物／见象／心动／说不好） */
+export interface OuyuSceneType {
+  id: string;
+  label: string;
+  desc?: string;
+}
+
+/* 偶遇之占：明确排除、不得引用的条（连同其前提为何不成立） */
+export interface OuyuRefuse {
+  title: string;
+  why: string;
+}
+
+/* 偶遇之占：一个实盘（盘面不入库，页面按 date + hour 现场复算） */
+export interface OuyuCase {
+  id: string;
+  when: string;
+  date: string;
+  hour: string;
+  place: string;
+  title: string;
+  kind: string;
+  why?: string;
+  scene?: string[];
+  note?: string;
+  boundary?: string[];
+  sceneTypes?: OuyuSceneType[];
+  lanes?: OuyuLane[];
+  ending?: StoryEnding;
+  refuse?: OuyuRefuse[];
+  verify?: string;
+}
+
+/* ouyu_cases.json 文件根 */
+export interface OuyuFile {
+  cases?: OuyuCase[];
+}
+
 export class DataLoader {
   /* 十年历法缓存：decadeKey("2020") -> Record<year, DayRec[]> */
   private static calCache: Record<string, Record<string, DayRec[]>> = {};
@@ -131,6 +251,8 @@ export class DataLoader {
   private static ruleCache: CoreRules | null = null;
   private static ancientCache: AncientBook | null = null;
   private static ancientCaseCache: AncientCase[] | null = null;
+  private static storyCache: Record<string, StoryCase> | null = null;
+  private static ouyuCache: OuyuCase[] | null = null;
 
   /* ---------------- 基础读取 ---------------- */
 
@@ -428,6 +550,42 @@ export class DataLoader {
     }
     const cases = JSON.parse(txt) as AncientCase[];
     DataLoader.ancientCaseCache = cases;
+    return cases;
+  }
+
+  /* ---------------- 剧情演绎 ---------------- */
+
+  /* 古籍剧情表（case_story.json 的 stories）：案 id → 剧情；结果缓存。
+     免费版该文件已被 sync_free_edition 物理剔除 → 返回空表，页面按空态处理。 */
+  static async loadStoryCases(ctx: common.UIAbilityContext): Promise<Record<string, StoryCase>> {
+    if (DataLoader.storyCache) {
+      return DataLoader.storyCache;
+    }
+    const txt = await DataLoader.readRaw(ctx, 'ancient/case_story.json');
+    if (!txt) {
+      DataLoader.storyCache = {};
+      return {};
+    }
+    const file = JSON.parse(txt) as StoryFile;
+    const table: Record<string, StoryCase> = file.stories ? file.stories : {};
+    DataLoader.storyCache = table;
+    return table;
+  }
+
+  /* 偶遇实盘（ouyu_cases.json）：无占类、无可抓用神的一类占法；结果缓存。
+     免费版该文件已被 sync_free_edition 物理剔除 → 返回空表。 */
+  static async loadOuyuCases(ctx: common.UIAbilityContext): Promise<OuyuCase[]> {
+    if (DataLoader.ouyuCache) {
+      return DataLoader.ouyuCache;
+    }
+    const txt = await DataLoader.readRaw(ctx, 'ancient/ouyu_cases.json');
+    if (!txt) {
+      DataLoader.ouyuCache = [];
+      return [];
+    }
+    const file = JSON.parse(txt) as OuyuFile;
+    const cases = file.cases ? file.cases : [];
+    DataLoader.ouyuCache = cases;
     return cases;
   }
 }

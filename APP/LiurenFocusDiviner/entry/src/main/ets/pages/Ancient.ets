@@ -2,16 +2,20 @@
  * Ancient —— 古籍页（独立路由页）
  * ----------------------------------------------------------------------------
  * 封装 AncientStudy（中黄五变经目录 + 阅读）；数据由本页自加载（loadAncient）
+ * 页签「剧情演绎」＝收费块主入口（StoryPlay）：
+ *   古籍剧情（case_story.json 白名单）＋ 偶遇实盘（ouyu_cases.json）
+ *   两文件免费版已被 sync_free_edition 物理剔除 → 本页只显示「经文」页签。
  * 入口：Home「古籍」；页签「排盘/课例」走 NavUtil（栈内有则回退、否则新开）
  * ArkTS 合规：零 any / unknown
  */
 import { common } from '@kit.AbilityKit';
-import type { AncientBook, AncientCase } from '../model/DataLoader';
+import type { AncientBook, AncientCase, OuyuCase, StoryCase } from '../model/DataLoader';
 import { DataLoader } from '../model/DataLoader';
 import { LiurenCore } from '../model/LiurenCore';
+import type { DayRec, YueJiangSeg } from '../model/LiurenCore';
 import { FeatureFlags } from '../FeatureFlags';
 import { AncientStudy } from '../components/AncientStudy';
-import { AncientCaseGallery } from '../components/AncientCaseGallery';
+import { StoryPlay } from '../components/StoryPlay';
 import { PageHeader } from '../components/PageHeader';
 import { goTab } from '../model/NavUtil';
 import { curves } from '@kit.ArkUI';
@@ -22,6 +26,11 @@ import { TransitionFx } from '../model/TransitionFx';
 struct Ancient {
   @State private book: AncientBook | null = null;
   @State private cases: AncientCase[] = [];
+  @State private stories: Record<string, StoryCase> = {};
+  @State private ouyu: OuyuCase[] = [];
+  @State private yjAll: YueJiangSeg[] = [];
+  @State private calData: Record<string, DayRec[]> = {};
+  @State private storyReady: boolean = false;
   @State private tab: string = 'jing';
   @State private caseDetailOpen: boolean = false;
 
@@ -53,8 +62,27 @@ struct Ancient {
         const rules = await DataLoader.loadCoreRules(host as common.UIAbilityContext);
         LiurenCore.init(rules);
         this.cases = await DataLoader.loadAncientCases(host as common.UIAbilityContext);
+        this.stories = await DataLoader.loadStoryCases(host as common.UIAbilityContext);
+        this.ouyu = await DataLoader.loadOuyuCases(host as common.UIAbilityContext);
+        this.yjAll = await DataLoader.loadYjAll(host as common.UIAbilityContext);
+        /* 偶遇盘面按现场日期复算：预载其所涉年份的历法（古籍剧情用 buildChartAncient，不需历法） */
+        const years: number[] = [];
+        for (const o of this.ouyu) {
+          const y = parseInt(o.date.slice(0, 4));
+          if (!isNaN(y) && years.indexOf(y) < 0) {
+            years.push(y);
+          }
+        }
+        const m: Record<string, DayRec[]> = {};
+        for (const y of years) {
+          const arr = await DataLoader.loadCal(host as common.UIAbilityContext, y);
+          m[String(y)] = arr;
+        }
+        this.calData = m;
+        this.storyReady = true;
       } catch (e) {
         this.cases = [];
+        this.storyReady = false;
       }
     }
   }
@@ -111,7 +139,7 @@ struct Ancient {
               this.tab = 'jing';
               this.caseDetailOpen = false;
             })
-          Text('案例鉴赏')
+          Text('剧情演绎')
             .fontSize($r('app.float.font_body_m'))
             .fontColor(this.tab === 'case' ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
             .backgroundColor(this.tab === 'case' ? $r('app.color.accent_gold_fill') : $r('app.color.ink_surface'))
@@ -130,9 +158,14 @@ struct Ancient {
           AncientStudy({
             book: this.book
           })
-        } else {
-          AncientCaseGallery({
+        } else if (this.storyReady) {
+          /* 数据就绪后才创建：StoryPlay 的成员在构造时一次性传入，不做响应式同步 */
+          StoryPlay({
             cases: this.cases,
+            stories: this.stories,
+            ouyu: this.ouyu,
+            yjAll: this.yjAll,
+            calData: this.calData,
             detailOpen: $caseDetailOpen
           })
         }
