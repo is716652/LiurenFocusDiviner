@@ -105,6 +105,15 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 .lvl.L1{background:var(--green);}
 .lvl.L2{background:var(--navy);}
 .lvl.L3{background:#8A7B5C;}
+/* 信息架构（2026-09-21）：剧情为主入口、案卷底本降权 —— 用两个页签把"范围"讲清楚，
+   避免用户在长列表里找不到该看哪条（也避免"点了标签没反应"那种不透明）。 */
+.libtabs{display:flex;gap:6px;margin:10px 0 2px;}
+.libtab{flex:1;border:1px solid var(--line);background:#211E18;color:#C4B183;border-radius:10px;padding:7px 8px;font-size:12px;cursor:pointer;letter-spacing:1px;}
+.libtab:hover{border-color:rgba(233,200,120,.45);}
+.libtab.on{background:linear-gradient(135deg,#8a6a1e,var(--gold-d));color:#14100A;font-weight:700;border-color:transparent;}
+.libtab .n{display:inline-block;margin-left:5px;padding:0 5px;border-radius:999px;background:rgba(0,0,0,.30);font-size:10px;}
+.libtab.on .n{background:rgba(0,0,0,.22);color:#2B241B;}
+.bd.der{background:#6B5F45;color:#F0E6C8;}
 .oyu-refuse{border:1px solid rgba(166,58,43,.35);background:rgba(166,58,43,.06);border-radius:10px;padding:10px;margin-top:12px;}
 .oyu-refuse b{color:#E9D2C9;font-size:12px;display:block;}
 .oyu-refuse .why{color:#C4B183;font-size:12px;margin-top:3px;}
@@ -141,9 +150,16 @@ textarea{width:100%;min-height:86px;border-radius:12px;border:1px solid var(--li
 <div class="wrap">
 <header><div><h1>壬案推演原型</h1><div class="sub">一局多占版（古籍案例） ＋ 偶遇实盘版（触机取象）</div></div><span class="badge">网页版原型 · 传统文化研习参考 · 不构成现实判断</span></header>
 <div class="grid">
-<aside class="card"><h2>案例库</h2><div class="muted">古籍案例与偶遇实盘并列；占类标签可筛，也可搜索</div><input id="caseSearch" class="case-search" type="search" placeholder="搜占类 / 日干支 / 书名…" autocomplete="off"><div class="chips" id="topicChips"></div><div id="caseList"></div></aside>
+<aside class="card">
+  <h2 id="libTitle">剧情推演</h2>
+  <div class="muted" id="libNote">一案一条推演路径：选占问方向 → 起课 → 点盘取证 → 先立断语 → 揭古断</div>
+  <div class="libtabs" id="viewTabs"></div>
+  <input id="caseSearch" class="case-search" type="search" placeholder="搜占类 / 日干支 / 书名…" autocomplete="off">
+  <div class="chips" id="topicChips"></div>
+  <div id="caseList"></div>
+</aside>
 <main class="layout">
-<section class="card"><h2>卷宗与推演</h2><div id="briefBox" class="brief">左侧选一案（古籍案例或偶遇实盘），这里出卷宗与占问方向。</div><div class="asks" id="askBox"></div><div class="toolbar"><button class="btn" id="startBtn">起盘窥天</button><button class="btn ghost" id="thinkBtn" disabled>沉思</button><button class="btn ghost" id="restartBtn" disabled>重开此案</button></div><div id="clueBox" class="clue-list"></div><div id="logBox" class="log"></div><div id="judgeBox" style="margin-top:12px;"></div><div id="revealBox"></div><div class="compliance">本原型仅作传统文化研习与推理练习；剧情与取象内容不用于现实疾病、官讼、投资、气象等判断。</div></section>
+<section class="card"><h2>卷宗与推演</h2><div id="briefBox" class="brief">左侧选一案（剧情推演，或案卷底本里的素材案），这里出卷宗与占问方向。</div><div class="asks" id="askBox"></div><div class="toolbar"><button class="btn" id="startBtn">起盘窥天</button><button class="btn ghost" id="thinkBtn" disabled>沉思</button><button class="btn ghost" id="restartBtn" disabled>重开此案</button></div><div id="clueBox" class="clue-list"></div><div id="logBox" class="log"></div><div id="judgeBox" style="margin-top:12px;"></div><div id="revealBox"></div><div class="compliance">本原型仅作传统文化研习与推理练习；剧情与取象内容不用于现实疾病、官讼、投资、气象等判断。</div></section>
 <section class="card"><h2>推演盘</h2><div class="muted" id="caseMeta">未起盘</div><div class="facts" id="factBox"></div><div id="methodBox"></div><div class="chuans" id="chuanBox" style="margin-top:10px;"></div><div class="kegs" id="kegBox"></div><div class="pan" id="panBox"></div><div class="traces" id="traceBar"></div><div class="muted" id="traceDiff" style="margin-top:6px;"></div><div id="ouyuBox"></div></section>
 <!-- 「证据与规则」整块默认隐藏：**未选案例时它没有内容可显示**，留着只是让用户看一句
      "请选择案例"加一行免责，纯占位。选了案例（或偶占）才由 renderReasons() 放出来。
@@ -195,6 +211,12 @@ function oyuAnchors(){
    ghost = 上一方向的痕迹快照，用于「一占多断」的并置对照。二者都不参与 found 判定，
    故切换支线时 found 照样清空（无头反验断言这一点）。 */
 let trace=[],ghost=null;
+/* 信息架构（2026-09-21 用户定）：**剧情为主入口，案卷降为素材底本**。
+   「剧情推演」= 有剧情的案，一案一条可玩的推演路径（收费块的主卖点）；
+   「案卷底本」= 全部案例（含尚未做剧情的），作为素材库与可查证的底（原文/证据链）。
+   两者**共用同一份数据与同一套推演机制**，只是侧栏的默认视图不同 —— 案卷不删、只降权。 */
+let view='剧情推演';
+function setView(v){view=v;topic='全部';renderList();}
 /* 十二宫在盘上的角度（度）——留痕连线与格位共用同一套坐标，避免两处漂移 */
 const PAN_ANGLE={午:-90,未:-60,申:-30,酉:0,戌:30,亥:60,子:90,丑:120,寅:150,卯:180,辰:210,巳:240};
 function $(id){return document.getElementById(id);}
@@ -203,7 +225,9 @@ function surface(label,cands){SURFACES.push({label:label,cands:cands});return SU
 /* 测试钩子：暴露可点位与运行状态，供 _tests/_test_case_story_web.js 无头反验
    （顶层 let 绑定不挂到 window 上，故用函数暴露） */
 function protoSurfaces(){return SURFACES;}
-function protoState(){const a=askOf();return {caseId:cur?cur.id:'',started:started,askIdx:askIdx,submitted:submitted,found:Object.keys(found),clueTotal:a?a.clues.length:0,hasChart:!!chart,traced:trace.length,tracedCells:traceCellsOrdered(),ghostCells:ghostCells(),patternCells:patternCells(),topic:topic,search:searchText,shown:filterCases().length,total:CASES.length,topics:allTopics()};}
+function protoState(){const a=askOf();return {caseId:cur?cur.id:'',started:started,askIdx:askIdx,submitted:submitted,found:Object.keys(found),clueTotal:a?a.clues.length:0,hasChart:!!chart,traced:trace.length,tracedCells:traceCellsOrdered(),ghostCells:ghostCells(),patternCells:patternCells(),topic:topic,search:searchText,shown:filterCases().length,total:CASES.length,topics:allTopics(),view:view,storyTotal:storyCount()};}
+/* 无头反验用的视图入口（与页签点击同一条路径） */
+function setLibView(v){setView(v);}
 function storyOf(c){return c?STORY[c.id]||null:null;}
 /* 无头反验用的筛选入口（与页面上的点击同一条路径） */
 function setTopic(t){topic=t;renderTopics();renderList();}
@@ -244,7 +268,23 @@ function topicChipsHtml(){
   h+=ts.map(x=>chip(x.t,x.t,x.n,topic===x.t)).join('');
   return h;
 }
+/* 顶部视图切换：剧情推演（主入口）／案卷底本（素材库） */
+function viewTabsHtml(){
+  const t=(v,label,n,tip)=>`<button class="libtab ${view===v?'on':''}" data-v="${esc(v)}" title="${esc(tip)}">${esc(label)}<span class="n">${n}</span></button>`;
+  return t('剧情推演','剧情推演',storyCount(),'一案一条可玩的推演路径（主入口）')
+    + t('案卷底本','案卷底本',CASES.length,'全部古籍案例：素材库与可查证的底（原文/复算/证据链）');
+}
+function renderViewTabs(){
+  $('viewTabs').innerHTML=viewTabsHtml();
+  $('viewTabs').querySelectorAll('.libtab').forEach(b=>b.onclick=()=>setView(b.dataset.v));
+  const isStory=view==='剧情推演';
+  $('libTitle').textContent=isStory?'剧情推演':'案卷底本';
+  $('libNote').textContent=isStory
+    ?'一案一条推演路径：选占问方向 → 起课 → 点盘取证 → 先立断语 → 揭古断'
+    :'全部古籍案例（含尚未做剧情的）：原文、复算盘例与证据链 —— 剧情演绎的素材地基，不删、只降权';
+}
 function renderTopics(){
+  renderViewTabs();
   $('topicChips').innerHTML=topicChipsHtml();
   $('topicChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{topic=b.dataset.t;renderTopics();renderList();});
   const sb=$('caseSearch');
@@ -253,7 +293,9 @@ function renderTopics(){
 }
 function filterCases(){
   const kw=(searchText||'').trim().toLowerCase();
-  return CASES.filter(c=>{
+  /* 视图决定**范围**：剧情推演只收有剧情的案；案卷底本收全部（素材地基） */
+  const pool=view==='剧情推演'?CASES.filter(c=>!!storyOf(c)):CASES;
+  return pool.filter(c=>{
     if(topic==='剧情'){if(!storyOf(c))return false;}
     else if(topic!=='全部'){if((c.topics||[]).indexOf(topic)<0)return false;}
     if(kw){
@@ -268,14 +310,21 @@ function renderList(){
   const list=isOyu?[]:filterCases();
   const kw=(searchText||'').trim();
   const oyuN=oyuCases().length;
-  const why=(topic==='全部'?('全部 · 古籍 '+CASES.length+' 案 ＋ 偶占 '+oyuN+' 例')
-    :(topic==='偶占'?'偶遇实盘（无占类、无可抓用神，只取象）'
-    :(topic==='剧情'?'只看有一局多占剧情的案例':('占类「'+topic+'」'))))+(kw?('＋关键词「'+kw+'」'):'');
-  let html=`<div class="list-info">${why}${isOyu?(' · 共 <b>'+oyuN+'</b> 例'):(' · 筛出 <b>'+list.length+'</b> / '+CASES.length+' 案')}</div>`;
+  const isStory=view==='剧情推演';
+  /* 范围来源要说清：在剧情推演视图下，"筛出 N" 是相对**有剧情的案**而言的，
+     分母若写全部 45 案会误导（用户 2026-09-21 反馈过"点了没效果"就是这类不透明造成的）。 */
+  const poolN=isStory?storyCount():CASES.length;
+  const scope=isStory?('剧情推演 · 底本共 '+CASES.length+' 案，其中 '+storyCount()+' 案已有推演'):
+    ('案卷底本 · 素材地基 '+CASES.length+' 案（不删、只降权）');
+  const why=scope+' | '+(topic==='全部'?'全部':(topic==='偶占'?'偶遇实盘（无占类、无可抓用神，只取象）'
+    :(topic==='剧情'?'只看有剧情的':('占类「'+topic+'」'))))+(kw?('＋关键词「'+kw+'」'):'');
+  let html=`<div class="list-info">${why}${isOyu?(' · 共 <b>'+oyuN+'</b> 例'):(' · 筛出 <b>'+list.length+'</b> / '+poolN+' 案')}</div>`;
   /* 偶占与古籍案例并列展示，但**不混算条数**：偶占单独一档；选具体占类时不出现 */
   if(!isOyu){
-    groups().forEach(g=>{const arr=list.filter(c=>groupOf(c)===g);if(!arr.length)return;html+=`<div class="group">${g}<span class="gn">${arr.length}</span></div>`;arr.forEach(c=>{const has=!!storyOf(c);html+=`<div class="case-item ${cur&&cur.id===c.id?'on':''}" data-id="${esc(c.id)}"><b>${esc(c.title)}</b><small>${(c.topics||[]).join(' / ')} · ${esc(c.chapter)}${has?' · <span class="bd orig">剧情</span>':''}</small></div>`;});});
+    groups().forEach(g=>{const arr=list.filter(c=>groupOf(c)===g);if(!arr.length)return;html+=`<div class="group">${g}<span class="gn">${arr.length}</span></div>`;arr.forEach(c=>{const has=!!storyOf(c);html+=`<div class="case-item ${cur&&cur.id===c.id?'on':''}" data-id="${esc(c.id)}"><b>${esc(c.title)}</b><small>${(c.topics||[]).join(' / ')} · ${esc(c.chapter)}${has?' · <span class="bd orig">剧情</span>':' · <span class="bd der">底本</span>'}</small></div>`;});});
     if(!list.length)html+='<div class="muted">没有符合条件的案例 —— 换个占类，或清空搜索词。</div>';
+    /* 剧情推演视图下的兜底：若这一档没有可推演的案，明确指向案卷底本（避免"点了没反应"） */
+    if(isStory&&!list.length)html+='<div class="notice same">「剧情推演」只收已有推演的案。想看全部素材，切到上方「案卷底本」。</div>';
   }
   if(topic==='全部'||isOyu)html+=oyuPickHtml();
   $('caseList').innerHTML=html;

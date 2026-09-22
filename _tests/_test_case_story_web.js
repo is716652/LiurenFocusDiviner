@@ -146,14 +146,37 @@ if (!plain) { bad('找不到无剧情案例用于回归'); } else {
   if (fail === failBefore) ok('无剧情案例仍可起盘读证据链', plain.id + ' / ' + sandbox.protoSurfaces().length + ' 点位');
 }
 
+/* ---- 信息架构：剧情为主入口、案卷底本降权（2026-09-21 用户定）----
+   要防回退的是：① 默认视图必须是「剧情推演」，且只收有剧情的案；
+   ② 「案卷底本」必须能回到全部案例（素材不删、只降权）；③ 占类筛选的结果数必须
+   在**当前视图范围**内计算（分母写全部会把两侧数字都算错 —— 本轮就是这样被抓到的）。 */
+console.log('\n=== 信息架构（剧情为主入口 / 案卷降权） ===');
+{
+  const failBefore = fail;
+  const storyCount = cases.filter((c) => (sandbox.window.CASE_STORY || {})[c.id]).length;
+  sandbox.setLibView('剧情推演');
+  let st = sandbox.protoState();
+  if (st.view !== '剧情推演') bad('默认视图应为「剧情推演」', String(st.view));
+  if (st.shown !== storyCount) bad('剧情推演视图应收有剧情的案', st.shown + ' 期望 ' + storyCount);
+  if (st.storyTotal !== storyCount) bad('故事总数统计不对', st.storyTotal + ' 期望 ' + storyCount);
+
+  sandbox.setLibView('案卷底本');
+  st = sandbox.protoState();
+  if (st.shown !== st.total) bad('案卷底本应显示全部案例（素材不删）', st.shown + '/' + st.total);
+  sandbox.setLibView('剧情推演');   /* 还原默认 */
+  if (fail === failBefore) ok('剧情推演 ' + storyCount + ' 案（主入口）／案卷底本 ' + cases.length + ' 案（素材地基）');
+}
+
 /* ---- 案例库筛选（占类标签 + 搜索）----
    用户实测反馈"标签点了没效果"。根因有两个，都要防回退：
      ① 死表里留着数据里没有的标签（`六甲` 命中 0 条）—— 点了必然空，看着像筛选坏了；
      ② 45 案撒在 20+ 个占类上（每标签平均 2 条），不给条数就分不清"筛出来了"与"没反应"。
-   故断言：标签必来自数据、计数必须与数据一致、筛选结果数必须算得对、搜索必须与标签取与。 */
+   故断言：标签必来自数据、计数必须与数据一致、筛选结果数必须算得对、搜索必须与标签取与。
+   注：占类筛选在**当前视图范围内**生效 —— 故先在「案卷底本」下核对（分母＝全部 45 案）。 */
 console.log('\n=== 案例库筛选 ===');
 {
   const failBefore = fail;
+  sandbox.setLibView('案卷底本');
   const st = sandbox.protoState();
   const topics = st.topics || [];
   if (!topics.length) bad('占类标签为空（应从数据生成）');
