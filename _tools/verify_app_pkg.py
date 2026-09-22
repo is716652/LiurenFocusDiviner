@@ -31,7 +31,14 @@ DEFAULT = os.path.join(ROOT, 'APP', 'release_pkg', 'LiurenFocusDiviner-free-rele
 SRC_APP_JSON = os.path.join(ROOT, 'APP', 'LiurenFocusDiviner', 'AppScope', 'app.json5')
 SRC_RAW = os.path.join(ROOT, 'APP', 'LiurenFocusDiviner', 'entry', 'src', 'main', 'resources', 'rawfile')
 
-PAID_RAWFILE = ['ancient/case_gallery.json', 'ancient/case_story.json']   # 收费块：免费包不得携带
+# 收费块（免费包不得携带）：**唯一真源是 `sync_free_edition.PAID_RAWFILE`**（Agent.md §4：
+# 差异规则只住在 sync_free_edition.py）。2026-09-22 修：此处原本另有一份硬编码列表
+# （只有 case_gallery / case_story 两项），剧情演绎新增 ancient/ouyu_cases.json 与
+# ancient/story_featured.json 后没跟上 —— 于是「rawfile 逐文件对齐」拿旧期望去比，
+# 把新增的收费文件误判成"源码多出来的文件"。
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sync_free_edition as _sync          # noqa: E402
+PAID_RAWFILE = list(_sync.PAID_RAWFILE)
 MUST_HAVE = ['ancient/zhonghuang_jing.json', 'cal/yj_all.json']
 
 FAILED = []

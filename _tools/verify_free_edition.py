@@ -92,7 +92,8 @@ def check_free_data_present():
 
 
 def check_free_data_matches_main():
-    """免费功能数据与主版逐文件比对：免费版 rawfile 必须与主版完全相同，仅少了两个收费块数据文件。
+    """免费功能数据与主版逐文件比对：免费版 rawfile 必须与主版完全相同，仅少了 `PAID_RAWFILE`
+    列出的收费块数据文件（数量随 sync_free_edition 的真源走，不要再写死）。
     这是“不误伤”的强断言：任何多剔/少剔/内容变动都会 FAIL。"""
     if not os.path.isdir(MAIN_RAWFILE):
         bad('主版 rawfile 不存在，无法比对: ' + MAIN_RAWFILE)
@@ -116,7 +117,8 @@ def check_free_data_matches_main():
     if extra:
         bad('免费版 rawfile 出现主版没有的文件（多带）: ' + ', '.join(extra))
     if sorted(missing) != sorted(expect_removed):
-        bad('免费版 rawfile 缺失集合与「仅两个收费块数据」不符: ' + ', '.join(missing))
+        bad('免费版 rawfile 缺失集合与 PAID_RAWFILE（%d 个）不符: %s'
+            % (len(expect_removed), ', '.join(missing)))
 
     size_diff = [(rel, main_files[rel], free_files[rel]) for rel in sorted(set(free_files) & set(main_files))
                  if main_files[rel] != free_files[rel]]
@@ -126,8 +128,8 @@ def check_free_data_matches_main():
 
     removed_bytes = sum(main_files.get(r, 0) for r in expect_removed)
     if not (extra or sorted(missing) != sorted(expect_removed) or size_diff):
-        ok('rawfile 与主版一致，仅剔除 2 个收费块数据（共 %d bytes）：%d -> %d 个文件'
-           % (removed_bytes, len(main_files), len(free_files)))
+        ok('rawfile 与主版一致，仅剔除 %d 个收费块数据（共 %d bytes）：%d -> %d 个文件'
+           % (len(expect_removed), removed_bytes, len(main_files), len(free_files)))
 
 
 def check_source_tree_in_sync():
