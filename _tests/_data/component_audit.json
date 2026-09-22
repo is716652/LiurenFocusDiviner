@@ -1,18 +1,18 @@
 {
- "生成时间": "2026-09-21T10:39:58.338Z",
+ "生成时间": "2026-09-22T12:48:24.914Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
-  ".ets（主版）": 56,
-  ".ets（免费版）": 56,
+  ".ets（主版）": 57,
+  ".ets（免费版）": 57,
   "core（真源 .ts）": 16,
   "core（产物 .js）": 1,
   "core 合计": 17,
-  "_tools/*.py": 112
+  "_tools/*.py": 115
  },
  "结论": {
   "B4耦合判定": "脆链接（fragile）：改 JSON 键会**静默改变排盘结果**而无人察觉——4/5 个实验里引擎不报错但输出变了",
   "A组件写死": {
-   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 12 处、注释出处 68 处、_tools 脚本字面量 24 处，均只计数不计失败）",
+   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 13 处、注释出处 68 处、_tools 脚本字面量 27 处，均只计数不计失败）",
    "A2按课特判": "0 处（静态）",
    "A2维度敏感性": "日干 500/500，日支 231/231，月将 500/500，占时 500/500",
    "A3盘面事实硬编码": "0 处",
@@ -143,6 +143,24 @@
      "line": 60,
      "what": "书名/日期串（工具脚本字符串）",
      "lit": "管辂"
+    },
+    {
+     "file": "_tools/scan_corpus.py",
+     "line": 37,
+     "what": "书名/日期串（工具脚本字符串）",
+     "lit": "汇选"
+    },
+    {
+     "file": "_tools/scan_corpus.py",
+     "line": 24,
+     "what": "书名/日期串（工具脚本字符串）",
+     "lit": "直指"
+    },
+    {
+     "file": "_tools/scan_corpus.py",
+     "line": 37,
+     "what": "书名/日期串（工具脚本字符串）",
+     "lit": "壬占"
     },
     {
      "file": "_tools/sync_keti_hm1.py",
@@ -383,7 +401,7 @@
      "ctx": "'app.color.overlay_gold_strong'), offsetY: 2 })\n        Text('读象工作台 · 管辂一系')\n          .fontSize($r("
     }
    ],
-   "数据路径引用计数": 12,
+   "数据路径引用计数": 13,
    "注释计数": 68,
    "注释明细": [
     {
@@ -448,19 +466,19 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
-     "line": 335,
+     "line": 464,
      "lit": "管辂",
      "text": "/* ---------------- 抓用神数据（占事体系 / 管辂类神 / 类象库 / 管辂象意） ---------------- */"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
-     "line": 354,
+     "line": 483,
      "lit": "管辂",
      "text": "/* 管辂类神取用（总纲 / 身命类神 / 家宅类神 …） */"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/DataLoader.ets",
-     "line": 378,
+     "line": 507,
      "lit": "管辂",
      "text": "/* 管辂象意（歌诀象意库，按门类：杂占总诀/杂占/求财/谋事/胎产/婚姻/杂占二） */"
     },
@@ -652,19 +670,19 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
-     "line": 335,
+     "line": 464,
      "lit": "管辂",
      "text": "/* ---------------- 抓用神数据（占事体系 / 管辂类神 / 类象库 / 管辂象意） ---------------- */"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
-     "line": 354,
+     "line": 483,
      "lit": "管辂",
      "text": "/* 管辂类神取用（总纲 / 身命类神 / 家宅类神 …） */"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/model/DataLoader.ets",
-     "line": 378,
+     "line": 507,
      "lit": "管辂",
      "text": "/* 管辂象意（歌诀象意库，按门类：杂占总诀/杂占/求财/谋事/胎产/婚姻/杂占二） */"
     },
@@ -797,7 +815,7 @@
    ]
   },
   "A2静态": {
-   "条件数": 4121,
+   "条件数": 4448,
    "可疑": []
   },
   "A2运行期": {
@@ -824,7 +842,7 @@
   },
   "A3": [],
   "A4": {
-   "常量数": 262,
+   "常量数": 264,
    "死常量": []
   },
   "B1": {
@@ -1054,7 +1072,7 @@
    "缺月键": []
   },
   "B2": {
-   "总数": 304,
+   "总数": 308,
    "危险": [
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/model/YongShenCore.ets",

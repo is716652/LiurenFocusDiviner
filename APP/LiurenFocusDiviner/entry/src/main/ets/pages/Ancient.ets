@@ -27,6 +27,7 @@ struct Ancient {
   @State private book: AncientBook | null = null;
   @State private cases: AncientCase[] = [];
   @State private stories: Record<string, StoryCase> = {};
+  @State private featured: string[] = [];
   @State private ouyu: OuyuCase[] = [];
   @State private yjAll: YueJiangSeg[] = [];
   @State private calData: Record<string, DayRec[]> = {};
@@ -63,6 +64,7 @@ struct Ancient {
         LiurenCore.init(rules);
         this.cases = await DataLoader.loadAncientCases(host as common.UIAbilityContext);
         this.stories = await DataLoader.loadStoryCases(host as common.UIAbilityContext);
+        this.featured = await DataLoader.loadStoryFeatured(host as common.UIAbilityContext);
         this.ouyu = await DataLoader.loadOuyuCases(host as common.UIAbilityContext);
         this.yjAll = await DataLoader.loadYjAll(host as common.UIAbilityContext);
         /* 偶遇盘面按现场日期复算：预载其所涉年份的历法（古籍剧情用 buildChartAncient，不需历法） */
@@ -163,6 +165,7 @@ struct Ancient {
           StoryPlay({
             cases: this.cases,
             stories: this.stories,
+            featured: this.featured,
             ouyu: this.ouyu,
             yjAll: this.yjAll,
             calData: this.calData,

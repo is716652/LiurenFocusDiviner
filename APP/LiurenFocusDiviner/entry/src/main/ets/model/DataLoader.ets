@@ -244,6 +244,12 @@ export interface OuyuFile {
   cases?: OuyuCase[];
 }
 
+/* story_featured.json 文件根：剧情演绎的**上架白名单**（发布策略，独立于剧情内容）。
+   组件层不得写死个案 id（门禁 A1），故「上哪些案」由本数据决定。 */
+export interface StoryFeatured {
+  stories?: string[];
+}
+
 export class DataLoader {
   /* 十年历法缓存：decadeKey("2020") -> Record<year, DayRec[]> */
   private static calCache: Record<string, Record<string, DayRec[]>> = {};
@@ -253,6 +259,7 @@ export class DataLoader {
   private static ancientCaseCache: AncientCase[] | null = null;
   private static storyCache: Record<string, StoryCase> | null = null;
   private static ouyuCache: OuyuCase[] | null = null;
+  private static featuredCache: string[] | null = null;
 
   /* ---------------- 基础读取 ---------------- */
 
@@ -587,5 +594,22 @@ export class DataLoader {
     const cases = file.cases ? file.cases : [];
     DataLoader.ouyuCache = cases;
     return cases;
+  }
+
+  /* 剧情演绎上架白名单（story_featured.json）：只列案 id，本身不含收费内容；
+     组件层不得写死个案 id（门禁 A1），故由本数据决定上哪些案。结果缓存。 */
+  static async loadStoryFeatured(ctx: common.UIAbilityContext): Promise<string[]> {
+    if (DataLoader.featuredCache) {
+      return DataLoader.featuredCache;
+    }
+    const txt = await DataLoader.readRaw(ctx, 'ancient/story_featured.json');
+    if (!txt) {
+      DataLoader.featuredCache = [];
+      return [];
+    }
+    const file = JSON.parse(txt) as StoryFeatured;
+    const list = file.stories ? file.stories : [];
+    DataLoader.featuredCache = list;
+    return list;
   }
 }

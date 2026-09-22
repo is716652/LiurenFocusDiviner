@@ -60,6 +60,7 @@ PAID_RAWFILE = (
     'ancient/case_gallery.json',
     'ancient/case_story.json',
     'ancient/ouyu_cases.json',
+    'ancient/story_featured.json',
 )
 
 

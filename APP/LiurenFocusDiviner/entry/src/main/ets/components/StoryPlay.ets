@@ -35,9 +35,9 @@ interface ChuanRow {
   color: ResourceColor;
 }
 
-/* 上架白名单：只放「为本案量身设计」的剧情演绎。
-   其余 39 案是按统一模板铺的「一局多占」底稿，待逐案重做后再逐个加进来。 */
-const STORY_WHITELIST: string[] = ['duanan_001_han_qixue'];
+/* 上架白名单**不写在这里**：它落在 rawfile/ancient/story_featured.json。
+   理由有二：① 组件层不得写死个案 id（门禁 A1 硬项）；② 「上哪些案」属发布策略，
+   属数据不属代码 —— 做一案只改 JSON，不动组件。 */
 const ZHI_STR: string = '子丑寅卯辰巳午未申酉戌亥';
 
 @Component
@@ -48,6 +48,8 @@ export struct StoryPlay {
   cases: AncientCase[] = [];
   stories: Record<string, StoryCase> = {};
   ouyu: OuyuCase[] = [];
+  /* 上架白名单（来自 rawfile/ancient/story_featured.json）—— 组件不写死任何案 id */
+  featured: string[] = [];
   yjAll: YueJiangSeg[] = [];
   calData: Record<string, DayRec[]> = {};
   /* 详情态双向同步给页面：页头返回/手势返回先回列表，而不是直接退出古籍页 */
@@ -73,9 +75,10 @@ export struct StoryPlay {
 
   /* ============================ 数据查询 ============================ */
 
+  /* 上架白名单（数据驱动）：只返回既在白名单、又确实有剧情的案 */
   private storyIds(): string[] {
     const out: string[] = [];
-    for (const id of STORY_WHITELIST) {
+    for (const id of this.featured) {
       if (this.stories[id]) {
         out.push(id);
       }
