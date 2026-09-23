@@ -2,6 +2,7 @@
   "note": "剧情演绎上架白名单。只有列在这里的案会出现在 App「古籍 → 剧情演绎」页。要加一案，把它的 case id 加进 stories 即可（该案必须同时存在于 case_gallery.json 与 case_story.json，且其 input 能复算出盘面）。本文件是**发布策略**数据，不是剧情内容，故独立成文件、不进 case_story.json 的契约。",
   "stories": [
     "duanan_001_han_qixue",
-    "duanan_200_zhixian_shiwu"
+    "duanan_200_zhixian_shiwu",
+    "duanan_058_guo_furen"
   ]
 }
