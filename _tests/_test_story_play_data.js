@@ -67,7 +67,9 @@ if (hardId === 0) ok('组件层无写死个案 id（A1 前置自查）');
 }
 
 /* ---- 3/4. 剧情结构 + 锚点 kind + 字段名 ---- */
-const ASK_KEYS = ['id', 'role', 'topic', 'title', 'badge', 'intro', 'question', 'clues', 'goodWords', 'endings', 'ending'];
+/* drama（关卡式推演）自 2026-09-23 起挂在 ask 上；它自己的形状规矩由 _tools/story_drama.js 硬判
+   （恰好一条古籍原断 / 另一解须声明 / 一级入口须被路径用到 / 每步有锚点与 reply），此处只放行字段。 */
+const ASK_KEYS = ['id', 'role', 'topic', 'title', 'badge', 'intro', 'question', 'clues', 'drama', 'goodWords', 'endings', 'ending'];
 const CLUE_KEYS = ['id', 'label', 'small', 'anchors', 'hint'];
 const ENDING_KEYS = ['type', 'title', 'tip', 'text', 'note'];
 const extra = (obj, allowed) => Object.keys(obj).filter((k) => allowed.indexOf(k) < 0);

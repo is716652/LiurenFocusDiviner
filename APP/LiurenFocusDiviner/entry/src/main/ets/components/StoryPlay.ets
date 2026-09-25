@@ -14,6 +14,7 @@
  */
 import type {
   AncientCase, StoryAnchor, StoryAsk, StoryCase, StoryClue,
+  Drama, DramaEntry, DramaRoute, DramaStep,
   OuyuCase, OuyuLane, OuyuSceneType, OuyuStep, OuyuRefuse
 } from '../model/DataLoader';
 import { LiurenCore } from '../model/LiurenCore';
@@ -82,6 +83,14 @@ export struct StoryPlay {
   @State private oyuOpen: string = '';
   @State private oyuStepOpen: number = -1;
   @State private oyuShown: boolean = false;
+  /* 关卡式推演（drama）态：玩家自己攒的推断链 + 本次反馈 + 揭古断对照 */
+  @State private chain: string[] = [];            /* 已走过的步，键 = routeId#stepIndex */
+  @State private chainOrder: string[] = [];       /* 走过的顺序（显示用）*/
+  @State private dramaTitle: string = '';         /* 本次反馈来自哪一处 */
+  @State private dramaReply: string = '';         /* 本次反馈：说象义，不说对错 */
+  @State private dramaConclusion: string = '';    /* 成局后的断语（你走的路）*/
+  @State private dramaAncient: string = '';       /* 古籍原断（古人走的路）*/
+  @State private dramaRevealed: boolean = false;  /* 是否已揭古断 */
 
   /* ============================ 数据查询 ============================ */
 
@@ -328,6 +337,7 @@ export struct StoryPlay {
     if (!c) {
       return;
     }
+    this.resetDrama();
     this.caseId = id;
     this.askIdx = 0;
     this.found = [];
@@ -341,6 +351,7 @@ export struct StoryPlay {
   }
 
   private switchAsk(i: number): void {
+    this.resetDrama();
     this.askIdx = i;
     this.found = [];
     this.openClue = '';
@@ -367,13 +378,17 @@ export struct StoryPlay {
     this.tip = '';
   }
 
-  /* 点盘 / 点四课 / 点三传取证 —— 分两种体裁走：
-     · 古籍剧情：命中某条**尚未找到**的线索 → 点亮它（展开提示 + 记入已得）；
-     · 偶遇实盘：命中**当前可见取象通道**某一步的锚点 → 展开那条通道与那一步。
-     都没命中就只移动焦点，并**明确告知"此处无可取之象"**（而不是静默无反应）。 */
+  /* 点盘 / 点四课 / 点三传取证 —— 分三种玩法走：
+     · 关卡式推演（ask 有 drama）：说这一处的象义，攒进推断链，不说对错；
+     · 古籍剧情（旧玩法）：命中尚未找到的线索 → 点亮它；
+     · 偶遇实盘：命中可见取象通道某一步 → 展开那条通道与那一步。 */
   private onPickZhi(z: string, layer: string): void {
     if (this.mode === 'ouyu') {
       this.pickOuyuByZhi(z, layer);
+      return;
+    }
+    if (this.curDrama()) {
+      this.pickDramaZhi(z, layer);
       return;
     }
     const ask = this.curAsk();
@@ -496,6 +511,207 @@ export struct StoryPlay {
     this.tip = '';
   }
 
+  /* ==================== 关卡式推演（drama）====================
+   * 与旧线索玩法的根本区别：旧玩法是"未走先说"（clue.hint 就是指路，玩家只能照做）；
+   * 这里每一步的 reply 都是**走过去之后**才给的，而且**只说这一处的象、不说对错**。
+   * 玩家自己攒链：攒到某条路径的 minSteps 就成局，然后并排揭古断。 */
+
+  private curDrama(): Drama | null {
+    const ask = this.curAsk();
+    if (!ask || !ask.drama) {
+      return null;
+    }
+    return ask.drama;
+  }
+
+  /* 可见入口：数据层已保证"二级入口只在被某条路径用到时才存在"，故直接全给 */
+  private dramaEntries(lv: number): DramaEntry[] {
+    const d = this.curDrama();
+    if (!d || !d.entries) {
+      return [];
+    }
+    const out: DramaEntry[] = [];
+    for (const e of d.entries) {
+      if (e.level === lv) {
+        out.push(e);
+      }
+    }
+    return out;
+  }
+
+  private stepKey(rid: string, i: number): string {
+    return rid + '#' + String(i);
+  }
+
+  private walked(rid: string, i: number): boolean {
+    return this.chain.indexOf(this.stepKey(rid, i)) >= 0;
+  }
+
+  private entryName(eid: string): string {
+    const d = this.curDrama();
+    if (!d || !d.entries) {
+      return eid;
+    }
+    for (const e of d.entries) {
+      if (e.id === eid) {
+        return e.name;
+      }
+    }
+    return eid;
+  }
+
+  /* 盘上某一支在没有对应推断时，也要说清"这一处是什么" —— 不能只说没反应 */
+  private plainZhiReply(z: string): string {
+    const c = this.chart;
+    if (!c) {
+      return '盘上「' + z + '」。';
+    }
+    const gong: string = LiurenCore.gongOf(c.tp, z);
+    const j: string = c.jiangMap[gong] ? c.jiangMap[gong] : '';
+    let s: string = '盘上「' + z + '」' + (j !== '' ? '乘' + j : '') + '。';
+    if (c.dx && c.dx.shensha && c.dx.shensha.byZhi && c.dx.shensha.byZhi[z]) {
+      const ss: string[] = c.dx.shensha.byZhi[z];
+      if (ss.length > 0) {
+        s = s + '带神煞：' + ss.join('、') + '。';
+      }
+    }
+    s = s + '这一处在本案里没有对应的推断 —— 它讲的不是这一案要问的那一层。';
+    return s;
+  }
+
+  /* 走一步：记入推断链 + 给这一步的象义 */
+  private enterStep(r: DramaRoute, i: number, mark: string): void {
+    const key: string = this.stepKey(r.id, i);
+    if (this.chain.indexOf(key) < 0) {
+      const nc: string[] = this.chain.slice();
+      nc.push(key);
+      this.chain = nc;
+      const eid: string = r.steps[i].entry ? r.steps[i].entry as string : '';
+      const nl: string[] = this.chainOrder.slice();
+      nl.push('第 ' + String(nc.length) + ' 步 · ' + (eid !== '' ? this.entryName(eid) : r.name));
+      this.chainOrder = nl;
+    }
+    this.setFocus(mark, '');
+    this.dramaTitle = '已记入你的推断';
+    this.dramaReply = r.steps[i].reply;
+  }
+
+  /* 点盘上某处 → 在所有路径的步里找锚点匹配的（找**还没走过**的那一处）*/
+  private pickDramaZhi(z: string, layer: string): void {
+    const d = this.curDrama();
+    if (!d || !d.routes) {
+      this.setFocus(z, layer);
+      return;
+    }
+    let fallback: string = '';
+    for (const r of d.routes) {
+      for (let i = 0; i < r.steps.length; i++) {
+        const za: string = this.anchorZhi(r.steps[i].anchor);
+        if (za === '' || za !== z) {
+          continue;
+        }
+        if (this.walked(r.id, i)) {
+          if (fallback === '') {
+            fallback = r.steps[i].reply;
+          }
+          continue;
+        }
+        this.enterStep(r, i, z);
+        return;
+      }
+    }
+    this.setFocus(z, layer);
+    this.dramaTitle = '盘上 ' + z + '（' + layer + '）';
+    this.dramaReply = fallback !== '' ? fallback : this.plainZhiReply(z);
+  }
+
+  /* 点要素圈的入口 → 取该入口下"还没走过"的那一步 */
+  private pickEntry(e: DramaEntry): void {
+    const d = this.curDrama();
+    if (!d || !d.routes) {
+      return;
+    }
+    for (const r of d.routes) {
+      for (let i = 0; i < r.steps.length; i++) {
+        if (r.steps[i].entry !== e.id) {
+          continue;
+        }
+        if (this.walked(r.id, i)) {
+          continue;
+        }
+        const mark: string = this.anchorZhi(r.steps[i].anchor);
+        this.enterStep(r, i, mark);
+        return;
+      }
+    }
+    /* 该入口的步都走过了，或它没有步 —— 给入口自身的说明 */
+    const mark2: string = this.anchorZhi(e.anchor);
+    this.setFocus(mark2, '');
+    this.dramaTitle = e.name + '（' + e.tag + '）';
+    this.dramaReply = e.reply;
+  }
+
+  /* 成局判定：某条路径已走的步数 ≥ minSteps，且它不是"说明性" */
+  private doneRoute(): DramaRoute | null {
+    const d = this.curDrama();
+    if (!d || !d.routes) {
+      return null;
+    }
+    for (const r of d.routes) {
+      if (r.kind === '说明性') {
+        continue;
+      }
+      const need: number = r.minSteps ? r.minSteps : r.steps.length;
+      let hit: number = 0;
+      for (let i = 0; i < r.steps.length; i++) {
+        if (this.walked(r.id, i)) {
+          hit += 1;
+        }
+      }
+      if (hit >= need) {
+        return r;
+      }
+    }
+    return null;
+  }
+
+  private canSubmit(): boolean {
+    return this.doneRoute() !== null;
+  }
+
+  /* 呈上断语 → 并排揭古断（你走的路 vs 古人走的路）*/
+  private revealDrama(): void {
+    const r = this.doneRoute();
+    if (!r) {
+      this.dramaTitle = '还不能呈断';
+      this.dramaReply = '你的推断还没有连成一条能走的链 —— 再在盘上找找看。'
+        + '（提示：每一次点击都会告诉你这一处是什么象，不必怕点错。）';
+      return;
+    }
+    const d = this.curDrama();
+    if (d && d.routes) {
+      for (const x of d.routes) {
+        if (x.kind === '古籍原断') {
+          this.dramaAncient = x.conclusion;
+        }
+      }
+    }
+    this.dramaConclusion = r.conclusion;
+    this.dramaRevealed = true;
+    this.clearFocus();
+  }
+
+  /* 复位（换支线 / 回列表时调）*/
+  private resetDrama(): void {
+    this.chain = [];
+    this.chainOrder = [];
+    this.dramaTitle = '';
+    this.dramaReply = '';
+    this.dramaConclusion = '';
+    this.dramaAncient = '';
+    this.dramaRevealed = false;
+  }
+
   private endingOf(ask: StoryAsk): string {
     const e = ask.ending;
     if (!e) {
@@ -594,6 +810,7 @@ export struct StoryPlay {
   }
 
   private backToList(): void {
+    this.resetDrama();
     this.mode = 'list';
     this.chart = null;
     this.caseId = '';
@@ -1008,7 +1225,12 @@ export struct StoryPlay {
           .borderRadius(12)
           .backgroundColor($r('app.color.ink_surface'))
 
-          if (!this.revealed) {
+          /* 关卡玩法：要素圈在盘面上方；旧线索列表整块让位（两套不并存）*/
+          if (this.curDrama()) {
+            this.dramaBar()
+          }
+
+          if (!this.revealed && !this.curDrama()) {
             Text('依次点开下面的线索（也可直接点盘上对应之处），盘面会随之高亮。')
               .fontSize($r('app.float.font_caption_m'))
               .fontColor($r('app.color.ink_text_muted'))
@@ -1047,6 +1269,11 @@ export struct StoryPlay {
           }
 
           this.chartBlock()
+
+          /* 关卡玩法：反馈 + 推断链 + 呈断 + 并排揭古断，都在盘面下方 */
+          if (this.curDrama()) {
+            this.dramaPanel()
+          }
 
           if (this.revealed) {
             Column({ space: 8 }) {
@@ -1337,6 +1564,166 @@ export struct StoryPlay {
       .layoutWeight(1)
       .align(Alignment.TopStart)
       .scrollBar(BarState.Off)
+    }
+  }
+
+  /* ============ 关卡式推演的界面 ============ */
+
+  /* 要素圈：盘面上方 —— 玩家自己挑从哪一处切进去（不告诉他哪条是对的）*/
+  @Builder
+  dramaBar() {
+    if (this.curDrama()) {
+      Column({ space: 6 }) {
+        Text('要素圈 · 从哪一处切进去？')
+          .fontSize($r('app.float.font_caption_m'))
+          .fontColor($r('app.color.ink_text_muted'))
+          .width('100%')
+        Flex({ wrap: FlexWrap.Wrap }) {
+          ForEach(this.dramaEntries(1), (e: DramaEntry) => {
+            Text(e.name)
+              .fontSize($r('app.float.font_caption_l'))
+              .fontColor($r('app.color.ink_text_bright'))
+              .backgroundColor($r('app.color.ink_surface'))
+              .borderRadius(12)
+              .padding({ left: 10, right: 10, top: 5, bottom: 5 })
+              .margin({ right: 6, bottom: 6 })
+              .onClick(() => {
+                this.pickEntry(e);
+              })
+          }, (e: DramaEntry) => e.id)
+        }
+        .width('100%')
+        if (this.dramaEntries(2).length > 0) {
+          Text('还有这几处（原文或某条路径用到才出现）')
+            .fontSize($r('app.float.font_caption_m'))
+            .fontColor($r('app.color.ink_text_muted'))
+            .width('100%')
+          Flex({ wrap: FlexWrap.Wrap }) {
+            ForEach(this.dramaEntries(2), (e: DramaEntry) => {
+              Text(e.name)
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_secondary'))
+                .backgroundColor($r('app.color.ink_surface'))
+                .borderRadius(10)
+                .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+                .margin({ right: 6, bottom: 6 })
+                .onClick(() => {
+                  this.pickEntry(e);
+                })
+            }, (e: DramaEntry) => e.id)
+          }
+          .width('100%')
+        }
+      }
+      .width('100%')
+      .padding(10)
+      .borderRadius(10)
+      .backgroundColor($r('app.color.ink_surface'))
+    }
+  }
+
+  /* 反馈 + 推断链 + 呈断 + 揭古断对照（盘面下方）*/
+  @Builder
+  dramaPanel() {
+    if (this.curDrama()) {
+      Column({ space: 10 }) {
+        if (this.dramaReply !== '') {
+          Column({ space: 6 }) {
+            Text(this.dramaTitle)
+              .fontSize($r('app.float.font_caption_m'))
+              .fontColor($r('app.color.ink_text_muted'))
+              .width('100%')
+            Text(this.cleanHint(this.dramaReply))
+              .fontSize($r('app.float.fs_caption'))
+              .fontColor($r('app.color.ink_text_bright'))
+              .lineHeight(20)
+              .width('100%')
+          }
+          .width('100%')
+          .padding(10)
+          .borderRadius(10)
+          .backgroundColor($r('app.color.ink_surface'))
+          .border({ width: 1, color: $r('app.color.brand_gold') })
+        }
+
+        if (!this.dramaRevealed) {
+          Text('点盘上任意一处，或点上面的入口 —— 每一次点击都会告诉你这一处的象是什么。')
+            .fontSize($r('app.float.font_caption_m'))
+            .fontColor($r('app.color.ink_text_muted'))
+            .width('100%')
+        }
+
+        if (this.chainOrder.length > 0) {
+          Column({ space: 4 }) {
+            Text('你的推断链（' + String(this.chainOrder.length) + ' 步）')
+              .fontSize($r('app.float.font_caption_m'))
+              .fontColor($r('app.color.ink_text_muted'))
+              .width('100%')
+            ForEach(this.chainOrder, (s: string, i: number) => {
+              Text('· ' + s)
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.ink_text_secondary'))
+                .width('100%')
+            }, (s: string, i: number) => String(i) + '_' + s)
+          }
+          .width('100%')
+          .padding(10)
+          .borderRadius(10)
+          .backgroundColor($r('app.color.ink_surface'))
+        }
+
+        if (!this.dramaRevealed) {
+          Row() {
+            Text(this.canSubmit() ? '呈上断语' : '推断链还没连成（继续找）')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor(this.canSubmit() ? $r('app.color.ink_page') : $r('app.color.ink_text_muted'))
+              .backgroundColor(this.canSubmit() ? $r('app.color.accent_gold_fill') : $r('app.color.ink_surface'))
+              .borderRadius(12)
+              .padding({ left: 16, right: 16, top: 9, bottom: 9 })
+              .onClick(() => {
+                this.revealDrama();
+              })
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.Center)
+        }
+
+        if (this.dramaRevealed) {
+          Column({ space: 8 }) {
+            Text(this.dramaConclusion === this.dramaAncient ? '你走的正是古人的路' : '你走的路')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.brand_gold_bright'))
+              .width('100%')
+            Text(this.dramaConclusion)
+              .fontSize($r('app.float.fs_caption'))
+              .fontColor($r('app.color.ink_text_bright'))
+              .lineHeight(20)
+              .width('100%')
+            if (this.dramaConclusion !== this.dramaAncient) {
+              Text('古人走的路')
+                .fontSize($r('app.float.font_body_m'))
+                .fontColor($r('app.color.brand_gold_bright'))
+                .margin({ top: 6 })
+                .width('100%')
+              Text(this.dramaAncient)
+                .fontSize($r('app.float.fs_caption'))
+                .fontColor($r('app.color.ink_text_secondary'))
+                .lineHeight(20)
+                .width('100%')
+              Text('你走的路依据同样在盘上 —— 与古人不一致，不等于错。')
+                .fontSize($r('app.float.font_caption_m'))
+                .fontColor($r('app.color.ink_text_muted'))
+                .width('100%')
+            }
+          }
+          .width('100%')
+          .padding(12)
+          .borderRadius(12)
+          .backgroundColor($r('app.color.ink_surface'))
+          .border({ width: 1, color: $r('app.color.brand_gold') })
+        }
+      }
+      .width('100%')
     }
   }
 

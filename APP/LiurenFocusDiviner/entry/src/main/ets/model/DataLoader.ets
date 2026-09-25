@@ -156,6 +156,47 @@ export interface StoryEnding {
   note?: string;
 }
 
+/* ============ 剧情演绎 · 关卡（drama）============
+ * 「一案一结构」的推演规格：每个案子自己的一组入口与成立路径，不共用骨架。
+ *   入口（entry）：玩家可以从哪儿切进去 —— 分一级/二级，二级只在被路径用到时出现
+ *   路径（route）：一条走得通的推演链 —— 古籍原断 / 另一解（依古法另推，非古人原话）/ 说明性
+ *   每步（step）：带锚点与 reply —— **reply 是走过去之后才给的**（旧 clue.hint 是未走先说，等于指路）
+ * 锚点与 StoryAnchor 同构，App 侧共用一套「锚点 → 盘面高亮」映射。 */
+export interface DramaEntry {
+  id: string;
+  name: string;
+  level: number;              /* 1 = 一级（默认显示）｜2 = 二级（被路径用到才显示）*/
+  tag: string;                /* 原文所用 / 另一条路所用 */
+  hint?: string;
+  reply: string;
+  anchor: StoryAnchor;
+}
+
+export interface DramaStep {
+  entry?: string;             /* 属于哪个入口（用于校验"一级入口必须被用到"）*/
+  anchor: StoryAnchor;
+  reply: string;
+}
+
+export interface DramaRoute {
+  id: string;
+  kind: string;               /* 古籍原断 / 另一解 / 说明性 */
+  name: string;
+  note?: string;              /* 另一解必须声明非古人原话 */
+  minSteps?: number;          /* 走满几步算成局 */
+  steps: DramaStep[];
+  conclusion: string;
+}
+
+export interface Drama {
+  kind: string;               /* 玩法类型，如 elements-circle（要素圈）*/
+  name: string;
+  intro?: string;
+  note?: string;
+  entries: DramaEntry[];
+  routes: DramaRoute[];
+}
+
 /* 古籍剧情：一条支线（original 古籍原占 / derived 同课异占） */
 export interface StoryAsk {
   id: string;
@@ -166,6 +207,8 @@ export interface StoryAsk {
   intro?: string;
   question?: string;
   clues?: StoryClue[];
+  /* 关卡式推演规格（新玩法）；有它则 App 走 drama，没有则退回 clues（老玩法） */
+  drama?: Drama;
   goodWords?: string[];
   endings?: string[];
   ending?: StoryEnding;
