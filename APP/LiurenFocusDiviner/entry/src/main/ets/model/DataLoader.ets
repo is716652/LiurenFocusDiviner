@@ -193,8 +193,19 @@ export interface Drama {
   name: string;
   intro?: string;
   note?: string;
-  entries: DramaEntry[];
-  routes: DramaRoute[];
+  entries?: DramaEntry[];     /* 关卡式才有 */
+  routes?: DramaRoute[];      /* 关卡式才有 */
+  picks?: DramaPick[];        /* free-pick 才有：可取之象清单（无路径、无结论、无对错）*/
+}
+
+/* 自由取象的一项（**同课异占专用**）：一处可取之象 —— 只有象义，没有结论。
+   为什么异占不用「路径」：它没有古籍原断（性质是「同一张盘换一个方向看」），
+   硬造一条「正确路径」等于替古人说话 —— 那正是要避免的。 */
+export interface DramaPick {
+  id: string;
+  name: string;
+  anchor: StoryAnchor;
+  reply: string;
 }
 
 /* 古籍剧情：一条支线（original 古籍原占 / derived 同课异占） */

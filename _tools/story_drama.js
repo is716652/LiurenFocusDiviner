@@ -64,9 +64,40 @@ if (!ID || !ASK || !DATA) {
 
 const DRAMA = JSON.parse(fs.readFileSync(path.resolve(DATA), 'utf-8'));
 
-/* ---- 数据形状自检（这几条就是"关卡"的硬规矩）---- */
+/* ---- 数据形状自检：**分两档** ----
+ *   关卡式（elements-circle / timeline / decision-qa / origin-trace）：入口 + 路径，
+ *     硬规矩 = 恰好一条古籍原断、另一解须声明、一级入口须被路径用到、每步有锚点与 reply。
+ *   自由取象（free-pick）——**同课异占专用**：异占没有古籍原断（它的性质是「同一张盘换一个
+ *     方向看」），故不设路径、不设结论、不设对错，只有一份「可取之象」清单。
+ *     硬给它造一条"正确路径"，等于替古人说话 —— 那正是要避免的。 */
 const problems = [];
-if (!DRAMA.kind) problems.push('缺 kind（玩法类型，如 elements-circle）');
+const FREE = DRAMA.kind === 'free-pick';
+if (!DRAMA.kind) problems.push('缺 kind（玩法类型）');
+if (!DRAMA.name) problems.push('缺 name（关卡名，App 直接显示）');
+if (FREE) {
+  if (!Array.isArray(DRAMA.picks) || DRAMA.picks.length < 3) {
+    problems.push('free-pick 必须有 picks 且不少于 3 条（否则没得取）');
+  }
+  if (Array.isArray(DRAMA.routes) && DRAMA.routes.length > 0) {
+    problems.push('free-pick 不得有 routes —— 异占没有"正确路径"，别替古人说话');
+  }
+  if (!DRAMA.note) problems.push('free-pick 必须写 note 声明「非古籍原断」（合规红线）');
+  const seenPick = new Set();
+  for (const p of (DRAMA.picks || [])) {
+    if (!p.id || !p.name) problems.push('取象项缺 id/name');
+    if (!p.anchor || !p.anchor.kind) problems.push('取象项 ' + p.id + ' 缺 anchor.kind');
+    if (!p.reply) problems.push('取象项 ' + p.id + ' 缺 reply（取到之后说什么）');
+    const kk = p.anchor ? (p.anchor.kind + '|' + (p.anchor.ref || '') + '|' + (p.anchor.pos || '')) : p.id;
+    if (seenPick.has(kk)) problems.push('取象项 ' + p.id + ' 的锚点与另一条重复（同一处只需列一次）');
+    seenPick.add(kk);
+  }
+  if (problems.length > 0) {
+    console.log('!! free-pick 数据不合规，已中止：');
+    for (const p of problems) console.log('   - ' + p);
+    process.exit(1);
+  }
+  console.log('free-pick 形状 OK：可取之象 %d 条 ｜ 关卡名「%s」', DRAMA.picks.length, DRAMA.name);
+} else {
 if (!Array.isArray(DRAMA.entries) || DRAMA.entries.length === 0) problems.push('缺 entries');
 if (!Array.isArray(DRAMA.routes) || DRAMA.routes.length === 0) problems.push('缺 routes');
 for (const e of (DRAMA.entries || [])) {
@@ -76,7 +107,6 @@ for (const e of (DRAMA.entries || [])) {
   if (!e.anchor || !e.anchor.kind) problems.push('入口 ' + e.id + ' 缺 anchor.kind');
   if (!e.reply) problems.push('入口 ' + e.id + ' 缺 reply（点下去说什么）');
 }
-const entryIds = (DRAMA.entries || []).map((e) => e.id);
 let hasAncient = 0;
 for (const r of (DRAMA.routes || [])) {
   if (!r.id || !r.kind) problems.push('路径缺 id/kind');
@@ -112,6 +142,7 @@ console.log('drama 形状 OK：入口 %d（一级 %d／二级 %d）｜ 路径 %d
   DRAMA.entries.filter((e) => e.level === 2).length,
   DRAMA.routes.length,
   DRAMA.routes.reduce((s, r) => s + r.steps.length, 0));
+}
 
 /* ---- 挂到目标支线 ---- */
 const idx = keys.indexOf(ID);
@@ -158,7 +189,9 @@ for (const k of keys) {
   if (JSON.stringify(parsed.stories[k]) !== JSON.stringify(j.stories[k])) changed += 1;
 }
 const okAsk = parsed.stories[ID].asks.find((a) => a.id === ASK);
-const hasDrama = !!(okAsk && okAsk.drama && okAsk.drama.routes && okAsk.drama.routes.length > 0);
+/* 关卡式看 routes，自由取象看 picks —— 两者任一挂上即算成功 */
+const dOk = okAsk ? okAsk.drama : null;
+const hasDrama = !!(dOk && ((dOk.routes && dOk.routes.length > 0) || (dOk.picks && dOk.picks.length > 0)));
 console.log('替换后：案数 %d（原 %d）｜ 其他案被改动 %d 个 ｜ 目标支线挂上 drama: %s',
   Object.keys(parsed.stories).length, keys.length, changed, hasDrama);
 if (changed !== 0 || !hasDrama || Object.keys(parsed.stories).length !== keys.length) {

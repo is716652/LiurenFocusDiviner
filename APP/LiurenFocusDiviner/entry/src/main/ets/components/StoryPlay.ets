@@ -14,7 +14,7 @@
  */
 import type {
   AncientCase, StoryAnchor, StoryAsk, StoryCase, StoryClue,
-  Drama, DramaEntry, DramaRoute, DramaStep,
+  Drama, DramaEntry, DramaPick, DramaRoute, DramaStep,
   OuyuCase, OuyuLane, OuyuSceneType, OuyuStep, OuyuRefuse
 } from '../model/DataLoader';
 import { LiurenCore } from '../model/LiurenCore';
@@ -91,6 +91,9 @@ export struct StoryPlay {
   @State private dramaConclusion: string = '';    /* 成局后的断语（你走的路）*/
   @State private dramaAncient: string = '';       /* 古籍原断（古人走的路）*/
   @State private dramaRevealed: boolean = false;  /* 是否已揭古断 */
+  /* 自由取象（同课异占）：已收入清单的象 */
+  @State private picked: string[] = [];
+  @State private pickedNames: string[] = [];
 
   /* ============================ 数据查询 ============================ */
 
@@ -388,7 +391,11 @@ export struct StoryPlay {
       return;
     }
     if (this.curDrama()) {
-      this.pickDramaZhi(z, layer);
+      if (this.isFree()) {
+        this.pickFreeZhi(z, layer);
+      } else {
+        this.pickDramaZhi(z, layer);
+      }
       return;
     }
     const ask = this.curAsk();
@@ -522,6 +529,52 @@ export struct StoryPlay {
       return null;
     }
     return ask.drama;
+  }
+
+  /* 自由取象（free-pick）：**同课异占专用** —— 无路径、无结论、无对错，只有"可取之象"。
+     异占没有古籍原断（性质是「同一张盘换一个方向看」），所以这一支不判对错、也不揭古断。 */
+  private isFree(): boolean {
+    const d = this.curDrama();
+    return !!(d && d.kind === 'free-pick');
+  }
+
+  private dramaPicks(): DramaPick[] {
+    const d = this.curDrama();
+    if (!d || !d.picks) {
+      return [];
+    }
+    return d.picks;
+  }
+
+  /* 点盘：取到一处象就收进清单 —— 不判对错，也不说下一步 */
+  private pickFreeZhi(z: string, layer: string): void {
+    const ps: DramaPick[] = this.dramaPicks();
+    let again: string = '';
+    for (let i = 0; i < ps.length; i++) {
+      const za: string = this.anchorZhi(ps[i].anchor);
+      if (za === '' || za !== z) {
+        continue;
+      }
+      if (this.picked.indexOf(ps[i].id) >= 0) {
+        if (again === '') {
+          again = ps[i].reply;
+        }
+        continue;
+      }
+      const np: string[] = this.picked.slice();
+      np.push(ps[i].id);
+      this.picked = np;
+      const nn: string[] = this.pickedNames.slice();
+      nn.push(ps[i].name);
+      this.pickedNames = nn;
+      this.setFocus(z, '');
+      this.dramaTitle = '已收入你的取象清单（第 ' + String(np.length) + ' 处）';
+      this.dramaReply = ps[i].reply;
+      return;
+    }
+    this.setFocus(z, layer);
+    this.dramaTitle = '盘上 ' + z + '（' + layer + '）';
+    this.dramaReply = again !== '' ? again : this.plainZhiReply(z);
   }
 
   /* 关卡名字与引导都写在数据里 —— 不同案子的关卡本就该有不同名字（要素圈／时线／…）*/
@@ -724,6 +777,8 @@ export struct StoryPlay {
     this.dramaConclusion = '';
     this.dramaAncient = '';
     this.dramaRevealed = false;
+    this.picked = [];
+    this.pickedNames = [];
   }
 
   private endingOf(ask: StoryAsk): string {
@@ -1586,7 +1641,7 @@ export struct StoryPlay {
   /* 要素圈：盘面上方 —— 玩家自己挑从哪一处切进去（不告诉他哪条是对的）*/
   @Builder
   dramaBar() {
-    if (this.curDrama()) {
+    if (this.curDrama() && !this.isFree()) {
       Column({ space: 6 }) {
         Text(this.dramaName())
           .fontSize($r('app.float.font_caption_m'))
@@ -1693,7 +1748,43 @@ export struct StoryPlay {
           .backgroundColor($r('app.color.ink_surface'))
         }
 
-        if (!this.dramaRevealed) {
+        if (this.isFree() && this.pickedNames.length > 0) {
+          Column({ space: 4 }) {
+            Text('你的取象清单（' + String(this.pickedNames.length) + ' 处）')
+              .fontSize($r('app.float.font_caption_m'))
+              .fontColor($r('app.color.ink_text_muted'))
+              .width('100%')
+            ForEach(this.pickedNames, (s2: string, i2: number) => {
+              Text('· ' + s2)
+                .fontSize($r('app.float.font_caption_l'))
+                .fontColor($r('app.color.ink_text_secondary'))
+                .width('100%')
+            }, (s2: string, i2: number) => s2 + '#' + String(i2))
+          }
+          .width('100%')
+          .padding(10)
+          .borderRadius(10)
+          .backgroundColor($r('app.color.ink_surface'))
+        }
+
+        if (this.isFree() && !this.dramaRevealed) {
+          Row() {
+            Text('看取象小结')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.ink_page'))
+              .backgroundColor($r('app.color.accent_gold_fill'))
+              .borderRadius(12)
+              .padding({ left: 16, right: 16, top: 9, bottom: 9 })
+              .onClick(() => {
+                this.dramaRevealed = true;
+                this.clearFocus();
+              })
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.Center)
+        }
+
+        if (!this.dramaRevealed && !this.isFree()) {
           Row() {
             Text(this.canSubmit() ? '呈上断语' : '推断链还没连成（继续找）')
               .fontSize($r('app.float.font_body_m'))
@@ -1709,7 +1800,30 @@ export struct StoryPlay {
           .justifyContent(FlexAlign.Center)
         }
 
-        if (this.dramaRevealed) {
+        if (this.dramaRevealed && this.isFree()) {
+          Column({ space: 8 }) {
+            Text('取象小结')
+              .fontSize($r('app.float.font_body_m'))
+              .fontColor($r('app.color.brand_gold_bright'))
+              .width('100%')
+            Text(this.cleanHint(this.endingOf(this.curAsk() as StoryAsk)))
+              .fontSize($r('app.float.fs_caption'))
+              .fontColor($r('app.color.ink_text_bright'))
+              .lineHeight(20)
+              .width('100%')
+            Text('同课异占没有古籍原断 —— 你取到的都是象，不是断语。')
+              .fontSize($r('app.float.font_caption_m'))
+              .fontColor($r('app.color.ink_text_muted'))
+              .width('100%')
+          }
+          .width('100%')
+          .padding(12)
+          .borderRadius(12)
+          .backgroundColor($r('app.color.ink_surface'))
+          .border({ width: 1, color: $r('app.color.brand_gold') })
+        }
+
+        if (this.dramaRevealed && !this.isFree()) {
           Column({ space: 8 }) {
             Text(this.dramaConclusion === this.dramaAncient ? '你走的正是古人的路' : '你走的路')
               .fontSize($r('app.float.font_body_m'))
