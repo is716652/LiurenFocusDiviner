@@ -34,6 +34,11 @@ const cases = JSON.parse(fs.readFileSync(path.join(RB, 'ancient', 'case_gallery.
 const byId = {};
 for (const c of cases) byId[c.id] = c;
 
+/* 上架白名单（发布策略数据）：列在这里的案才是玩家真能打开的 —— 其异占支线必须已做成「自由取象」 */
+const featuredDoc = JSON.parse(fs.readFileSync(path.join(RB, 'ancient', 'story_featured.json'), 'utf-8'));
+const featured = {};
+for (const fid of (featuredDoc.stories || [])) featured[fid] = 1;
+
 let fail = 0;
 let anchorsChecked = 0;
 const bad = (name, extra) => { fail++; console.log('FAIL:', name, extra === undefined ? '' : extra); };
@@ -73,6 +78,9 @@ function checkDrama(a, tag, anchorOk, addBad) {
   const dtag = tag + ' / drama';
   const badD = (name, extra) => { bad(dtag + ' ' + name, extra); addBad(); };
   if (!d.kind || !d.name || !d.intro) badD('kind/name/intro');
+  /* 同课异占没有古籍原断 —— 一旦挂上玩法，就只能是「自由取象」：
+     只给象义、不设路径、不给结论。做成关卡式＝替古人说话（编一条"正确路径"）。 */
+  if (a.role === 'derived' && d.kind !== 'free-pick') badD('同课异占只能是「自由取象」', d.kind);
   if (d.kind === 'free-pick' && a.role !== 'derived') badD('free-pick 只用于 derived 支线');
 
   if (d.kind === 'free-pick') {
@@ -219,6 +227,13 @@ for (const [caseId, story] of Object.entries(storyDoc.stories || {})) {
        入口／路径步骤／可取之象的锚点与 clues 同一套语义，必须现场复算命中；
        玩法规格把关卡式与 free-pick 分开：「自由取象」不许有路径与结论。 */
     checkDrama(a, tag, anchorOk, () => { storyBad++; });
+
+    /* 白名单案的异占支线必须**已经**挂上「自由取象」——
+       否则玩家点进去看到的是给结论的旧玩法，与"异占不给结论"的口径直接冲突。
+       （其余 36 条底稿尚未逐案重做，不在此强制；一旦接入白名单就必须补上。）*/
+    if (featured[caseId] && a.role === 'derived' && !a.drama) {
+      bad(tag + ' 白名单案的异占支线必须挂「自由取象」'); storyBad++;
+    }
 
     const texts = [a.intro, a.question, (a.clues || []).map((x) => x.label + ' ' + x.small + ' ' + x.hint).join(' '), (a.goodWords || []).join(' '), end.text || '', end.note || ''].join(' ');
     if (PAID.test(texts)) { bad(tag + ' 出现付费/解锁字样'); storyBad++; }
