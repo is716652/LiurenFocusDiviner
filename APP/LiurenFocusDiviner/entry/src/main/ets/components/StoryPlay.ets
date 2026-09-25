@@ -524,6 +524,20 @@ export struct StoryPlay {
     return ask.drama;
   }
 
+  /* 关卡名字与引导都写在数据里 —— 不同案子的关卡本就该有不同名字（要素圈／时线／…）*/
+  private dramaName(): string {
+    const d = this.curDrama();
+    return d ? d.name : '';
+  }
+
+  private dramaIntro(): string {
+    const d = this.curDrama();
+    if (!d || !d.intro) {
+      return '';
+    }
+    return d.intro;
+  }
+
   /* 可见入口：数据层已保证"二级入口只在被某条路径用到时才存在"，故直接全给 */
   private dramaEntries(lv: number): DramaEntry[] {
     const d = this.curDrama();
@@ -1574,10 +1588,17 @@ export struct StoryPlay {
   dramaBar() {
     if (this.curDrama()) {
       Column({ space: 6 }) {
-        Text('要素圈 · 从哪一处切进去？')
+        Text(this.dramaName())
           .fontSize($r('app.float.font_caption_m'))
           .fontColor($r('app.color.ink_text_muted'))
           .width('100%')
+        if (this.dramaIntro() !== '') {
+          Text(this.cleanHint(this.dramaIntro()))
+            .fontSize($r('app.float.font_caption_m'))
+            .fontColor($r('app.color.ink_text_secondary'))
+            .lineHeight(18)
+            .width('100%')
+        }
         Flex({ wrap: FlexWrap.Wrap }) {
           ForEach(this.dramaEntries(1), (e: DramaEntry) => {
             Text(e.name)
