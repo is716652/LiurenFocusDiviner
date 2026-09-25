@@ -31,23 +31,26 @@ if (argv[0] === '--list') {
   const id = argv[1];
   const st = j.stories[id];
   if (!st) {
-    console.log('!! 无此案: %s', id);
+    console.log('!! 无此案: ' + id);
     process.exit(1);
   }
-  console.log('【%s】', id);
+  console.log('【' + id + '】');
   for (const a of st.asks) {
     const d = a.drama;
     if (!d) {
-      console.log('   支线 %-10s 无 drama（走旧玩法 clues %d 条）', a.id, (a.clues || []).length);
+      console.log('   支线 ' + String(a.id).padEnd(10) + ' 无 drama（走旧玩法 clues ' + (a.clues || []).length + ' 条）');
       continue;
     }
     const L1 = (d.entries || []).filter((e) => e.level === 1).length;
     const L2 = (d.entries || []).filter((e) => e.level === 2).length;
     const steps = (d.routes || []).reduce((s, r) => s + (r.steps || []).length, 0);
-    console.log('   支线 %-10s kind=%s ｜ 入口 %d（一级 %d／二级 %d）｜ 路径 %d ｜ 步数 %d',
-      a.id, d.kind, (d.entries || []).length, L1, L2, (d.routes || []).length, steps);
+    console.log('   支线 ' + String(a.id).padEnd(10) + ' kind=' + d.kind
+      + ' ｜ 入口 ' + (d.entries || []).length + '（一级 ' + L1 + '／二级 ' + L2 + '）'
+      + ' ｜ 路径 ' + (d.routes || []).length + ' ｜ 步数 ' + steps
+      + ' ｜ 可取之象 ' + (d.picks || []).length);
     for (const r of (d.routes || [])) {
-      console.log('        · %-16s %-10s %d 步', r.id, r.kind, (r.steps || []).length);
+      console.log('        · ' + String(r.id).padEnd(16) + ' ' + String(r.kind).padEnd(10)
+        + ' ' + (r.steps || []).length + ' 步');
     }
   }
   process.exit(0);

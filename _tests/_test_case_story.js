@@ -65,6 +65,69 @@ function copiesOriginal(hint, original, width) {
   return '';
 }
 
+/* 剧情演绎（drama）校验：关卡式与 free-pick 两套规格分别把关。
+   anchorOk 由调用方传入（它闭包在该案的复算盘面上）。 */
+function checkDrama(a, tag, anchorOk, addBad) {
+  const d = a.drama;
+  if (!d) return;
+  const dtag = tag + ' / drama';
+  const badD = (name, extra) => { bad(dtag + ' ' + name, extra); addBad(); };
+  if (!d.kind || !d.name || !d.intro) badD('kind/name/intro');
+  if (d.kind === 'free-pick' && a.role !== 'derived') badD('free-pick 只用于 derived 支线');
+
+  if (d.kind === 'free-pick') {
+    /* 自由取象：只有一份「可取之象」，不许有路径、结论、对错 */
+    if (!d.note) badD('必写 note（非古籍原断口径）');
+    if ((d.entries || []).length || (d.routes || []).length) badD('不得有 entries/routes');
+    const pk = d.picks || [];
+    if (pk.length < 3) badD('picks ≥3', String(pk.length));
+    const pids = {};
+    const refs = {};
+    for (const p of pk) {
+      if (!p || !p.id || pids[p.id]) { badD('pick.id 唯一非空'); continue; }
+      pids[p.id] = 1;
+      if (!p.name || !p.reply) badD('pick.name/reply', p.id);
+      anchorsChecked++;
+      if (!anchorOk(p.anchor)) badD('pick 锚点落到复算盘面', p.id + ' ' + JSON.stringify(p.anchor));
+      const rk = JSON.stringify(p.anchor);
+      if (refs[rk] !== undefined) badD('pick 锚点重复', p.id + ' = ' + refs[rk]);
+      refs[rk] = p.id;
+    }
+    const ptxt = pk.map((x) => (x.name || '') + ' ' + (x.reply || '')).join(' ') + ' ' + (d.intro || '') + ' ' + (d.note || '');
+    if (PAID.test(ptxt)) badD('出现付费/解锁字样');
+    if (VERDICT.test(ptxt)) badD('出现承诺式断语', (VERDICT.exec(ptxt) || [])[0]);
+  } else {
+    if (!(d.entries || []).length) badD('关卡式需 entries');
+    if (!(d.routes || []).length) badD('关卡式需 routes');
+    const eids = {};
+    for (const e of (d.entries || [])) {
+      if (!e || !e.id || eids[e.id]) { badD('entry.id 唯一非空'); continue; }
+      eids[e.id] = e.level;
+      if (e.level !== 1 && e.level !== 2) badD('entry.level 取 1/2', e.id);
+      if (!e.name || !e.tag || !e.reply) badD('entry.name/tag/reply', e.id);
+      anchorsChecked++;
+      if (!anchorOk(e.anchor)) badD('entry 锚点落到复算盘面', e.id + ' ' + JSON.stringify(e.anchor));
+    }
+    const used = {};
+    for (const r of (d.routes || [])) {
+      if (!r || !r.id || !r.name || !r.kind || !r.conclusion) { badD('route.id/name/kind/conclusion'); continue; }
+      if (r.kind === '另一解' && !r.note) badD('另一解必写 note（非古人原话）', r.id);
+      if (!Array.isArray(r.steps) || !r.steps.length) badD('route.steps 非空', r.id);
+      for (const s of (r.steps || [])) {
+        if (!s || !s.reply) badD('step.reply', r.id);
+        if (s && s.entry !== undefined) used[s.entry] = 1;
+        anchorsChecked++;
+        if (!anchorOk(s && s.anchor)) badD('step 锚点落到复算盘面', r.id + ' ' + JSON.stringify(s && s.anchor));
+      }
+    }
+    /* 一级入口是玩家默认看得见的 —— 写了就必须真有路径用它（二级入口由数据层保证只在被用到时存在）*/
+    for (const e of (d.entries || [])) {
+      if (e && eids[e.id] === 1 && !used[e.id]) badD('一级入口未被任何路径用到', e.id);
+    }
+    if (PAID.test(JSON.stringify(d))) badD('出现付费/解锁字样');
+  }
+}
+
 for (const [caseId, story] of Object.entries(storyDoc.stories || {})) {
   console.log('\n=== story ' + caseId + ' ===');
   const item = byId[caseId];
@@ -83,6 +146,43 @@ for (const [caseId, story] of Object.entries(storyDoc.stories || {})) {
   const jiangAt = (z) => c.jiangMap[LiurenCore.gongOf(c.tp, z)] || '';
   const byZhi = (c.dx.shensha && c.dx.shensha.byZhi) ? c.dx.shensha.byZhi : {};
   const zh = LiurenCore.zhonghuangAnalyze(c, inp.hour);
+
+  /* 单个锚点是否落到复算盘面 —— clues 与 drama（入口／步骤／可取之象）共用同一套语义 */
+  function anchorOk(an) {
+    if (!an || !KINDS[an.kind]) return false;
+    switch (an.kind) {
+      case 'method':
+        return !an.ref || an.ref === c.sanchuan.method;
+      case 'chuan':
+        if (an.pos !== undefined && POS[an.pos] === undefined) return false;
+        return an.pos !== undefined ? chuans[POS[an.pos]] === an.ref : chuans.indexOf(an.ref) >= 0;
+      case 'keg':
+        return kegs.indexOf(an.ref) >= 0;
+      case 'jiang': {
+        const p = String(an.ref || '').split('/');
+        return !!p[1] && jiangAt(p[0]) === p[1];
+      }
+      case 'gong':
+      case 'zhi':
+        return !!ZHI[an.ref];
+      case 'xunkong':
+        return (c.dx.xunkong || []).indexOf(an.ref) >= 0;
+      case 'dayWangShuai':
+        return c.dx.dayWangShuai === an.ref;
+      case 'shensha': {
+        const p = String(an.ref || '').split('/');
+        const list = byZhi[p[0]] || [];
+        return !!p[1] && list.indexOf(p[1]) >= 0;
+      }
+      case 'hour':
+        return an.ref === inp.hour;
+      case 'shiGan':
+        return !!zh && zh.dun.shiGan === an.ref;
+      case 'bianGan':
+        return !!zh && zh.dun.bianGan === an.ref;
+    }
+    return false;
+  }
 
   const askIds = {};
   const roleCount = { original: 0, derived: 0 };
@@ -110,53 +210,15 @@ for (const [caseId, story] of Object.entries(storyDoc.stories || {})) {
       if (!Array.isArray(cl.anchors) || !cl.anchors.length) { bad(ctag + ' anchors 非空'); storyBad++; continue; }
       for (const an of cl.anchors) {
         anchorsChecked++;
-        let good = false;
         if (!an || !KINDS[an.kind]) { bad(ctag + ' anchor.kind 未知', JSON.stringify(an)); storyBad++; continue; }
-        switch (an.kind) {
-          case 'method':
-            good = !an.ref || an.ref === c.sanchuan.method;
-            break;
-          case 'chuan':
-            if (an.pos !== undefined && POS[an.pos] === undefined) { good = false; break; }
-            good = an.pos !== undefined ? chuans[POS[an.pos]] === an.ref : chuans.indexOf(an.ref) >= 0;
-            break;
-          case 'keg':
-            good = kegs.indexOf(an.ref) >= 0;
-            break;
-          case 'jiang': {
-            const p = String(an.ref || '').split('/');
-            good = !!p[1] && jiangAt(p[0]) === p[1];
-            break;
-          }
-          case 'gong':
-          case 'zhi':
-            good = !!ZHI[an.ref];
-            break;
-          case 'xunkong':
-            good = (c.dx.xunkong || []).indexOf(an.ref) >= 0;
-            break;
-          case 'dayWangShuai':
-            good = c.dx.dayWangShuai === an.ref;
-            break;
-          case 'shensha': {
-            const p = String(an.ref || '').split('/');
-            const list = byZhi[p[0]] || [];
-            good = !!p[1] && list.indexOf(p[1]) >= 0;
-            break;
-          }
-          case 'hour':
-            good = an.ref === inp.hour;
-            break;
-          case 'shiGan':
-            good = !!zh && zh.dun.shiGan === an.ref;
-            break;
-          case 'bianGan':
-            good = !!zh && zh.dun.bianGan === an.ref;
-            break;
-        }
-        if (!good) { bad(ctag + ' 锚点落到复算盘面', JSON.stringify(an)); storyBad++; }
+        if (!anchorOk(an)) { bad(ctag + ' 锚点落到复算盘面', JSON.stringify(an)); storyBad++; }
       }
     }
+
+    /* ---- 剧情演绎（drama）校验 ----
+       入口／路径步骤／可取之象的锚点与 clues 同一套语义，必须现场复算命中；
+       玩法规格把关卡式与 free-pick 分开：「自由取象」不许有路径与结论。 */
+    checkDrama(a, tag, anchorOk, () => { storyBad++; });
 
     const texts = [a.intro, a.question, (a.clues || []).map((x) => x.label + ' ' + x.small + ' ' + x.hint).join(' '), (a.goodWords || []).join(' '), end.text || '', end.note || ''].join(' ');
     if (PAID.test(texts)) { bad(tag + ' 出现付费/解锁字样'); storyBad++; }
