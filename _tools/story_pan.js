@@ -115,6 +115,14 @@ for (const id of ids) {
     console.log('   keg         : ref="%s/%s"（第%d课 上/下）', k.x, k.s, n + 1);
   });
   console.log('   hour        : ref="%s"（占时）', i.hour);
+  /* 乘将**全表**：只给三传那三行会诱人凭记忆写别的支 —— 曾因此把「太常乘酉」错写成
+     「太常乘子」。锚点 jiang 的 ref 一律是「天盘支/将」 */
+  const jiangList = [];
+  for (const z of ZHI) {
+    const j = ch.jiangMap[C.gongOf(ch.tp, z)] || '';
+    if (j !== '') jiangList.push(z + '/' + j);
+  }
+  console.log('   jiang       : %s', jiangList.join('  '));
   const zhiWithSha = [];
   for (const z of ZHI) {
     const ss = (ch.dx.shensha && ch.dx.shensha.byZhi && ch.dx.shensha.byZhi[z]) ? ch.dx.shensha.byZhi[z] : [];
