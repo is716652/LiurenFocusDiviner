@@ -170,14 +170,16 @@ for (const c of ouyu.cases) {
 }
 
 /* ---- 7. 免费版剔除名单 ---- */
+/* 逐项对着真源里实际列出的做 —— 名单是数据，不在测试里再抄一份（§9「第二真源过期」）*/
 const sync = fs.readFileSync(path.join(ROOT, '_tools', 'sync_free_edition.py'), 'utf-8');
 const block = /PAID_RAWFILE\s*=\s*\(([\s\S]*?)\)/.exec(sync);
 if (!block) bad('sync_free_edition.py 里找不到 PAID_RAWFILE');
 else {
-  for (const f of ['ancient/case_gallery.json', 'ancient/case_story.json', 'ancient/ouyu_cases.json']) {
+  const listed = (block[1].match(/'([^']+)'/g) || []).map((x) => x.split("'")[1]);
+  for (const f of ['ancient/case_gallery.json', 'ancient/case_story.json', 'ancient/ouyu_cases.json', 'ancient/story_featured.json']) {
     if (block[1].indexOf(f) < 0) bad('免费版剔除名单缺', f);
   }
-  ok('免费版剔除名单含三个收费数据文件');
+  ok('免费版剔除名单含收费数据文件 ' + String(listed.length) + ' 个');
 }
 
 console.log(fail === 0 ? '\nPASS  剧情演绎 App 接入层契约（' + clueTotal + ' 线索 / ' + laneN + ' 通道 / 双案盘面可复算）'

@@ -218,6 +218,37 @@ export struct StoryPlay {
     return out;
   }
 
+  /* 这次点击是否命中该锚点。
+     圆盘分内外两层：外圈给出的是天盘支，内圈给出的是地盘宫名。乘将、神煞、三传这些
+     锚点一律挂在天盘支上 —— 所以内圈点到的宫名不能直接当支用（否则「点地盘寅宫」
+     会读到天盘亥的象）。gong / zhi 两类锚点本就不限层次（数据里两种写法都有），
+     故两层都收；其余锚点只在天地盘重合（伏吟一类）时才认内圈。 */
+  private anchorHit(a: StoryAnchor, z: string, layer: string): boolean {
+    const az: string = this.anchorZhi(a);
+    if (az === '' || az !== z) {
+      return false;
+    }
+    const k: string = a.kind ? a.kind : '';
+    if (k === 'gong' || k === 'zhi') {
+      return true;
+    }
+    if (layer !== '地盘') {
+      return true;
+    }
+    const c = this.chart;
+    const t: string = c ? (c.tp[z] ? c.tp[z] : '') : '';
+    return t === z;
+  }
+
+  private anyAnchorHit(anchors: StoryAnchor[], z: string, layer: string): boolean {
+    for (const a of anchors) {
+      if (this.anchorHit(a, z, layer)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private setFocus(z: string, label: string): void {
     this.focusZhi = z;
     this.focusLabel = label;
@@ -385,55 +416,74 @@ export struct StoryPlay {
      · 关卡式推演（ask 有 drama）：说这一处的象义，攒进推断链，不说对错；
      · 古籍剧情（旧玩法）：命中尚未找到的线索 → 点亮它；
      · 偶遇实盘：命中可见取象通道某一步 → 展开那条通道与那一步。 */
+  /* 点盘／点卡片的统一入口。
+     外圈点到的就是天盘支；内圈点到的是地盘宫名 —— 而锚点里的乘将、神煞、三传都挂在
+     天盘支上。所以内圈点击先按「宫」匹配一次（gong / zhi 类锚点本就认宫名），不中再把
+     这一宫折算成它的上神重试一次：既不会把宫名当成别处的支，也不会点了没反应。 */
   private onPickZhi(z: string, layer: string): void {
-    if (this.mode === 'ouyu') {
-      this.pickOuyuByZhi(z, layer);
+    if (this.dispatchPick(z, layer)) {
       return;
     }
-    if (this.curDrama()) {
-      if (this.isFree()) {
-        this.pickFreeZhi(z, layer);
-      } else {
-        this.pickDramaZhi(z, layer);
+    if (layer === '地盘') {
+      const c = this.chart;
+      const t: string = c ? (c.tp[z] ? c.tp[z] : '') : '';
+      if (t !== '' && t !== z && this.dispatchPick(t, '地盘' + z + '宫之上神')) {
+        return;
       }
-      return;
+    }
+    this.setFocus(z, layer);
+    if (this.mode === 'ouyu') {
+      this.tip = '「' + z + '」上暂无可取之象 —— 换个位置，或换一类再看。';
+    } else if (this.curDrama()) {
+      /* 剧情演绎：不说"没中"，说清这一处是什么 —— 玩家看的是盘，不是答卷 */
+      this.tip = this.plainZhiReply(z);
+    } else {
+      this.tip = '「' + z + '」上暂无可取之象（或该线索已取过）—— 换个位置，或直接点上方的线索。';
+    }
+  }
+
+  /* 分派一次，返回「是否取到了东西」 */
+  private dispatchPick(z: string, layer: string): boolean {
+    if (this.mode === 'ouyu') {
+      return this.pickOuyuByZhi(z, layer);
+    }
+    const d = this.curDrama();
+    if (d) {
+      if (this.isFree()) {
+        return this.pickFreeZhi(z, layer);
+      }
+      return this.pickDramaZhi(z, layer);
     }
     const ask = this.curAsk();
     if (!ask || !ask.clues) {
-      this.setFocus(z, layer);
-      return;
+      return false;
     }
     for (const cl of ask.clues) {
       if (this.found.indexOf(cl.id) >= 0) {
         continue;
       }
-      const zs = this.anchorZhiList(cl.anchors ? cl.anchors : []);
-      if (zs.indexOf(z) >= 0) {
+      if (this.anyAnchorHit(cl.anchors ? cl.anchors : [], z, layer)) {
         /* 记为已得；但**不**展开上方列表（那会让屏幕跳，而用户正在下面看盘）—— 改为就地显示 */
-        if (this.found.indexOf(cl.id) < 0) {
-          const next: string[] = this.found.slice();
-          next.push(cl.id);
-          this.found = next;
-        }
+        const next: string[] = this.found.slice();
+        next.push(cl.id);
+        this.found = next;
         this.setFocus(z, cl.label);
         const at: number = this.clueIndex(cl.id);
         this.setHit('clue', cl.label, '', cl.hint ? cl.hint : '',
           at > 0 ? '在上方线索列表第 ' + String(at) + ' 条' : '');
         this.tip = '';
-        return;
+        return true;
       }
     }
-    this.setFocus(z, layer);
-    this.tip = '「' + z + '」上暂无可取之象（或该线索已取过）—— 换个位置，或直接点上方的线索。';
+    return false;
   }
 
   /* 偶遇：点盘/点三传命中的是「取象链的某一步」—— 展开该通道与该步，并把盘面焦点移过去。
      只遍历**当前场景类型下可见**的通道，保证点到的就是屏幕上看得见的那几条。 */
-  private pickOuyuByZhi(z: string, layer: string): void {
+  private pickOuyuByZhi(z: string, layer: string): boolean {
     const o = this.curOuyu();
     if (!o) {
-      this.setFocus(z, layer);
-      return;
+      return false;
     }
     let fallbackLane: string = '';
     let fallbackStep: number = -1;
@@ -443,8 +493,7 @@ export struct StoryPlay {
         const step: OuyuStep = chain[i];
         /* ArkTS 的类型收窄比 TS 严格：三元结果不能直接当实参，先落到带类型标注的局部变量 */
         const stepAnchors: StoryAnchor[] = step.anchors ? step.anchors : [];
-        const zs: string[] = this.anchorZhiList(stepAnchors);
-        if (zs.indexOf(z) < 0) {
+        if (!this.anyAnchorHit(stepAnchors, z, layer)) {
           continue;
         }
         /* 已展开的那一处先跳过，优先打开"还没看过的那一处"，免得反复点同一支只见同一处 */
@@ -462,7 +511,7 @@ export struct StoryPlay {
           step.hint ? step.hint : '',
           '在上方取象通道「' + l.title + '」第 ' + String(i + 1) + ' 步');
         this.tip = '';
-        return;
+        return true;
       }
     }
     if (fallbackLane !== '') {
@@ -481,14 +530,12 @@ export struct StoryPlay {
             s2.hint ? s2.hint : '',
             '在上方取象通道「' + l2.title + '」第 ' + String(fallbackStep + 1) + ' 步');
           this.tip = '';
-          return;
+          return true;
         }
       }
-      this.setFocus(z, layer);
-      return;
+      return false;
     }
-    this.setFocus(z, layer);
-    this.tip = '「' + z + '」上暂无可取之象 —— 换个位置，或换一类再看。';
+    return false;
   }
 
   private askClues(): StoryClue[] {
@@ -547,12 +594,11 @@ export struct StoryPlay {
   }
 
   /* 点盘：取到一处象就收进清单 —— 不判对错，也不说下一步 */
-  private pickFreeZhi(z: string, layer: string): void {
+  private pickFreeZhi(z: string, layer: string): boolean {
     const ps: DramaPick[] = this.dramaPicks();
     let again: string = '';
     for (let i = 0; i < ps.length; i++) {
-      const za: string = this.anchorZhi(ps[i].anchor);
-      if (za === '' || za !== z) {
+      if (!this.anchorHit(ps[i].anchor, z, layer)) {
         continue;
       }
       if (this.picked.indexOf(ps[i].id) >= 0) {
@@ -570,11 +616,16 @@ export struct StoryPlay {
       this.setFocus(z, '');
       this.dramaTitle = '已收入你的取象清单（第 ' + String(np.length) + ' 处）';
       this.dramaReply = ps[i].reply;
-      return;
+      return true;
     }
-    this.setFocus(z, layer);
-    this.dramaTitle = '盘上 ' + z + '（' + layer + '）';
-    this.dramaReply = again !== '' ? again : this.plainZhiReply(z);
+    if (again !== '') {
+      /* 这一处已经取过了：把它的象义再读一遍，也算"有反应" */
+      this.setFocus(z, '');
+      this.dramaTitle = '盘上 ' + z + '（' + layer + '）';
+      this.dramaReply = again;
+      return true;
+    }
+    return false;
   }
 
   /* 关卡名字与引导都写在数据里 —— 不同案子的关卡本就该有不同名字（要素圈／时线／…）*/
@@ -664,17 +715,15 @@ export struct StoryPlay {
   }
 
   /* 点盘上某处 → 在所有路径的步里找锚点匹配的（找**还没走过**的那一处）*/
-  private pickDramaZhi(z: string, layer: string): void {
+  private pickDramaZhi(z: string, layer: string): boolean {
     const d = this.curDrama();
     if (!d || !d.routes) {
-      this.setFocus(z, layer);
-      return;
+      return false;
     }
     let fallback: string = '';
     for (const r of d.routes) {
       for (let i = 0; i < r.steps.length; i++) {
-        const za: string = this.anchorZhi(r.steps[i].anchor);
-        if (za === '' || za !== z) {
+        if (!this.anchorHit(r.steps[i].anchor, z, layer)) {
           continue;
         }
         if (this.walked(r.id, i)) {
@@ -684,12 +733,17 @@ export struct StoryPlay {
           continue;
         }
         this.enterStep(r, i, z);
-        return;
+        return true;
       }
     }
-    this.setFocus(z, layer);
-    this.dramaTitle = '盘上 ' + z + '（' + layer + '）';
-    this.dramaReply = fallback !== '' ? fallback : this.plainZhiReply(z);
+    if (fallback !== '') {
+      /* 这一处已经走过：把它的象义再读一遍，也算"有反应" */
+      this.setFocus(z, '');
+      this.dramaTitle = '盘上 ' + z + '（' + layer + '）';
+      this.dramaReply = fallback;
+      return true;
+    }
+    return false;
   }
 
   /* 点要素圈的入口 → 取该入口下"还没走过"的那一步 */
