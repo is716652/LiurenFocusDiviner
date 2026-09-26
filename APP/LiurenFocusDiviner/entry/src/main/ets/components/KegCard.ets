@@ -1,6 +1,10 @@
 /**
  * KegCard —— 四课单卡
- * kn=课序；shang=上神（大）；xia=下神（次）；jiang=天将（小）
+ * kn=课序；shang=上神；xia=下神；jiang=天将（小）
+ * **上神与下神等大、等重**（2026-09-26 用户反馈）：原为 shang=30（硬编码）、xia=splash_sub(15)，
+ * 相差一倍，看上去"上神是主要的、下神是次要的"—— 四课的上下神是同一课的两端，不该有主次。
+ * 现两者同用 fs_title（24fp，与三传干支同字号）、字重同为 Bold，只以**颜色**别天地：
+ * 金 = 上神（天盘），铜绿 = 下神（与 Web 原型 `.keg .xia` 同色）。
  * 四张课卡**外观统一**（2026-09-18 去掉第一课的特殊标记，理由同 ChuanCard）
  */
 @Component
@@ -24,12 +28,13 @@ export struct KegCard {
         .fontWeight(this.highlight ? FontWeight.Bold : FontWeight.Normal)
         .letterSpacing(1)
       Text(this.shang)
-        .fontSize(30)
+        .fontSize($r('app.float.fs_title'))
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.brand_gold_bright'))
       Text(this.xia)
-        .fontSize($r('app.float.splash_sub'))
-        .fontColor($r('app.color.ink_text_muted'))
+        .fontSize($r('app.float.fs_title'))
+        .fontWeight(FontWeight.Bold)
+        .fontColor($r('app.color.brand_verdigris'))
       Divider()
         .color($r('app.color.overlay_gold_weak'))
         .width(24)
