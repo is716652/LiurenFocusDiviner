@@ -44,15 +44,21 @@ export struct ChuanCard {
         .fontColor($r('app.color.brand_gold_deep'))
         .width(48)
         .textAlign(TextAlign.Center)
-      /* 神煞 */
-      Text(this.mark)
-        .fontSize($r('app.float.font_caption_m'))
-        .fontColor($r('app.color.ink_on_deep_text'))
-        .backgroundColor($r('app.color.state_warn'))
-        .borderRadius(7)
-        .padding({ left: 5, right: 5, top: 1, bottom: 1 })
-        .width(38)
-        .textAlign(TextAlign.Center)
+      /* 神煞：**只在真有标记时**才出现 —— 原先是无条件画一个色块，于是非旬空的传也顶着一个
+         空红块，看上去像在指示"这一传空亡、没有天干"（用户 2026-09-26 反馈）。
+         并且**只用字色、不用底色**：列距窄，色块看上去像一条分隔线。
+         外层 Column 固定宽，保证三行仍然对齐（空的时候只是留白，不是不留位）。 */
+      Column() {
+        if (this.mark !== '') {
+          Text(this.mark)
+            .fontSize($r('app.float.font_caption_m'))
+            /* 用 brand_cinnabar 而不是 state_warn：后者是**底色**令牌（配浅字用），
+               直接当字色时浅主题只有约 3.3:1；cinnabar 本就是双主题的文字色 */
+            .fontColor($r('app.color.brand_cinnabar'))
+        }
+      }
+      .width(38)
+      .alignItems(HorizontalAlign.Center)
       /* 天干（遁干） */
       Text(this.ganOf())
         .fontSize($r('app.float.font_title_s'))
