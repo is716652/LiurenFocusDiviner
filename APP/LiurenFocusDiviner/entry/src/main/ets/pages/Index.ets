@@ -59,8 +59,6 @@ interface ChuanRow {
   jiang: string;
   lq: string;
   color: ResourceColor;
-  /* 小标注：空亡传支标「空」（1–2 字） */
-  mark: string;
 }
 
 /* 四课展示行（倒序渲染：右起第一课） */
@@ -874,9 +872,9 @@ struct Index {
       const jiang = this.jiangOf(z);
       const lq = this.liuqinOf(z);
       const color: ResourceColor = (LiurenCore.JIANG_JX[jiang] === '吉') ? $r('app.color.brand_gold') : $r('app.color.brand_cinnabar');
-      /* 空亡传支标「空」：旬遁下该支本旬无干，gz 只余地支，此处补上标记 */
-      const mark = (c.dx.xunkong.indexOf(z) >= 0) ? '空' : '';
-      out.push({ pos: posNames[i], gz: chuans[i].gz, jiang: jiang, lq: lq, color: color, mark: mark });
+      /* 旬空之传无遁干，gz 只余地支 —— 天干列自然留白即可，
+         不再另标「空」字（用户 2026-09-26：神将已在地支下方，不必再占一列）*/
+      out.push({ pos: posNames[i], gz: chuans[i].gz, jiang: jiang, lq: lq, color: color });
     }
     return out;
   }
@@ -1244,14 +1242,11 @@ struct Index {
            与四课「倒序渲染 右起第一课」同一口径 */
         Column({ space: 6 }) {
           ChuanCard({ pos: this.chuanRows()[2].pos, gz: this.chuanRows()[2].gz,
-            jiang: this.chuanRows()[2].jiang, lq: this.chuanRows()[2].lq, color: this.chuanRows()[2].color,
-            mark: this.chuanRows()[2].mark })
+            jiang: this.chuanRows()[2].jiang, lq: this.chuanRows()[2].lq, color: this.chuanRows()[2].color })
           ChuanCard({ pos: this.chuanRows()[1].pos, gz: this.chuanRows()[1].gz,
-            jiang: this.chuanRows()[1].jiang, lq: this.chuanRows()[1].lq, color: this.chuanRows()[1].color,
-            mark: this.chuanRows()[1].mark })
+            jiang: this.chuanRows()[1].jiang, lq: this.chuanRows()[1].lq, color: this.chuanRows()[1].color })
           ChuanCard({ pos: this.chuanRows()[0].pos, gz: this.chuanRows()[0].gz,
-            jiang: this.chuanRows()[0].jiang, lq: this.chuanRows()[0].lq, color: this.chuanRows()[0].color,
-            mark: this.chuanRows()[0].mark })
+            jiang: this.chuanRows()[0].jiang, lq: this.chuanRows()[0].lq, color: this.chuanRows()[0].color })
         }
         .width('100%')
       }

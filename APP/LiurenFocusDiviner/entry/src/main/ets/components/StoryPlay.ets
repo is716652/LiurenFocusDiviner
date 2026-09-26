@@ -34,8 +34,6 @@ interface ChuanRow {
   jiang: string;
   lq: string;
   color: ResourceColor;
-  /* 神煞标记（如「空」）：古法三传行有这一列，与 Index.ets 的 chuanRows 同一口径 */
-  mark: string;
 }
 
 /* 上架白名单**不写在这里**：它落在 rawfile/ancient/story_featured.json。
@@ -331,9 +329,7 @@ export struct StoryPlay {
         gz: ch.sanchuan.chuans[i].gz,
         jiang: jiang,
         lq: this.liuqinOf(ch, z),
-        color: (LiurenCore.JIANG_JX[jiang] === '吉') ? $r('app.color.brand_gold') : $r('app.color.brand_cinnabar'),
-        /* 空亡传支标「空」：旬遁下该支本旬无干，gz 只余地支，此处补上标记（同 Index.ets）*/
-        mark: (ch.dx.xunkong.indexOf(z) >= 0) ? '空' : ''
+        color: (LiurenCore.JIANG_JX[jiang] === '吉') ? $r('app.color.brand_gold') : $r('app.color.brand_cinnabar')
       });
     }
     return out;
@@ -1098,17 +1094,17 @@ export struct StoryPlay {
           Column({ space: 6 }) {
             ChuanCard({ pos: this.chuanRows(this.chart as Chart)[2].pos, gz: this.chuanRows(this.chart as Chart)[2].gz,
               jiang: this.chuanRows(this.chart as Chart)[2].jiang, lq: this.chuanRows(this.chart as Chart)[2].lq,
-              color: this.chuanRows(this.chart as Chart)[2].color, mark: this.chuanRows(this.chart as Chart)[2].mark,
+              color: this.chuanRows(this.chart as Chart)[2].color,
               highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[2].z === this.focusZhi,
               onTap: () => { this.onPickZhi((this.chart as Chart).sanchuan.chuans[2].z, '三传'); } })
             ChuanCard({ pos: this.chuanRows(this.chart as Chart)[1].pos, gz: this.chuanRows(this.chart as Chart)[1].gz,
               jiang: this.chuanRows(this.chart as Chart)[1].jiang, lq: this.chuanRows(this.chart as Chart)[1].lq,
-              color: this.chuanRows(this.chart as Chart)[1].color, mark: this.chuanRows(this.chart as Chart)[1].mark,
+              color: this.chuanRows(this.chart as Chart)[1].color,
               highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[1].z === this.focusZhi,
               onTap: () => { this.onPickZhi((this.chart as Chart).sanchuan.chuans[1].z, '三传'); } })
             ChuanCard({ pos: this.chuanRows(this.chart as Chart)[0].pos, gz: this.chuanRows(this.chart as Chart)[0].gz,
               jiang: this.chuanRows(this.chart as Chart)[0].jiang, lq: this.chuanRows(this.chart as Chart)[0].lq,
-              color: this.chuanRows(this.chart as Chart)[0].color, mark: this.chuanRows(this.chart as Chart)[0].mark,
+              color: this.chuanRows(this.chart as Chart)[0].color,
               highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[0].z === this.focusZhi,
               onTap: () => { this.onPickZhi((this.chart as Chart).sanchuan.chuans[0].z, '三传'); } })
           }

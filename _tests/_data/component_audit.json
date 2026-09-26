@@ -1,5 +1,5 @@
 {
- "生成时间": "2026-09-26T15:35:07.575Z",
+ "生成时间": "2026-09-26T15:43:05.779Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 57,
@@ -12,7 +12,7 @@
  "结论": {
   "B4耦合判定": "脆链接（fragile）：改 JSON 键会**静默改变排盘结果**而无人察觉——4/5 个实验里引擎不报错但输出变了",
   "A组件写死": {
-   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 13 处、注释出处 70 处、_tools 脚本字面量 27 处，均只计数不计失败）",
+   "A1个案标识": "0 处硬项（App 侧；另有展示文案引用书名 26 处、数据路径引用 13 处、注释出处 72 处、_tools 脚本字面量 27 处，均只计数不计失败）",
    "A2按课特判": "0 处（静态）",
    "A2维度敏感性": "日干 500/500，日支 231/231，月将 500/500，占时 500/500",
    "A3盘面事实硬编码": "0 处",
@@ -297,7 +297,7 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 1800,
+     "line": 1795,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "Height(18)\n                .width('100%')\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\n       "
@@ -388,7 +388,7 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 1800,
+     "line": 1795,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "Height(18)\n                .width('100%')\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\n       "
@@ -402,19 +402,19 @@
     }
    ],
    "数据路径引用计数": 13,
-   "注释计数": 70,
+   "注释计数": 72,
    "注释明细": [
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/AncientCaseGallery.ets",
+     "line": 266,
+     "lit": "2026-09-26",
+     "text": "/* 当前断句的关键标注：只有 mark + key=true 的证据允许上三传卡。 **2026-09-26 起三传行不再有标注列**（用户：十二神将已在地支下方作「乘将」，不必"
+    },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/ChuanCard.ets",
      "line": 1,
      "lit": "2026-09-26",
      "text": "/** * ChuanCard —— 三传的**古法一行**（2026-09-26 用户要求：三传要按古法排） * * 古法三传自下而上读：**初传在下、末传在上**，每行自左至右"
-    },
-    {
-     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/ChuanCard.ets",
-     "line": 47,
-     "lit": "2026-09-26",
-     "text": "/* 神煞：**只在真有标记时**才出现 —— 原先是无条件画一个色块，于是非旬空的传也顶着一个 空红块，看上去像在指示\"这一传空亡、没有天干\"（用户 2026-09-26 反馈）"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/DuyuCard.ets",
@@ -592,21 +592,27 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 114,
+     "line": 112,
      "lit": "2026-09-13",
      "text": "/* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片。同一次点击仍照旧取用神，但**不再自动弹出** 「抓用神」半模态（2026-09-13 用户决定 A：半模态会盖住卡片）。"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 284,
+     "line": 282,
      "lit": "管辂",
      "text": "/* 类象库/管辂象意缺失：节点卡与选句兜底为空 */"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 418,
+     "line": 416,
      "lit": "2026-09-20",
      "text": "/* 打开宫情速查卡（§14.4）：引擎出数并装配（LiurenCore.readXiangCard）、卡片呈现。 入参口径（2026-09-20 用户实测 Bug 后订正）：引擎"
+    },
+    {
+     "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
+     "line": 875,
+     "lit": "2026-09-26",
+     "text": "/* 旬空之传无遁干，gz 只余地支 —— 天干列自然留白即可， 不再另标「空」字（用户 2026-09-26：神将已在地支下方，不必再占一列）*/"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Splash.ets",
@@ -615,16 +621,16 @@
      "text": "/* 底部合规链接开关（2026-09-10）：华为已由平台托管隐私政策，用户协议非必填， 故暂不显示「隐私政策 / 用户协议」两个链接入口；页面 pages/Legal/* 与下"
     },
     {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/AncientCaseGallery.ets",
+     "line": 266,
+     "lit": "2026-09-26",
+     "text": "/* 当前断句的关键标注：只有 mark + key=true 的证据允许上三传卡。 **2026-09-26 起三传行不再有标注列**（用户：十二神将已在地支下方作「乘将」，不必"
+    },
+    {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/ChuanCard.ets",
      "line": 1,
      "lit": "2026-09-26",
      "text": "/** * ChuanCard —— 三传的**古法一行**（2026-09-26 用户要求：三传要按古法排） * * 古法三传自下而上读：**初传在下、末传在上**，每行自左至右"
-    },
-    {
-     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/ChuanCard.ets",
-     "line": 47,
-     "lit": "2026-09-26",
-     "text": "/* 神煞：**只在真有标记时**才出现 —— 原先是无条件画一个色块，于是非旬空的传也顶着一个 空红块，看上去像在指示\"这一传空亡、没有天干\"（用户 2026-09-26 反馈）"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/DuyuCard.ets",
@@ -802,21 +808,27 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 114,
+     "line": 112,
      "lit": "2026-09-13",
      "text": "/* 点宫速查卡（§14.4）：点盘上任意一支 → 卡片。同一次点击仍照旧取用神，但**不再自动弹出** 「抓用神」半模态（2026-09-13 用户决定 A：半模态会盖住卡片）。"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 284,
+     "line": 282,
      "lit": "管辂",
      "text": "/* 类象库/管辂象意缺失：节点卡与选句兜底为空 */"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 418,
+     "line": 416,
      "lit": "2026-09-20",
      "text": "/* 打开宫情速查卡（§14.4）：引擎出数并装配（LiurenCore.readXiangCard）、卡片呈现。 入参口径（2026-09-20 用户实测 Bug 后订正）：引擎"
+    },
+    {
+     "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
+     "line": 875,
+     "lit": "2026-09-26",
+     "text": "/* 旬空之传无遁干，gz 只余地支 —— 天干列自然留白即可， 不再另标「空」字（用户 2026-09-26：神将已在地支下方，不必再占一列）*/"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Splash.ets",
@@ -827,7 +839,7 @@
    ]
   },
   "A2静态": {
-   "条件数": 4672,
+   "条件数": 4666,
    "可疑": []
   },
   "A2运行期": {

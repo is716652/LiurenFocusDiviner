@@ -263,7 +263,10 @@ export struct AncientCaseGallery {
     return this.filteredCases().filter((c: AncientCase) => this.groupOf(c) === g);
   }
 
-  /* 当前断句的关键标注：只有 mark + key=true 的证据允许上三传卡 */
+  /* 当前断句的关键标注：只有 mark + key=true 的证据允许上三传卡。
+     **2026-09-26 起三传行不再有标注列**（用户：十二神将已在地支下方作「乘将」，不必再占一列），
+     故本方法当前**没有调用点** —— 保留的理由：旧鉴赏页整体只是"不再挂入口"、组件未删，
+     将来若恢复该页，这条「断句 ↔ 三传」的联动标注还在原处，可直接接回。 */
   private markForZhi(z: string): string {
     const c = this.cur;
     if (!c || !c.reasoning || this.activeClaim === '') {
@@ -690,15 +693,15 @@ export struct AncientCaseGallery {
             Column({ space: 6 }) {
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[2].pos, gz: this.chuanRows(this.chart as Chart)[2].gz,
                 jiang: this.chuanRows(this.chart as Chart)[2].jiang, lq: this.chuanRows(this.chart as Chart)[2].lq,
-                color: this.chuanRows(this.chart as Chart)[2].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[2].z),
+                color: this.chuanRows(this.chart as Chart)[2].color,
                 highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[2].z === this.focusZhi })
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[1].pos, gz: this.chuanRows(this.chart as Chart)[1].gz,
                 jiang: this.chuanRows(this.chart as Chart)[1].jiang, lq: this.chuanRows(this.chart as Chart)[1].lq,
-                color: this.chuanRows(this.chart as Chart)[1].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[1].z),
+                color: this.chuanRows(this.chart as Chart)[1].color,
                 highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[1].z === this.focusZhi })
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[0].pos, gz: this.chuanRows(this.chart as Chart)[0].gz,
                 jiang: this.chuanRows(this.chart as Chart)[0].jiang, lq: this.chuanRows(this.chart as Chart)[0].lq,
-                color: this.chuanRows(this.chart as Chart)[0].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[0].z),
+                color: this.chuanRows(this.chart as Chart)[0].color,
                 highlight: this.focusZhi === '' || (this.chart as Chart).sanchuan.chuans[0].z === this.focusZhi })
             }
             .width('100%')
