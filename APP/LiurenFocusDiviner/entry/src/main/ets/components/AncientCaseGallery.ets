@@ -686,22 +686,20 @@ export struct AncientCaseGallery {
                 .fontColor($r('app.color.ink_text_paper_muted'))
             }
             .width('100%')
-            Row({ space: 8 }) {
-              ChuanCard({ pos: this.chuanRows(this.chart as Chart)[0].pos, gz: this.chuanRows(this.chart as Chart)[0].gz,
-                jiang: this.chuanRows(this.chart as Chart)[0].jiang, lq: this.chuanRows(this.chart as Chart)[0].lq,
-                color: this.chuanRows(this.chart as Chart)[0].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[0].z),
-                highlight: this.focusZhi === '' || (this.chart as Chart).sanchuan.chuans[0].z === this.focusZhi })
-                .layoutWeight(1)
-              ChuanCard({ pos: this.chuanRows(this.chart as Chart)[1].pos, gz: this.chuanRows(this.chart as Chart)[1].gz,
-                jiang: this.chuanRows(this.chart as Chart)[1].jiang, lq: this.chuanRows(this.chart as Chart)[1].lq,
-                color: this.chuanRows(this.chart as Chart)[1].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[1].z),
-                highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[1].z === this.focusZhi })
-                .layoutWeight(1)
+            /* 三传：古法**竖排**三行，自下而上 初传→中传→末传（按 [末,中,初] 倒序渲染）*/
+            Column({ space: 6 }) {
               ChuanCard({ pos: this.chuanRows(this.chart as Chart)[2].pos, gz: this.chuanRows(this.chart as Chart)[2].gz,
                 jiang: this.chuanRows(this.chart as Chart)[2].jiang, lq: this.chuanRows(this.chart as Chart)[2].lq,
                 color: this.chuanRows(this.chart as Chart)[2].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[2].z),
                 highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[2].z === this.focusZhi })
-                .layoutWeight(1)
+              ChuanCard({ pos: this.chuanRows(this.chart as Chart)[1].pos, gz: this.chuanRows(this.chart as Chart)[1].gz,
+                jiang: this.chuanRows(this.chart as Chart)[1].jiang, lq: this.chuanRows(this.chart as Chart)[1].lq,
+                color: this.chuanRows(this.chart as Chart)[1].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[1].z),
+                highlight: this.focusZhi !== '' && (this.chart as Chart).sanchuan.chuans[1].z === this.focusZhi })
+              ChuanCard({ pos: this.chuanRows(this.chart as Chart)[0].pos, gz: this.chuanRows(this.chart as Chart)[0].gz,
+                jiang: this.chuanRows(this.chart as Chart)[0].jiang, lq: this.chuanRows(this.chart as Chart)[0].lq,
+                color: this.chuanRows(this.chart as Chart)[0].color, mark: this.markForZhi((this.chart as Chart).sanchuan.chuans[0].z),
+                highlight: this.focusZhi === '' || (this.chart as Chart).sanchuan.chuans[0].z === this.focusZhi })
             }
             .width('100%')
           }

@@ -1240,19 +1240,18 @@ struct Index {
             .fontColor($r('app.color.ink_text_secondary'))
         }
         .width('100%')
-        Row({ space: 8 }) {
-          ChuanCard({ pos: this.chuanRows()[0].pos, gz: this.chuanRows()[0].gz,
-            jiang: this.chuanRows()[0].jiang, lq: this.chuanRows()[0].lq, color: this.chuanRows()[0].color,
-            mark: this.chuanRows()[0].mark })
-            .layoutWeight(1)
-          ChuanCard({ pos: this.chuanRows()[1].pos, gz: this.chuanRows()[1].gz,
-            jiang: this.chuanRows()[1].jiang, lq: this.chuanRows()[1].lq, color: this.chuanRows()[1].color,
-            mark: this.chuanRows()[1].mark })
-            .layoutWeight(1)
+        /* 三传：古法**竖排**三行，自下而上 初传→中传→末传，故按 [末,中,初] 倒序渲染 ——
+           与四课「倒序渲染 右起第一课」同一口径 */
+        Column({ space: 6 }) {
           ChuanCard({ pos: this.chuanRows()[2].pos, gz: this.chuanRows()[2].gz,
             jiang: this.chuanRows()[2].jiang, lq: this.chuanRows()[2].lq, color: this.chuanRows()[2].color,
             mark: this.chuanRows()[2].mark })
-            .layoutWeight(1)
+          ChuanCard({ pos: this.chuanRows()[1].pos, gz: this.chuanRows()[1].gz,
+            jiang: this.chuanRows()[1].jiang, lq: this.chuanRows()[1].lq, color: this.chuanRows()[1].color,
+            mark: this.chuanRows()[1].mark })
+          ChuanCard({ pos: this.chuanRows()[0].pos, gz: this.chuanRows()[0].gz,
+            jiang: this.chuanRows()[0].jiang, lq: this.chuanRows()[0].lq, color: this.chuanRows()[0].color,
+            mark: this.chuanRows()[0].mark })
         }
         .width('100%')
       }

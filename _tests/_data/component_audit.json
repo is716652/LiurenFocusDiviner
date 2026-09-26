@@ -1,5 +1,5 @@
 {
- "生成时间": "2026-09-25T13:58:55.108Z",
+ "生成时间": "2026-09-26T15:18:48.399Z",
  "脚本": "_tests/_test_component_audit.js",
  "扫描面": {
   ".ets（主版）": 57,
@@ -297,7 +297,7 @@
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/pages/Index.ets",
-     "line": 1801,
+     "line": 1800,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "Height(18)\n                .width('100%')\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\n       "
@@ -388,7 +388,7 @@
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/pages/Index.ets",
-     "line": 1801,
+     "line": 1800,
      "what": "展示文案引用书名",
      "lit": "六壬大全",
      "ctx": "Height(18)\n                .width('100%')\n              Text('注：行年起法依《六壬大全》本命起数；《集要》另法存疑未采')\n       "
@@ -407,8 +407,8 @@
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/ChuanCard.ets",
      "line": 1,
-     "lit": "2026-09-18",
-     "text": "/** * ChuanCard —— 三传单卡 * pos=初/中/末；gz=遁干+地支；jiang=天将；lq=六亲；color=主色 * 四张三传卡**外观统一**（2026-"
+     "lit": "2026-09-26",
+     "text": "/** * ChuanCard —— 三传的**古法一行**（2026-09-26 用户要求：三传要按古法排） * * 古法三传自下而上读：**初传在下、末传在上**，每行自左至右"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/DuyuCard.ets",
@@ -449,12 +449,12 @@
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/KegCard.ets",
      "line": 1,
-     "lit": "2026-09-18",
-     "text": "/** * KegCard —— 四课单卡 * kn=课序；shang=上神（大）；xia=下神（次）；jiang=天将（小） * 四张课卡**外观统一**（2026-09-18 "
+     "lit": "2026-09-26",
+     "text": "/** * KegCard —— 四课单卡 * kn=课序；shang=上神；xia=下神；jiang=天将（小） * **上神与下神等大、等重**（2026-09-26 用户反馈"
     },
     {
      "file": "APP/LiurenFocusDiviner/entry/src/main/ets/components/KegCard.ets",
-     "line": 12,
+     "line": 16,
      "lit": "2026-09-18",
      "text": "/* 交互高亮：案卷页点用神时高亮对应课（2026-09-18 起不再换底色）—— 原先的「金色淡底」会把凶将朱砂文字压到 3.1:1，只保留标题加粗与加粗金边这两个提示。 */"
     },
@@ -611,8 +611,8 @@
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/ChuanCard.ets",
      "line": 1,
-     "lit": "2026-09-18",
-     "text": "/** * ChuanCard —— 三传单卡 * pos=初/中/末；gz=遁干+地支；jiang=天将；lq=六亲；color=主色 * 四张三传卡**外观统一**（2026-"
+     "lit": "2026-09-26",
+     "text": "/** * ChuanCard —— 三传的**古法一行**（2026-09-26 用户要求：三传要按古法排） * * 古法三传自下而上读：**初传在下、末传在上**，每行自左至右"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/DuyuCard.ets",
@@ -653,12 +653,12 @@
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/KegCard.ets",
      "line": 1,
-     "lit": "2026-09-18",
-     "text": "/** * KegCard —— 四课单卡 * kn=课序；shang=上神（大）；xia=下神（次）；jiang=天将（小） * 四张课卡**外观统一**（2026-09-18 "
+     "lit": "2026-09-26",
+     "text": "/** * KegCard —— 四课单卡 * kn=课序；shang=上神；xia=下神；jiang=天将（小） * **上神与下神等大、等重**（2026-09-26 用户反馈"
     },
     {
      "file": "APP/LiurenFocusDivinerFree/entry/src/main/ets/components/KegCard.ets",
-     "line": 12,
+     "line": 16,
      "lit": "2026-09-18",
      "text": "/* 交互高亮：案卷页点用神时高亮对应课（2026-09-18 起不再换底色）—— 原先的「金色淡底」会把凶将朱砂文字压到 3.1:1，只保留标题加粗与加粗金边这两个提示。 */"
     },
@@ -815,7 +815,7 @@
    ]
   },
   "A2静态": {
-   "条件数": 4662,
+   "条件数": 4670,
    "可疑": []
   },
   "A2运行期": {

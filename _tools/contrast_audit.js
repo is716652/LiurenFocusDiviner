@@ -192,6 +192,10 @@ function bgExprsAt(lines, from, indent) {
   for (let j = from; j < lines.length; j++) {
     const l = lines[j];
     if (l.trim() === '') continue;
+    /* 注释行**不打断**修饰符链（2026-09-26 修）：原遇注释即 break，链上注释之后的
+       backgroundColor 会被整段跳过 —— 底色随之推错或推不出，站点**静默失去覆盖**。
+       实证：ChuanCard 三传行 `.justifyContent` 上方的一句注释，让它读不到 `ink_surface`。*/
+    if (l.trim().startsWith('/*') || l.trim().startsWith('//')) continue;
     const ind = indentOf(l);
     if (ind < indent) break;
     if (ind > indent) continue;
@@ -217,6 +221,8 @@ function sameElementBgExprs(lines, i, textIndent) {
   for (let j = i + 1; j < lines.length; j++) {
     const l = lines[j];
     if (l.trim() === '') continue;
+    /* 同 bgExprsAt：注释不打断修饰符链 */
+    if (l.trim().startsWith('/*') || l.trim().startsWith('//')) continue;
     if (indentOf(l) !== textIndent) break;
     if (!l.trim().startsWith('.')) break;
     const mb = l.match(/\.backgroundColor\((.*)\)\s*$/);
